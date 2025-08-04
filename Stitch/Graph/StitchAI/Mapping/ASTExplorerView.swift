@@ -85,11 +85,15 @@ struct ASTExplorerView: View {
     
     /// Controls whether regenerated code uses PortValueDescription format
     @State private var usePortValueDescription: Bool = false
+    
+    /// Controls whether to generate raw view code or full SwiftUI file with ContentView wrapper
+    @State private var ignoreScript: Bool = true
 
     init(
-        initialVisibleStages: Set<Stage> = Set(Stage.allCases)
+//        initialVisibleStages: Set<Stage> = Set(Stage.allCases)
 //        initialVisibleStages: Set<Stage> = Set([.originalCode, .parsedSyntax, .derivedActions])
 //        initialVisibleStages: Set<Stage> = Set([.originalCode, .parsedSyntax, .derivedActions, .rebuiltSyntax])
+        initialVisibleStages: Set<Stage> = Set([.originalCode, .derivedActions, .regeneratedCode])
     ) {
         _visibleStages = State(initialValue: initialVisibleStages)
     }
@@ -122,6 +126,10 @@ struct ASTExplorerView: View {
                 Toggle("Use PortValueDescription", isOn: $usePortValueDescription)
                     .toggleStyle(.switch)
                     .onChange(of: usePortValueDescription) { _, _ in transform() }
+                
+                Toggle("Ignore Script Wrapper", isOn: $ignoreScript)
+                    .toggleStyle(.switch)
+                    .onChange(of: ignoreScript) { _, _ in transform() }
             }
 
             TabView(selection: $selectedTab) {
@@ -287,7 +295,8 @@ struct ASTExplorerView: View {
                 try layerDataToStrictSyntaxView(layerData, idMap: &idMap)
             } ?? []
             
-            let newSwiftUICode = try fakeDoc.graph.createSwiftUICode()
+            // Generate SwiftUI code with configurable script wrapper
+            let newSwiftUICode = try fakeDoc.graph.createSwiftUICode(ignoreScript: ignoreScript)
             self.regeneratedCode = newSwiftUICode
             
             // Also maintain derivedConstructors for compatibility with existing UI

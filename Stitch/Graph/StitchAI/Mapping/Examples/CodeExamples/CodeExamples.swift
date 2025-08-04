@@ -96,6 +96,12 @@ extension MappingExamples {
         PortValueDescriptionCodeExamples.rectangleWithBlurPVD,
         PortValueDescriptionCodeExamples.stackWithPortValueDescriptions,
         
+        // Rotation with PortValueDescription examples
+        RotationModifierCodeExamples.rotationEffectPortValueDescription,
+        RotationModifierCodeExamples.rotation3DEffectPortValueDescription,
+        RotationModifierCodeExamples.rotationEffectPortValueDescriptionVariable,
+        RotationModifierCodeExamples.rotation3DEffectPortValueDescriptionMultiAxis,
+        
         //        // // NOT YET SUPPORTED:
         //        RotationModifierCodeExamples.rotationEffectAnchor,
         //        RotationModifierCodeExamples.rotationEffectRadians,

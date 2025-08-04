@@ -9,7 +9,7 @@ import SwiftUI
 
 extension GraphState {
     @MainActor
-    func createSwiftUICode() throws -> String {
+    func createSwiftUICode(ignoreScript: Bool = false) throws -> String {
         let graphEntity = self.createSchema()
         let aiGraph = try AIGraphData_V0.GraphData(from: graphEntity)
         
@@ -35,6 +35,10 @@ extension GraphState {
             strictSyntaxView.toSwiftUICode()
         }.joined(separator: "\n\n\t\t")
         
+        
+        if ignoreScript {
+            return viewCode
+        }
         
         let script = """
 struct ContentView: some View {

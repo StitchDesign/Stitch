@@ -615,6 +615,14 @@ func makeViewModifierConstructorFromStateRef(from port: LayerInputPort,
         return .offset(OffsetViewModifier(x: stateAccessArg, y: stateAccessArg))
     case .textFont:
         return .font(FontViewModifier(font: stateAccessArg))
+    case .rotationX:
+        // For now, treat rotationX as unsupported  
+        return nil
+    case .rotationY:
+        // For now, treat rotationY as unsupported
+        return nil
+    case .rotationZ:
+        return .rotationEffect(RotationEffectViewModifier(angle: stateAccessArg))
     default:
         // For unsupported ports, don't create a modifier
         return nil
@@ -738,6 +746,10 @@ func renderStrictViewModifier(_ modifier: StrictViewModifier, usePortValueDescri
         return ".fontDesign(\(renderArg(m.design)))"
     case .fontWeight(let m):
         return ".fontWeight(\(renderArg(m.weight)))"
+    case .rotationEffect(let m):
+        return ".rotationEffect(\(renderArg(m.angle)))"
+    case .rotation3DEffect(let m):
+        return ".rotation3DEffect(\(renderArg(m.angle)), axis: (x: 0, y: 0, z: 1))"
     case .layerId(let m):
         return ".layerId(\(renderArg(m.layerId)))"
     }
@@ -1048,6 +1060,15 @@ func renderArgWithoutPortValueDescription(_ arg: SyntaxViewModifierArgumentType)
             }
         }
         
+        // Handle angle functions (.degrees, .radians)
+        if c.typeName == "" && c.arguments.count == 1,
+           let firstArg = c.arguments.first,
+           let label = firstArg.label,
+           (label == "degrees" || label == "radians") {
+            let valueString = renderArgWithoutPortValueDescription(firstArg.value)
+            return ".\(label)(\(valueString))"
+        }
+        
         // Best-effort for other complex types
         let inner = (try? c.arguments.createValuesDict()).map { dict in
             dict.map { "\($0.key): \(renderAnyEncodable($0.value))" }
@@ -1282,8 +1303,13 @@ func makeViewModifierConstructor(from port: LayerInputPort,
         return nil
     case .hueRotation:
         if let number = value.getNumber {
-            let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: ".degrees(\(number))", syntaxKind: .string)
+            let arg = SyntaxViewModifierArgumentType.complex(
+                SyntaxViewModifierComplexType(
+                    typeName: "",
+                    arguments: [
+                        .init(label: "degrees", value: .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .float)))
+                    ]
+                )
             )
             return .hueRotation(HueRotationViewModifier(angle: arg))
         }
@@ -1339,6 +1365,25 @@ func makeViewModifierConstructor(from port: LayerInputPort,
     case .fontSize:
         // FontSize should not create a separate font modifier when textFont exists
         // The textFont case handles both font family/weight and size together
+        return nil
+    case .rotationX:
+        // For now, treat rotationX as unsupported
+        return nil
+    case .rotationY:
+        // For now, treat rotationY as unsupported
+        return nil
+    case .rotationZ:
+        if let number = value.getNumber {
+            let arg = SyntaxViewModifierArgumentType.complex(
+                SyntaxViewModifierComplexType(
+                    typeName: "",
+                    arguments: [
+                        .init(label: "degrees", value: .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .float)))
+                    ]
+                )
+            )
+            return .rotationEffect(RotationEffectViewModifier(angle: arg))
+        }
         return nil
     default:
         return nil
@@ -1489,6 +1534,10 @@ func renderViewModifierConstructor(_ modifier: StrictViewModifier) -> String {
         return ".fontDesign(\(renderArg(m.design)))"
     case .fontWeight(let m):
         return ".fontWeight(\(renderArg(m.weight)))"
+    case .rotationEffect(let m):
+        return ".rotationEffect(\(renderArg(m.angle)))"
+    case .rotation3DEffect(let m):
+        return ".rotation3DEffect(\(renderArg(m.angle)), axis: (x: 0, y: 0, z: 1))"
     case .layerId(let m):
         return ".layerId(\(renderArg(m.layerId)))"
     }
@@ -1645,6 +1694,8 @@ func generateViewModifiersForLayerData(_ layerData: AIGraphData_V0.LayerData, id
         case .font: return .textFont
         case .fontDesign: return .textFont
         case .fontWeight: return .textFont
+        case .rotationEffect: return .rotationZ
+        case .rotation3DEffect: return nil // Multi-port modifier - handled separately
         case .layerId(_): return nil // Nothing to do
         }
     })
@@ -1662,6 +1713,7 @@ func generateViewModifiersForLayerData(_ layerData: AIGraphData_V0.LayerData, id
     
     return stringModifiers
 }
+
 
 // MARK: - Complete SwiftUI Code Generation (Constructor + Modifiers)
 
