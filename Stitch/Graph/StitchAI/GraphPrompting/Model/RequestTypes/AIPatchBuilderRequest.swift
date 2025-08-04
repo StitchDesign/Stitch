@@ -93,18 +93,12 @@ extension CurrentAIGraphData.GraphData {
         switch requestType {
         case .userPrompt:
             // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
-            try self.createAIGraph(viewStatePatchConnections: viewStatePatchConnections,
-                                   graphCenter: document.viewPortCenter,
-                                   highestZIndex: document.visibleGraph.highestZIndex,
-                                   document: document)
+            try self.createAIGraph(document: document)
             
         case .imagePrompt:
             // Image upload-based requests are assumed to provide supplementary graph data, rather than full-on replacements. We create a mock document view model and then use copy-paste logic for support.
             let mockDocumentViewModel = StitchDocumentViewModel.createEmpty()
-            try self.createAIGraph(viewStatePatchConnections: viewStatePatchConnections,
-                                   graphCenter: document.viewPortCenter,
-                                   highestZIndex: document.visibleGraph.highestZIndex,
-                                   document: mockDocumentViewModel)
+            try self.createAIGraph(document: mockDocumentViewModel)
             let graphEntity = mockDocumentViewModel.visibleGraph.createSchema()
             
             document.visibleGraph
@@ -121,11 +115,10 @@ extension CurrentAIGraphData.GraphData {
     }
     
     @MainActor
-    func createAIGraph(viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate],
-                       graphCenter: CGPoint,
-                       highestZIndex: Double,
-                       document: StitchDocumentViewModel) throws {
+    func createAIGraph(document: StitchDocumentViewModel) throws {
         let graph = document.visibleGraph
+        let graphCenter = document.viewPortCenter
+        let highestZIndex = document.visibleGraph.highestZIndex
         
         // Track node ID map to create new IDs, fixing ID reusage issue
         // Make sure currently used IDs are tracked so we don't create redundant nodes
@@ -248,9 +241,6 @@ extension CurrentAIGraphData.GraphData {
         // Update sidebar view model data with new layer data
         graph.layersSidebarViewModel.update(from: newSidebarData)
         
-        // Update graph data so that input observers are created
-        graph.updateGraphData(document)
-        
         // new constants for patches
         for newInputValueSetting in self.patch_data.custom_patch_input_values {
             let inputCoordinate = try NodeIOCoordinate(
@@ -290,6 +280,22 @@ extension CurrentAIGraphData.GraphData {
                                                            nodeId: upstreamNodeId),
                                                to: inputCoordinate)
                 
+                // create canvas node
+                guard let fromNodeLocation = document.visibleGraph.getNode(upstreamNodeId)?.nonLayerCanvasItem?.position,
+                      let destinationNode = document.visibleGraph.getNode(inputCoordinate.nodeId),
+                      let layerInput = inputCoordinate.keyPath?.layerInput else {
+                    throw SwiftUISyntaxError.layerEdgeDataFailure(varName)
+                }
+
+                var position = fromNodeLocation
+                position.x += 200
+                
+                document.addLayerInputToCanvas(node: destinationNode,
+                                               layerInput: layerInput,
+                                               draggedOutput: nil,
+                                               canvasHeightOffset: nil,
+                                               position: position)
+                
                 graph.edgeAdded(edge: newEdgeData)
             }
         }
@@ -305,37 +311,6 @@ extension CurrentAIGraphData.GraphData {
             let edge: PortEdgeData = PortEdgeData(
                 from: outputPort,
                 to: inputPort)
-            
-            let _ = document.visibleGraph.edgeAdded(edge: edge)
-        }
-        
-        // new edges to downstream layers
-        for newLayerEdge in self.patch_data.layer_connections {
-            let inputPort = try NodeIOCoordinate(
-                from: newLayerEdge.dest_port,
-                idMap: idMap)
-            let outputPort = try NodeIOCoordinate(
-                from: newLayerEdge.src_port,
-                idMap: idMap)
-            let edge: PortEdgeData = PortEdgeData(
-                from: outputPort,
-                to: inputPort)
-            
-            guard let fromNodeLocation = document.visibleGraph.getNode(outputPort.nodeId)?.nonLayerCanvasItem?.position,
-                  let destinationNode = document.visibleGraph.getNode(inputPort.nodeId),
-                  let layerInput = inputPort.keyPath?.layerInput else {
-                throw SwiftUISyntaxError.layerEdgeDataFailure(newLayerEdge)
-            }
-
-            // create canvas node
-            var position = fromNodeLocation
-            position.x += 200
-            
-            document.addLayerInputToCanvas(node: destinationNode,
-                                           layerInput: layerInput,
-                                           draggedOutput: nil,
-                                           canvasHeightOffset: nil,
-                                           position: position)
             
             let _ = document.visibleGraph.edgeAdded(edge: edge)
         }
@@ -359,6 +334,21 @@ extension CurrentAIGraphData.GraphData {
             nodes: document.visibleGraph.visibleNodesViewModel,
             viewPortCenter: document.viewPortCenter,
             graph: document.visibleGraph)
+        
+        // Update topological data--needs to be forced here because of script building using this data
+        
+        // TODO: explore here?
+        document.graph.updateGraphData(document)
+        
+        // Tests SwiftUI code creation to make sure this can work later
+//        #if !RELEASE
+//        do {
+//            let _ = try document.graph.createSwiftUICode()
+//        } catch {
+//            throw error
+////            fatalError(error.localizedDescription)
+//        }
+//        #endif
     }
 }
 

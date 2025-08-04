@@ -33,7 +33,7 @@ extension AIGraphData_V0 {
     typealias NodeIOPortType = NodeIOPortType_V33.NodeIOPortType
 }
 
-extension AIGraphData_V0.CodeCreatorParams {
+extension AIGraphData_V0.GraphData {
     init(from graphEntity: AIGraphData_V0.GraphEntity) throws {
         let nodesDict = graphEntity.nodes.reduce(into: [UUID : AIGraphData_V0.NodeEntity]()) { result, node in
             result.updateValue(node, forKey: node.id)
@@ -44,7 +44,10 @@ extension AIGraphData_V0.CodeCreatorParams {
         var nodeTypeSettings = [AIGraphData_V0.NativePatchNodeValueTypeSetting]()
         var patchConnections = [AIGraphData_V0.PatchConnection]()
         var customPatchInputs = [AIGraphData_V0.CustomPatchInputValue]()
-        var layerConnections = [AIGraphData_V0.LayerConnection]()
+//        var layerConnections = [AIGraphData_V0.LayerConnection]()
+        
+        // Maps upstream patch output coordinate to some new created @State var name
+        var viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate] = [:]
         
         for nodeEntity in graphEntity.nodes {
             switch nodeEntity.nodeTypeEntity {
@@ -99,15 +102,15 @@ extension AIGraphData_V0.CodeCreatorParams {
         
         let aiLayerData: [AIGraphData_V0.LayerData] = try graphEntity.orderedSidebarLayers
             .createAIData(nodesDict: nodesDict,
-            layerConnections: &layerConnections)
+                          viewStatePatchConnections: &viewStatePatchConnections)
         
-        self = .init(layer_data_list: try aiLayerData.encodeToString(),
+        self = .init(layer_data_list: aiLayerData,
                      patch_data: .init(javascript_patches: jsNodes,
                                        native_patches: nativeNodes,
                                        native_patch_value_type_settings: nodeTypeSettings,
                                        patch_connections: patchConnections,
-                                       custom_patch_input_values: customPatchInputs,
-                                       layer_connections: layerConnections))
+                                       custom_patch_input_values: customPatchInputs),
+                     viewStatePatchConnections: viewStatePatchConnections)
     }
 }
 
@@ -131,11 +134,11 @@ extension JavaScriptPortDefinitionAI_V1.JavaScriptPortDefinitionAI {
 
 extension Array where Element == AIGraphData_V0.SidebarLayerData {
     func createAIData(nodesDict: [UUID : AIGraphData_V0.NodeEntity],
-                      layerConnections: inout [AIGraphData_V0.LayerConnection]) throws -> [AIGraphData_V0.LayerData] {
+                      viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate]) throws -> [AIGraphData_V0.LayerData] {
         try self.map { sidebarData in
             try .init(from: sidebarData,
                       nodesDict: nodesDict,
-                      layerConnections: &layerConnections)
+                      viewStatePatchConnections: &viewStatePatchConnections)
         }
     }
 }
@@ -151,7 +154,7 @@ extension Array where Element == AIGraphData_V0.LayerData {
 extension AIGraphData_V0.LayerData {
     init(from sidebarData: AIGraphData_V0.SidebarLayerData,
          nodesDict: [UUID : AIGraphData_V0.NodeEntity],
-         layerConnections: inout [AIGraphData_V0.LayerConnection]) throws {
+         viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate]) throws {
         guard let node = nodesDict.get(sidebarData.id),
               let layerData = node.layerNodeEntity else {
             throw AICodeGenError.nodeDataNotFound
@@ -159,7 +162,7 @@ extension AIGraphData_V0.LayerData {
         
         // Recursively create children
         let children = try sidebarData.children?.createAIData(nodesDict: nodesDict,
-                                                              layerConnections: &layerConnections)
+                                                              viewStatePatchConnections: &viewStatePatchConnections)
         
         var customInputValues = [LayerPortDerivation]()
         for port in LayerInputPort.allCases {
@@ -188,13 +191,25 @@ extension AIGraphData_V0.LayerData {
                     }
                     
                 case .upstreamConnection(let upstream):
-                    let layerConnection = try Self
-                        .createLayerConnection(upstream: upstream,
-                                               downstreamNodeId: layerData.id,
-                                               downstreamPort: port,
-                                               downstreamKeyPathType: .packed)
+//                    let layerConnection = try Self
+//                        .createLayerConnection(upstream: upstream,
+//                                               downstreamNodeId: layerData.id,
+//                                               downstreamPort: port,
+//                                               downstreamKeyPathType: .packed)
                     
-                    layerConnections.append(layerConnection)
+                    // Upstream connections require @State variable, so we'll make one here
+                    let stateVarName = port.asLLMStepPort.createUniqueVarName(nodeId: layerData.id)
+                    
+                    customInputValues.append(
+                        .init(input: port,
+                              inputData: .stateRef(stateVarName))
+                    )
+                    
+                    // Update state dict
+                    viewStatePatchConnections
+                        .updateValue(.init(node_id: upstream.nodeId.uuidString,
+                                                   port_index: upstream.portId!),
+                                     forKey: stateVarName)
                 }
                 
             case .unpacked:
@@ -219,13 +234,28 @@ extension AIGraphData_V0.LayerData {
                         ))
                         
                     case .upstreamConnection(let upstream):
-                        let layerConnection = try Self
-                            .createLayerConnection(upstream: upstream,
-                                                   downstreamNodeId: layerData.id,
-                                                   downstreamPort: port,
-                                                   downstreamKeyPathType: .unpacked(unpackedPortType))
+//                        let layerConnection = try Self
+//                            .createLayerConnection(upstream: upstream,
+//                                                   downstreamNodeId: layerData.id,
+//                                                   downstreamPort: port,
+//                                                   downstreamKeyPathType: .unpacked(unpackedPortType))
                         
-                        layerConnections.append(layerConnection)
+//                        layerConnections.append(layerConnection)
+                        
+                        // Upstream connections require @State variable, so we'll make one here
+                        let prefixName = "\(port.asLLMStepPort)_\(portIndex)"
+                        let stateVarName = prefixName.createUniqueVarName(nodeId: layerData.id)
+                        
+                        customInputValues.append(
+                            .init(input: port,
+                                  inputData: .stateRef(stateVarName))
+                        )
+                        
+                        // Update state dict
+                        viewStatePatchConnections
+                            .updateValue(.init(node_id: upstream.nodeId.uuidString,
+                                               port_index: upstream.portId!),
+                                         forKey: stateVarName)
                     }
                 }
             }
@@ -237,26 +267,35 @@ extension AIGraphData_V0.LayerData {
                      custom_layer_input_values: customInputValues)
     }
     
-    static func createLayerConnection(upstream: NodeIOCoordinate,
-                                      downstreamNodeId: UUID,
-                                      downstreamPort: LayerInputPort,
-                                      downstreamKeyPathType: LayerInputKeyPathType) throws -> AIGraphData_V0.LayerConnection {
-        guard let upstreamPortIndex = upstream.portId else {
-            throw SwiftUISyntaxError.unexpectedUpstreamLayerCoordinate
-        }
-            
-        return .init(
-            src_port: .init(node_id: upstream.nodeId.description,
-                            port_index: upstreamPortIndex),
-            dest_port: .init(layer_id: downstreamNodeId.description,
-                             input_port_type: .init(layerInput: downstreamPort,
-                                                    portType: downstreamKeyPathType)
-                            )
-        )
-    }
+//    static func createLayerConnection(upstream: NodeIOCoordinate,
+//                                      downstreamNodeId: UUID,
+//                                      downstreamPort: LayerInputPort,
+//                                      downstreamKeyPathType: LayerInputKeyPathType) throws -> AIGraphData_V0.LayerConnection {
+//        guard let upstreamPortIndex = upstream.portId else {
+//            throw SwiftUISyntaxError.unexpectedUpstreamLayerCoordinate
+//        }
+//            
+//        return .init(
+//            src_port: .init(node_id: upstream.nodeId.description,
+//                            port_index: upstreamPortIndex),
+//            dest_port: .init(layer_id: downstreamNodeId.description,
+//                             input_port_type: .init(layerInput: downstreamPort,
+//                                                    portType: downstreamKeyPathType)
+//                            )
+//        )
+//    }
 }
 
 extension AIGraphData_V0.PatchOrLayer {
+    var patch: Patch? {
+        switch self {
+        case .layer(let layer):
+            return nil
+        case .patch(let patch):
+            return patch
+        }
+    }
+
     var layer: Layer? {
         switch self {
         case .layer(let layer):

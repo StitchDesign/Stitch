@@ -13,6 +13,14 @@ import SwiftSyntaxBuilder
 
 /// SwiftSyntax visitor that extracts ViewNode structure from SwiftUI code
 final class SwiftUIViewVisitor: SyntaxVisitor {
+    // Maps known patch nodes to a variable name
+    let varNameIdMap: [String : String]
+    
+    init(varNameIdMap: [String : String]) {
+        self.varNameIdMap = varNameIdMap
+        super.init(viewMode: .sourceAccurate)
+    }
+    
     var rootViewNode: SyntaxView?
     
     // Top-level declarations of patch data
@@ -50,7 +58,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         // Patch node declaration cases
         if let funcExpr = initializer.value.as(FunctionCallExprSyntax.self) {
             // Assumed to be patch node
-            guard let patchNode = self.visitPatchData(funcExpr) else {
+            guard let patchNode = self.visitPatchData(funcExpr,
+                                                      varName: currentLHS) else {
                 fatalError()
             }
             
@@ -247,7 +256,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
 
 extension SwiftUIViewVisitor {
     /// Parses SwiftUI code into a ViewNode structure
-    static func parseSwiftUICode(_ swiftUICode: String) -> SwiftUIViewParserResult {
+    static func parseSwiftUICode(_ swiftUICode: String,
+                                 varNameIdMap: [String : String]) -> SwiftUIViewParserResult {
 //        log("\n==== PARSING CODE ====\n\(swiftUICode)\n=====================\n")
         
         // Fall back to the original visitor-based approach for now
@@ -261,7 +271,7 @@ extension SwiftUIViewVisitor {
 //#endif
         
         // Create a visitor that will extract the view structure
-        let visitor = SwiftUIViewVisitor(viewMode: .sourceAccurate)
+        let visitor = SwiftUIViewVisitor(varNameIdMap: varNameIdMap)
         visitor.walk(sourceFile)
                 
         return .init(rootView: visitor.rootViewNode,

@@ -11,7 +11,9 @@ import SwiftSyntaxBuilder
 import SwiftUI
 
 extension SwiftUIViewVisitor {
-    func visitPatchData(_ node: FunctionCallExprSyntax) -> SwiftParserPatchData? {
+    func visitPatchData(_ node: FunctionCallExprSyntax,
+                        // var names are provided from already created nodes
+                        varName: String?) -> SwiftParserPatchData? {
         guard
             let subscriptExpr = node.calledExpression.as(SubscriptCallExprSyntax.self),
             let baseIdent = subscriptExpr.calledExpression.as(DeclReferenceExprSyntax.self),
@@ -58,7 +60,17 @@ extension SwiftUIViewVisitor {
             }
         }
         
-        return .init(patchName: patchNode,
+        let id: String
+        
+        if let varName = varName,
+           let _id = self.varNameIdMap.get(varName) {
+            id = _id
+        } else {
+            id = UUID().uuidString
+        }
+        
+        return .init(id: id,
+                     patchName: patchNode,
                      args: patchNodeArgs)
     }
     
@@ -69,7 +81,8 @@ extension SwiftUIViewVisitor {
         // Check for function expressions here too, needed for deriving patch data
         if let patchFn = subscriptCallExpr.calledExpression.as(FunctionCallExprSyntax.self) {
             // Assumed to be patch node
-            guard let patchNode = self.visitPatchData(patchFn) else {
+            guard let patchNode = self.visitPatchData(patchFn,
+                                                      varName: nil) else {
                 fatalError()
             }
             
@@ -90,9 +103,12 @@ extension SwiftParserPatchData {
             fatalError()
         }
         
+        // Re-use id from Stitch -> Code if node is unchanged
+        let id = varNameIdMap.get(varName) ?? self.id
+        
 //        let nodeIdString = String(varName.split(separator: "_")[safe: 1] ?? "")
 //        let decodedId = UUID(uuidString: nodeIdString) ?? .init()
-        varNameIdMap.updateValue(self.id, forKey: varName)
+        varNameIdMap.updateValue(id, forKey: varName)
         
         let newPatchNode = CurrentAIGraphData
             .NativePatchNode(node_id: self.id,
@@ -134,7 +150,9 @@ extension SwiftUIViewVisitor {
         
         // Patch declarations can call here too
         if let funcExpr = subscriptCallExpr.calledExpression.as(FunctionCallExprSyntax.self) {
-            guard let patchNode = self.visitPatchData(funcExpr) else {
+            guard let patchNode = self.visitPatchData(funcExpr,
+                                                      // no var name from subscript
+                                                      varName: nil) else {
                 fatalError()
             }
             
@@ -165,7 +183,8 @@ extension SwiftParserInitializerType {
                             varNameOutputPortMap: [String : SwiftParserSubscript],
     customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue],
                             patchConnections: inout [CurrentAIGraphData.PatchConnection],
-                            viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate]) throws {
+                            viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate],
+                            subscriptParentInfo: AIGraphData_V0.NodeIndexedCoordinate? = nil) throws {
         switch self {
         case .patchNode(let patchNodeData):
             for (portIndex, arg) in patchNodeData.args.enumerated() {
@@ -175,6 +194,7 @@ extension SwiftParserInitializerType {
                     let refName = declRefSyntax.baseName.text
                                             
                     guard let upstreamRefData = varNameOutputPortMap.get(refName) else {
+                        // TODO: this may happen as a result of bad code from ChatGPT
                         fatalError()
                     }
                     
@@ -216,7 +236,9 @@ extension SwiftParserInitializerType {
                                             varNameOutputPortMap: varNameOutputPortMap,
                                             customPatchInputValues: &customPatchInputValues,
                                             patchConnections: &patchConnections,
-                                            viewStatePatchConnections: &viewStatePatchConnections)
+                                            viewStatePatchConnections: &viewStatePatchConnections,
+                                            subscriptParentInfo: .init(node_id: patchNodeData.id,
+                                                                       port_index: portIndex))
                 }
             }
             
@@ -258,9 +280,18 @@ extension SwiftParserInitializerType {
                                         patchConnections: &patchConnections,
                                         viewStatePatchConnections: &viewStatePatchConnections)
                 
-            case .ref:
-                // Ignore here
-                return
+            case .ref(let refName):
+                // Get edge data
+                guard let destNodeId = varNameIdMap.get(refName),
+                      let destCoordinate = subscriptParentInfo else {
+                    // Some refs can be ignored
+                    return
+                }
+                
+                patchConnections.append(
+                    .init(src_port: .init(node_id: destNodeId,                          port_index: subscriptData.portIndex),
+                          dest_port: destCoordinate)
+                )
             }
         }
     }

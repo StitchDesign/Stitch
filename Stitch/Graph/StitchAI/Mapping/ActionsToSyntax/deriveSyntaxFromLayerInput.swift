@@ -47,7 +47,7 @@ enum SwiftUISyntaxError: Error, Sendable {
     case layerDecodingFailed
     case unexpectedPatchFound(CurrentAIGraphData.PatchOrLayer)
     case portValueDataDecodingFailure
-    case layerEdgeDataFailure(CurrentAIGraphData.LayerConnection)
+    case layerEdgeDataFailure(String)
     case unexpectedPatchInputRowCount(Patch)
     case portValueNotFound
     
@@ -59,6 +59,9 @@ enum SwiftUISyntaxError: Error, Sendable {
     case invalidJSONLiteral(String)
     case unsupportedSimpleLiteralDecoding(SyntaxViewSimpleData)
     case syntaxValueDecodingFailed(SyntaxArgumentKind)
+    
+    // Mapping to Code
+    case upstreamVarNameNotFound(NodeIOCoordinate)
 }
 
 extension SwiftUISyntaxError: Encodable {
