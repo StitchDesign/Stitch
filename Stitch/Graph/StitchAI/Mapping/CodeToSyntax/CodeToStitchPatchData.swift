@@ -193,6 +193,7 @@ extension SwiftParserInitializerType {
                     let refName = declRefSyntax.baseName.text
                                             
                     guard let upstreamRefData = varNameOutputPortMap.get(refName) else {
+                        // TODO: this may happen as a result of bad code from ChatGPT
                         fatalError()
                     }
                     

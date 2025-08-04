@@ -16,7 +16,9 @@ extension GraphState {
         // TODO: check if needed
         var idMap = [String : UUID]()
         
-        let patchNodeDeclarations = try graphEntity.createBindingDeclarations(nodeIdsInTopologicalOrder: self.nodeIdsInTopologicalOrder)
+        let patchNodeDeclarations = try graphEntity
+            .createBindingDeclarations(nodeIdsInTopologicalOrder: self.nodeIdsInTopologicalOrder,
+                                       viewStatePatchConnections: aiGraph.viewStatePatchConnections)
             .patchNodeDeclarations
         
         let stateVarDeclarations = aiGraph.viewStatePatchConnections.keys.map { stateVarName in
