@@ -1,5 +1,5 @@
 {
-  "originHash" : "bfac4022cd98c18c06b0afc42ed75fe9c79cf8265dfd9f1795aa36bfbbc8a983",
+  "originHash" : "c2e4b2bdd1292fef561ab0556b6005103172550c8e30f518feffc730dd90cc2a",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -185,7 +185,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/StitchDesign/StitchEngine",
       "state" : {
-        "revision" : "820689b73149bbf2d4979f99e8b5dc4106ab63ef"
+        "revision" : "655a8240b61c5981cea97192b614269fdf1f8deb"
       }
     },
     {

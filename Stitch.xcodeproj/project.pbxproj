@@ -8068,7 +8068,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchEngine";
 			requirement = {
 				kind = revision;
-				revision = 820689b73149bbf2d4979f99e8b5dc4106ab63ef;
+				revision = 655a8240b61c5981cea97192b614269fdf1f8deb;
 			};
 		};
 		B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */ = {

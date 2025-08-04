@@ -9,12 +9,6 @@ import StitchSchemaKit
 import SwiftUI
 
 enum AIGraphData_V0 {
-//    struct CodeCreatorParams: Codable {
-//        // String because layer data isn't supported for structured params given nesting
-//        let layer_data_list: String
-//        let patch_data: PatchData
-//    }
-    
     struct GraphData: Codable {
         let layer_data_list: [LayerData]
         let patch_data: PatchData
