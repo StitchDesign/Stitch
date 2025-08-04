@@ -183,7 +183,8 @@ extension SwiftParserInitializerType {
                             varNameOutputPortMap: [String : SwiftParserSubscript],
     customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue],
                             patchConnections: inout [CurrentAIGraphData.PatchConnection],
-                            viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate]) throws {
+                            viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate],
+                            subscriptParentInfo: AIGraphData_V0.NodeIndexedCoordinate? = nil) throws {
         switch self {
         case .patchNode(let patchNodeData):
             for (portIndex, arg) in patchNodeData.args.enumerated() {
@@ -235,7 +236,9 @@ extension SwiftParserInitializerType {
                                             varNameOutputPortMap: varNameOutputPortMap,
                                             customPatchInputValues: &customPatchInputValues,
                                             patchConnections: &patchConnections,
-                                            viewStatePatchConnections: &viewStatePatchConnections)
+                                            viewStatePatchConnections: &viewStatePatchConnections,
+                                            subscriptParentInfo: .init(node_id: patchNodeData.id,
+                                                                       port_index: portIndex))
                 }
             }
             
@@ -277,9 +280,18 @@ extension SwiftParserInitializerType {
                                         patchConnections: &patchConnections,
                                         viewStatePatchConnections: &viewStatePatchConnections)
                 
-            case .ref:
-                // Ignore here
-                return
+            case .ref(let refName):
+                // Get edge data
+                guard let destNodeId = varNameIdMap.get(refName),
+                      let destCoordinate = subscriptParentInfo else {
+                    // Some refs can be ignored
+                    return
+                }
+                
+                patchConnections.append(
+                    .init(src_port: .init(node_id: destNodeId,                          port_index: subscriptData.portIndex),
+                          dest_port: destCoordinate)
+                )
             }
         }
     }
