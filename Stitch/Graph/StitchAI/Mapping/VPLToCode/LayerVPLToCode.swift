@@ -1337,15 +1337,8 @@ func makeViewModifierConstructor(from port: LayerInputPort,
         }
         return nil
     case .fontSize:
-        if let number = value.getNumber {
-            // FontSize alone can't create a complete font modifier,
-            // it needs to be combined with textFont for full functionality
-            // For now, we'll create a basic font modifier with default font
-            let sizeArg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: ".system(size: \(number))", syntaxKind: .string)
-            )
-            return .font(FontViewModifier(font: sizeArg))
-        }
+        // FontSize should not create a separate font modifier when textFont exists
+        // The textFont case handles both font family/weight and size together
         return nil
     default:
         return nil
