@@ -52,8 +52,6 @@ extension PortValueDescription {
     }
 }
 
-// TODO: move
-
 struct PrintablePortValueDescription: Encodable {
     let value: AnyEncodable
     let value_type: AIGraphData_V0.StitchAINodeType

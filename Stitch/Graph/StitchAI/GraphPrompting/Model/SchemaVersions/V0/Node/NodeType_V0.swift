@@ -242,7 +242,7 @@ extension StitchAIPortValue_V0.NodeType {
                 return .assignedLayer(nil)
             }
             
-            if (xString == "None") {
+            if (xString == "None" || xString == "nil") {
                 //                   (xString == "None" || xString == "\"None\"") {
                 return .assignedLayer(nil)
             }
@@ -427,7 +427,7 @@ extension StitchAIPortValue_V0.NodeType {
         case .anchorEntity:
             let xString = anyValue as? String
             
-            if xString == "None" {
+            if xString == "None" || xString == "nil" {
                 return .anchorEntity(nil)
             }
             
