@@ -194,14 +194,6 @@ extension StitchDocumentViewModel {
                                    document: self)
         }
         
-        // If we're not dragging an edge to the inspector, then we cannot swap.
-        if !draggedOutput.isDefined {
-            guard previousPackMode == layerInputType.portType.mode else {
-                log("Tried to add whole layer input to canvas when layer input was in unpack mode")
-                return
-            }
-        }
-        
         // Remove an existing layer fields on the canvas if mode changed on drag
         else if didModeChange {
             switch newPackMode {
