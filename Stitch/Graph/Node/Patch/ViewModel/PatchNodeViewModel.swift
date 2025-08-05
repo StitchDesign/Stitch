@@ -191,8 +191,6 @@ extension PatchNodeViewModel {
         self.canvasObserver.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
             node,
             activeIndex: activeIndex,
-            unpackedPortParentFieldGroupType: nil,
-            unpackedPortIndex: nil,
             graph: graph)
     }
     

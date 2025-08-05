@@ -97,9 +97,6 @@ extension NodeViewModelType {
             canvasItemViewModel.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
                 node,
                 activeIndex: activeIndex,
-                // Not relevant
-                unpackedPortParentFieldGroupType: nil,
-                unpackedPortIndex: nil,
                 graph: graph)
             
         case .component(let componentViewModel):

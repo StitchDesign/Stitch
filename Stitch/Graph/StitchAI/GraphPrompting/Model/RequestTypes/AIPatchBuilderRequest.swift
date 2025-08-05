@@ -37,7 +37,7 @@ extension StitchDocumentViewModel {
         let migratedNodeName = try newLayer.node_name.value.convert(to: PatchOrLayer.self)
         let existingLayerNode = existingGraph.nodes.get(newId)
         let needsNewNodeCreation = existingLayerNode?.kind.getLayer != migratedNodeName.layer
-
+        
         if needsNewNodeCreation {
             // Creates new layer node view model
             let newLayerNode = graph
@@ -46,10 +46,15 @@ extension StitchDocumentViewModel {
                             highestZIndex: graph.highestZIndex,
                             choice: migratedNodeName,
                             center: self.newCanvasItemInsertionLocation)
+            
             graph.visibleNodesViewModel.nodes.updateValue(newLayerNode,
                                                           forKey: newLayerNode.id)
+
+            // Initialize delegates for later helpers (like edges)
+            newLayerNode.initializeDelegate(graph: graph,
+                                            document: self)
         }
-                
+        
         if let children = newLayer.children {
             for child in children {
                 // Recursive call
@@ -150,8 +155,12 @@ extension CurrentAIGraphData.GraphData {
                             highestZIndex: highestZIndex,
                             choice: .patch(.javascript),
                             center: graphCenter)
-
+            
             graph.visibleNodesViewModel.nodes.updateValue(newNode, forKey: newId)
+            
+            // Initialize delegates for later helpers (like edges)
+            newNode.initializeDelegate(graph: graph,
+                                       document: document)
             
             if let patchNode = newNode.patchNode {
                 let jsSettings = try JavaScriptNodeSettings(
@@ -186,6 +195,10 @@ extension CurrentAIGraphData.GraphData {
                                 center: graphCenter)
                 
                 graph.visibleNodesViewModel.nodes.updateValue(newNode, forKey: newId)
+                
+                // Initialize delegates for later helpers (like edges)
+                newNode.initializeDelegate(graph: graph,
+                                           document: document)
             } else if let existingPatchNode = existingPatchNode {
                 newNode = existingPatchNode
             } else {
@@ -281,22 +294,23 @@ extension CurrentAIGraphData.GraphData {
                                                to: inputCoordinate)
                 
                 // create canvas node
-                guard let fromNodeLocation = document.visibleGraph.getNode(upstreamNodeId)?.nonLayerCanvasItem?.position,
+                guard let node = graph.getNode(upstreamNodeId),
+                      let fromNodeLocation = node.nonLayerCanvasItem?.position,
                       let destinationNode = document.visibleGraph.getNode(inputCoordinate.nodeId),
-                      let layerInput = inputCoordinate.keyPath?.layerInput else {
+                      let layerInputType = inputCoordinate.keyPath else {
                     throw SwiftUISyntaxError.layerEdgeDataFailure(varName)
                 }
 
                 var position = fromNodeLocation
                 position.x += 200
                 
-                document.addLayerInputToCanvas(node: destinationNode,
-                                               layerInput: layerInput,
-                                               draggedOutput: nil,
-                                               canvasHeightOffset: nil,
-                                               position: position)
+                document.addCanvasLayerInput(node: destinationNode,
+                                             layerInputType: layerInputType,
+                                             draggedOutput: nil,
+                                             canvasHeightOffset: nil,
+                                             position: position)
                 
-                graph.edgeAdded(edge: newEdgeData)
+                graph.addEdgeWithoutGraphRecalc(edge: newEdgeData)
             }
         }
         
@@ -312,7 +326,7 @@ extension CurrentAIGraphData.GraphData {
                 from: outputPort,
                 to: inputPort)
             
-            let _ = document.visibleGraph.edgeAdded(edge: edge)
+            let _ = document.visibleGraph.addEdgeWithoutGraphRecalc(edge: edge)
         }
         
         // Delete unused nodes

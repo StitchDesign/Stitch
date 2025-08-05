@@ -192,10 +192,11 @@ extension StitchDocumentViewModel {
             
             // For each input port, attempt to add to canvas
             for input in LayerInputPort.allCases {
-                self.addLayerInputToCanvas(node: nodeVM,
-                                           layerInput: input,
-                                           draggedOutput: nil,
-                                           canvasHeightOffset: nil)
+                self.addCanvasLayerInput(node: nodeVM,
+                                         layerInputType: .init(layerInput: input,
+                                                               portType: .packed),
+                                         draggedOutput: nil,
+                                         canvasHeightOffset: nil)
             }
         }
         

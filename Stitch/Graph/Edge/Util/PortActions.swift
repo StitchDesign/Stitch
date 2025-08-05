@@ -150,8 +150,6 @@ extension GraphState {
            !upstreamOutputObserver.allLoopedValues.isEmpty {
             downstreamInputObserver.setValuesInInput(upstreamOutputObserver.allLoopedValues)
         }
-        
-        self.updateTopologicalData()
     }
 
     @MainActor
@@ -159,6 +157,8 @@ extension GraphState {
 
         // Add edge
         self.addEdgeWithoutGraphRecalc(edge: edge)
+        
+        self.updateTopologicalData()
         
         // Then recalculate the graph again, with new edge,
         // starting at the 'from' node downward:

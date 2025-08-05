@@ -34,7 +34,7 @@ extension LayerInputObserver {
 protocol LayerNodeRowData: AnyObject {
     associatedtype RowObserverable: NodeRowObserver
     
-    @MainActor var rowObserver: RowObserverable { get set }
+    @MainActor var rowObserver: RowObserverable { get }
     @MainActor var canvasObserver: CanvasItemViewModel? { get set }
     @MainActor var inspectorRowViewModel: RowObserverable.RowViewModelType { get set }
 }
@@ -47,7 +47,7 @@ protocol LayerNodeRowData: AnyObject {
 @Observable
 final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
     let id: LayerInputType
-    var rowObserver: InputNodeRowObserver
+    let rowObserver: InputNodeRowObserver
     var inspectorRowViewModel: InputNodeRowViewModel
     var canvasObserver: CanvasItemViewModel?
     
@@ -147,25 +147,17 @@ final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
         self.canvasObserver?.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
             node,
             activeIndex: activeIndex,
-            // Not relevant for output
-            unpackedPortParentFieldGroupType: nil,
-            unpackedPortIndex: nil,
             graph: graph)
                         
         self.inspectorRowViewModel.updateFieldGroupsIfEmptyAndUpdatePortAddress(
             node: node,
-            initialValue: rowDelegate.getActiveValue(activeIndex: activeIndex),
-            // Not relevant for output
-            unpackedPortParentFieldGroupType: nil,
-            unpackedPortIndex: nil)
+            initialValue: rowDelegate.getActiveValue(activeIndex: activeIndex))
     }
 }
 
 extension LayerNodeRowData {
     @MainActor
     func initializeDelegate(_ node: NodeViewModel,
-                            unpackedPortParentFieldGroupType: FieldGroupType?,
-                            unpackedPortIndex: Int?,
                             activeIndex: ActiveIndex,
                             graph: GraphState) {
         
@@ -174,17 +166,13 @@ extension LayerNodeRowData {
         self.canvasObserver?.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
             node,
             activeIndex: activeIndex,
-            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-            unpackedPortIndex: unpackedPortIndex,
             graph: graph)
         
         let rowDelegate = self.rowObserver
         
         self.inspectorRowViewModel.updateFieldGroupsIfEmptyAndUpdatePortAddress(
             node: node,
-            initialValue: rowDelegate.getActiveValue(activeIndex: activeIndex),
-            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-            unpackedPortIndex: unpackedPortIndex)
+            initialValue: rowDelegate.getActiveValue(activeIndex: activeIndex))
     }
     
     @MainActor

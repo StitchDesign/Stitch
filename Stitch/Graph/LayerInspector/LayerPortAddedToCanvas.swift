@@ -87,10 +87,11 @@ extension StitchDocumentViewModel {
                 fatalErrorIfDebug("handleLayerInputAdded: could not add Layer Input to graph")
                 return
             }
-            self.addLayerInputToCanvas(node: node,
-                                       layerInput: layerInput,
-                                       draggedOutput: draggedOutput,
-                                       canvasHeightOffset: canvasHeightOffset)
+            self.addCanvasLayerInput(node: node,
+                                     layerInputType: .init(layerInput: layerInput,
+                                                           portType: .packed),
+                                     draggedOutput: draggedOutput,
+                                     canvasHeightOffset: canvasHeightOffset)
             canvasHeightOffset += 1
         }
         
@@ -141,59 +142,55 @@ extension GraphState {
 }
 
 
-extension StitchDocumentViewModel {
+extension StitchDocumentViewModel {    
     @MainActor
-    func addLayerInputToCanvas(node: NodeViewModel,
-                               layerInput: LayerInputPort,
-                               
-                               // We added a layer-input to the canvas via edge-drawing,
-                               // and need to position the layer-input next to the dragged output.
-                               draggedOutput: OutputPortUIViewModel?,
-                               
-                               // If we added multiple layer inputs to the canvas at one time (via layer multiselect), we offset them
-                               canvasHeightOffset: Int?,
-                               
-                               // For LLM-actions, horizontal offset
-                               position: CGPoint? = nil) {
-        
+    func addCanvasLayerInput(node: NodeViewModel,
+                             layerInputType: LayerInputType,
+                             draggedOutput: OutputPortUIViewModel? = nil,
+                             canvasHeightOffset: Int?,
+                             position: CGPoint? = nil) {
         let nodeId = node.id
-        
         let graph = self.visibleGraph
         
-        guard let layerNode = graph.getLayerNode(nodeId) else {
+        guard let layerNode = node.layerNodeViewModel else {
             fatalErrorIfDebug()
             return
         }
+    
+        let input: InputLayerNodeRowData = layerNode[keyPath: layerInputType.layerNodeKeyPath]
         
-        // If we're not dragging an edge to the inspector, then we cannot swap.
-        if !draggedOutput.isDefined {
-            guard layerNode[keyPath: layerInput.layerNodeKeyPath].mode == .packed else {
-                log("Tried to add whole layer input to canvas when layer input was in unpack mode")
-                return
-            }
-        }
-        
-        let input: InputLayerNodeRowData = layerNode[keyPath: layerInput.packedLayerInputKeyPath]
-        
-        let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
+        let portObserver: LayerInputObserver = layerNode[keyPath: layerInputType.layerInput.layerNodeKeyPath]
         
         let previousPackMode = portObserver.mode
-        
+        let newPackMode = layerInputType.portType.mode
+        let didModeChange = previousPackMode != newPackMode
         
         // Remove existing layer input
         // (Can happen from dragging an edge onto the inspector)
         if let existingCanvasObserver = input.canvasObserver {
-            log("Layer Input \(layerInput) already on canvas")
+            log("Layer Input \(layerInputType) already on canvas")
             graph.deleteCanvasItem(existingCanvasObserver.id,
                                    document: self)
         }
         
-        // Remove an existing layer fields on the canvas
-        if draggedOutput.isDefined {
-            portObserver.unpackedCanvasObserversOnlyIfUnpacked?.forEach { fieldOnCanvas in
-                log("addLayerInputToCanvas: Field \(fieldOnCanvas.id) for input \(layerInput) already on canvas")
-                graph.deleteCanvasItem(fieldOnCanvas.id,
-                                       document: self)
+        // Remove an existing layer fields on the canvas if mode changed on drag
+        else if didModeChange {
+            switch newPackMode {
+            case .packed:
+                // Remove existing unpacked observers
+                portObserver._unpackedData.allPorts.forEach { port in
+                    if let canvasId = port.canvasObserver?.id {
+                        graph.deleteCanvasItem(canvasId,
+                                               document: self)
+                    }
+                }
+                
+            case .unpacked:
+                // Remove existing packed observer
+                if let canvasId = portObserver._packedData.canvasObserver?.id {
+                    graph.deleteCanvasItem(canvasId,
+                                           document: self)
+                }
             }
         }
         
@@ -205,7 +202,7 @@ extension StitchDocumentViewModel {
         let canvasItem = CanvasItemViewModel(
             id: .layerInput(LayerInputCoordinate(
                 node: nodeId,
-                keyPath: .init(layerInput: layerInput, portType: .packed))),
+                keyPath: layerInputType)),
             position: canvasPosition,
             zIndex: graph.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
@@ -218,24 +215,24 @@ extension StitchDocumentViewModel {
         canvasItem.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
             node,
             activeIndex: activeIndex,
-            // When adding an entire input to the graph, we don't worry about unpacked state etc.
-            unpackedPortParentFieldGroupType: nil,
-            unpackedPortIndex: nil,
             graph: graph)
         
-        self.createEdgeIfLayerInputOrFieldAddedViaOutputDrag(
-            draggedOutput: draggedOutput?.id,
-            layerInputOrFieldCanvasItem: canvasItem)
+        // If we added this layer-input to the canvas as part of an edge-drag,
+        // create an edge between the dragged output and the added layer-input
+        if let draggedOutput = draggedOutput {
+            guard let firstInput = canvasItem.inputViewModels.first?.nodeIOCoordinate else {
+                fatalErrorIfDebug()
+                return
+            }
+            graph.addEdgeWithoutGraphRecalc(from: draggedOutput.id, to: firstInput)
+        }
         
         input.canvasObserver = canvasItem
         
         // Subscribe inspector row ui data to the row data's canvas item
         input.inspectorRowViewModel.canvasItemDelegate = input.canvasObserver
         
-        // MARK: Change the pack mode
-        
-        let newPackMode = portObserver.mode
-        if previousPackMode != newPackMode {
+        if didModeChange {
             portObserver.wasPackModeToggled(document: self)
         }
         
@@ -247,23 +244,6 @@ extension StitchDocumentViewModel {
         }
         
         graph.propertySidebar.selectedProperty = nil
-    }
-    
-    // If we added this layer-input to the canvas as part of an edge-drag,
-    // create an edge between the dragged output and the added layer-input
-    @MainActor
-    func createEdgeIfLayerInputOrFieldAddedViaOutputDrag(draggedOutput: OutputCoordinate?,
-                                                         layerInputOrFieldCanvasItem: CanvasItemViewModel) {
-        
-        // If we added this layer-input to the canvas as part of an edge-drag,
-        // create an edge between the dragged output and the added layer-input
-        if let draggedOutput = draggedOutput {
-            guard let firstInput = layerInputOrFieldCanvasItem.inputViewModels.first?.nodeIOCoordinate else {
-                fatalErrorIfDebug()
-                return
-            }
-            self.visibleGraph.addEdgeWithoutGraphRecalc(from: draggedOutput, to: firstInput)
-        }
     }
 }
 
@@ -297,103 +277,17 @@ extension StitchDocumentViewModel {
                                
                                // If we added multiple layer inputs to the canvas at one time (via layer multiselect), we offset them
                                canvasHeightOffset: Int?) {
-        
-        let graph = self.visibleGraph
-        
-        guard let node = graph.getNode(nodeId),
-              let layerNode = node.layerNode else {
-            fatalErrorIfDebug("LayerInputFieldAddedToCanvas: no node and/or layer node")
-            return
-        }
-                
-        let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
-
-        // TODO: FIX ISSUE WHERE ANCHOR-POINTS (EDGE'S TO) DID NOT UPDATED PROPERLY WHEN SWAPPING OUT INPUT-ON-CANVAS FOR FIELD-ON-CANVAS; and then remove this statement
-        if draggedOutput.isDefined,
-           let _ = portObserver.packedCanvasObserverOnlyIfPacked  {
-            log("addLayerFieldToCanvas: Whole input \(layerInput) already on canvas, exiting early")
-            return
-        }
-        
-        let previousPackMode = portObserver.mode
-        
-        // Not all layer inputs are multifield!
-        guard let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] else {
-            fatalErrorIfDebug("LayerInputFieldAddedToCanvas: no unpacked port for fieldIndex \(fieldIndex)")
-            return
-        }
-                 
-        // Remove existing layer field first; can happen when we're dragging
-        if let existingCanvasObserver = unpackedPort.canvasObserver {
-            log("addLayerFieldToCanvas: Field \(fieldIndex) for input \(layerInput) already on canvas")
-            graph.deleteCanvasItem(existingCanvasObserver.id,
-                                   document: self)
-        }
-        
-//        // TODO: allow this even when it's not from drawing an edge?
-//        // If we already have the input on the canvas, remove that first
-//        if draggedOutput.isDefined,
-//           let existingInputOnCanvas = portObserver.packedCanvasObserverOnlyIfPacked {
-//            log("addLayerFieldToCanvas: Whole input \(layerInput) already on canvas")
-//            graph.deleteCanvasItem(existingInputOnCanvas.id,
-//                                   document: self)
-//        }
-    
-        // MARK: CREATING AND INITIALIZING THE CANVAS ITEM VIEW MODEL ITSELF
-        
-        // First field-group grabbed since layers don't have differing groups within one input
-        guard let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
-            .getDefaultValue(for: layerNode.layer)
-            .getNodeRowType(nodeIO: .input, layerInputPort: layerInput, isLayerInspector: true)
-            .fieldGroupTypes
-            .first else {
+        guard let node = self.visibleGraph.getNode(nodeId),
+              let unpackedPortType = UnpackedPortType(rawValue: fieldIndex) else {
             fatalErrorIfDebug()
             return
         }
         
-        let activeIndex = self.activeIndex
-        
-        let canvasPosition = self.getLayerInputOrFieldCanvasInsertionPosition(
-            draggedOutput: draggedOutput,
-            canvasHeightOffset: canvasHeightOffset,
-            position: nil)
-        
-        let canvasItem = CanvasItemViewModel(
-            id: .layerInput(LayerInputCoordinate(node: nodeId,
-                                                 keyPath: unpackedPort.id)),
-            position: canvasPosition,
-            zIndex: graph.highestZIndex + 1,
-            parentGroupNodeId: self.groupNodeFocused?.groupNodeId,
-            inputRowObservers: [unpackedPort.rowObserver],
-            outputRowObservers: [])
-        
-        canvasItem.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
-            node,
-            activeIndex: activeIndex,
-            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-            unpackedPortIndex: fieldIndex,
-            graph: graph)
-        
-        self.createEdgeIfLayerInputOrFieldAddedViaOutputDrag(
-            draggedOutput: draggedOutput?.id,
-            layerInputOrFieldCanvasItem: canvasItem)
-        
-        unpackedPort.canvasObserver = canvasItem
-        
-        
-        // MARK: Change the pack mode
-        
-        let newPackMode = portObserver.mode
-        if previousPackMode != newPackMode {
-            portObserver.wasPackModeToggled(document: self)
-        }
-        
-        // MARK: RESET CACHE
-        
-        graph.resetLayerInputsCache(layerNode: layerNode,
-                                    activeIndex: activeIndex) // Why?
-        
-        graph.propertySidebar.selectedProperty = nil
+        self.addCanvasLayerInput(node: node,
+                                 layerInputType: .init(layerInput: layerInput,
+                                                       portType: .unpacked(unpackedPortType)) ,
+                                 draggedOutput: draggedOutput,
+                                 canvasHeightOffset: canvasHeightOffset)
     }
     
     @MainActor
@@ -489,9 +383,6 @@ extension GraphState {
         output.canvasObserver?.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
             node,
             activeIndex: activeIndex,
-            // Not relevant for output
-            unpackedPortParentFieldGroupType: nil,
-            unpackedPortIndex: nil,
             graph: self)
         
         // Subscribe inspector row ui data to the row data's canvas item

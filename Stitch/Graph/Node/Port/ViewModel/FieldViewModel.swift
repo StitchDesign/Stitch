@@ -72,18 +72,32 @@ extension [FieldViewModel] {
     @MainActor
     static func createFieldViewModels(fieldValues: FieldValues,
                                       fieldGroupType: FieldGroupType,
-                                      // Unpacked ports need special logic for grabbing their proper label
-                                      // e.g. the `y-field` of an unpacked `Position` layer input would otherwise have a field group type of `number` and a field index of 0, resulting in no label at all
-                                      unpackedPortParentFieldGroupType: FieldGroupType?,
-                                      unpackedPortIndex: Int?,
                                       startingFieldIndex: Int,
                                       layerInput: LayerInputPort?,
                                       rowId: NodeRowViewModelId) -> [FieldViewModel] {
         
         assertInDebug(!fieldValues.isEmpty)
         
-        // TODO: derive this at the UI level ?
-        // If this is a field for an unpacked layer input, we must look at the unpacked's parent label-list
+        // First field-group grabbed since layers don't have differing groups within one input
+        var unpackedPortParentFieldGroupType: FieldGroupType?
+        var unpackedPortIndex: Int?
+        
+        if let layerInputType = rowId.portType.keyPath,
+           let unpackedData = layerInputType.getUnpackedPortType {
+            // If this is a field for an unpacked layer input, we must look at the unpacked's parent label-list
+            guard let _unpackedPortParentFieldGroupType: FieldGroupType = layerInputType.layerInput
+                .getDefaultValue(for: .rectangle) // any layer works
+                .getNodeRowType(nodeIO: .input, layerInputPort: layerInput, isLayerInspector: true)
+                .fieldGroupTypes
+                .first else {
+                fatalErrorIfDebug()
+                return []
+            }
+            
+            unpackedPortParentFieldGroupType = _unpackedPortParentFieldGroupType
+            unpackedPortIndex = unpackedData.rawValue
+        }
+        
         let labels = (unpackedPortParentFieldGroupType ?? fieldGroupType).labels
                 
         return fieldValues.enumerated().map { fieldIndex, fieldValue in

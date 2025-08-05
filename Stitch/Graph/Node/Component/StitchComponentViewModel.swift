@@ -185,8 +185,6 @@ extension StitchComponentViewModel {
         self.canvas.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
             node,
             activeIndex: document.activeIndex,
-            unpackedPortParentFieldGroupType: nil,
-            unpackedPortIndex: nil,
             graph: graph)
         
         self.graph.assignReferencesAndUpdateUICaches(document: document,
