@@ -300,15 +300,6 @@ extension CurrentAIGraphData.GraphData {
                       let layerInputType = inputCoordinate.keyPath else {
                     throw SwiftUISyntaxError.layerEdgeDataFailure(varName)
                 }
-                
-                // Make input mode packed or unpacked depending on coordinate
-//                switch newInputValueSetting.coordinate.portType {
-//                case .packed:
-//                    layerData.mode = .packed
-//                    
-//                case .unpacked:
-//                    layerData.mode = .unpacked
-//                }
 
                 var position = fromNodeLocation
                 position.x += 200
