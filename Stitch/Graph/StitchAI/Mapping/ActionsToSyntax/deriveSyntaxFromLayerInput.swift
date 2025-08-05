@@ -49,7 +49,7 @@ enum SwiftUISyntaxError: Error, Sendable {
     case portValueDataDecodingFailure
     case layerEdgeDataFailure(String)
     case unexpectedPatchInputRowCount(Patch)
-    case portValueNotFound
+    case portValueNotFound(argument: SyntaxViewModifierArgumentType)
     
     // Value decoding
     case noLabelFoundForComplexType
