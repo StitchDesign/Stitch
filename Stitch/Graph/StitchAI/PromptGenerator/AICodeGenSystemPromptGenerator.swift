@@ -76,6 +76,18 @@ Text(PortValueDescription(value: "hello world", value_type: "string"))
     .color([PortValueDescription(value: "#FFFFFF", value_type: "color")])
 ```
 
+Another example:
+
+```swift
+Text("salut").foregroundColor(Color.yellow)
+```
+
+Becomes:
+
+```swift
+Text("salut").foregroundColor([PortValueDescription(value: "#FFFF00FF", value_type: "color")])
+```
+
 This means that for any value declared inside a view's constructor, a view modifier, or anywhere some value is declared, you must use a `[PortValueDescription]` object.
 
 #### Permitted Usage of State in View Modifiers

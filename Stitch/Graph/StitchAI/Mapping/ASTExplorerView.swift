@@ -296,7 +296,7 @@ struct ASTExplorerView: View {
             } ?? []
             
             // Generate SwiftUI code with configurable script wrapper
-            let newSwiftUICode = try fakeDoc.graph.createSwiftUICode(ignoreScript: ignoreScript)
+            let newSwiftUICode = try fakeDoc.graph.createSwiftUICode(ignoreScript: ignoreScript, usePortValueDescription: usePortValueDescription)
             self.regeneratedCode = newSwiftUICode
             
             // Also maintain derivedConstructors for compatibility with existing UI

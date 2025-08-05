@@ -646,7 +646,7 @@ func graphDataToStrictSyntaxViews(_ graphData: AIGraphData_V0.GraphData) throws 
 
 extension StrictSyntaxView {
     /// Generates complete SwiftUI code string for this view including modifiers and children
-    func toSwiftUICode(usePortValueDescription: Bool = false) -> String {
+    func toSwiftUICode(usePortValueDescription: Bool = true) -> String {
         let constructorString = constructor.swiftUICallString()
         
         // Handle children for container views
