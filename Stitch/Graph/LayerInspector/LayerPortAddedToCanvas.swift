@@ -183,6 +183,8 @@ extension StitchDocumentViewModel {
         let portObserver: LayerInputObserver = layerNode[keyPath: layerInputType.layerInput.layerNodeKeyPath]
         
         let previousPackMode = portObserver.mode
+        let newPackMode = layerInputType.portType.mode
+        let didModeChange = previousPackMode != newPackMode
         
         // Remove existing layer input
         // (Can happen from dragging an edge onto the inspector)
@@ -200,21 +202,23 @@ extension StitchDocumentViewModel {
             }
         }
         
-        // Remove an existing layer fields on the canvas
-        else {
-            switch previousPackMode {
+        // Remove an existing layer fields on the canvas if mode changed on drag
+        else if didModeChange {
+            switch newPackMode {
             case .packed:
-                portObserver.unpackedCanvasObserversOnlyIfUnpacked?.forEach { fieldOnCanvas in
-                    log("addLayerInputToCanvas: Field \(fieldOnCanvas.id) for input \(layerInputType) already on canvas")
-                    graph.deleteCanvasItem(fieldOnCanvas.id,
-                                           document: self)
+                // Remove existing unpacked observers
+                portObserver._unpackedData.allPorts.forEach { port in
+                    if let canvasId = port.canvasObserver?.id {
+                        graph.deleteCanvasItem(canvasId,
+                                               document: self)
+                    }
                 }
                 
             case .unpacked:
-                // TODO: FIX ISSUE WHERE ANCHOR-POINTS (EDGE'S TO) DID NOT UPDATED PROPERLY WHEN SWAPPING OUT INPUT-ON-CANVAS FOR FIELD-ON-CANVAS; and then remove this statement
-                if let _ = portObserver.packedCanvasObserverOnlyIfPacked  {
-                    log("addLayerFieldToCanvas: Whole input \(layerInputType) already on canvas, exiting early")
-                    return
+                // Remove existing packed observer
+                if let canvasId = portObserver._packedData.canvasObserver?.id {
+                    graph.deleteCanvasItem(canvasId,
+                                           document: self)
                 }
             }
         }
@@ -257,10 +261,7 @@ extension StitchDocumentViewModel {
         // Subscribe inspector row ui data to the row data's canvas item
         input.inspectorRowViewModel.canvasItemDelegate = input.canvasObserver
         
-        // MARK: Change the pack mode
-        
-        let newPackMode = portObserver.mode
-        if previousPackMode != newPackMode {
+        if didModeChange {
             portObserver.wasPackModeToggled(document: self)
         }
         

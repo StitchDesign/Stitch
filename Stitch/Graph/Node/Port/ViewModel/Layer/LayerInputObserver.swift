@@ -475,11 +475,6 @@ extension LayerInputObserver {
         self.mode == .packed ? self._packedData.canvasObserver : nil
     }
     
-    @MainActor
-    var unpackedCanvasObserversOnlyIfUnpacked: [CanvasItemViewModel]? {
-        self.mode == .unpacked ? self.getAllCanvasObservers() : nil
-    }
-    
     // All row observers for this input; for working with row observer(s) regardless of pack vs unpack
     @MainActor
     var allRowObservers: [InputNodeRowObserver] {
