@@ -9,7 +9,7 @@ import SwiftUI
 
 extension GraphState {
     @MainActor
-    func createSwiftUICode(ignoreScript: Bool = false) throws -> String {
+    func createSwiftUICode(ignoreScript: Bool = false, usePortValueDescription: Bool = true) throws -> String {
         let graphEntity = self.createSchema()
         let aiGraph = try AIGraphData_V0.GraphData(from: graphEntity)
         
@@ -32,7 +32,7 @@ extension GraphState {
         
         // Generate complete SwiftUI code from StrictSyntaxView
         let viewCode = syntaxes.map { strictSyntaxView in
-            strictSyntaxView.toSwiftUICode()
+            strictSyntaxView.toSwiftUICode(usePortValueDescription: usePortValueDescription)
         }.joined(separator: "\n\n\t\t")
         
         

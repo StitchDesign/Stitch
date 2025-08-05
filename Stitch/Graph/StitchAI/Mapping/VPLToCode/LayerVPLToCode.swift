@@ -646,7 +646,7 @@ func graphDataToStrictSyntaxViews(_ graphData: AIGraphData_V0.GraphData) throws 
 
 extension StrictSyntaxView {
     /// Generates complete SwiftUI code string for this view including modifiers and children
-    func toSwiftUICode(usePortValueDescription: Bool = false) -> String {
+    func toSwiftUICode(usePortValueDescription: Bool = true) -> String {
         let constructorString = constructor.swiftUICallString()
         
         // Handle children for container views
@@ -660,7 +660,7 @@ extension StrictSyntaxView {
         return viewWithChildren + modifiersString
     }
     
-    private func generateChildrenCode(usePortValueDescription: Bool = false) -> String {
+    private func generateChildrenCode(usePortValueDescription: Bool = true) -> String {
         guard !children.isEmpty else { return "" }
         
         // Check if this is a container view that needs children
@@ -681,7 +681,7 @@ extension StrictSyntaxView {
 }
 
 /// Renders a StrictViewModifier to SwiftUI modifier string
-func renderStrictViewModifier(_ modifier: StrictViewModifier, usePortValueDescription: Bool = false) -> String {
+func renderStrictViewModifier(_ modifier: StrictViewModifier, usePortValueDescription: Bool = true) -> String {
     switch modifier {
     case .opacity(let m):
         return ".opacity(\(renderArg(m.value, usePortValueDescription: usePortValueDescription, valueType: "number")))"
@@ -1013,7 +1013,7 @@ func getPortValueDescriptionType(for modifierName: String, argumentIndex: Int = 
     }
 }
 
-func renderArg(_ arg: SyntaxViewModifierArgumentType, usePortValueDescription: Bool = false, valueType: String = "") -> String {
+func renderArg(_ arg: SyntaxViewModifierArgumentType, usePortValueDescription: Bool = true, valueType: String = "") -> String {
     // Check for special cases that should never use PortValueDescription
     if case .stateAccess(_) = arg {
         // State variables should never be wrapped according to system prompt
