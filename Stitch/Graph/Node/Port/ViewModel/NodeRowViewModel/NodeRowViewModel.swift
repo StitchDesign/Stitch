@@ -72,13 +72,9 @@ extension NodeRowViewModel {
     @MainActor
     func updateFieldGroupsIfEmptyAndUpdatePortAddress(
         node: NodeViewModel,
-        initialValue: PortValue,
-        unpackedPortParentFieldGroupType: FieldGroupType?,
-        unpackedPortIndex: Int?
+        initialValue: PortValue
     ) {
         self.updateActiveValueAndFieldGroupsCaches(
-            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-            unpackedPortIndex: unpackedPortIndex,
             initialValue: initialValue)
                 
         // TODO: can this really change across the lifetime of a node row view model ?
@@ -94,9 +90,7 @@ extension NodeRowViewModel {
     }
      
     @MainActor
-    func updateActiveValueAndFieldGroupsCaches(unpackedPortParentFieldGroupType: FieldGroupType?,
-                                               unpackedPortIndex: Int?,
-                                               initialValue: PortValue) {
+    func updateActiveValueAndFieldGroupsCaches(initialValue: PortValue) {
         
         // TODO: confusing? `isEmpty` is a check like "we've never set field groups here", but we have logic down below for "if field groups count changed"; this is all just from re-arranging existing code that was called `initializeXYZ`
         guard self.cachedFieldGroups.isEmpty else {
@@ -109,9 +103,7 @@ extension NodeRowViewModel {
         
         let fields = self.createFieldGroups(
             initialValue: initialValue,
-            nodeIO: Self.nodeIO,
-            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-            unpackedPortIndex: unpackedPortIndex)
+            nodeIO: Self.nodeIO)
         
         let didFieldsChange = !zip(self.cachedFieldGroups, fields).allSatisfy { $0.id == $1.id }
         

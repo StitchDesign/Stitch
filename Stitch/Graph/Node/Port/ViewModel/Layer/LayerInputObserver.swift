@@ -156,6 +156,15 @@ extension LayerInputKeyPathType {
             return nil
         }
     }
+    
+    var mode: LayerInputMode {
+        switch self {
+        case .packed:
+            return .packed
+        case .unpacked:
+            return .unpacked
+        }
+    }
 }
 
 extension Int {
@@ -378,27 +387,11 @@ extension LayerInputObserver {
                             graph: GraphState) {
                 
         self._packedData.initializeDelegate(node,
-                                            // Not relevant for packed data
-                                            unpackedPortParentFieldGroupType: nil,
-                                            unpackedPortIndex: nil,
                                             activeIndex: activeIndex,
                                             graph: graph)
-                
-        let layerInput: LayerInputPort = self.port
-                
-        // MARK: first group type grabbed since layers don't have differing groups within one input
-        let unpackedPortParentFieldGroupType = layerInput
-            .getDefaultValue(for: layer)
-            .getNodeRowType(nodeIO: .input,
-                            layerInputPort: layerInput,
-                            isLayerInspector: true)
-            .fieldGroupTypes
-            .first
         
         self._unpackedData.allPorts.enumerated().forEach { fieldIndex, port in
             port.initializeDelegate(node,
-                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                    unpackedPortIndex: fieldIndex,
                                     activeIndex: activeIndex,
                                     graph: graph)
         }

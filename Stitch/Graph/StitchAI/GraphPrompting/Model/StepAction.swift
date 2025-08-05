@@ -204,7 +204,7 @@ extension StepActionConnectionAdded: StepActionable {
             if let fromNodeLocation = document.visibleGraph.getNode(self.fromNodeId)?.nonLayerCanvasItem?.position,
                let destinationNode = document.visibleGraph.getNode(self.toNodeId),
                destinationNode.kind.isLayer {
-                guard let layerInput = inputPort.keyPath?.layerInput else {
+                guard let layerInputType = inputPort.keyPath else {
                     // fatalErrorIfDebug()
                     return .actionValidationError("expected layer node keypath but got: \(self.port)")
                 }
@@ -212,11 +212,11 @@ extension StepActionConnectionAdded: StepActionable {
                 var position = fromNodeLocation
                 position.x += 200
                 
-                document.addLayerInputToCanvas(node: destinationNode,
-                                               layerInput: layerInput,
-                                               draggedOutput: nil,
-                                               canvasHeightOffset: nil,
-                                               position: position)
+                document.addCanvasLayerInput(node: destinationNode,
+                                             layerInputType: layerInputType,
+                                             draggedOutput: nil,
+                                             canvasHeightOffset: nil,
+                                             position: position)
             }
             
         } catch {

@@ -686,15 +686,6 @@ extension NodeViewModel {
         
         // TODO: should no longer be necessary ? should be handled by `updateGraphData` call ?
         graph.updateGraphData(document)
-//
-//        // Assign delegates once view models are assigned to node
-//        newInputObserver.initializeDelegate(self, graph: graph)
-//        newInputViewModel.initializeDelegate(
-//            self,
-//            initialValue: newInputObserver.getActiveValue(activeIndex: document.activeIndex),
-//            // Only relevant for layer nodes, which cannot have an input added or removed
-//            unpackedPortParentFieldGroupType: nil,
-//            unpackedPortIndex: nil)
     }
 
     @MainActor

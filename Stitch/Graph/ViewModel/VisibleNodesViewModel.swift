@@ -329,9 +329,6 @@ func syncRowViewModels(activeIndex: ActiveIndex, graph: GraphReader) {
             canvasGroup.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
                 node,
                 activeIndex: activeIndex,
-                // Layer inputs can never be inputs for group nodes
-                unpackedPortParentFieldGroupType: nil,
-                unpackedPortIndex: nil,
                 graph: graph)
                             
         case .component(let componentViewModel):

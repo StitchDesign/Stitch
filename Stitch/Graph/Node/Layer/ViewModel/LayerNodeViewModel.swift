@@ -458,15 +458,6 @@ extension LayerNodeViewModel: SchemaObserver {
                         id: .layerOutput(coordinate),
                         inputRowObservers: [],
                         outputRowObservers: [outputData.rowObserver])
-                    
-                    // updateGraphData should take care of this ?
-//                    outputData.canvasObserver?.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
-//                        node,
-//                        activeIndex: activeIndex,
-//                        // Not relevant
-//                        unpackedPortParentFieldGroupType: nil,
-//                        unpackedPortIndex: nil,
-//                        graph: graph)
                 }
                 return
             }

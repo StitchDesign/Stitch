@@ -218,8 +218,6 @@ extension CanvasItemViewModel {
     func assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
         _ node: NodeViewModel,
         activeIndex: ActiveIndex,
-        unpackedPortParentFieldGroupType: FieldGroupType?,
-        unpackedPortIndex: Int?,
         graph: GraphReader
     ) {
         
@@ -229,9 +227,7 @@ extension CanvasItemViewModel {
             if let rowObserver = graph.getInputRowObserver($0.id.asNodeIOCoordinate) {
                 $0.updateFieldGroupsIfEmptyAndUpdatePortAddress(
                     node: node,
-                    initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),
-                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                    unpackedPortIndex: unpackedPortIndex)
+                    initialValue: rowObserver.getActiveValue(activeIndex: activeIndex))
             }
         }
         
@@ -239,10 +235,7 @@ extension CanvasItemViewModel {
             if let rowObserver = graph.getOutputRowObserver($0.id.asNodeIOCoordinate) {
                 $0.updateFieldGroupsIfEmptyAndUpdatePortAddress(
                     node: node,
-                    initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),
-                    // Not relevant for output row view models
-                    unpackedPortParentFieldGroupType: nil,
-                    unpackedPortIndex: nil)
+                    initialValue: rowObserver.getActiveValue(activeIndex: activeIndex))
             }
         }
         
