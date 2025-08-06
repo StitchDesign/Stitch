@@ -7,6 +7,12 @@
 
 import SwiftUI
 
+/// Debug information needed for writing AI request debug files
+struct AIRequestDebugInfo {
+    let requestId: UUID
+    let initialSwiftUICode: String
+}
+
 struct AICodeGenFromGraphRequest: StitchAICodeCreator {
     static let type = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt
     
@@ -48,6 +54,7 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
         
         return codeEditResult
     }
+    
 }
 
 struct AICodeGenFromImageRequest: StitchAICodeCreator {
@@ -133,11 +140,27 @@ extension StitchAICodeCreator {
             }
             
             do {
-                let actionsResult = try await request
-                    .processRequest(userPrompt: userPrompt,
-                                    document: document,
-                                    aiManager: aiManager,
-                                    systemPrompt: systemPrompt)
+                let actionsResult: SwiftSyntaxActionsResult
+                if let graphRequest = request as? AICodeGenFromGraphRequest {
+                    // Pass debug info for graph requests
+                    let debugInfo = AIRequestDebugInfo(
+                        requestId: graphRequest.id,
+                        initialSwiftUICode: graphRequest.swiftUICodeOfGraph
+                    )
+                    actionsResult = try await request
+                        .processRequest(userPrompt: userPrompt,
+                                        document: document,
+                                        aiManager: aiManager,
+                                        systemPrompt: systemPrompt,
+                                        debugInfo: debugInfo)
+                } else {
+                    // No debug info for other request types
+                    actionsResult = try await request
+                        .processRequest(userPrompt: userPrompt,
+                                        document: document,
+                                        aiManager: aiManager,
+                                        systemPrompt: systemPrompt)
+                }
                 
                 let graphData = actionsResult.graphData
                 let allDiscoveredErrors = actionsResult.caughtErrors
@@ -184,7 +207,8 @@ extension StitchAICodeCreator {
     private func processRequest(userPrompt: String,
                                 document: StitchDocumentViewModel,
                                 aiManager: StitchAIManager,
-                                systemPrompt: String) async throws -> SwiftSyntaxActionsResult {
+                                systemPrompt: String,
+                                debugInfo: AIRequestDebugInfo? = nil) async throws -> SwiftSyntaxActionsResult {
         logToServerIfRelease("SUCCESS: userPrompt: \(userPrompt)")
         
         let swiftUICode = try await self
@@ -207,7 +231,20 @@ extension StitchAICodeCreator {
         
         let actionsResult = try codeParserResult.deriveStitchActions()
         
-        print("Derived Stitch layer data:\n\((try? actionsResult.encodeToPrintableString()) ?? "")")
+        let derivedLayerDataString = (try? actionsResult.encodeToPrintableString()) ?? ""
+        print("Derived Stitch layer data:\n\(derivedLayerDataString)")
+        
+        // Write debug file if debug info is provided
+        if let debugInfo = debugInfo {
+            writeAIRequestDebugFile(
+                userPrompt: userPrompt,
+                requestId: debugInfo.requestId,
+                initialSwiftUICode: debugInfo.initialSwiftUICode,
+                generatedSwiftUICode: swiftUICode,
+                derivedLayerData: derivedLayerDataString,
+                systemPrompt: systemPrompt
+            )
+        }
         
         return actionsResult
     }
