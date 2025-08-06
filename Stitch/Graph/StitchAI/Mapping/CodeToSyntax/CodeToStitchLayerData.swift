@@ -88,6 +88,23 @@ extension SwiftUIViewVisitor {
                         // Just add it to the stack temporarily so it can be processed
                         viewStack.append(viewNode)
                         currentNodeIndex = viewStack.count - 1
+                    } else if currentContext == .root {
+                        // Multiple views at root level - need to wrap in ZStack to match Stitch sidebar behavior
+                        if let existingRoot = rootViewNode {
+                            // Create a ZStack to contain both the existing root and this new view
+                            let zStackNode = SyntaxView(
+                                name: .zStack,
+                                constructorArguments: nil,
+                                modifiers: [],
+                                children: [existingRoot, viewNode],
+                                id: UUID()
+                            )
+                            
+                            // Update viewStack and root
+                            viewStack = [zStackNode]
+                            currentNodeIndex = 0
+                            rootViewNode = zStackNode
+                        }
                     } else {
 //                        log("⚠️ Found view \(viewName) in argument context - skipping child addition")
 //                        log("This view should be handled as an argument, not as a child")

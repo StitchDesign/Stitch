@@ -205,6 +205,8 @@ extension StitchAICodeCreator {
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode,
                                                                    varNameIdMap: [:])
         
+        logToServerIfRelease("StitchAICodeCreator codeParserResult:\n\(codeParserResult)")
+        
         let actionsResult = try codeParserResult.deriveStitchActions()
         
         print("Derived Stitch layer data:\n\((try? actionsResult.encodeToPrintableString()) ?? "")")
