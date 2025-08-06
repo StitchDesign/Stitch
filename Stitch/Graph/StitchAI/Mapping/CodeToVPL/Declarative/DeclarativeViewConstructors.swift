@@ -1932,55 +1932,93 @@ struct ColorInvertViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
 
 // MARK: - Positioning View Modifiers
 
-struct PositionViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
-    let x: SyntaxViewModifierArgumentType
-    let y: SyntaxViewModifierArgumentType
+enum PositionViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    case packed(SyntaxViewModifierArgumentType)
+    case unpacked(x: SyntaxViewModifierArgumentType, y: SyntaxViewModifierArgumentType)
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        var result: [ASTCustomInputValue] = []
-        
-        // Handle x argument
-        let xPortDerivations = try x.derivePortValues()
-        for derivation in xPortDerivations {
-            let customValue = ASTCustomInputValue(
-                coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .position,
-                                                                   portType: .unpacked(.port0)),
-                inputData: derivation)
-            result.append(customValue)
+        switch self {
+        case .packed(let arg):
+            guard let pv = try arg.derivePortValues().first else {
+                throw SwiftUISyntaxError.portValueNotFound(argument: arg)
+            }
+            
+            return [
+                ASTCustomInputValue(
+                    coordinate: CurrentAIGraphData
+                        .LayerInputType(layerInput: .position,
+                                        portType: .packed),
+                    inputData: pv)
+            ]
+            
+        case .unpacked(let x, let y):
+            var result: [ASTCustomInputValue] = []
+            
+            // Handle x argument
+            let xPortDerivations = try x.derivePortValues()
+            for derivation in xPortDerivations {
+                let customValue = ASTCustomInputValue(
+                    coordinate: CurrentAIGraphData
+                        .LayerInputType(layerInput: .position,
+                                        portType: .unpacked(.port0)),
+                    inputData: derivation)
+                result.append(customValue)
+            }
+            
+            // Handle y argument
+            let yPortDerivations = try y.derivePortValues()
+            for derivation in yPortDerivations {
+                let customValue = ASTCustomInputValue(
+                    coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .position,
+                                                                       portType: .unpacked(.port1)),
+                    inputData: derivation)
+                result.append(customValue)
+            }
+         
+            return result
         }
-        
-        // Handle y argument  
-        let yPortDerivations = try y.derivePortValues()
-        for derivation in yPortDerivations {
-            let customValue = ASTCustomInputValue(
-                coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .position,
-                                                                   portType: .unpacked(.port1)),
-                inputData: derivation)
-            result.append(customValue)
-        }
-        
-        return result
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
                      modifierName: SyntaxViewModifierName) -> PositionViewModifier? {
-        var x: SyntaxViewModifierArgumentType?
-        var y: SyntaxViewModifierArgumentType?
-        
-        // .position(x: X, y: Y) or .position(CGPoint(x: X, y: Y))
-        for arg in arguments {
-            switch arg.label {
-            case "x": x = arg.value
-            case "y": y = arg.value
-            case nil:
-                // Handle CGPoint case - would need more complex parsing
-                return nil
-            default: break
-            }
+        if arguments.count == 1,
+           let arg = arguments.first {
+            return PositionViewModifier.packed(arg.value)
         }
         
-        guard let x = x, let y = y else { return nil }
-        return PositionViewModifier(x: x, y: y)
+        else if arguments.count == 2 {
+            var x: SyntaxViewModifierArgumentType?
+            var y: SyntaxViewModifierArgumentType?
+            
+            // .position(x: X, y: Y) or .position(CGPoint(x: X, y: Y))
+            for arg in arguments {
+                switch arg.label {
+                case "x": x = arg.value
+                case "y": y = arg.value
+                case nil:
+                    // Handle CGPoint case - would need more complex parsing
+                    return nil
+                default: break
+                }
+            }
+            
+            guard let x = x, let y = y else { return nil }
+            return PositionViewModifier.unpacked(x: x, y: y)
+        }
+        
+        else {
+            log("PositionViewModifier: incorrect args count for position.")
+            return nil
+        }
+    }
+    
+    var allArgs: [SyntaxViewModifierArgumentType] {
+        switch self {
+        case .packed(let syntaxViewModifierArgumentType):
+            return [syntaxViewModifierArgumentType]
+        case .unpacked(let x, let y):
+            return [x, y]
+        }
     }
 }
 
