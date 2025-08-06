@@ -13,9 +13,6 @@ extension GraphState {
         let graphEntity = self.createSchema()
         let aiGraph = try AIGraphData_V0.GraphData(from: graphEntity)
         
-        // TODO: check if needed
-        var idMap = [String : UUID]()
-        
         let patchNodeDeclarations = try graphEntity
             .createBindingDeclarations(nodeIdsInTopologicalOrder: self.nodeIdsInTopologicalOrder,
                                        viewStatePatchConnections: aiGraph.viewStatePatchConnections)
@@ -26,14 +23,18 @@ extension GraphState {
         }
             .joined(separator: "\n\t")
         
-        let layerEntities = graphEntity.nodes
+        let allLayerEntities = graphEntity.nodes
             .compactMap { $0.layerNodeEntity }
         
-        let layerEntitiesMap = layerEntities.reduce(into: [UUID: LayerNodeEntity]()) { result, layerNode in
+        let layerEntitiesMap = allLayerEntities.reduce(into: [UUID: LayerNodeEntity]()) { result, layerNode in
             result.updateValue(layerNode, forKey: layerNode.id)
         }
         
-        let viewCode = try layerEntities
+        // Filter for just top layer entities in beginning
+        let topLevelLayerEntities = allLayerEntities
+            .filter { $0.layerGroupId == nil }
+        
+        let viewCode = try topLevelLayerEntities
             .createSwiftUICode(layerEntityMap: layerEntitiesMap)
         
         if ignoreScript {

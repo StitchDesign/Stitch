@@ -201,9 +201,11 @@ extension LayerNodeEntity {
         }
         
         if self.layer == .group {
-            return try self
+            let groupSwiftUICode = try self
                 .createNestedGroupSwiftUICode(children: childrenLayerEntities,
                                               layerEntityMap: layerEntityMap)
+            
+            return groupSwiftUICode
         }
         
         // Create the constructor
@@ -217,17 +219,24 @@ extension LayerNodeEntity {
         let modifiersString = try self.getSwiftUIViewModifierStrings()
 //        createStrictViewModifiersFromLayerData(layerData, idMap: &idMap)
         
-        // Convert children recursively
-        let swiftUICodeForChildren = try childrenLayerEntities.compactMap {
-            try $0.createSwiftUICode(layerEntityMap: layerEntityMap)
-        }
         
-        return """
+        var swiftUICode = """
             \(constructor)
                 .layerId(\(self.id))
                 \(modifiersString.joined(separator: "\n\t\t"))
-            \(swiftUICodeForChildren)
             """
+        
+        if !childrenLayerEntities.isEmpty {
+            // Convert children recursively
+            let swiftUICodeForChildren = try childrenLayerEntities.compactMap {
+                try $0.createSwiftUICode(layerEntityMap: layerEntityMap)
+            }
+            
+            swiftUICode += "\n\(swiftUICodeForChildren)"
+        }
+        
+        return swiftUICode
+        
 //
 //        guard let parsedNodeId = UUID(uuidString: layerData.node_id) else {
 //            return nil // TODO: how or when can this really fail?
