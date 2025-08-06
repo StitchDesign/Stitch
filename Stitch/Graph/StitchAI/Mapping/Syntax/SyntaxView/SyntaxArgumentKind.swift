@@ -43,6 +43,16 @@ enum SyntaxArgumentKind: Equatable, Hashable, Codable, Sendable {
 }
 
 extension SyntaxArgumentKind {
+    var literalData: SyntaxArgumentLiteralKind? {
+        switch self {
+        case .literal(let literalData):
+            return literalData
+            
+        default:
+            return nil
+        }
+    }
+    
     static func fromExpression(_ expression: ExprSyntax) -> Self? {
         
         // Determine argument type clearly:
@@ -165,7 +175,7 @@ extension SyntaxViewSimpleData {
         // raw literal text (removing quotes for strings)
         let raw = self.value.stripQuotes()
         
-        switch self.syntaxKind {
+        switch self.syntaxKind.literalData {
         case .integer:
             guard let intValue = Int(raw) else {
                 throw SwiftUISyntaxError.invalidIntegerLiteral(raw)
@@ -200,8 +210,37 @@ extension SyntaxViewSimpleData {
         case .nilLiteral:
             return "nil"
             
-        case .regex, .colorLiteral, .imageLiteral, .fileLiteral, .memberAccess, .tuple:
-            throw SwiftUISyntaxError.unsupportedSimpleLiteralDecoding(self)
+        case .regex, .colorLiteral, .imageLiteral, .fileLiteral, .memberAccess, .tuple, .none:
+            guard let dict = parseStringToDictionary(raw) else {
+                throw SwiftUISyntaxError.unsupportedSimpleLiteralDecoding(self)
+            }
+            
+            return dict
         }
     }
+}
+
+func parseStringToDictionary(_ string: String) -> [String: Int]? {
+    // Remove the asterisks and outer quotes
+    let cleaned = string
+        .replacingOccurrences(of: "*", with: "")
+        .replacingOccurrences(of: "\"", with: "")
+    
+    // Add quotes around keys to make it valid JSON
+    let jsonString = cleaned.replacingOccurrences(of: "([a-zA-Z]+):", with: "\"$1\":", options: .regularExpression)
+    
+    // Parse as JSON
+    guard let data = jsonString.data(using: .utf8) else { return nil }
+    
+    let typesToCheck = [String.self]
+    
+    do {
+        if let dictionary = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Int] {
+            return dictionary
+        }
+    } catch {
+        print("JSON parsing error: \(error)")
+    }
+    
+    return nil
 }

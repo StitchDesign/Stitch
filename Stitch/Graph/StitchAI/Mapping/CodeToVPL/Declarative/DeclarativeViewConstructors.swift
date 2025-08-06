@@ -1583,8 +1583,8 @@ enum ScaleEffectViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
 
         // x/y variant takes precedence when either is present
         if xArg != nil || yArg != nil {
-            let x = xArg ?? .simple(.init(value: "1.0", syntaxKind: .float))
-            let y = yArg ?? .simple(.init(value: "1.0", syntaxKind: .float))
+            let x = xArg ?? .simple(.init(value: "1.0", syntaxKind: .literal(.float)))
+            let y = yArg ?? .simple(.init(value: "1.0", syntaxKind: .literal(.float)))
             return .xy(x: x, y: y, anchor: anchorArg)
         }
 
@@ -2092,7 +2092,7 @@ struct PaddingViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
         // Handle .padding() with no arguments - uniform 16pt padding
         if arguments.isEmpty {
             let defaultPadding = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: "16", syntaxKind: .float)
+                SyntaxViewSimpleData(value: "16", syntaxKind: .literal(.float))
             )
             return PaddingViewModifier(edges: nil, length: defaultPadding)
         }

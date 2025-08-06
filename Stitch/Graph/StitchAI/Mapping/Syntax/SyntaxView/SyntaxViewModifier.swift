@@ -40,7 +40,7 @@ struct SyntaxViewArgumentData: Equatable, Hashable, Sendable, Encodable {
 
 struct SyntaxViewSimpleData: Hashable, Sendable, Encodable {
     let value: String
-    let syntaxKind: SyntaxArgumentLiteralKind
+    let syntaxKind: SyntaxArgumentKind
 }
 
 struct SyntaxViewModifierComplexType: Equatable, Hashable, Sendable, Encodable {

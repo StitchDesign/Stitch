@@ -112,19 +112,11 @@ extension SwiftUIViewVisitor {
             self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expression.trimmedDescription))
             return nil
         }
-        
-        switch syntaxKind {
-        case .literal(let syntaxArgumentLiteralKind):
-            // Simple case
-            let data = SyntaxViewSimpleData(
-                value: expression.trimmedDescription,
-                syntaxKind: syntaxArgumentLiteralKind
-            )
-            return .simple(data)
-            
-        default:
-            // No support for variables or expressions here
-            return nil
-        }
+
+        let data = SyntaxViewSimpleData(
+            value: expression.trimmedDescription,
+            syntaxKind: syntaxKind
+        )
+        return .simple(data)
     }
 }
