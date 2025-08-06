@@ -26,15 +26,15 @@ extension GraphState {
         }
             .joined(separator: "\n\t")
         
-        let syntaxes = try aiGraph.layer_data_list.compactMap { layerData in
-            try layerDataToStrictSyntaxView(layerData, idMap: &idMap)
+        let layerEntities = graphEntity.nodes
+            .compactMap { $0.layerNodeEntity }
+        
+        let layerEntitiesMap = layerEntities.reduce(into: [UUID: LayerNodeEntity]()) { result, layerNode in
+            result.updateValue(layerNode, forKey: layerNode.id)
         }
         
-        // Generate complete SwiftUI code from StrictSyntaxView
-        let viewCode = syntaxes.map { strictSyntaxView in
-            strictSyntaxView.toSwiftUICode(usePortValueDescription: usePortValueDescription)
-        }.joined(separator: "\n\n\t\t")
-        
+        let viewCode = try layerEntities
+            .createSwiftUICode(layerEntityMap: layerEntitiesMap)
         
         if ignoreScript {
             return viewCode

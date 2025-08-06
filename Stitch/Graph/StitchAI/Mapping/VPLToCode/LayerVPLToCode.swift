@@ -64,7 +64,9 @@ import SwiftParser
 extension LayerNodeEntity {
     /// Produces a `ViewConstructor` for a single `LayerData` node.
     /// Only constructor-surface arguments are considered; **no view modifiers**.
-    func createSwiftUIViewBuilderCode(children: [LayerNodeEntity]) throws -> String? {
+    @MainActor
+    func createSwiftUIViewBuilderCode(children: [LayerNodeEntity],
+                                      layerEntityMap: [UUID: LayerNodeEntity]) throws -> String? {
 //        let inputs = LayerDataConstructorInputs(layerData: layerData, idMap: &idMap)
         
         switch self.layer {
@@ -83,28 +85,28 @@ extension LayerNodeEntity {
             
             // ───────── Group → H/V/Z stack or ScrollView ─────────
         case .group:
-            return try self.createNestedGroupSwiftUICode(children: children)
+            return try self.createNestedGroupSwiftUICode(children: children,
+                                                         layerEntityMap: layerEntityMap)
             
             
             // ───────── Reality primitives (no-arg) ─────────
         case .realityView:
-            return .stitchRealityView(.plain)
+            return SyntaxViewName.stitchRealityView.createConstructorCode()
         case .box:
-            return .box(.plain)
+            return SyntaxViewName.box.createConstructorCode()
         case .cone:
-            return .cone(.plain)
+            return SyntaxViewName.cone.createConstructorCode()
         case .cylinder:
-            return .cylinder(.plain)
+            return SyntaxViewName.cylinder.createConstructorCode()
         case .sphere:
-            return .sphere(.plain)
+            return SyntaxViewName.sphere.createConstructorCode()
             
             // ───────── SF Symbol / Image ─────────
         case .sfSymbol:
-            if let symbolName = inputs.string(.sfSymbol) {
-                let arg: SyntaxViewModifierArgumentType = .simple(
-                    SyntaxViewSimpleData(value: symbolName, syntaxKind: .literal(.string))
-                )
-                return .image(.sfSymbol(name: arg))
+            if let symbolName = self.sfSymbolPort.packedData.inputPort.values?.first?.sfSymbol,
+               symbolName != "" {
+                let args = try self.sfSymbolPort.getSwiftUICodeForValues()
+                return SyntaxViewName.image.createConstructorCode(args)
             }
             return nil
             
@@ -114,15 +116,17 @@ extension LayerNodeEntity {
             return nil
             
         default:
-            log("makeConstructFromLayerData: COULD NOT TURN LAYER \(inputs.layer) INTO A ViewConstructor")
+            log("makeConstructFromLayerData: COULD NOT TURN LAYER \(self.layer) INTO A ViewConstructor")
             return nil
         }
     }
     
-    func createNestedGroupSwiftUICode(children: [LayerNodeEntity]) throws -> String? {
+    @MainActor
+    func createNestedGroupSwiftUICode(children: [LayerNodeEntity],
+                                      layerEntityMap: [UUID: LayerNodeEntity]) throws -> String? {
         assertInDebug(self.layer == .group)
         
-        let childrenContents = try children.createSwiftUICode(idMap: &idMap)
+        let childrenContents = try children.createSwiftUICode(layerEntityMap: layerEntityMap)
         
         // Check if scroll is enabled
         let scrollXEnabled = self.scrollXEnabledPort.packedData.inputPort.values?.first?.getBool ?? false
@@ -201,11 +205,14 @@ extension LayerNodeEntity {
         
         if self.layer == .group {
             return try self
-                .createNestedGroupSwiftUICode(children: childrenLayerEntities)
+                .createNestedGroupSwiftUICode(children: childrenLayerEntities,
+                                              layerEntityMap: layerEntityMap)
         }
         
         // Create the constructor
-        guard let constructor = self.makeConstructorFromLayerData() else {
+        guard let constructor = try self
+            .createSwiftUIViewBuilderCode(children: childrenLayerEntities,
+                                          layerEntityMap: layerEntityMap) else {
             return nil
         }
         
@@ -220,6 +227,7 @@ extension LayerNodeEntity {
         
         return """
             \(constructor)
+                \(swiftUICodeForChildren.joined(separator: "\n\t\t"))
             """
 //
 //        guard let parsedNodeId = UUID(uuidString: layerData.node_id) else {
@@ -280,9 +288,10 @@ extension LayerNodeEntity {
 }
 
 extension Array where Element == LayerNodeEntity {
-    func createSwiftUICode(idMap: inout [String: UUID]) throws -> String {
+    @MainActor
+    func createSwiftUICode(layerEntityMap: [UUID: LayerNodeEntity]) throws -> String {
         let strings = try self.compactMap {
-            try $0.createSwiftUICode(idMap: &idMap)
+            try $0.createSwiftUICode(layerEntityMap: layerEntityMap)
         }
         
         return strings.joined(separator: "\n")
@@ -290,29 +299,29 @@ extension Array where Element == LayerNodeEntity {
 }
 
 /// Creates the inner stack constructor for a ScrollView based on the group's orientation
-func createInnerStackConstructor(_ layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) -> StrictViewConstructor {
-    let inputs = LayerDataConstructorInputs(layerData: layerData, idMap: &idMap)
-    let orient = inputs.orientation(.orientation) ?? .vertical
-    let spacingNum = inputs.number(.spacing)
-    let spacingArg: SyntaxViewModifierArgumentType? = spacingNum.map {
-        .simple(SyntaxViewSimpleData(value: String($0), syntaxKind: .literal(.float)))
-    }
-    
-    // Extract alignment from layerGroupAlignment
-    let alignmentArg = createAlignmentArg(from: inputs, orientation: orient)
-    
-    switch orient {
-    case .horizontal:
-        return .hStack(.parameters(alignment: alignmentArg, spacing: spacingArg))
-    case .vertical:
-        return .vStack(.parameters(alignment: alignmentArg, spacing: spacingArg))
-    case .none:
-        return .zStack(.parameters(alignment: alignmentArg))
-    case .grid:
-        // Fallback to VStack for grid orientation
-        return .vStack(.parameters(alignment: alignmentArg, spacing: spacingArg))
-    }
-}
+//func createInnerStackConstructor(_ layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) -> StrictViewConstructor {
+//    let inputs = LayerDataConstructorInputs(layerData: layerData, idMap: &idMap)
+//    let orient = inputs.orientation(.orientation) ?? .vertical
+//    let spacingNum = inputs.number(.spacing)
+//    let spacingArg: SyntaxViewModifierArgumentType? = spacingNum.map {
+//        .simple(SyntaxViewSimpleData(value: String($0), syntaxKind: .literal(.float)))
+//    }
+//    
+//    // Extract alignment from layerGroupAlignment
+//    let alignmentArg = createAlignmentArg(from: inputs, orientation: orient)
+//    
+//    switch orient {
+//    case .horizontal:
+//        return .hStack(.parameters(alignment: alignmentArg, spacing: spacingArg))
+//    case .vertical:
+//        return .vStack(.parameters(alignment: alignmentArg, spacing: spacingArg))
+//    case .none:
+//        return .zStack(.parameters(alignment: alignmentArg))
+//    case .grid:
+//        // Fallback to VStack for grid orientation
+//        return .vStack(.parameters(alignment: alignmentArg, spacing: spacingArg))
+//    }
+//}
 
 /// Creates alignment argument from LayerData inputs based on stack orientation
 func createAlignmentArg(anchoring: Anchoring,
@@ -1656,87 +1665,87 @@ func renderColor(_ color: Color) -> String {
     return "Color(red: \(rgba.red), green: \(rgba.green), blue: \(rgba.blue), opacity: \(rgba.alpha))"
 }
 
-/// Generates all view modifiers for a given LayerData as strings
-/// This is a convenience wrapper around createStrictViewModifiersFromLayerData
-func generateViewModifiersForLayerData(_ layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) throws -> [String] {
-    // Reuse the typed modifier creation logic
-    let typedModifiers = try createStrictViewModifiersFromLayerData(layerData, idMap: &idMap)
-    
-    // Convert typed modifiers to strings
-    var stringModifiers = typedModifiers.map { renderViewModifierConstructor($0) }
-    
-    // Handle any remaining ports that don't have typed modifiers yet (legacy fallback)
-    let handledPorts = Set(typedModifiers.compactMap { modifier -> LayerInputPort? in
-        // Extract the port type from each typed modifier for comparison
-        switch modifier {
-        case .opacity: return .opacity
-        case .scaleEffect: return .scale
-        case .blur: return .blur
-        case .zIndex: return .zIndex
-        case .cornerRadius: return .cornerRadius
-        case .frame: return .size
-        case .foregroundColor, .fill: return .color
-        case .brightness: return .brightness
-        case .contrast: return .contrast
-        case .saturation: return .saturation
-        case .hueRotation: return .hueRotation
-        case .colorInvert: return .colorInvert
-        case .position: return .position
-        case .offset: return .offsetInGroup
-        case .padding: return .padding
-        case .clipped: return .isClipped
-        case .font: return .textFont
-        case .fontDesign: return .textFont
-        case .fontWeight: return .textFont
-        case .rotationEffect: return .rotationZ
-        case .rotation3DEffect: return nil // Multi-port modifier - handled separately
-        case .layerId(_): return nil // Nothing to do
-        }
-    })
-    
-    // Add legacy string modifiers for unhandled ports
-    for customInputValue in layerData.custom_layer_input_values {
-        let port = customInputValue.coordinate.layerInput
-        
-        if !handledPorts.contains(port),
-           let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap),
-           let s = layerInputPortToSwiftUIModifier(port: port, value: portValue) {
-            stringModifiers.append(s)
-        }
-    }
-    
-    return stringModifiers
-}
+///// Generates all view modifiers for a given LayerData as strings
+///// This is a convenience wrapper around createStrictViewModifiersFromLayerData
+//func generateViewModifiersForLayerData(_ layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) throws -> [String] {
+//    // Reuse the typed modifier creation logic
+//    let typedModifiers = try createStrictViewModifiersFromLayerData(layerData, idMap: &idMap)
+//    
+//    // Convert typed modifiers to strings
+//    var stringModifiers = typedModifiers.map { renderViewModifierConstructor($0) }
+//    
+//    // Handle any remaining ports that don't have typed modifiers yet (legacy fallback)
+//    let handledPorts = Set(typedModifiers.compactMap { modifier -> LayerInputPort? in
+//        // Extract the port type from each typed modifier for comparison
+//        switch modifier {
+//        case .opacity: return .opacity
+//        case .scaleEffect: return .scale
+//        case .blur: return .blur
+//        case .zIndex: return .zIndex
+//        case .cornerRadius: return .cornerRadius
+//        case .frame: return .size
+//        case .foregroundColor, .fill: return .color
+//        case .brightness: return .brightness
+//        case .contrast: return .contrast
+//        case .saturation: return .saturation
+//        case .hueRotation: return .hueRotation
+//        case .colorInvert: return .colorInvert
+//        case .position: return .position
+//        case .offset: return .offsetInGroup
+//        case .padding: return .padding
+//        case .clipped: return .isClipped
+//        case .font: return .textFont
+//        case .fontDesign: return .textFont
+//        case .fontWeight: return .textFont
+//        case .rotationEffect: return .rotationZ
+//        case .rotation3DEffect: return nil // Multi-port modifier - handled separately
+//        case .layerId(_): return nil // Nothing to do
+//        }
+//    })
+//    
+//    // Add legacy string modifiers for unhandled ports
+//    for customInputValue in layerData.custom_layer_input_values {
+//        let port = customInputValue.coordinate.layerInput
+//        
+//        if !handledPorts.contains(port),
+//           let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap),
+//           let s = layerInputPortToSwiftUIModifier(port: port, value: portValue) {
+//            stringModifiers.append(s)
+//        }
+//    }
+//    
+//    return stringModifiers
+//}
 
 
 // MARK: - Complete SwiftUI Code Generation (Constructor + Modifiers)
 
 /// Generates complete SwiftUI code for a LayerData including constructor and view modifiers
-func generateCompleteSwiftUICode(for layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) throws -> String? {
-    // Generate the base constructor
-    guard let constructor = makeConstructorFromLayerData(layerData, idMap: &idMap) else {
-        return nil
-    }
-    
-    let baseSwiftUI = constructor.swiftUICallString()
-    
-    // Generate view modifiers
-    let modifiers = try generateViewModifiersForLayerData(layerData, idMap: &idMap)
-    
-    // Combine constructor with modifiers
-    if modifiers.isEmpty {
-        return baseSwiftUI
-    } else {
-        let modifierChain = modifiers.joined(separator: "\n    ")
-        return baseSwiftUI + "\n    " + modifierChain
-    }
-}
+//func generateCompleteSwiftUICode(for layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) throws -> String? {
+//    // Generate the base constructor
+//    guard let constructor = makeConstructorFromLayerData(layerData, idMap: &idMap) else {
+//        return nil
+//    }
+//    
+//    let baseSwiftUI = constructor.swiftUICallString()
+//    
+//    // Generate view modifiers
+//    let modifiers = try generateViewModifiersForLayerData(layerData, idMap: &idMap)
+//    
+//    // Combine constructor with modifiers
+//    if modifiers.isEmpty {
+//        return baseSwiftUI
+//    } else {
+//        let modifierChain = modifiers.joined(separator: "\n    ")
+//        return baseSwiftUI + "\n    " + modifierChain
+//    }
+//}
 
-/// Example usage function showing how to convert a Stitch layer to SwiftUI
-func convertStitchLayerToSwiftUI(layerData: AIGraphData_V0.LayerData) throws -> String? {
-    var idMap: [String: UUID] = [:]
-    return try generateCompleteSwiftUICode(for: layerData, idMap: &idMap)
-}
+///// Example usage function showing how to convert a Stitch layer to SwiftUI
+//func convertStitchLayerToSwiftUI(layerData: AIGraphData_V0.LayerData) throws -> String? {
+//    var idMap: [String: UUID] = [:]
+//    return try generateCompleteSwiftUICode(for: layerData, idMap: &idMap)
+//}
 
 extension PortValue {
     func getSyntaxViewModifierArgumentType() throws -> SyntaxViewModifierArgumentType {

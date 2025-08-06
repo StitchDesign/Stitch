@@ -35,7 +35,7 @@ extension GraphEntity {
             
             let varName = patchNodeEntity.patch.rawValue.createUniqueVarName(nodeId: nodeId)
             
-            let args: [String] = try patchNodeEntity.inputs
+            let args: [String] = try patchNodeEntity.inputs.map { $0.portData }
                 .createSwiftUICodeArgs(varIdNameMap: varIdNameMap)
             
             let patchDeclaration = """
