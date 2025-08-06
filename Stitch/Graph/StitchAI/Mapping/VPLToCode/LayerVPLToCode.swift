@@ -410,8 +410,16 @@ extension LayerNodeEntity {
                 log("getSwiftUIViewModifierStrings: no view modifier for \(port) in \(self.layer)")
                 return nil
             }
-
             let inputData = self[keyPath: port.schemaPortKeyPath]
+
+            let defaultData = port.getDefaultValueForAI(for: self.layer)
+            let firstValue = inputData.packedData.inputPort.values?.first
+            
+            guard defaultData != firstValue else {
+                // Skip if default data is equal--no view modifier needed in this event
+                return nil
+            }
+            
             let portValueArgs = try inputData.getSwiftUICodeForValues()
             return ".\(viewModifier.rawValue)(\(portValueArgs))"
         }
