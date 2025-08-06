@@ -995,20 +995,27 @@ extension SyntaxViewName {
             }
             
         case .simple(let data):
-            let valueType = try data.syntaxKind.getValueType()
-            let valueEncoding = try data.createEncoding()
-            
-            // Create encodable dictionary
-            let aiPortValueEncoding = [
-                "value": AnyEncodable(valueEncoding),
-                "value_type": AnyEncodable(valueType.asLLMStepNodeType)
-            ]
-            
-            // Decode dictionary, getting a PortValue
-            let data = try JSONEncoder().encode(aiPortValueEncoding)
-            let aiPortValue = try JSONDecoder().decode(CurrentAIGraphData.StitchAIPortValue.self, from: data)
-            
-            return [.value(.init(aiPortValue.value))]
+            switch data.syntaxKind {
+            case .literal(let literaData):
+                let valueType = try literaData.getValueType()
+                let valueEncoding = try data.createEncoding()
+                
+                // Create encodable dictionary
+                let aiPortValueEncoding = [
+                    "value": AnyEncodable(valueEncoding),
+                    "value_type": AnyEncodable(valueType.asLLMStepNodeType)
+                ]
+                
+                // Decode dictionary, getting a PortValue
+                let data = try JSONEncoder().encode(aiPortValueEncoding)
+                let aiPortValue = try JSONDecoder().decode(CurrentAIGraphData.StitchAIPortValue.self, from: data)
+                
+                return [.value(.init(aiPortValue.value))]
+
+            default:
+                fatalErrorIfDebug()
+                return []
+            }
             
         case .stateAccess(let varName):
             return [.stateRef(varName)]

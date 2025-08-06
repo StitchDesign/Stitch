@@ -80,7 +80,7 @@ func makeConstructorFromLayerData(_ layerData: AIGraphData_V0.LayerData,
         if let s = inputs.string(.text) {
             // Represent the simple `Text("…")` case
             let arg: SyntaxViewModifierArgumentType = .simple(
-                SyntaxViewSimpleData(value: s, syntaxKind: .string)
+                SyntaxViewSimpleData(value: s, syntaxKind: .literal(.string))
             )
             return .text(.string(arg))
         }
@@ -98,7 +98,7 @@ func makeConstructorFromLayerData(_ layerData: AIGraphData_V0.LayerData,
         let orient = inputs.orientation(.orientation) ?? .vertical
         let spacingNum = inputs.number(.spacing)
         let spacingArg: SyntaxViewModifierArgumentType? = spacingNum.map {
-            .simple(SyntaxViewSimpleData(value: String($0), syntaxKind: .float))
+            .simple(SyntaxViewSimpleData(value: String($0), syntaxKind: .literal(.float)))
         }
         let alignmentArg: SyntaxViewModifierArgumentType? = nil // keep minimal for now
         
@@ -160,7 +160,7 @@ func makeConstructorFromLayerData(_ layerData: AIGraphData_V0.LayerData,
     case .sfSymbol:
         if let symbolName = inputs.string(.sfSymbol) {
             let arg: SyntaxViewModifierArgumentType = .simple(
-                SyntaxViewSimpleData(value: symbolName, syntaxKind: .string)
+                SyntaxViewSimpleData(value: symbolName, syntaxKind: .literal(.string))
             )
             return .image(.sfSymbol(name: arg))
         }
@@ -216,7 +216,7 @@ func layerDataToStrictSyntaxView(_ layerData: AIGraphData_V0.LayerData,
         let innerStackNodeId = UUID()
         // Add LayerIdViewModifier to the inner stack as well
         let innerStackLayerIdModifier = StrictViewModifier.layerId(LayerIdViewModifier(
-            layerId: .simple(SyntaxViewSimpleData(value: innerStackNodeId.uuidString, syntaxKind: .string))
+            layerId: .simple(SyntaxViewSimpleData(value: innerStackNodeId.uuidString, syntaxKind: .literal(.string)))
         ))
         let innerStackView = StrictSyntaxView(
             constructor: innerStackConstructor,
@@ -229,7 +229,7 @@ func layerDataToStrictSyntaxView(_ layerData: AIGraphData_V0.LayerData,
         // Add LayerIdViewModifier to every StrictSyntaxView
         let layerIdModifier = StrictViewModifier.layerId(
             LayerIdViewModifier(
-                layerId: .simple(SyntaxViewSimpleData(value: nodeId.uuidString, syntaxKind: .string))
+                layerId: .simple(SyntaxViewSimpleData(value: nodeId.uuidString, syntaxKind: .literal(.string)))
         ))
         let allModifiers = modifiers + [layerIdModifier]
         
@@ -243,7 +243,7 @@ func layerDataToStrictSyntaxView(_ layerData: AIGraphData_V0.LayerData,
     
     // Add LayerIdViewModifier to every StrictSyntaxView
     let layerIdModifier = StrictViewModifier.layerId(LayerIdViewModifier(
-        layerId: .simple(SyntaxViewSimpleData(value: nodeId.uuidString, syntaxKind: .string))
+        layerId: .simple(SyntaxViewSimpleData(value: nodeId.uuidString, syntaxKind: .literal(.string)))
     ))
     let allModifiers = modifiers + [layerIdModifier]
     
@@ -261,7 +261,7 @@ func createInnerStackConstructor(_ layerData: AIGraphData_V0.LayerData, idMap: i
     let orient = inputs.orientation(.orientation) ?? .vertical
     let spacingNum = inputs.number(.spacing)
     let spacingArg: SyntaxViewModifierArgumentType? = spacingNum.map {
-        .simple(SyntaxViewSimpleData(value: String($0), syntaxKind: .float))
+        .simple(SyntaxViewSimpleData(value: String($0), syntaxKind: .literal(.float)))
     }
     
     // Extract alignment from layerGroupAlignment
@@ -452,7 +452,7 @@ func createFrameViewModifierFromUnpackedInputs(_ inputs: [LayerPortDerivation],
         if let portValue = decodePortValueFromCIV(input, idMap: &idMap) {
             // Concrete value case
             if let number = portValue.getNumber {
-                syntaxArg = .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .float))
+                syntaxArg = .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float)))
             } else {
                 continue // Skip if we can't extract a number
             }
@@ -500,7 +500,7 @@ func createOffsetViewModifierFromUnpackedInputs(_ inputs: [LayerPortDerivation],
         if let portValue = decodePortValueFromCIV(input, idMap: &idMap) {
             // Concrete value case
             if let number = portValue.getNumber {
-                syntaxArg = .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .float))
+                syntaxArg = .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float)))
             } else {
                 continue // Skip if we can't extract a number
             }
@@ -548,7 +548,7 @@ func createPositionViewModifierFromUnpackedInputs(_ inputs: [LayerPortDerivation
         if let portValue = decodePortValueFromCIV(input, idMap: &idMap) {
             // Concrete value case
             if let number = portValue.getNumber {
-                syntaxArg = .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .float))
+                syntaxArg = .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float)))
             } else {
                 continue // Skip if we can't extract a number
             }
@@ -901,7 +901,7 @@ func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) 
     switch arg {
     case .simple(let data):
         // For simple values, use the raw value with appropriate quoting
-        switch data.syntaxKind {
+        switch data.syntaxKind.literalData {
         case .string:
             // Check if this is a hex color string and preserve it
             if data.value.starts(with: "#") && (data.value.count == 7 || data.value.count == 9) {
@@ -933,7 +933,7 @@ func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) 
                let firstArg = c.arguments.first,
                firstArg.label == nil,
                case .simple(let simpleData) = firstArg.value,
-               simpleData.syntaxKind == .string,
+               simpleData.syntaxKind.literalData == .string,
                simpleData.value.starts(with: "#") {
                 // Return the hex string directly for PortValueDescription
                 return "\"\(simpleData.value)\""
@@ -1058,7 +1058,7 @@ func renderArgWithoutPortValueDescription(_ arg: SyntaxViewModifierArgumentType)
                let firstArg = c.arguments.first,
                firstArg.label == nil,
                case .simple(let simpleData) = firstArg.value,
-               simpleData.syntaxKind == .string,
+               simpleData.syntaxKind.literalData == .string,
                simpleData.value.starts(with: "#") {
                 // Convert hex string to RGBA Color format
                 if let color = ColorConversionUtils.hexToColor(simpleData.value) {
@@ -1090,7 +1090,7 @@ func renderArgWithoutPortValueDescription(_ arg: SyntaxViewModifierArgumentType)
 }
 
 func renderSimple(_ s: SyntaxViewSimpleData) -> String {
-    switch s.syntaxKind {
+    switch s.syntaxKind.literalData {
     case .string:
         return "\"\(s.value)\""
     case .float:
@@ -1175,7 +1175,7 @@ func createColorArgument(_ color: Color) -> SyntaxViewModifierArgumentType {
             return .complex(SyntaxViewModifierComplexType(
                 typeName: "Color",
                 arguments: [
-                    .init(label: nil, value: .simple(SyntaxViewSimpleData(value: "#\(hexString)", syntaxKind: .string)))
+                    .init(label: nil, value: .simple(SyntaxViewSimpleData(value: "#\(hexString)", syntaxKind: .literal(.string))))
                 ]
             ))
         }
@@ -1190,10 +1190,10 @@ func createColorArgument(_ color: Color) -> SyntaxViewModifierArgumentType {
         return .complex(SyntaxViewModifierComplexType(
             typeName: "Color",
             arguments: [
-                .init(label: "red", value: .simple(SyntaxViewSimpleData(value: redString, syntaxKind: .float))),
-                .init(label: "green", value: .simple(SyntaxViewSimpleData(value: greenString, syntaxKind: .float))),
-                .init(label: "blue", value: .simple(SyntaxViewSimpleData(value: blueString, syntaxKind: .float))),
-                .init(label: "opacity", value: .simple(SyntaxViewSimpleData(value: alphaString, syntaxKind: .float)))
+                .init(label: "red", value: .simple(SyntaxViewSimpleData(value: redString, syntaxKind: .literal(.float)))),
+                .init(label: "green", value: .simple(SyntaxViewSimpleData(value: greenString, syntaxKind: .literal(.float)))),
+                .init(label: "blue", value: .simple(SyntaxViewSimpleData(value: blueString, syntaxKind: .literal(.float)))),
+                .init(label: "opacity", value: .simple(SyntaxViewSimpleData(value: alphaString, syntaxKind: .literal(.float))))
             ]
         ))
     }
@@ -1209,7 +1209,7 @@ func makeViewModifierConstructor(from port: LayerInputPort,
     case .opacity:
         if let number = value.getNumber {
             let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: String(number), syntaxKind: .float)
+                SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))
             )
             return .opacity(OpacityViewModifier(value: arg))
         }
@@ -1217,7 +1217,7 @@ func makeViewModifierConstructor(from port: LayerInputPort,
     case .scale:
         if let number = value.getNumber {
             let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: String(number), syntaxKind: .float)
+                SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))
             )
             return .scaleEffect(.uniform(scale: arg, anchor: nil))
         }
@@ -1225,7 +1225,7 @@ func makeViewModifierConstructor(from port: LayerInputPort,
     case .blur, .blurRadius:
         if let number = value.getNumber {
             let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: String(number), syntaxKind: .float)
+                SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))
             )
             return .blur(BlurViewModifier(radius: arg))
         }
@@ -1233,7 +1233,7 @@ func makeViewModifierConstructor(from port: LayerInputPort,
     case .zIndex:
         if let number = value.getNumber {
             let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: String(number), syntaxKind: .float)
+                SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))
             )
             return .zIndex(ZIndexViewModifier(value: arg))
         }
@@ -1241,7 +1241,7 @@ func makeViewModifierConstructor(from port: LayerInputPort,
     case .cornerRadius:
         if let number = value.getNumber {
             let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: String(number), syntaxKind: .float)
+                SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))
             )
             return .cornerRadius(CornerRadiusViewModifier(radius: arg))
         }
@@ -1254,12 +1254,12 @@ func makeViewModifierConstructor(from port: LayerInputPort,
             // Convert LayerDimension to SyntaxViewModifierArgumentType
             if case .number(let widthValue) = size.width {
                 width = .simple(SyntaxViewSimpleData(value: widthValue.description,
-                                                     syntaxKind: .float))
+                                                     syntaxKind: .literal(.float)))
             }
             
             if case .number(let heightValue) = size.height {
                 height = .simple(SyntaxViewSimpleData(value: heightValue.description,
-                                                      syntaxKind: .float))
+                                                      syntaxKind: .literal(.float)))
             }
             
             // Only create the modifier if we have at least one dimension
@@ -1288,7 +1288,7 @@ func makeViewModifierConstructor(from port: LayerInputPort,
     case .brightness:
         if let number = value.getNumber {
             let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: String(number), syntaxKind: .float)
+                SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))
             )
             return .brightness(BrightnessViewModifier(value: arg))
         }
@@ -1296,7 +1296,7 @@ func makeViewModifierConstructor(from port: LayerInputPort,
     case .contrast:
         if let number = value.getNumber {
             let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: String(number), syntaxKind: .float)
+                SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))
             )
             return .contrast(ContrastViewModifier(value: arg))
         }
@@ -1304,7 +1304,7 @@ func makeViewModifierConstructor(from port: LayerInputPort,
     case .saturation:
         if let number = value.getNumber {
             let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: String(number), syntaxKind: .float)
+                SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))
             )
             return .saturation(SaturationViewModifier(value: arg))
         }
@@ -1315,7 +1315,7 @@ func makeViewModifierConstructor(from port: LayerInputPort,
                 SyntaxViewModifierComplexType(
                     typeName: "",
                     arguments: [
-                        .init(label: "degrees", value: .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .float)))
+                        .init(label: "degrees", value: .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))))
                     ]
                 )
             )
@@ -1330,10 +1330,10 @@ func makeViewModifierConstructor(from port: LayerInputPort,
     case .position:
         if let position = value.getPosition {
             let xArg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: position.x.description, syntaxKind: .float)
+                SyntaxViewSimpleData(value: position.x.description, syntaxKind: .literal(.float))
             )
             let yArg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: position.y.description, syntaxKind: .float)
+                SyntaxViewSimpleData(value: position.y.description, syntaxKind: .literal(.float))
             )
             return .position(PositionViewModifier(x: xArg, y: yArg))
         }
@@ -1341,10 +1341,10 @@ func makeViewModifierConstructor(from port: LayerInputPort,
     case .offsetInGroup:
         if let position = value.getPosition {
             let xArg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: position.x.description, syntaxKind: .float)
+                SyntaxViewSimpleData(value: position.x.description, syntaxKind: .literal(.float))
             )
             let yArg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: position.y.description, syntaxKind: .float)
+                SyntaxViewSimpleData(value: position.y.description, syntaxKind: .literal(.float))
             )
             return .offset(OffsetViewModifier(x: xArg, y: yArg))
         }
@@ -1354,7 +1354,7 @@ func makeViewModifierConstructor(from port: LayerInputPort,
             // For now, handle uniform padding only
             if padding.top == padding.right && padding.right == padding.bottom && padding.bottom == padding.left {
                 let arg = SyntaxViewModifierArgumentType.simple(
-                    SyntaxViewSimpleData(value: padding.top.description, syntaxKind: .float)
+                    SyntaxViewSimpleData(value: padding.top.description, syntaxKind: .literal(.float))
                 )
                 return .padding(PaddingViewModifier(edges: nil, length: arg))
             }
@@ -1386,7 +1386,7 @@ func makeViewModifierConstructor(from port: LayerInputPort,
                 SyntaxViewModifierComplexType(
                     typeName: "",
                     arguments: [
-                        .init(label: "degrees", value: .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .float)))
+                        .init(label: "degrees", value: .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))))
                     ]
                 )
             )
@@ -1431,7 +1431,7 @@ func decomposeFontToModifiers(_ stitchFont: StitchFont) -> StrictViewModifier? {
     // Create a combined font specification directly as syntax
     let combinedFont = ".system(size: 17, weight: \(weightString), design: \(designString))"
     let fontArg = SyntaxViewModifierArgumentType.simple(
-        SyntaxViewSimpleData(value: combinedFont, syntaxKind: .memberAccess)
+        SyntaxViewSimpleData(value: combinedFont, syntaxKind: .literal(.memberAccess))
     )
     
     return .font(FontViewModifier(font: fontArg))

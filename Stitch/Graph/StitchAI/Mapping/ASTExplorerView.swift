@@ -223,7 +223,7 @@ struct ASTExplorerView: View {
                 case .derivedActions:
                     stageView(
                         title: Stage.derivedActions.title,
-                        text: (try? stitchActions.encodeToPrintableString()) ?? "—"
+                        text: (try? stitchActions?.encodeToPrintableString()) ?? "—"
                     )
                     .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
                                             removal:   .move(edge: .bottom).combined(with: .opacity)))

@@ -43,6 +43,16 @@ enum SyntaxArgumentKind: Equatable, Hashable, Codable, Sendable {
 }
 
 extension SyntaxArgumentKind {
+    var literalData: SyntaxArgumentLiteralKind? {
+        switch self {
+        case .literal(let literalData):
+            return literalData
+            
+        default:
+            return nil
+        }
+    }
+    
     static func fromExpression(_ expression: ExprSyntax) -> Self? {
         
         // Determine argument type clearly:
@@ -165,7 +175,7 @@ extension SyntaxViewSimpleData {
         // raw literal text (removing quotes for strings)
         let raw = self.value.stripQuotes()
         
-        switch self.syntaxKind {
+        switch self.syntaxKind.literalData {
         case .integer:
             guard let intValue = Int(raw) else {
                 throw SwiftUISyntaxError.invalidIntegerLiteral(raw)
@@ -200,8 +210,56 @@ extension SyntaxViewSimpleData {
         case .nilLiteral:
             return "nil"
             
-        case .regex, .colorLiteral, .imageLiteral, .fileLiteral, .memberAccess, .tuple:
-            throw SwiftUISyntaxError.unsupportedSimpleLiteralDecoding(self)
+        case .regex, .colorLiteral, .imageLiteral, .fileLiteral, .memberAccess, .tuple, .none:
+            let dict = try parseStringToDictionary(raw)
+            return dict
         }
+    }
+}
+
+func parseStringToDictionary(_ string: String) throws -> [String: AnyEncodable] {
+    // Remove the asterisks and outer quotes
+    let cleaned = string
+        .replacingOccurrences(of: "*", with: "")
+        .replacingOccurrences(of: "\"", with: "")
+    
+    // Add quotes around keys to make it valid JSON
+    let jsonString = cleaned.replacingOccurrences(of: "([a-zA-Z]+):", with: "\"$1\":", options: .regularExpression)
+    
+    // Parse as JSON
+    guard let data = jsonString.data(using: .utf8) else {
+        throw SwiftUISyntaxError.unsupportedJsonData(string)
+    }
+        
+    do {
+        if let dictionary = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+            let convertedDict = try dictionary.reduce(into: [String: AnyEncodable]()) { result, data in
+                let (key, value) = data
+                let encodedValue: AnyEncodable
+                
+                if let value = value as? String {
+                    encodedValue = AnyEncodable(value)
+                } else if let value = value as? Int {
+                    encodedValue = AnyEncodable(value)
+                } else if let value = value as? CGFloat {
+                    encodedValue = AnyEncodable(value)
+                } else if let value = value as? Double {
+                    encodedValue = AnyEncodable(value)
+                } else if let value = value as? Bool {
+                    encodedValue = AnyEncodable(value)
+                } else {
+                    throw SwiftUISyntaxError.unsupportedJsonData(string)
+                }
+                
+                result.updateValue(encodedValue, forKey: key)
+            }
+            
+            return convertedDict
+        }
+        
+        throw SwiftUISyntaxError.unsupportedJsonData(string)
+    } catch {
+        print("JSON parsing error: \(error)")
+        throw error
     }
 }

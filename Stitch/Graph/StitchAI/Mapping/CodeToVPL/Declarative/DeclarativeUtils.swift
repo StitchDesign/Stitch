@@ -236,7 +236,7 @@ extension SyntaxViewModifierArgumentType {
     var cgFloatValue: CGFloat? {
         switch self {
         case .simple(let data):
-            switch data.syntaxKind {
+            switch data.syntaxKind.literalData {
             case .float, .integer:
                 return CGFloat(Double(data.value) ?? 0)
             default:
@@ -281,7 +281,7 @@ extension SyntaxViewModifierArgumentType {
     var boolLiteral: Bool? {
         switch self {
         case .simple(let data)
-            where data.syntaxKind == .boolean:
+            where data.syntaxKind.literalData == .boolean:
             return data.value.lowercased() == "true"
 
         case .memberAccess(let ma):                // in case you ever get `.true`
