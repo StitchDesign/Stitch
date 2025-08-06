@@ -31,7 +31,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     private var idCounter = 0
     
     // Context tracking for proper child vs argument parsing
-    enum ParsingContext {
+    enum ParsingContext: Equatable {
         case root
         case closure(parentView: SyntaxViewName)
         case arguments
