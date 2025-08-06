@@ -50,7 +50,7 @@ struct ASTExplorerView: View {
 
     /// Which transformation stages should be displayed.
     enum Stage: CaseIterable, Hashable {
-        case originalCode, parsedSyntax, derivedActions, rebuiltSyntax, regeneratedCode
+        case originalCode, parsedSyntax, derivedActions, regeneratedCode
 
         /// User‑facing title for each stage.
         var title: String {
@@ -58,7 +58,6 @@ struct ASTExplorerView: View {
             case .originalCode:      return "Original SwiftUI code"
             case .parsedSyntax:      return "Parsed SyntaxView"
             case .derivedActions:    return "Derived StitchActions"
-            case .rebuiltSyntax:     return "Re‑built SyntaxView"
             case .regeneratedCode:   return "Regenerated SwiftUI code"
             }
         }
@@ -74,11 +73,9 @@ struct ASTExplorerView: View {
     // Derived / transient state for current tab
     @State private var firstSyntax: SyntaxView?
     @State private var stitchActions: SwiftSyntaxActionsResult?
-    @State private var rebuiltSyntax: [StrictSyntaxView] = []
     @State private var regeneratedCode: String = ""
     @State private var errorString: String?
     @State private var silentlyCaughtErrors: [SwiftUISyntaxError] = []
-    @State private var derivedConstructors: [StrictViewConstructor] = []
 
     /// Controls which columns are visible.  Defaults to showing all.
     @State private var visibleStages: Set<Stage> = Set(Stage.allCases)
@@ -228,20 +225,6 @@ struct ASTExplorerView: View {
                     .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
                                             removal:   .move(edge: .bottom).combined(with: .opacity)))
                     
-                case .rebuiltSyntax:
-                    let rebuiltText: String = rebuiltSyntax.reduce(into: "") { stringBuilder, syntax in
-                        stringBuilder += "\n\(formatStrictSyntaxView(syntax))"
-                    }
-                    
-                    let display = rebuiltText.isEmpty ? "—" : rebuiltText
-
-                    stageView(
-                        title: Stage.rebuiltSyntax.title,
-                        text: display
-                    )
-                    .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
-                                            removal:   .move(edge: .bottom).combined(with: .opacity)))
-                    
                 case .regeneratedCode:
                     stageView(
                         title: Stage.regeneratedCode.title,
@@ -262,11 +245,9 @@ struct ASTExplorerView: View {
         // Reset all values
         firstSyntax = nil
         stitchActions = nil
-        rebuiltSyntax = []
         regeneratedCode = ""
         errorString = nil
         silentlyCaughtErrors = []
-        derivedConstructors = []
 
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(currentCode,
                                                                    varNameIdMap: [:])
@@ -283,24 +264,13 @@ struct ASTExplorerView: View {
             stitchActions = stitchActionsResult
             silentlyCaughtErrors += stitchActionsResult.caughtErrors
             
-            // Actions → StrictSyntaxView (new approach using typed system)
-            var idMap: [String: UUID] = [:]
-            
             // Apply AI result to fake document
             try stitchActionsResult.graphData
                 .createAIGraph(document: fakeDoc)
             
-            // Convert LayerData to StrictSyntaxView
-            self.rebuiltSyntax = try stitchActions?.graphData.layer_data_list.compactMap { layerData in
-                try layerDataToStrictSyntaxView(layerData, idMap: &idMap)
-            } ?? []
-            
             // Generate SwiftUI code with configurable script wrapper
             let newSwiftUICode = try fakeDoc.graph.createSwiftUICode(ignoreScript: ignoreScript, usePortValueDescription: usePortValueDescription)
             self.regeneratedCode = newSwiftUICode
-            
-            // Also maintain derivedConstructors for compatibility with existing UI
-            self.derivedConstructors = rebuiltSyntax.map { $0.constructor }
         } catch {
             errorString = "\(error)"
         }
