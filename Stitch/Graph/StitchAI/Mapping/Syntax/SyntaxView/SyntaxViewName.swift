@@ -40,6 +40,7 @@ extension SyntaxNameType {
 enum SyntaxValueName: String, Hashable, CaseIterable {
     case portValueDescription = "PortValueDescription"
     case binding = "Binding"
+    case color = "Color"
 }
 
 // MARK: - String ↔︎ enum helpers

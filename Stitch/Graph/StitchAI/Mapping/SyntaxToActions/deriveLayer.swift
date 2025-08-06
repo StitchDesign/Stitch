@@ -1111,7 +1111,7 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
             throw error
         }
     
-    case .binding:
+    case .binding, .color:
         // Do nothing for bindings
         return []
     }

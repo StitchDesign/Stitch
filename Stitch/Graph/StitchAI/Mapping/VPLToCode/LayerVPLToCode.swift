@@ -392,7 +392,7 @@ func createStrictViewModifiersFromLayerData(_ layerData: AIGraphData_V0.LayerDat
             let customInputValue = inputs[0]
             if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
                 // Concrete value case
-                if let constructorModifier = makeViewModifierConstructor(from: port, value: portValue, layerType: layerType) {
+                if let constructorModifier = try makeViewModifierConstructor(from: port, value: portValue, layerType: layerType) {
                     modifiers.append(constructorModifier)
                 }
             } else if case .stateRef(let stateRefName) = customInputValue.inputData {
@@ -419,7 +419,7 @@ func createStrictViewModifiersFromLayerData(_ layerData: AIGraphData_V0.LayerDat
                 // For other ports with unpacked inputs, handle each separately for now
                 for customInputValue in inputs {
                     if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
-                        if let constructorModifier = makeViewModifierConstructor(from: port, value: portValue, layerType: layerType) {
+                        if let constructorModifier = try makeViewModifierConstructor(from: port, value: portValue, layerType: layerType) {
                             modifiers.append(constructorModifier)
                         }
                     } else if case .stateRef(let stateRefName) = customInputValue.inputData {
@@ -573,7 +573,7 @@ func createPositionViewModifierFromUnpackedInputs(_ inputs: [LayerPortDerivation
     
     // Create PositionViewModifier if we have both x and y
     if let x = x, let y = y {
-        return .position(PositionViewModifier(x: x, y: y))
+        return .position(PositionViewModifier.unpacked(x: x, y: y))
     }
     
     return nil
@@ -609,7 +609,7 @@ func makeViewModifierConstructorFromStateRef(from port: LayerInputPort,
         return .hueRotation(HueRotationViewModifier(angle: stateAccessArg))
     case .position:
         // Position needs x and y, but we only have one state ref - use it for both
-        return .position(PositionViewModifier(x: stateAccessArg, y: stateAccessArg))
+        return .position(PositionViewModifier.packed(stateAccessArg))
     case .offsetInGroup:
         // Offset needs x and y, but we only have one state ref - use it for both  
         return .offset(OffsetViewModifier(x: stateAccessArg, y: stateAccessArg))
@@ -737,7 +737,13 @@ func renderStrictViewModifier(_ modifier: StrictViewModifier, usePortValueDescri
     case .colorInvert(_):
         return ".colorInvert()"
     case .position(let m):
-        return ".position(x: \(renderArg(m.x)), y: \(renderArg(m.y)))"
+        switch m {
+        case .packed(let arg):
+            return ".position(\(renderArg(arg, valueType: "position")))"
+            
+        case .unpacked(let x, let y):
+            return ".position(x: \(renderArg(x, valueType: "number")), y: \(renderArg(y, valueType: "number")))"
+        }
     case .offset(let m):
         return ".offset(x: \(renderArg(m.x)), y: \(renderArg(m.y)))"
     case .padding(let m):
@@ -926,8 +932,8 @@ func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) 
         }
         return "\".\(m.property)\""
     case .complex(let c):
-        // Handle complex types like CGSize, Color, etc.
-        if c.typeName == "Color" {
+        switch SyntaxValueName(rawValue: c.typeName) {
+        case .color:
             // Check if this is a hex color (single string argument)
             if c.arguments.count == 1,
                let firstArg = c.arguments.first,
@@ -938,12 +944,26 @@ func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) 
                 // Return the hex string directly for PortValueDescription
                 return "\"\(simpleData.value)\""
             }
-        } else if c.typeName == "CGSize" {
+            
+        case .portValueDescription:
+            guard let firstArg = c.arguments.first else {
+                fatalErrorIfDebug()
+                return ""
+            }
+            
+            return renderArgWithoutPortValueDescription(firstArg.value)
+            
+        default:
+            break
+        }
+        
+        if c.typeName == "CGSize" {
             // Extract width and height for size type
             let dict = (try? c.arguments.createValuesDict()) ?? [:]
             return "{\(dict.map { "\"\($0.key)\": \"\($0.value)\"" }.joined(separator: ", "))}"
         }
         return "\"\(c.typeName)(...)\""
+        
     case .array(let elements):
         // Arrays should be wrapped as individual PortValueDescriptions
         let renderedElements = elements.map { extractValueForPortValueDescription($0) }
@@ -1051,8 +1071,9 @@ func renderArgWithoutPortValueDescription(_ arg: SyntaxViewModifierArgumentType)
         }.joined(separator: ", ")
         return "(\(inner))"
     case .complex(let c):
-        // Special handling for Color types
-        if c.typeName == "Color" {
+        switch SyntaxValueName(rawValue: c.typeName) {
+        case .color:
+            // Special handling for Color types
             // Check if this is a hex color (single string argument)
             if c.arguments.count == 1,
                let firstArg = c.arguments.first,
@@ -1066,6 +1087,17 @@ func renderArgWithoutPortValueDescription(_ arg: SyntaxViewModifierArgumentType)
                     return "Color(red: \(rgba.red), green: \(rgba.green), blue: \(rgba.blue), opacity: \(rgba.alpha))"
                 }
             }
+            
+        case .portValueDescription:
+            guard let firstArg = c.arguments.first else {
+                fatalErrorIfDebug()
+                return ""
+            }
+            
+            return renderArgWithoutPortValueDescription(firstArg.value)
+            
+        default:
+            break
         }
         
         // Handle angle functions (.degrees, .radians)
@@ -1204,7 +1236,9 @@ func createColorArgument(_ color: Color) -> SyntaxViewModifierArgumentType {
 /// Creates a typed view-modifier constructor from a layer input value, when supported.
 func makeViewModifierConstructor(from port: LayerInputPort,
                                  value: AIGraphData_V0.PortValue,
-                                 layerType: AIGraphData_V0.Layer) -> StrictViewModifier? {
+                                 layerType: AIGraphData_V0.Layer) throws -> StrictViewModifier? {
+    let syntaxFromArg = try value.getSyntaxViewModifierArgumentType()
+    
     switch port {
     case .opacity:
         if let number = value.getNumber {
@@ -1328,16 +1362,7 @@ func makeViewModifierConstructor(from port: LayerInputPort,
         }
         return nil
     case .position:
-        if let position = value.getPosition {
-            let xArg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: position.x.description, syntaxKind: .literal(.float))
-            )
-            let yArg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: position.y.description, syntaxKind: .literal(.float))
-            )
-            return .position(PositionViewModifier(x: xArg, y: yArg))
-        }
-        return nil
+        return .position(PositionViewModifier.packed(syntaxFromArg))
     case .offsetInGroup:
         if let position = value.getPosition {
             let xArg = SyntaxViewModifierArgumentType.simple(
@@ -1525,7 +1550,7 @@ func renderViewModifierConstructor(_ modifier: StrictViewModifier) -> String {
     case .colorInvert(_):
         return ".colorInvert()"
     case .position(let m):
-        return ".position(x: \(renderArg(m.x)), y: \(renderArg(m.y)))"
+        return ".position: \(m.allArgs)"
     case .offset(let m):
         return ".offset(x: \(renderArg(m.x)), y: \(renderArg(m.y)))"
     case .padding(let m):
@@ -1750,4 +1775,17 @@ func generateCompleteSwiftUICode(for layerData: AIGraphData_V0.LayerData, idMap:
 func convertStitchLayerToSwiftUI(layerData: AIGraphData_V0.LayerData) throws -> String? {
     var idMap: [String: UUID] = [:]
     return try generateCompleteSwiftUICode(for: layerData, idMap: &idMap)
+}
+
+extension PortValue {
+    func getSyntaxViewModifierArgumentType() throws -> SyntaxViewModifierArgumentType {
+        let argumentData = try self.anyCodable.encodeToString()
+        
+        return .complex(.init(typeName: SyntaxValueName.portValueDescription.rawValue,
+                       arguments: [
+                        .init(label: nil,
+                              value: .simple(.init(value: argumentData,
+                                                   syntaxKind: .expression(.closure))))
+                       ]))
+    }
 }
