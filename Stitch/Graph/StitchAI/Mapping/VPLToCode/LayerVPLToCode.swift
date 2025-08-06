@@ -171,7 +171,6 @@ extension LayerNodeEntity {
                     HStack(alignment: .\(stackAlignmentArg), spacing: \(spacingArgs)) {
                         \(childrenContents)
                     }
-                    .layerId(\(self.id.uuidString))
                     """
 
             case .vertical:
@@ -179,14 +178,12 @@ extension LayerNodeEntity {
                     VStack(alignment: .\(stackAlignmentArg), spacing: \(spacingArgs)) {
                         \(childrenContents)
                     }
-                    .layerId(\(self.id.uuidString))
                     """
             case .none:
                 return """
                     ZStack(alignment: .\(stackAlignmentArg)) {
                         \(childrenContents)
                     }
-                    .layerId(\(self.id.uuidString))
                     """
             case .grid:
                 // TODO: .grid orientation becomes SwiftUI LazyVGrid
@@ -227,7 +224,9 @@ extension LayerNodeEntity {
         
         return """
             \(constructor)
-                \(swiftUICodeForChildren.joined(separator: "\n\t\t"))
+                .layerId(\(self.id))
+                \(modifiersString.joined(separator: "\n\t\t"))
+            \(swiftUICodeForChildren)
             """
 //
 //        guard let parsedNodeId = UUID(uuidString: layerData.node_id) else {

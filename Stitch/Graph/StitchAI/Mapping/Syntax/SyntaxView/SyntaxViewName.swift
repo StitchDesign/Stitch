@@ -214,6 +214,6 @@ enum SyntaxViewName: String, Equatable, Codable, Hashable, CaseIterable, Sendabl
 
 extension SyntaxViewName {
     func createConstructorCode(_ argsString: String = "") -> String {
-        "\(self.rawValue)(\(argsString)"
+        "\(self.rawValue)(\(argsString))"
     }
 }
