@@ -16,243 +16,277 @@ import SwiftParser
 
 /// Reads explicit values from `LayerData.custom_layer_input_values` and, when
 /// missing, falls back to Stitch defaults (for type correctness only).
-struct LayerDataConstructorInputs {
-    let layer: AIGraphData_V0.Layer
-    let explicit: [LayerInputPort : AIGraphData_V0.PortValue]
-    
-    public init(layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) {
-        if case let .layer(kind) = layerData.node_name.value { self.layer = kind }
-        else { self.layer = .group }
-        
-        var explicit: [LayerInputPort : AIGraphData_V0.PortValue] = [:]
-        for customInputValue in layerData.custom_layer_input_values {
-            let port = customInputValue.coordinate.layerInput
-            if let v = decodePortValueFromCIV(customInputValue, idMap: &idMap) { explicit[port] = v }
-        }
-        self.explicit = explicit
-    }
-    
-    public func value(_ port: LayerInputPort) -> AIGraphData_V0.PortValue {
-        explicit[port] ?? port.getDefaultValue(for: layer)
-    }
-    
-    // Typed conveniences (using your existing PortValue helpers)
-    public func number(_ p: LayerInputPort) -> Double?               { value(p).getNumber }
-    public func bool(_ p: LayerInputPort) -> Bool?                   { value(p).getBool }
-    public func string(_ p: LayerInputPort) -> String?               { value(p).getString?.string }
-    public func color(_ p: LayerInputPort) -> Color?                 { value(p).getColor }
-    public func anchoring(_ p: LayerInputPort) -> Anchoring?         { value(p).getAnchoring }
-    public func orientation(_ p: LayerInputPort) -> StitchOrientation? { value(p).getOrientation }
-}
+//struct LayerDataConstructorInputs {
+//    let layer: AIGraphData_V0.Layer
+//    let explicit: [LayerInputPort : AIGraphData_V0.PortValue]
+//    
+//    public init(layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) {
+//        if case let .layer(kind) = layerData.node_name.value { self.layer = kind }
+//        else { self.layer = .group }
+//        
+//        var explicit: [LayerInputPort : AIGraphData_V0.PortValue] = [:]
+//        for customInputValue in layerData.custom_layer_input_values {
+//            let port = customInputValue.coordinate.layerInput
+//            if let v = decodePortValueFromCIV(customInputValue, idMap: &idMap) { explicit[port] = v }
+//        }
+//        self.explicit = explicit
+//    }
+//    
+//    public func value(_ port: LayerInputPort) -> AIGraphData_V0.PortValue {
+//        explicit[port] ?? port.getDefaultValue(for: layer)
+//    }
+//    
+//    // Typed conveniences (using your existing PortValue helpers)
+//    public func number(_ p: LayerInputPort) -> Double?               { value(p).getNumber }
+//    public func bool(_ p: LayerInputPort) -> Bool?                   { value(p).getBool }
+//    public func string(_ p: LayerInputPort) -> String?               { value(p).getString?.string }
+//    public func color(_ p: LayerInputPort) -> Color?                 { value(p).getColor }
+//    public func anchoring(_ p: LayerInputPort) -> Anchoring?         { value(p).getAnchoring }
+//    public func orientation(_ p: LayerInputPort) -> StitchOrientation? { value(p).getOrientation }
+//}
+//
+///// Decodes a single `CustomLayerInputValue` into a `PortValue` using your
+///// existing AI decoding helpers.
+//func decodePortValueFromCIV(_ customInputValue: LayerPortDerivation,
+//                            idMap: inout [String: UUID]) -> AIGraphData_V0.PortValue? {
+//    guard let portValueDescription = customInputValue.inputData.value else {
+//        return nil
+//    }
+//    
+//    return try? AIGraphData_V0.PortValue.decodeFromAI(
+//        data: portValueDescription.value,
+//        valueType: portValueDescription.value_type.value,
+//        idMap: &idMap
+//    )
+//}
 
-/// Decodes a single `CustomLayerInputValue` into a `PortValue` using your
-/// existing AI decoding helpers.
-func decodePortValueFromCIV(_ customInputValue: LayerPortDerivation,
-                            idMap: inout [String: UUID]) -> AIGraphData_V0.PortValue? {
-    guard let portValueDescription = customInputValue.inputData.value else {
-        return nil
+// MARK: - LayerData → StrictSyntaxView Conversion
+extension LayerNodeEntity {
+    /// Produces a `ViewConstructor` for a single `LayerData` node.
+    /// Only constructor-surface arguments are considered; **no view modifiers**.
+    func createSwiftUIViewBuilderCode(children: [LayerNodeEntity]) throws -> String? {
+//        let inputs = LayerDataConstructorInputs(layerData: layerData, idMap: &idMap)
+        
+        switch self.layer {
+            
+            // ───────── Shapes (no-arg) ─────────
+        case .oval:
+            return SyntaxViewName.ellipse.createConstructorCode()
+            
+        case .rectangle:
+            return SyntaxViewName.rectangle.createConstructorCode()
+            
+            // ───────── Text ─────────
+        case .text:
+            let args = try self.textPort.getSwiftUICodeForValues()
+            return SyntaxViewName.text.createConstructorCode(args)
+            
+            // ───────── Group → H/V/Z stack or ScrollView ─────────
+        case .group:
+            return try self.createNestedGroupSwiftUICode(children: children)
+            
+            
+            // ───────── Reality primitives (no-arg) ─────────
+        case .realityView:
+            return .stitchRealityView(.plain)
+        case .box:
+            return .box(.plain)
+        case .cone:
+            return .cone(.plain)
+        case .cylinder:
+            return .cylinder(.plain)
+        case .sphere:
+            return .sphere(.plain)
+            
+            // ───────── SF Symbol / Image ─────────
+        case .sfSymbol:
+            if let symbolName = inputs.string(.sfSymbol) {
+                let arg: SyntaxViewModifierArgumentType = .simple(
+                    SyntaxViewSimpleData(value: symbolName, syntaxKind: .literal(.string))
+                )
+                return .image(.sfSymbol(name: arg))
+            }
+            return nil
+            
+            // ───────── Not yet handled ─────────
+        case .linearGradient, .radialGradient, .angularGradient,
+                .textField:
+            return nil
+            
+        default:
+            log("makeConstructFromLayerData: COULD NOT TURN LAYER \(inputs.layer) INTO A ViewConstructor")
+            return nil
+        }
     }
     
-    return try? AIGraphData_V0.PortValue.decodeFromAI(
-        data: portValueDescription.value,
-        valueType: portValueDescription.value_type.value,
-        idMap: &idMap
-    )
-}
-
-/// Produces a `ViewConstructor` for a single `LayerData` node.
-/// Only constructor-surface arguments are considered; **no view modifiers**.
-func makeConstructorFromLayerData(_ layerData: AIGraphData_V0.LayerData,
-                                  idMap: inout [String: UUID]) -> StrictViewConstructor? {
-    let inputs = LayerDataConstructorInputs(layerData: layerData, idMap: &idMap)
-    
-    switch inputs.layer {
+    func createNestedGroupSwiftUICode(children: [LayerNodeEntity]) throws -> String? {
+        assertInDebug(self.layer == .group)
         
-        // ───────── Shapes (no-arg) ─────────
-    case .oval:
-        return .ellipse(NoArgViewConstructor(args: [], layer: .oval))
-        
-    case .rectangle:
-        return .rectangle(RectangleViewConstructor())
-        
-        // ───────── Text ─────────
-    case .text:
-        if let s = inputs.string(.text) {
-            // Represent the simple `Text("…")` case
-            let arg: SyntaxViewModifierArgumentType = .simple(
-                SyntaxViewSimpleData(value: s, syntaxKind: .literal(.string))
-            )
-            return .text(.string(arg))
-        }
-        return nil
-        
-        // ───────── TextField (placeholder + initial binding preview) ─────────
-        //    case .textField:
-        //        let title = inputs.string(.placeholderText) ?? ""
-        //        let initial = inputs.string(.text) ?? ""
-        //        let bindingExpr = ExprSyntax("/* binding */ .constant(\"\(raw: initial)\")")
-        //        return .textField(.parameters(title: .literal(title), binding: bindingExpr))
-        
-        // ───────── Group → H/V/Z stack or ScrollView ─────────
-    case .group:
-        let orient = inputs.orientation(.orientation) ?? .vertical
-        let spacingNum = inputs.number(.spacing)
-        let spacingArg: SyntaxViewModifierArgumentType? = spacingNum.map {
-            .simple(SyntaxViewSimpleData(value: String($0), syntaxKind: .literal(.float)))
-        }
-        let alignmentArg: SyntaxViewModifierArgumentType? = nil // keep minimal for now
+        let childrenContents = try children.createSwiftUICode(idMap: &idMap)
         
         // Check if scroll is enabled
-        let scrollXEnabled = inputs.bool(.scrollXEnabled) ?? false
-        let scrollYEnabled = inputs.bool(.scrollYEnabled) ?? false
+        let scrollXEnabled = self.scrollXEnabledPort.packedData.inputPort.values?.first?.getBool ?? false
+        let scrollYEnabled = self.scrollYEnabledPort.packedData.inputPort.values?.first?.getBool ?? false
         let hasScrolling = scrollXEnabled || scrollYEnabled
         
         if hasScrolling {
             // Generate ScrollView with appropriate axes
-            let axesArg: SyntaxViewModifierArgumentType?
+            let axesArg: String
             if scrollXEnabled && scrollYEnabled {
                 // Both axes enabled → ScrollView([.horizontal, .vertical])
-                axesArg = .array([
-                    // TODO: should we use `base: "Axis.Set"` ?
-                    .memberAccess(SyntaxViewMemberAccess(base: nil, property: "horizontal")),
-                    .memberAccess(SyntaxViewMemberAccess(base: nil, property: "vertical"))
-                ])
+                axesArg = "[.horizontal, .vertical]"
+
             } else if scrollXEnabled {
                 // Only horizontal → ScrollView(.horizontal)
-                axesArg = .memberAccess(SyntaxViewMemberAccess(base: nil, property: "horizontal"))
+                axesArg = "[.horizontal]"
             } else {
                 // Only vertical (default) → ScrollView() - no axes parameter needed as vertical is default
-                axesArg = nil
+                axesArg = ""
             }
             
-            return .scrollView(.parameters(axes: axesArg, showsIndicators: nil))
+            return """
+                ScrollView(axes: \(axesArg), showsIndicators: nil) {
+                    \(childrenContents)
+                }
+                """
+                
         } else {
+            let orient = self.orientationPort.packedData.inputPort.values?.first?.getOrientation ?? .none
+            let spacingArgs = try self.spacingPort.getSwiftUICodeForValues()
+            
+            let anchoring = self.layerGroupAlignmentPort.packedData.inputPort.values?.first?.getAnchoring ?? .defaultAnchoring
+            
             // No scrolling → regular stack based on orientation
             // Extract alignment from layerGroupAlignment for regular stacks too
-            let stackAlignmentArg = createAlignmentArg(from: inputs, orientation: orient)
+            let stackAlignmentArg = createAlignmentArg(anchoring: anchoring,
+                                                       orientation: orient)
             
             switch orient {
             case .horizontal:
-                return .hStack(.parameters(alignment: stackAlignmentArg, spacing: spacingArg))
+                return """
+                    HStack(alignment: .\(stackAlignmentArg), spacing: \(spacingArgs)) {
+                        \(childrenContents)
+                    }
+                    .layerId(\(self.id.uuidString))
+                    """
+
             case .vertical:
-                return .vStack(.parameters(alignment: stackAlignmentArg, spacing: spacingArg))
+                return """
+                    VStack(alignment: .\(stackAlignmentArg), spacing: \(spacingArgs)) {
+                        \(childrenContents)
+                    }
+                    .layerId(\(self.id.uuidString))
+                    """
             case .none:
-                return .zStack(.parameters(alignment: stackAlignmentArg))
+                return """
+                    ZStack(alignment: .\(stackAlignmentArg)) {
+                        \(childrenContents)
+                    }
+                    .layerId(\(self.id.uuidString))
+                    """
             case .grid:
                 // TODO: .grid orientation becomes SwiftUI LazyVGrid
                 return nil
             }
         }
+    }
         
-        // ───────── Reality primitives (no-arg) ─────────
-    case .realityView:
-        return .stitchRealityView(.plain)
-    case .box:
-        return .box(.plain)
-    case .cone:
-        return .cone(.plain)
-    case .cylinder:
-        return .cylinder(.plain)
-    case .sphere:
-        return .sphere(.plain)
-        
-        // ───────── SF Symbol / Image ─────────
-    case .sfSymbol:
-        if let symbolName = inputs.string(.sfSymbol) {
-            let arg: SyntaxViewModifierArgumentType = .simple(
-                SyntaxViewSimpleData(value: symbolName, syntaxKind: .literal(.string))
-            )
-            return .image(.sfSymbol(name: arg))
+    /// Converts layer data from graph to SwiftUI code
+    @MainActor
+    func createSwiftUICode(layerEntityMap: [UUID: LayerNodeEntity]) throws -> String? {
+        // TODO: handle nesting edge case here
+        let childrenLayerEntities = layerEntityMap.values.filter {
+            $0.layerGroupId == self.id
         }
-        return nil
         
-        // ───────── Not yet handled ─────────
-    case .linearGradient, .radialGradient, .angularGradient,
-            .textField:
-        return nil
+        if self.layer == .group {
+            return try self
+                .createNestedGroupSwiftUICode(children: childrenLayerEntities)
+        }
         
-    default:
-        log("makeConstructFromLayerData: COULD NOT TURN LAYER \(inputs.layer) INTO A ViewConstructor")
-        return nil
+        // Create the constructor
+        guard let constructor = self.makeConstructorFromLayerData() else {
+            return nil
+        }
+        
+        // Create modifiers from custom_layer_input_values
+        let modifiersString = try self.getSwiftUIViewModifierStrings()
+//        createStrictViewModifiersFromLayerData(layerData, idMap: &idMap)
+        
+        // Convert children recursively
+        let swiftUICodeForChildren = try childrenLayerEntities.compactMap {
+            try $0.createSwiftUICode(layerEntityMap: layerEntityMap)
+        }
+        
+        return """
+            \(constructor)
+            """
+//
+//        guard let parsedNodeId = UUID(uuidString: layerData.node_id) else {
+//            return nil // TODO: how or when can this really fail?
+//        }
+//        
+//        let nodeId: UUID = parsedNodeId
+//        
+//        // Not needed?
+//        idMap[layerData.node_id] = nodeId
+        
+        
+        // 5. Handle ScrollView + Stack nesting for scroll-enabled groups
+//        if case .scrollView = constructor {
+//            // Create the inner stack based on the group's orientation
+//            let innerStackConstructor = createInnerStackConstructor(layerData, idMap: &idMap)
+//            let innerStackNodeId = UUID()
+//            // Add LayerIdViewModifier to the inner stack as well
+//            let innerStackLayerIdModifier = StrictViewModifier.layerId(LayerIdViewModifier(
+//                layerId: .simple(SyntaxViewSimpleData(value: innerStackNodeId.uuidString, syntaxKind: .literal(.string)))
+//            ))
+//            let innerStackView = StrictSyntaxView(
+//                constructor: innerStackConstructor,
+//                modifiers: [innerStackLayerIdModifier], // Stack gets layerId modifier
+//                children: children, // Original children go into the stack
+//                id: innerStackNodeId
+//            )
+//            
+//            // ScrollView contains the stack as its only child
+//            // Add LayerIdViewModifier to every StrictSyntaxView
+//            let layerIdModifier = StrictViewModifier.layerId(
+//                LayerIdViewModifier(
+//                    layerId: .simple(SyntaxViewSimpleData(value: nodeId.uuidString, syntaxKind: .literal(.string)))
+//                ))
+//            let allModifiers = modifiers + [layerIdModifier]
+//            
+//            return StrictSyntaxView(
+//                constructor: constructor,
+//                modifiers: allModifiers,
+//                children: [innerStackView], // ScrollView wraps the stack
+//                id: nodeId
+//            )
+//        }
+        
+        // Add LayerIdViewModifier to every StrictSyntaxView
+//        let layerIdModifier = StrictViewModifier.layerId(LayerIdViewModifier(
+//            layerId: .simple(SyntaxViewSimpleData(value: nodeId.uuidString, syntaxKind: .literal(.string)))
+//        ))
+//        let allModifiers = modifiers + [layerIdModifier]
+//        
+//        return StrictSyntaxView(
+//            constructor: constructor,
+//            modifiers: allModifiers,
+//            children: children,
+//            id: nodeId
+//        )
     }
 }
 
-// MARK: - LayerData → StrictSyntaxView Conversion
-
-/// Converts LayerData to StrictSyntaxView with constructor, modifiers, and children
-func layerDataToStrictSyntaxView(_ layerData: AIGraphData_V0.LayerData,
-                                 idMap: inout [String: UUID]) throws -> StrictSyntaxView? {
-    // 1. Create the constructor
-    guard let constructor = makeConstructorFromLayerData(layerData, idMap: &idMap) else {
-        return nil
-    }
-    
-    // 2. Create modifiers from custom_layer_input_values
-    let modifiers = try createStrictViewModifiersFromLayerData(layerData, idMap: &idMap)
-    
-    // 3. Convert children recursively
-    let children = try layerData.children?.compactMap { childLayerData in
-        try layerDataToStrictSyntaxView(childLayerData, idMap: &idMap)
-    } ?? []
-
-    log("layerDataToStrictSyntaxView: layerData.node_id: \(layerData.node_id)")
-    
-    // 4. parse the
-    guard let parsedNodeId = UUID(uuidString: layerData.node_id) else {
-        return nil // TODO: how or when can this really fail?
-    }
-    
-    let nodeId: UUID = parsedNodeId
-    
-    // Not needed?
-    idMap[layerData.node_id] = nodeId
+extension Array where Element == LayerNodeEntity {
+    func createSwiftUICode(idMap: inout [String: UUID]) throws -> String {
+        let strings = try self.compactMap {
+            try $0.createSwiftUICode(idMap: &idMap)
+        }
         
-    log("layerDataToStrictSyntaxView: nodeId: \(nodeId)")
-    
-    // 5. Handle ScrollView + Stack nesting for scroll-enabled groups
-    if case .scrollView = constructor {
-        // Create the inner stack based on the group's orientation
-        let innerStackConstructor = createInnerStackConstructor(layerData, idMap: &idMap)
-        let innerStackNodeId = UUID()
-        // Add LayerIdViewModifier to the inner stack as well
-        let innerStackLayerIdModifier = StrictViewModifier.layerId(LayerIdViewModifier(
-            layerId: .simple(SyntaxViewSimpleData(value: innerStackNodeId.uuidString, syntaxKind: .literal(.string)))
-        ))
-        let innerStackView = StrictSyntaxView(
-            constructor: innerStackConstructor,
-            modifiers: [innerStackLayerIdModifier], // Stack gets layerId modifier
-            children: children, // Original children go into the stack
-            id: innerStackNodeId
-        )
-        
-        // ScrollView contains the stack as its only child
-        // Add LayerIdViewModifier to every StrictSyntaxView
-        let layerIdModifier = StrictViewModifier.layerId(
-            LayerIdViewModifier(
-                layerId: .simple(SyntaxViewSimpleData(value: nodeId.uuidString, syntaxKind: .literal(.string)))
-        ))
-        let allModifiers = modifiers + [layerIdModifier]
-        
-        return StrictSyntaxView(
-            constructor: constructor,
-            modifiers: allModifiers,
-            children: [innerStackView], // ScrollView wraps the stack
-            id: nodeId
-        )
+        return strings.joined(separator: "\n")
     }
-    
-    // Add LayerIdViewModifier to every StrictSyntaxView
-    let layerIdModifier = StrictViewModifier.layerId(LayerIdViewModifier(
-        layerId: .simple(SyntaxViewSimpleData(value: nodeId.uuidString, syntaxKind: .literal(.string)))
-    ))
-    let allModifiers = modifiers + [layerIdModifier]
-    
-    return StrictSyntaxView(
-        constructor: constructor,
-        modifiers: allModifiers,
-        children: children,
-        id: nodeId
-    )
 }
 
 /// Creates the inner stack constructor for a ScrollView based on the group's orientation
@@ -281,493 +315,527 @@ func createInnerStackConstructor(_ layerData: AIGraphData_V0.LayerData, idMap: i
 }
 
 /// Creates alignment argument from LayerData inputs based on stack orientation
-func createAlignmentArg(from inputs: LayerDataConstructorInputs, orientation: StitchOrientation) -> SyntaxViewModifierArgumentType? {
-    guard let anchoring = inputs.anchoring(.layerGroupAlignment) else {
-        return nil // Use SwiftUI default alignment
-    }
+func createAlignmentArg(anchoring: Anchoring,
+                        orientation: StitchOrientation) -> String {
     
     // Convert Stitch Anchoring to SwiftUI alignment based on stack orientation
-    let alignmentProperty: String?
     
     switch orientation {
     case .horizontal:
         // HStack uses VerticalAlignment
         switch anchoring {
         case .topCenter, .topLeft, .topRight:
-            alignmentProperty = "top"
+            return "top"
         case .centerCenter, .centerLeft, .centerRight:
-            alignmentProperty = "center"
+            return "center"
         case .bottomCenter, .bottomLeft, .bottomRight:
-            alignmentProperty = "bottom"
+            return "bottom"
             
         // Note: technically, Stitch Anchoring is a (0,0), which is many more values than SwiftUI Alignment
         default:
-            alignmentProperty = "center"
+            return "center"
         }
         
     case .vertical:
         // VStack uses HorizontalAlignment
         switch anchoring {
         case .centerLeft, .topLeft, .bottomLeft:
-            alignmentProperty = "leading"
+            return "leading"
         case .centerCenter, .topCenter, .bottomCenter:
-            alignmentProperty = "center"
+            return "center"
         case .centerRight, .topRight, .bottomRight:
-            alignmentProperty = "trailing"
+            return "trailing"
         default:
-            alignmentProperty = "center"
+            return "center"
         }
         
     case .none:
         // ZStack uses Alignment (both horizontal and vertical)
         switch anchoring {
         case .topLeft:
-            alignmentProperty = "topLeading"
+            return "topLeading"
         case .topCenter:
-            alignmentProperty = "top"
+            return "top"
         case .topRight:
-            alignmentProperty = "topTrailing"
+            return "topTrailing"
         case .centerLeft:
-            alignmentProperty = "leading"
+            return "leading"
         case .centerCenter:
-            alignmentProperty = "center"
+            return "center"
         case .centerRight:
-            alignmentProperty = "trailing"
+            return "trailing"
         case .bottomLeft:
-            alignmentProperty = "bottomLeading"
+            return "bottomLeading"
         case .bottomCenter:
-            alignmentProperty = "bottom"
+            return "bottom"
         case .bottomRight:
-            alignmentProperty = "bottomTrailing"
+            return "bottomTrailing"
         default:
-            alignmentProperty = "center"
+            return "center"
         }
         
     case .grid:
         // Grid uses HorizontalAlignment like VStack
         switch anchoring {
         case .centerLeft, .topLeft, .bottomLeft:
-            alignmentProperty = "leading"
+            return "leading"
         case .centerCenter, .topCenter, .bottomCenter:
-            alignmentProperty = "center"
+            return "center"
         case .centerRight, .topRight, .bottomRight:
-            alignmentProperty = "trailing"
+            return "trailing"
         default:
-            alignmentProperty = "center"
+            return "center"
         }
     }
     
-    guard let property = alignmentProperty else { return nil }
-    
-    return .memberAccess(SyntaxViewMemberAccess(base: nil, property: property))
+//    return .memberAccess(SyntaxViewMemberAccess(base: nil, property: property))
 }
 
-/// Creates StrictViewModifier array from LayerData custom input values
-func createStrictViewModifiersFromLayerData(_ layerData: AIGraphData_V0.LayerData,
-                                            idMap: inout [String: UUID]) throws -> [StrictViewModifier] {
-    var modifiers: [StrictViewModifier] = []
-    
-    // Extract layer type from layerData
-    let layerType: AIGraphData_V0.Layer
-    switch layerData.node_name.value {
-    case .layer(let x):
-        layerType = x
-    case .patch(let x):
-        throw SwiftUISyntaxError.unexpectedPatch(x)
-        layerType = .group // BAD
-    }
-    
-    // Group custom input values by layer input port to handle unpacked ports
-    var groupedInputs: [LayerInputPort: [LayerPortDerivation]] = [:]
-    
-    for customInputValue in layerData.custom_layer_input_values {
-        let port = customInputValue.coordinate.layerInput
-        groupedInputs[port, default: []].append(customInputValue)
-    }
-    
-    // Process each group of inputs for the same port
-    for (port, inputs) in groupedInputs {
-        if inputs.count == 1 && inputs.first?.coordinate.portType == .packed {
-            // Single packed input - handle normally
-            let customInputValue = inputs[0]
-            if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
-                // Concrete value case
-                if let constructorModifier = try makeViewModifierConstructor(from: port, value: portValue, layerType: layerType) {
-                    modifiers.append(constructorModifier)
-                }
-            } else if case .stateRef(let stateRefName) = customInputValue.inputData {
-                // State reference case - create modifier with stateAccess argument
-                if let constructorModifier = makeViewModifierConstructorFromStateRef(from: port, stateRef: stateRefName, layerType: layerType) {
-                    modifiers.append(constructorModifier)
-                }
+extension LayerNodeEntity {
+    /// Creates StrictViewModifier array from LayerData custom input values
+    @MainActor
+    func getSwiftUIViewModifierStrings() throws -> [String] {
+        let ports = self.layer.inputDefinitions
+        
+        return try ports.compactMap { port -> String? in
+            guard let viewModifier = port.viewModifierString(from: self.layer) else {
+                log("getSwiftUIViewModifierStrings: no view modifier for \(port) in \(self.layer)")
+                return nil
             }
-        } else {
-            // Multiple unpacked inputs - handle specially for frame and offset modifiers
-            if port == .size {
-                if let frameModifier = createFrameViewModifierFromUnpackedInputs(inputs, idMap: &idMap) {
-                    modifiers.append(frameModifier)
-                }
-            } else if port == .position {
-                if let positionModifier = createPositionViewModifierFromUnpackedInputs(inputs, idMap: &idMap) {
-                    modifiers.append(positionModifier)
-                }
-            } else if port == .offsetInGroup {
-                if let offsetModifier = createOffsetViewModifierFromUnpackedInputs(inputs, idMap: &idMap) {
-                    modifiers.append(offsetModifier)
-                }
-            } else {
-                // For other ports with unpacked inputs, handle each separately for now
-                for customInputValue in inputs {
-                    if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
-                        if let constructorModifier = try makeViewModifierConstructor(from: port, value: portValue, layerType: layerType) {
-                            modifiers.append(constructorModifier)
-                        }
-                    } else if case .stateRef(let stateRefName) = customInputValue.inputData {
-                        if let constructorModifier = makeViewModifierConstructorFromStateRef(from: port, stateRef: stateRefName, layerType: layerType) {
-                            modifiers.append(constructorModifier)
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    return modifiers
-}
 
-/// Creates a FrameViewModifier from unpacked size inputs (width and height)
-func createFrameViewModifierFromUnpackedInputs(_ inputs: [LayerPortDerivation],
-                                               idMap: inout [String: UUID]) -> StrictViewModifier? {
-    guard !inputs.isEmpty else { return nil }
-    
-    var width: SyntaxViewModifierArgumentType?
-    var height: SyntaxViewModifierArgumentType?
-    
-    for input in inputs {
-        guard case .unpacked(let unpackedType) = input.coordinate.portType else { continue }
-        
-        let syntaxArg: SyntaxViewModifierArgumentType
-        
-        // Handle both concrete values and state references
-        if let portValue = decodePortValueFromCIV(input, idMap: &idMap) {
-            // Concrete value case
-            if let number = portValue.getNumber {
-                syntaxArg = .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float)))
-            } else {
-                continue // Skip if we can't extract a number
-            }
-        } else if case .stateRef(let stateRefName) = input.inputData {
-            // State reference case
-            syntaxArg = .stateAccess(stateRefName)
-        } else {
-            continue // Skip if we can't handle this input
+            let inputData = self[keyPath: port.schemaPortKeyPath]
+            let portValueArgs = try inputData.getSwiftUICodeForValues()
+            return ".\(viewModifier.rawValue)(\(portValueArgs))"
         }
-        
-        // Map unpacked port index to width/height
-        switch unpackedType {
-        case .port0: // Width
-            width = syntaxArg
-        case .port1: // Height  
-            height = syntaxArg
-        default:
-            // Ignore other ports for now
-            continue
-        }
-    }
-    
-    // Create FrameViewModifier if we have at least width or height
-    if width != nil || height != nil {
-        return .frame(FrameViewModifier(width: width, height: height))
-    }
-    
-    return nil
-}
-
-/// Creates an OffsetViewModifier from unpacked offsetInGroup inputs (x and y)
-func createOffsetViewModifierFromUnpackedInputs(_ inputs: [LayerPortDerivation],
-                                               idMap: inout [String: UUID]) -> StrictViewModifier? {
-    guard !inputs.isEmpty else { return nil }
-    
-    var x: SyntaxViewModifierArgumentType?
-    var y: SyntaxViewModifierArgumentType?
-    
-    for input in inputs {
-        guard case .unpacked(let unpackedType) = input.coordinate.portType else { continue }
-        
-        let syntaxArg: SyntaxViewModifierArgumentType
-        
-        // Handle both concrete values and state references
-        if let portValue = decodePortValueFromCIV(input, idMap: &idMap) {
-            // Concrete value case
-            if let number = portValue.getNumber {
-                syntaxArg = .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float)))
-            } else {
-                continue // Skip if we can't extract a number
-            }
-        } else if case .stateRef(let stateRefName) = input.inputData {
-            // State reference case
-            syntaxArg = .stateAccess(stateRefName)
-        } else {
-            continue // Skip if we can't handle this input
-        }
-        
-        // Map unpacked port index to x/y
-        switch unpackedType {
-        case .port0: // X
-            x = syntaxArg
-        case .port1: // Y  
-            y = syntaxArg
-        default:
-            // Ignore other ports for now
-            continue
-        }
-    }
-    
-    // Create OffsetViewModifier if we have both x and y
-    if let x = x, let y = y {
-        return .offset(OffsetViewModifier(x: x, y: y))
-    }
-    
-    return nil
-}
-
-/// Creates a PositionViewModifier from unpacked position inputs (x and y)
-func createPositionViewModifierFromUnpackedInputs(_ inputs: [LayerPortDerivation],
-                                                  idMap: inout [String: UUID]) -> StrictViewModifier? {
-    guard !inputs.isEmpty else { return nil }
-    
-    var x: SyntaxViewModifierArgumentType?
-    var y: SyntaxViewModifierArgumentType?
-    
-    for input in inputs {
-        guard case .unpacked(let unpackedType) = input.coordinate.portType else { continue }
-        
-        let syntaxArg: SyntaxViewModifierArgumentType
-        
-        // Handle both concrete values and state references
-        if let portValue = decodePortValueFromCIV(input, idMap: &idMap) {
-            // Concrete value case
-            if let number = portValue.getNumber {
-                syntaxArg = .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float)))
-            } else {
-                continue // Skip if we can't extract a number
-            }
-        } else if case .stateRef(let stateRefName) = input.inputData {
-            // State reference case
-            syntaxArg = .stateAccess(stateRefName)
-        } else {
-            continue // Skip if we can't handle this input
-        }
-        
-        // Map unpacked port index to x/y
-        switch unpackedType {
-        case .port0: // X
-            x = syntaxArg
-        case .port1: // Y  
-            y = syntaxArg
-        default:
-            // Ignore other ports for now
-            continue
-        }
-    }
-    
-    // Create PositionViewModifier if we have both x and y
-    if let x = x, let y = y {
-        return .position(PositionViewModifier.unpacked(x: x, y: y))
-    }
-    
-    return nil
-}
-
-/// Creates a StrictViewModifier from a state reference (for variables like myVar)
-func makeViewModifierConstructorFromStateRef(from port: LayerInputPort,
-                                             stateRef: String,
-                                             layerType: AIGraphData_V0.Layer) -> StrictViewModifier? {
-    // Create a stateAccess argument type
-    let stateAccessArg = SyntaxViewModifierArgumentType.stateAccess(stateRef)
-    
-    switch port {
-    case .opacity:
-        return .opacity(OpacityViewModifier(value: stateAccessArg))
-    case .scale:
-        return .scaleEffect(.uniform(scale: stateAccessArg, anchor: nil))
-    case .blur, .blurRadius:
-        return .blur(BlurViewModifier(radius: stateAccessArg))
-    case .zIndex:
-        return .zIndex(ZIndexViewModifier(value: stateAccessArg))
-    case .cornerRadius:
-        return .cornerRadius(CornerRadiusViewModifier(radius: stateAccessArg))
-    case .color:
-        return .fill(FillViewModifier(color: stateAccessArg))
-    case .brightness:
-        return .brightness(BrightnessViewModifier(value: stateAccessArg))
-    case .contrast:
-        return .contrast(ContrastViewModifier(value: stateAccessArg))
-    case .saturation:
-        return .saturation(SaturationViewModifier(value: stateAccessArg))
-    case .hueRotation:
-        return .hueRotation(HueRotationViewModifier(angle: stateAccessArg))
-    case .position:
-        // Position needs x and y, but we only have one state ref - use it for both
-        return .position(PositionViewModifier.packed(stateAccessArg))
-    case .offsetInGroup:
-        // Offset needs x and y, but we only have one state ref - use it for both  
-        return .offset(OffsetViewModifier(x: stateAccessArg, y: stateAccessArg))
-    case .textFont:
-        return .font(FontViewModifier(font: stateAccessArg))
-    case .rotationX:
-        // For now, treat rotationX as unsupported  
-        return nil
-    case .rotationY:
-        // For now, treat rotationY as unsupported
-        return nil
-    case .rotationZ:
-        return .rotationEffect(RotationEffectViewModifier(angle: stateAccessArg))
-    default:
-        // For unsupported ports, don't create a modifier
-        return nil
     }
 }
 
-/// Converts a list of LayerData to StrictSyntaxView list
-func layerDataListToStrictSyntaxViews(_ layerDataList: [AIGraphData_V0.LayerData], idMap: inout [String: UUID]) throws -> [StrictSyntaxView] {
-    return try layerDataList.compactMap { layerData in
-        try layerDataToStrictSyntaxView(layerData, idMap: &idMap)
-    }
-}
-
-/// Converts GraphData to a list of StrictSyntaxView (root-level views)
-func graphDataToStrictSyntaxViews(_ graphData: AIGraphData_V0.GraphData) throws -> [StrictSyntaxView] {
-    var idMap: [String: UUID] = [:]
-    return try layerDataListToStrictSyntaxViews(graphData.layer_data_list, idMap: &idMap)
-}
-
-// MARK: - StrictSyntaxView → SwiftUI Code Generation
-
-extension StrictSyntaxView {
-    /// Generates complete SwiftUI code string for this view including modifiers and children
-    func toSwiftUICode(usePortValueDescription: Bool = true) -> String {
-        let constructorString = constructor.swiftUICallString()
+extension LayerInputEntity {
+    func getSwiftUICodeForValues() throws -> String {
+        let portValueArgsString: String
         
-        // Handle children for container views
-        let viewWithChildren = constructorString + generateChildrenCode(usePortValueDescription: usePortValueDescription)
-        
-        // Apply modifiers after the complete view (including children)
-        let modifiersString = modifiers.map { modifier in
-            renderStrictViewModifier(modifier, usePortValueDescription: usePortValueDescription)
-        }.joined()
-        
-        return viewWithChildren + modifiersString
-    }
-    
-    private func generateChildrenCode(usePortValueDescription: Bool = true) -> String {
-        guard !children.isEmpty else { return "" }
-        
-        // Check if this is a container view that needs children
-        switch constructor {
-        case .hStack, .vStack, .zStack, .scrollView, .lazyHStack, .lazyVStack:
-            // Reverse children for ZStack to match visual order (Stitch first child = SwiftUI last child)
-            let orderedChildren: [StrictSyntaxView]
-            if case .zStack = constructor {
-                orderedChildren = Array(children.reversed())
-            } else {
-                orderedChildren = children
-            }
+        // Check packed/unpacked mode
+        switch self.mode {
+        case .packed:
+            let packedData = self.packedData.inputPort
+            portValueArgsString = try packedData.createSwiftUICodeArg()
             
-            let childrenCode = orderedChildren.map { child in
-                // Add proper indentation for each child
-                child.toSwiftUICode(usePortValueDescription: usePortValueDescription).components(separatedBy: "\n")
-                    .map { line in line.isEmpty ? "" : "    \(line)" }
-                    .joined(separator: "\n")
-            }.joined(separator: "\n")
-            return " {\n\(childrenCode)\n}"
-        default:
-            // Non-container views - children are ignored or handled differently
-            return ""
+        case .unpacked:
+            let unpackedData = self.unpackedData
+            let portValueArgs = try unpackedData.map {
+                try $0.inputPort.createSwiftUICodeArg()
+            }
+            portValueArgsString = portValueArgs.joined(separator: ", ")
         }
+
+        return portValueArgsString
     }
 }
 
-/// Renders a StrictViewModifier to SwiftUI modifier string
-func renderStrictViewModifier(_ modifier: StrictViewModifier, usePortValueDescription: Bool = true) -> String {
-    switch modifier {
-    case .opacity(let m):
-        return ".opacity(\(renderArg(m.value, usePortValueDescription: usePortValueDescription, valueType: "number")))"
-    case .scaleEffect(let m):
-        switch m {
-        case .uniform(let scale, let anchor):
-            let anchorPart = anchor.map { ", anchor: \(renderArg($0))" } ?? ""
-            return ".scaleEffect(\(renderArg(scale, usePortValueDescription: usePortValueDescription, valueType: "number"))\(anchorPart))"
-        case .xy(let x, let y, let anchor):
-            let anchorPart = anchor.map { ", anchor: \(renderArg($0))" } ?? ""
-            return ".scaleEffect(x: \(renderArg(x, usePortValueDescription: usePortValueDescription, valueType: "number")), y: \(renderArg(y, usePortValueDescription: usePortValueDescription, valueType: "number"))\(anchorPart))"
-        case .size(let size, let anchor):
-            let anchorPart = anchor.map { ", anchor: \(renderArg($0))" } ?? ""
-            return ".scaleEffect(\(renderArg(size, usePortValueDescription: usePortValueDescription, valueType: "size"))\(anchorPart))"
-        }
-    case .blur(let m):
-        return ".blur(radius: \(renderArg(m.radius, usePortValueDescription: usePortValueDescription, valueType: "number")))"
-    case .zIndex(let m):
-        return ".zIndex(\(renderArg(m.value, usePortValueDescription: usePortValueDescription, valueType: "number")))"
-    case .cornerRadius(let m):
-        return ".cornerRadius(\(renderArg(m.radius, usePortValueDescription: usePortValueDescription, valueType: "number")))"
-    case .frame(let m):
-        var parts: [String] = []
-        if let width = m.width {
-            parts.append("width: \(renderArg(width, usePortValueDescription: usePortValueDescription, valueType: "number"))")
-        }
-        if let height = m.height {
-            parts.append("height: \(renderArg(height, usePortValueDescription: usePortValueDescription, valueType: "number"))")
-        }
-        // Only generate .frame() if we have at least one parameter
-        guard !parts.isEmpty else { return "" }
-        return ".frame(\(parts.joined(separator: ", ")))"
-    case .foregroundColor(let m):
-        return ".foregroundColor(\(renderArg(m.color, usePortValueDescription: usePortValueDescription, valueType: "color")))"
-    case .fill(let m):
-        return ".fill(\(renderArg(m.color, usePortValueDescription: usePortValueDescription, valueType: "color")))"
-    case .brightness(let m):
-        return ".brightness(\(renderArg(m.value)))"
-    case .contrast(let m):
-        return ".contrast(\(renderArg(m.value)))"
-    case .saturation(let m):
-        return ".saturation(\(renderArg(m.value)))"
-    case .hueRotation(let m):
-        return ".hueRotation(\(renderArg(m.angle)))"
-    case .colorInvert(_):
-        return ".colorInvert()"
-    case .position(let m):
-        switch m {
-        case .packed(let arg):
-            return ".position(\(renderArg(arg, valueType: "position")))"
-            
-        case .unpacked(let x, let y):
-            return ".position(x: \(renderArg(x, valueType: "number")), y: \(renderArg(y, valueType: "number")))"
-        }
-    case .offset(let m):
-        return ".offset(x: \(renderArg(m.x)), y: \(renderArg(m.y)))"
-    case .padding(let m):
-        if let length = m.length {
-            return ".padding(\(renderArg(length)))"
-        } else {
-            return ".padding()"
-        }
-    case .clipped(_):
-        return ".clipped()"
-    case .font(let m):
-        return ".font(\(renderArg(m.font)))"
-    case .fontDesign(let m):
-        return ".fontDesign(\(renderArg(m.design)))"
-    case .fontWeight(let m):
-        return ".fontWeight(\(renderArg(m.weight)))"
-    case .rotationEffect(let m):
-        return ".rotationEffect(\(renderArg(m.angle)))"
-    case .rotation3DEffect(let m):
-        return ".rotation3DEffect(\(renderArg(m.angle)), axis: (x: 0, y: 0, z: 1))"
-    case .layerId(let m):
-        return ".layerId(\(renderArg(m.layerId)))"
-    }
-}
+///// Creates StrictViewModifier array from LayerData custom input values
+//func createStrictViewModifiersFromLayerData(_ layerData: AIGraphData_V0.LayerData,
+//                                            idMap: inout [String: UUID]) throws -> [StrictViewModifier] {
+//    var modifiers: [StrictViewModifier] = []
+//    
+//    // Extract layer type from layerData
+//    let layerType: AIGraphData_V0.Layer
+//    switch layerData.node_name.value {
+//    case .layer(let x):
+//        layerType = x
+//    case .patch(let x):
+//        throw SwiftUISyntaxError.unexpectedPatch(x)
+//        layerType = .group // BAD
+//    }
+//    
+//    // Group custom input values by layer input port to handle unpacked ports
+//    var groupedInputs: [LayerInputPort: [LayerPortDerivation]] = [:]
+//    
+//    for customInputValue in layerData.custom_layer_input_values {
+//        let port = customInputValue.coordinate.layerInput
+//        groupedInputs[port, default: []].append(customInputValue)
+//    }
+//    
+//    // Process each group of inputs for the same port
+//    for (port, inputs) in groupedInputs {
+//        if inputs.count == 1 && inputs.first?.coordinate.portType == .packed {
+//            // Single packed input - handle normally
+//            let customInputValue = inputs[0]
+//            if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
+//                // Concrete value case
+//                if let constructorModifier = try makeViewModifierConstructor(from: port, value: portValue, layerType: layerType) {
+//                    modifiers.append(constructorModifier)
+//                }
+//            } else if case .stateRef(let stateRefName) = customInputValue.inputData {
+//                // State reference case - create modifier with stateAccess argument
+//                if let constructorModifier = makeViewModifierConstructorFromStateRef(from: port, stateRef: stateRefName, layerType: layerType) {
+//                    modifiers.append(constructorModifier)
+//                }
+//            }
+//        } else {
+//            // Multiple unpacked inputs - handle specially for frame and offset modifiers
+//            if port == .size {
+//                if let frameModifier = createFrameViewModifierFromUnpackedInputs(inputs, idMap: &idMap) {
+//                    modifiers.append(frameModifier)
+//                }
+//            } else if port == .position {
+//                if let positionModifier = createPositionViewModifierFromUnpackedInputs(inputs, idMap: &idMap) {
+//                    modifiers.append(positionModifier)
+//                }
+//            } else if port == .offsetInGroup {
+//                if let offsetModifier = createOffsetViewModifierFromUnpackedInputs(inputs, idMap: &idMap) {
+//                    modifiers.append(offsetModifier)
+//                }
+//            } else {
+//                // For other ports with unpacked inputs, handle each separately for now
+//                for customInputValue in inputs {
+//                    if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
+//                        if let constructorModifier = try makeViewModifierConstructor(from: port, value: portValue, layerType: layerType) {
+//                            modifiers.append(constructorModifier)
+//                        }
+//                    } else if case .stateRef(let stateRefName) = customInputValue.inputData {
+//                        if let constructorModifier = makeViewModifierConstructorFromStateRef(from: port, stateRef: stateRefName, layerType: layerType) {
+//                            modifiers.append(constructorModifier)
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
+//
+///// Creates a FrameViewModifier from unpacked size inputs (width and height)
+//func createFrameViewModifierFromUnpackedInputs(_ inputs: [LayerPortDerivation],
+//                                               idMap: inout [String: UUID]) -> StrictViewModifier? {
+//    guard !inputs.isEmpty else { return nil }
+//    
+//    var width: SyntaxViewModifierArgumentType?
+//    var height: SyntaxViewModifierArgumentType?
+//    
+//    for input in inputs {
+//        guard case .unpacked(let unpackedType) = input.coordinate.portType else { continue }
+//        
+//        let syntaxArg: SyntaxViewModifierArgumentType
+//        
+//        // Handle both concrete values and state references
+//        if let portValue = decodePortValueFromCIV(input, idMap: &idMap) {
+//            // Concrete value case
+//            if let number = portValue.getNumber {
+//                syntaxArg = .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float)))
+//            } else {
+//                continue // Skip if we can't extract a number
+//            }
+//        } else if case .stateRef(let stateRefName) = input.inputData {
+//            // State reference case
+//            syntaxArg = .stateAccess(stateRefName)
+//        } else {
+//            continue // Skip if we can't handle this input
+//        }
+//        
+//        // Map unpacked port index to width/height
+//        switch unpackedType {
+//        case .port0: // Width
+//            width = syntaxArg
+//        case .port1: // Height  
+//            height = syntaxArg
+//        default:
+//            // Ignore other ports for now
+//            continue
+//        }
+//    }
+//    
+//    // Create FrameViewModifier if we have at least width or height
+//    if width != nil || height != nil {
+//        return .frame(FrameViewModifier(width: width, height: height))
+//    }
+//    
+//    return nil
+//}
+//
+///// Creates an OffsetViewModifier from unpacked offsetInGroup inputs (x and y)
+//func createOffsetViewModifierFromUnpackedInputs(_ inputs: [LayerPortDerivation],
+//                                               idMap: inout [String: UUID]) -> StrictViewModifier? {
+//    guard !inputs.isEmpty else { return nil }
+//    
+//    var x: SyntaxViewModifierArgumentType?
+//    var y: SyntaxViewModifierArgumentType?
+//    
+//    for input in inputs {
+//        guard case .unpacked(let unpackedType) = input.coordinate.portType else { continue }
+//        
+//        let syntaxArg: SyntaxViewModifierArgumentType
+//        
+//        // Handle both concrete values and state references
+//        if let portValue = decodePortValueFromCIV(input, idMap: &idMap) {
+//            // Concrete value case
+//            if let number = portValue.getNumber {
+//                syntaxArg = .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float)))
+//            } else {
+//                continue // Skip if we can't extract a number
+//            }
+//        } else if case .stateRef(let stateRefName) = input.inputData {
+//            // State reference case
+//            syntaxArg = .stateAccess(stateRefName)
+//        } else {
+//            continue // Skip if we can't handle this input
+//        }
+//        
+//        // Map unpacked port index to x/y
+//        switch unpackedType {
+//        case .port0: // X
+//            x = syntaxArg
+//        case .port1: // Y  
+//            y = syntaxArg
+//        default:
+//            // Ignore other ports for now
+//            continue
+//        }
+//    }
+//    
+//    // Create OffsetViewModifier if we have both x and y
+//    if let x = x, let y = y {
+//        return .offset(OffsetViewModifier(x: x, y: y))
+//    }
+//    
+//    return nil
+//}
+//
+///// Creates a PositionViewModifier from unpacked position inputs (x and y)
+//func createPositionViewModifierFromUnpackedInputs(_ inputs: [LayerPortDerivation],
+//                                                  idMap: inout [String: UUID]) -> StrictViewModifier? {
+//    guard !inputs.isEmpty else { return nil }
+//    
+//    var x: SyntaxViewModifierArgumentType?
+//    var y: SyntaxViewModifierArgumentType?
+//    
+//    for input in inputs {
+//        guard case .unpacked(let unpackedType) = input.coordinate.portType else { continue }
+//        
+//        let syntaxArg: SyntaxViewModifierArgumentType
+//        
+//        // Handle both concrete values and state references
+//        if let portValue = decodePortValueFromCIV(input, idMap: &idMap) {
+//            // Concrete value case
+//            if let number = portValue.getNumber {
+//                syntaxArg = .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float)))
+//            } else {
+//                continue // Skip if we can't extract a number
+//            }
+//        } else if case .stateRef(let stateRefName) = input.inputData {
+//            // State reference case
+//            syntaxArg = .stateAccess(stateRefName)
+//        } else {
+//            continue // Skip if we can't handle this input
+//        }
+//        
+//        // Map unpacked port index to x/y
+//        switch unpackedType {
+//        case .port0: // X
+//            x = syntaxArg
+//        case .port1: // Y  
+//            y = syntaxArg
+//        default:
+//            // Ignore other ports for now
+//            continue
+//        }
+//    }
+//    
+//    // Create PositionViewModifier if we have both x and y
+//    if let x = x, let y = y {
+//        return .position(PositionViewModifier.unpacked(x: x, y: y))
+//    }
+//    
+//    return nil
+//}
+
+///// Creates a StrictViewModifier from a state reference (for variables like myVar)
+//func makeViewModifierConstructorFromStateRef(from port: LayerInputPort,
+//                                             stateRef: String,
+//                                             layerType: AIGraphData_V0.Layer) -> StrictViewModifier? {
+//    // Create a stateAccess argument type
+//    let stateAccessArg = SyntaxViewModifierArgumentType.stateAccess(stateRef)
+//    
+//    switch port {
+//    case .opacity:
+//        return .opacity(OpacityViewModifier(value: stateAccessArg))
+//    case .scale:
+//        return .scaleEffect(.uniform(scale: stateAccessArg, anchor: nil))
+//    case .blur, .blurRadius:
+//        return .blur(BlurViewModifier(radius: stateAccessArg))
+//    case .zIndex:
+//        return .zIndex(ZIndexViewModifier(value: stateAccessArg))
+//    case .cornerRadius:
+//        return .cornerRadius(CornerRadiusViewModifier(radius: stateAccessArg))
+//    case .color:
+//        return .fill(FillViewModifier(color: stateAccessArg))
+//    case .brightness:
+//        return .brightness(BrightnessViewModifier(value: stateAccessArg))
+//    case .contrast:
+//        return .contrast(ContrastViewModifier(value: stateAccessArg))
+//    case .saturation:
+//        return .saturation(SaturationViewModifier(value: stateAccessArg))
+//    case .hueRotation:
+//        return .hueRotation(HueRotationViewModifier(angle: stateAccessArg))
+//    case .position:
+//        // Position needs x and y, but we only have one state ref - use it for both
+//        return .position(PositionViewModifier.packed(stateAccessArg))
+//    case .offsetInGroup:
+//        // Offset needs x and y, but we only have one state ref - use it for both  
+//        return .offset(OffsetViewModifier(x: stateAccessArg, y: stateAccessArg))
+//    case .textFont:
+//        return .font(FontViewModifier(font: stateAccessArg))
+//    case .rotationX:
+//        // For now, treat rotationX as unsupported  
+//        return nil
+//    case .rotationY:
+//        // For now, treat rotationY as unsupported
+//        return nil
+//    case .rotationZ:
+//        return .rotationEffect(RotationEffectViewModifier(angle: stateAccessArg))
+//    default:
+//        // For unsupported ports, don't create a modifier
+//        return nil
+//    }
+//}
+//
+///// Converts a list of LayerData to StrictSyntaxView list
+//func layerDataListToStrictSyntaxViews(_ layerDataList: [AIGraphData_V0.LayerData], idMap: inout [String: UUID]) throws -> [StrictSyntaxView] {
+//    return try layerDataList.compactMap { layerData in
+//        try layerDataToStrictSyntaxView(layerData, idMap: &idMap)
+//    }
+//}
+//
+///// Converts GraphData to a list of StrictSyntaxView (root-level views)
+//func graphDataToStrictSyntaxViews(_ graphData: AIGraphData_V0.GraphData) throws -> [StrictSyntaxView] {
+//    var idMap: [String: UUID] = [:]
+//    return try layerDataListToStrictSyntaxViews(graphData.layer_data_list, idMap: &idMap)
+//}
+//
+//// MARK: - StrictSyntaxView → SwiftUI Code Generation
+//
+//extension StrictSyntaxView {
+//    /// Generates complete SwiftUI code string for this view including modifiers and children
+//    func toSwiftUICode(usePortValueDescription: Bool = true) -> String {
+//        let constructorString = constructor.swiftUICallString()
+//        
+//        // Handle children for container views
+//        let viewWithChildren = constructorString + generateChildrenCode(usePortValueDescription: usePortValueDescription)
+//        
+//        // Apply modifiers after the complete view (including children)
+//        let modifiersString = modifiers.map { modifier in
+//            renderStrictViewModifier(modifier, usePortValueDescription: usePortValueDescription)
+//        }.joined()
+//        
+//        return viewWithChildren + modifiersString
+//    }
+//    
+//    private func generateChildrenCode(usePortValueDescription: Bool = true) -> String {
+//        guard !children.isEmpty else { return "" }
+//        
+//        // Check if this is a container view that needs children
+//        switch constructor {
+//        case .hStack, .vStack, .zStack, .scrollView, .lazyHStack, .lazyVStack:
+//            // Reverse children for ZStack to match visual order (Stitch first child = SwiftUI last child)
+//            let orderedChildren: [StrictSyntaxView]
+//            if case .zStack = constructor {
+//                orderedChildren = Array(children.reversed())
+//            } else {
+//                orderedChildren = children
+//            }
+//            
+//            let childrenCode = orderedChildren.map { child in
+//                // Add proper indentation for each child
+//                child.toSwiftUICode(usePortValueDescription: usePortValueDescription).components(separatedBy: "\n")
+//                    .map { line in line.isEmpty ? "" : "    \(line)" }
+//                    .joined(separator: "\n")
+//            }.joined(separator: "\n")
+//            return " {\n\(childrenCode)\n}"
+//        default:
+//            // Non-container views - children are ignored or handled differently
+//            return ""
+//        }
+//    }
+//}
+//
+///// Renders a StrictViewModifier to SwiftUI modifier string
+//func renderStrictViewModifier(_ modifier: StrictViewModifier, usePortValueDescription: Bool = true) -> String {
+//    switch modifier {
+//    case .opacity(let m):
+//        return ".opacity(\(renderArg(m.value, usePortValueDescription: usePortValueDescription, valueType: "number")))"
+//    case .scaleEffect(let m):
+//        switch m {
+//        case .uniform(let scale, let anchor):
+//            let anchorPart = anchor.map { ", anchor: \(renderArg($0))" } ?? ""
+//            return ".scaleEffect(\(renderArg(scale, usePortValueDescription: usePortValueDescription, valueType: "number"))\(anchorPart))"
+//        case .xy(let x, let y, let anchor):
+//            let anchorPart = anchor.map { ", anchor: \(renderArg($0))" } ?? ""
+//            return ".scaleEffect(x: \(renderArg(x, usePortValueDescription: usePortValueDescription, valueType: "number")), y: \(renderArg(y, usePortValueDescription: usePortValueDescription, valueType: "number"))\(anchorPart))"
+//        case .size(let size, let anchor):
+//            let anchorPart = anchor.map { ", anchor: \(renderArg($0))" } ?? ""
+//            return ".scaleEffect(\(renderArg(size, usePortValueDescription: usePortValueDescription, valueType: "size"))\(anchorPart))"
+//        }
+//    case .blur(let m):
+//        return ".blur(radius: \(renderArg(m.radius, usePortValueDescription: usePortValueDescription, valueType: "number")))"
+//    case .zIndex(let m):
+//        return ".zIndex(\(renderArg(m.value, usePortValueDescription: usePortValueDescription, valueType: "number")))"
+//    case .cornerRadius(let m):
+//        return ".cornerRadius(\(renderArg(m.radius, usePortValueDescription: usePortValueDescription, valueType: "number")))"
+//    case .frame(let m):
+//        var parts: [String] = []
+//        if let width = m.width {
+//            parts.append("width: \(renderArg(width, usePortValueDescription: usePortValueDescription, valueType: "number"))")
+//        }
+//        if let height = m.height {
+//            parts.append("height: \(renderArg(height, usePortValueDescription: usePortValueDescription, valueType: "number"))")
+//        }
+//        // Only generate .frame() if we have at least one parameter
+//        guard !parts.isEmpty else { return "" }
+//        return ".frame(\(parts.joined(separator: ", ")))"
+//    case .foregroundColor(let m):
+//        return ".foregroundColor(\(renderArg(m.color, usePortValueDescription: usePortValueDescription, valueType: "color")))"
+//    case .fill(let m):
+//        return ".fill(\(renderArg(m.color, usePortValueDescription: usePortValueDescription, valueType: "color")))"
+//    case .brightness(let m):
+//        return ".brightness(\(renderArg(m.value)))"
+//    case .contrast(let m):
+//        return ".contrast(\(renderArg(m.value)))"
+//    case .saturation(let m):
+//        return ".saturation(\(renderArg(m.value)))"
+//    case .hueRotation(let m):
+//        return ".hueRotation(\(renderArg(m.angle)))"
+//    case .colorInvert(_):
+//        return ".colorInvert()"
+//    case .position(let m):
+//        switch m {
+//        case .packed(let arg):
+//            return ".position(\(renderArg(arg, valueType: "position")))"
+//            
+//        case .unpacked(let x, let y):
+//            return ".position(x: \(renderArg(x, valueType: "number")), y: \(renderArg(y, valueType: "number")))"
+//        }
+//    case .offset(let m):
+//        return ".offset(x: \(renderArg(m.x)), y: \(renderArg(m.y)))"
+//    case .padding(let m):
+//        if let length = m.length {
+//            return ".padding(\(renderArg(length)))"
+//        } else {
+//            return ".padding()"
+//        }
+//    case .clipped(_):
+//        return ".clipped()"
+//    case .font(let m):
+//        return ".font(\(renderArg(m.font)))"
+//    case .fontDesign(let m):
+//        return ".fontDesign(\(renderArg(m.design)))"
+//    case .fontWeight(let m):
+//        return ".fontWeight(\(renderArg(m.weight)))"
+//    case .rotationEffect(let m):
+//        return ".rotationEffect(\(renderArg(m.angle)))"
+//    case .rotation3DEffect(let m):
+//        return ".rotation3DEffect(\(renderArg(m.angle)), axis: (x: 0, y: 0, z: 1))"
+//    case .layerId(let m):
+//        return ".layerId(\(renderArg(m.layerId)))"
+//    }
+//}
 
 // MARK: - ViewConstructor → SwiftUI source string (constructors only)
 extension StrictViewConstructor {
@@ -1234,192 +1302,85 @@ func createColorArgument(_ color: Color) -> SyntaxViewModifierArgumentType {
 // MARK: - ViewModifierConstructor (intermediate) mapping & rendering
 
 /// Creates a typed view-modifier constructor from a layer input value, when supported.
-func makeViewModifierConstructor(from port: LayerInputPort,
-                                 value: AIGraphData_V0.PortValue,
-                                 layerType: AIGraphData_V0.Layer) throws -> StrictViewModifier? {
-    let syntaxFromArg = try value.getSyntaxViewModifierArgumentType()
-    
-    switch port {
-    case .opacity:
-        if let number = value.getNumber {
-            let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))
-            )
-            return .opacity(OpacityViewModifier(value: arg))
-        }
-        return nil
-    case .scale:
-        if let number = value.getNumber {
-            let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))
-            )
-            return .scaleEffect(.uniform(scale: arg, anchor: nil))
-        }
-        return nil
-    case .blur, .blurRadius:
-        if let number = value.getNumber {
-            let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))
-            )
-            return .blur(BlurViewModifier(radius: arg))
-        }
-        return nil
-    case .zIndex:
-        if let number = value.getNumber {
-            let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))
-            )
-            return .zIndex(ZIndexViewModifier(value: arg))
-        }
-        return nil
-    case .cornerRadius:
-        if let number = value.getNumber {
-            let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))
-            )
-            return .cornerRadius(CornerRadiusViewModifier(radius: arg))
-        }
-        return nil
-    case .size:
-        if let size = value.getSize {
-            var width: SyntaxViewModifierArgumentType?
-            var height: SyntaxViewModifierArgumentType?
-            
-            // Convert LayerDimension to SyntaxViewModifierArgumentType
-            if case .number(let widthValue) = size.width {
-                width = .simple(SyntaxViewSimpleData(value: widthValue.description,
-                                                     syntaxKind: .literal(.float)))
-            }
-            
-            if case .number(let heightValue) = size.height {
-                height = .simple(SyntaxViewSimpleData(value: heightValue.description,
-                                                      syntaxKind: .literal(.float)))
-            }
-            
-            // Only create the modifier if we have at least one dimension
-            if width != nil || height != nil {
-                return .frame(FrameViewModifier(width: width, height: height))
-            }
-        }
-        return nil
-    case .color:
-        if let color = value.getColor {
-            let arg = createColorArgument(color)
+extension LayerInputPort {
+    func viewModifierString(from layer: Layer) -> SyntaxViewModifierName? {
+        switch self {
+        case .opacity:
+            return .opacity
+        case .scale:
+            return .scaleEffect
+        case .blur, .blurRadius:
+            return .blur
+        case .zIndex:
+            return .zIndex
+        case .cornerRadius:
+            return .cornerRadius
+        case .size:
+            return .frame
+        case .color:
             // Choose modifier based on layer type
-            switch layerType {
+            switch layer {
             case .rectangle, .oval, .shape:
                 // Shape layers use .fill()
-                return .fill(FillViewModifier(color: arg))
-            case .text, .textField:
-                // Text layers use .foregroundColor()
-                return .foregroundColor(ForegroundColorViewModifier(color: arg))
+                return .fill
             default:
                 // Default to .foregroundColor() for other layer types
-                return .foregroundColor(ForegroundColorViewModifier(color: arg))
+                return .foregroundColor
             }
+        case .brightness:
+            return .brightness
+        case .contrast:
+            return .contrast
+        case .saturation:
+            return .saturation
+        case .hueRotation:
+//            let arg = SyntaxViewModifierArgumentType.complex(
+//                SyntaxViewModifierComplexType(
+//                    typeName: "",
+//                    arguments: [
+//                        .init(label: "degrees", value: .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))))
+//                    ]
+//                )
+//            )
+            return .hueRotation
+        case .colorInvert:
+            return .colorInvert
+        case .position:
+            return .position
+        case .offsetInGroup:
+            return .offset
+        case .padding:
+            return .padding
+        case .isClipped:
+            return .clipped
+        case .textFont:
+//            return decomposeFontToModifiers(stitchFont)
+            return .font
+            
+        case .fontSize:
+            // FontSize should not create a separate font modifier when textFont exists
+            // The textFont case handles both font family/weight and size together
+            return nil
+        case .rotationX:
+            // For now, treat rotationX as unsupported
+            return nil
+        case .rotationY:
+            // For now, treat rotationY as unsupported
+            return nil
+        case .rotationZ:
+//            let arg = SyntaxViewModifierArgumentType.complex(
+//                SyntaxViewModifierComplexType(
+//                    typeName: "",
+//                    arguments: [
+//                        .init(label: "degrees", value: .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))))
+//                    ]
+//                )
+//            )
+            return .rotationEffect
+
+        default:
+            return nil
         }
-        return nil
-    case .brightness:
-        if let number = value.getNumber {
-            let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))
-            )
-            return .brightness(BrightnessViewModifier(value: arg))
-        }
-        return nil
-    case .contrast:
-        if let number = value.getNumber {
-            let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))
-            )
-            return .contrast(ContrastViewModifier(value: arg))
-        }
-        return nil
-    case .saturation:
-        if let number = value.getNumber {
-            let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))
-            )
-            return .saturation(SaturationViewModifier(value: arg))
-        }
-        return nil
-    case .hueRotation:
-        if let number = value.getNumber {
-            let arg = SyntaxViewModifierArgumentType.complex(
-                SyntaxViewModifierComplexType(
-                    typeName: "",
-                    arguments: [
-                        .init(label: "degrees", value: .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))))
-                    ]
-                )
-            )
-            return .hueRotation(HueRotationViewModifier(angle: arg))
-        }
-        return nil
-    case .colorInvert:
-        if let bool = value.getBool, bool {
-            return .colorInvert(ColorInvertViewModifier())
-        }
-        return nil
-    case .position:
-        return .position(PositionViewModifier.packed(syntaxFromArg))
-    case .offsetInGroup:
-        if let position = value.getPosition {
-            let xArg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: position.x.description, syntaxKind: .literal(.float))
-            )
-            let yArg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: position.y.description, syntaxKind: .literal(.float))
-            )
-            return .offset(OffsetViewModifier(x: xArg, y: yArg))
-        }
-        return nil
-    case .padding:
-        if let padding = value.getPadding {
-            // For now, handle uniform padding only
-            if padding.top == padding.right && padding.right == padding.bottom && padding.bottom == padding.left {
-                let arg = SyntaxViewModifierArgumentType.simple(
-                    SyntaxViewSimpleData(value: padding.top.description, syntaxKind: .literal(.float))
-                )
-                return .padding(PaddingViewModifier(edges: nil, length: arg))
-            }
-        }
-        return nil
-    case .isClipped:
-        if let bool = value.getBool, bool {
-            return .clipped(ClippedViewModifier())
-        }
-        return nil
-    case .textFont:
-        if let stitchFont = value.getTextFont {
-            return decomposeFontToModifiers(stitchFont)
-        }
-        return nil
-    case .fontSize:
-        // FontSize should not create a separate font modifier when textFont exists
-        // The textFont case handles both font family/weight and size together
-        return nil
-    case .rotationX:
-        // For now, treat rotationX as unsupported
-        return nil
-    case .rotationY:
-        // For now, treat rotationY as unsupported
-        return nil
-    case .rotationZ:
-        if let number = value.getNumber {
-            let arg = SyntaxViewModifierArgumentType.complex(
-                SyntaxViewModifierComplexType(
-                    typeName: "",
-                    arguments: [
-                        .init(label: "degrees", value: .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .literal(.float))))
-                    ]
-                )
-            )
-            return .rotationEffect(RotationEffectViewModifier(angle: arg))
-        }
-        return nil
-    default:
-        return nil
     }
 }
 
