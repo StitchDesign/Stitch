@@ -22,6 +22,7 @@ enum SwiftUISyntaxError: Error, Sendable {
     case unsupportedComplexValueType(String)
     case unsupportedPortValueTypeDecoding(SyntaxViewModifierArgumentType)
     case unsupportedConstructorForPortValueDecoding(StrictViewConstructor)
+    case unsupportedJsonData(String)
     
     // MARK: - Layer decoding errors
     case unsupportedLayer(SyntaxViewName)
