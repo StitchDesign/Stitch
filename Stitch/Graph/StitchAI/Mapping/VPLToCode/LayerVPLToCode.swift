@@ -666,7 +666,15 @@ extension StrictSyntaxView {
         // Check if this is a container view that needs children
         switch constructor {
         case .hStack, .vStack, .zStack, .scrollView, .lazyHStack, .lazyVStack:
-            let childrenCode = children.map { child in
+            // Reverse children for ZStack to match visual order (Stitch first child = SwiftUI last child)
+            let orderedChildren: [StrictSyntaxView]
+            if case .zStack = constructor {
+                orderedChildren = Array(children.reversed())
+            } else {
+                orderedChildren = children
+            }
+            
+            let childrenCode = orderedChildren.map { child in
                 // Add proper indentation for each child
                 child.toSwiftUICode(usePortValueDescription: usePortValueDescription).components(separatedBy: "\n")
                     .map { line in line.isEmpty ? "" : "    \(line)" }
