@@ -221,9 +221,21 @@ extension SwiftParserInitializerType {
                                       value_type: portValue.value_type)
                             )
                             
-                        case .stateRef:
-                            fatalErrorIfDebug("State variables should never be passed into patch nodes")
-                            throw SwiftUISyntaxError.unsupportedStateInPatchInputParsing(patchNodeData)
+                        case .stateRef(let ref):
+                            // Check for edges here
+                            if let upstreamData = varNameOutputPortMap.get(ref) {
+                                try SwiftParserInitializerType.subscriptRef(upstreamData)
+                                    .parseStitchActions(varName: varName,
+                                                        varNameIdMap: varNameIdMap,
+                                                        varNameOutputPortMap: varNameOutputPortMap,
+                                                        customPatchInputValues: &customPatchInputValues,
+                                                        patchConnections: &patchConnections,
+                                                        viewStatePatchConnections: &viewStatePatchConnections,
+                                                        subscriptParentInfo: .init(node_id: patchNodeData.id,
+                                                                                   port_index: portIndex))
+                            } else {
+                                fatalErrorIfDebug("Expected to find subscript data")
+                            }
                         }
                     }
                     

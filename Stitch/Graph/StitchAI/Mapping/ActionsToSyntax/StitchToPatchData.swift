@@ -36,7 +36,7 @@ extension GraphEntity {
             let varName = patchNodeEntity.patch.rawValue.createUniqueVarName(nodeId: nodeId)
             
             let args: [String] = try patchNodeEntity.inputs.map { $0.portData }
-                .createSwiftUICodeArgs(varIdNameMap: varIdNameMap)
+                .createSwiftUICodeArgs(patchNodeEntityMap: patchNodeEntityDict)
             
             let patchDeclaration = """
                 let \(varName) = NATIVE_STITCH_PATCH_FUNCTIONS["\(patchNodeEntity.patch.aiDisplayTitle)"]([
@@ -80,35 +80,75 @@ extension String {
 // TODO: move
 
 extension Array where Element == NodeConnectionType {
-    func createSwiftUICodeArgs(varIdNameMap: [UUID: String] = [:]) throws -> [String] {
+    func createSwiftUICodeArgs(varIdNameMap: [UUID: String],
+                               isLayer: Bool) throws -> [String] {
         try self.map { inputData in
-            try inputData.createSwiftUICodeArg(varIdNameMap: varIdNameMap)
+            try inputData.createSwiftUICodeArg(varIdNameMap: varIdNameMap,
+                                               isLayer: isLayer)
+        }
+    }
+    
+    func createSwiftUICodeArgs(patchNodeEntityMap: [UUID: PatchNodeEntity]) throws -> [String] {
+        try self.map { inputData in
+            try inputData.createSwiftUICodeArg(patchNodeEntityMap: patchNodeEntityMap)
         }
     }
 }
 
 extension NodeConnectionType {
-    func createSwiftUICodeArg(varIdNameMap: [UUID: String]) throws -> String {
+    /// Called for patches, used for creating SwiftUI code from a Stitch graph.
+    func createSwiftUICodeArg(patchNodeEntityMap: [UUID: PatchNodeEntity]) throws -> String {
         switch self {
         case .values(let values):
-            guard let firstValue = values.first else {
-                fatalError()
-            }
-            
-            let valueDesc = PrintablePortValueDescription(firstValue)
-            let string = try valueDesc.jsonWithoutQuotedKeys()
-            
-            // gets rid of brackets
-            let trimmedStr = string.dropFirst().dropLast()
-            return "[PortValueDescription(\(trimmedStr))]"
+            return try values.createSwiftUICodeArg()
             
         case .upstreamConnection(let upstream):
-            // Variable name should already exist given topological order, otherwise its a cycle case which we should ignore
-            guard let upstreamVarName = varIdNameMap.get(upstream.nodeId) else {
+            guard let upstreamPatchNode = patchNodeEntityMap.get(upstream.nodeId),
+                  let portIndex = upstream.portId else {
                 throw SwiftUISyntaxError.upstreamVarNameNotFound(upstream)
             }
             
-            return "\(upstreamVarName)"
+            let upstreamVarName = upstreamPatchNode.patch.rawValue.createUniqueVarName(nodeId: upstream.nodeId)
+            
+            // Port indices used just for patches
+            return "\(upstreamVarName)[\(portIndex)]"
         }
+    }
+    
+    func createSwiftUICodeArg(varIdNameMap: [UUID: String],
+                              isLayer: Bool) throws -> String {
+        switch self {
+        case .values(let values):
+            return try values.createSwiftUICodeArg()
+            
+        case .upstreamConnection(let upstream):
+            // Variable name should already exist given topological order, otherwise its a cycle case which we should ignore
+            guard let upstreamVarName = varIdNameMap.get(upstream.nodeId),
+                  let portIndex = upstream.portId else {
+                throw SwiftUISyntaxError.upstreamVarNameNotFound(upstream)
+            }
+            
+            // Port indices used just for patches
+            if isLayer {
+                return "\(upstreamVarName)[\(portIndex)]"
+            }
+            
+            return upstreamVarName
+        }
+    }
+}
+
+extension Array where Element == PortValue {
+    func createSwiftUICodeArg() throws -> String {
+        guard let firstValue = self.first else {
+            fatalError()
+        }
+        
+        let valueDesc = PrintablePortValueDescription(firstValue)
+        let string = try valueDesc.jsonWithoutQuotedKeys()
+        
+        // gets rid of brackets
+        let trimmedStr = string.dropFirst().dropLast()
+        return "[PortValueDescription(\(trimmedStr))]"
     }
 }

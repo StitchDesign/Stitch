@@ -457,12 +457,14 @@ extension LayerInputEntity {
         switch self.mode {
         case .packed:
             let packedData = self.packedData.inputPort
-            portValueArgsString = try packedData.createSwiftUICodeArg(varIdNameMap: varIdNameMap)
+            portValueArgsString = try packedData.createSwiftUICodeArg(varIdNameMap: varIdNameMap,
+                                                                      isLayer: true)
             
         case .unpacked:
             let unpackedData = self.unpackedData
             let portValueArgs = try unpackedData.map {
-                try $0.inputPort.createSwiftUICodeArg(varIdNameMap: varIdNameMap)
+                try $0.inputPort.createSwiftUICodeArg(varIdNameMap: varIdNameMap,
+                                                      isLayer: true)
             }
             portValueArgsString = portValueArgs.joined(separator: ", ")
         }
