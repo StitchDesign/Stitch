@@ -342,15 +342,6 @@ extension CurrentAIGraphData.GraphData {
                                              document: document)
         }
         
-        // do after update topological data. MAKE SURE YOU DON'T CALCULATE
-        // for nodes in topological order...
-        // filter for nodes in self.patch_data.native_patches....
-            // find the NodeViewModel
-            // if has custom node type
-                // read the inputs. use node definitions to get inputs that have non-static defined types
-                // grab first port that qualifies for non-static behavior. infer value type
-                    // call the existing view model node type changed call
-        
         // Can't build the depth map from the `patch_data`,
         // since those UUIDs have not been remapped yet
         positionAIGeneratedNodesDuringApply(
