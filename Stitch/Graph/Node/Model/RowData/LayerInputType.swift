@@ -123,7 +123,7 @@ extension LayerInputPort {
         case .backgroundColor:
             return .color(DEFAULT_GROUP_BACKGROUND_COLOR)
         case .isClipped:
-            return .bool(true)
+            return .bool(false)
         case .orientation:
             return .orientation(.none)
         case .padding:
@@ -181,7 +181,7 @@ extension LayerInputPort {
         case .fitStyle:
             return .fitStyle(.fill)
         case .clipped:
-            return .bool(true)
+            return .bool(false)
         case .mapType:
             return .mapType(.defaultMapType)
         case .mapLatLong:
