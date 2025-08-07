@@ -34,8 +34,21 @@ extension GraphState {
         let topLevelLayerEntities = allLayerEntities
             .filter { $0.layerGroupId == nil }
         
+        // Maps upstream patch node ID to a variable name
+        let varNameIdMap = aiGraph.viewStatePatchConnections.reduce(into: [UUID: String]()) { result, data in
+            let (variableName, nodeIndexCoordiante) = data
+            
+            guard let nodeId = UUID(nodeIndexCoordiante.node_id) else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            result.updateValue(variableName, forKey: nodeId)
+        }
+        
         let viewCode = try topLevelLayerEntities
-            .createSwiftUICode(layerEntityMap: layerEntitiesMap)
+            .createSwiftUICode(layerEntityMap: layerEntitiesMap,
+                               varIdNameMap: varNameIdMap)
         
         if ignoreScript {
             return viewCode

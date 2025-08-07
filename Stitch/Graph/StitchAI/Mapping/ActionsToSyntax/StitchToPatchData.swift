@@ -88,7 +88,7 @@ extension Array where Element == NodeConnectionType {
 }
 
 extension NodeConnectionType {
-    func createSwiftUICodeArg(varIdNameMap: [UUID: String] = [:]) throws -> String {
+    func createSwiftUICodeArg(varIdNameMap: [UUID: String]) throws -> String {
         switch self {
         case .values(let values):
             guard let firstValue = values.first else {

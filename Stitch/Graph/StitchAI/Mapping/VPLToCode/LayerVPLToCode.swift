@@ -66,7 +66,8 @@ extension LayerNodeEntity {
     /// Only constructor-surface arguments are considered; **no view modifiers**.
     @MainActor
     func createSwiftUIViewBuilderCode(children: [LayerNodeEntity],
-                                      layerEntityMap: [UUID: LayerNodeEntity]) throws -> String? {
+                                      layerEntityMap: [UUID: LayerNodeEntity],
+                                      varIdNameMap: [UUID: String]) throws -> String? {
 //        let inputs = LayerDataConstructorInputs(layerData: layerData, idMap: &idMap)
         
         switch self.layer {
@@ -80,13 +81,16 @@ extension LayerNodeEntity {
             
             // ───────── Text ─────────
         case .text:
-            let args = try self.textPort.getSwiftUICodeForValues()
+            let args = try self.textPort
+                .getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
             return SyntaxViewName.text.createConstructorCode(args)
             
             // ───────── Group → H/V/Z stack or ScrollView ─────────
         case .group:
-            return try self.createNestedGroupSwiftUICode(children: children,
-                                                         layerEntityMap: layerEntityMap)
+            return try self
+                .createNestedGroupSwiftUICode(children: children,
+                                              layerEntityMap: layerEntityMap,
+                                              varIdNameMap: varIdNameMap)
             
             
             // ───────── Reality primitives (no-arg) ─────────
@@ -105,7 +109,8 @@ extension LayerNodeEntity {
         case .sfSymbol:
             if let symbolName = self.sfSymbolPort.packedData.inputPort.values?.first?.sfSymbol,
                symbolName != "" {
-                let args = try self.sfSymbolPort.getSwiftUICodeForValues()
+                let args = try self.sfSymbolPort
+                    .getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
                 return SyntaxViewName.image.createConstructorCode(args)
             }
             return nil
@@ -123,10 +128,13 @@ extension LayerNodeEntity {
     
     @MainActor
     func createNestedGroupSwiftUICode(children: [LayerNodeEntity],
-                                      layerEntityMap: [UUID: LayerNodeEntity]) throws -> String? {
+                                      layerEntityMap: [UUID: LayerNodeEntity],
+                                      varIdNameMap: [UUID: String]) throws -> String? {
         assertInDebug(self.layer == .group)
         
-        let childrenContents = try children.createSwiftUICode(layerEntityMap: layerEntityMap)
+        let childrenContents = try children
+            .createSwiftUICode(layerEntityMap: layerEntityMap,
+                               varIdNameMap: varIdNameMap)
         
         // Check if scroll is enabled
         let scrollXEnabled = self.scrollXEnabledPort.packedData.inputPort.values?.first?.getBool ?? false
@@ -156,7 +164,7 @@ extension LayerNodeEntity {
                 
         } else {
             let orient = self.orientationPort.packedData.inputPort.values?.first?.getOrientation ?? .none
-            let spacingArgs = try self.spacingPort.getSwiftUICodeForValues()
+            let spacingArgs = try self.spacingPort.getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
             
             let anchoring = self.layerGroupAlignmentPort.packedData.inputPort.values?.first?.getAnchoring ?? .defaultAnchoring
             
@@ -194,7 +202,8 @@ extension LayerNodeEntity {
         
     /// Converts layer data from graph to SwiftUI code
     @MainActor
-    func createSwiftUICode(layerEntityMap: [UUID: LayerNodeEntity]) throws -> String? {
+    func createSwiftUICode(layerEntityMap: [UUID: LayerNodeEntity],
+                           varIdNameMap: [UUID: String]) throws -> String? {
         // TODO: handle nesting edge case here
         let childrenLayerEntities = layerEntityMap.values.filter {
             $0.layerGroupId == self.id
@@ -203,7 +212,8 @@ extension LayerNodeEntity {
         if self.layer == .group {
             let groupSwiftUICode = try self
                 .createNestedGroupSwiftUICode(children: childrenLayerEntities,
-                                              layerEntityMap: layerEntityMap)
+                                              layerEntityMap: layerEntityMap,
+                                              varIdNameMap: varIdNameMap)
             
             return groupSwiftUICode
         }
@@ -211,12 +221,13 @@ extension LayerNodeEntity {
         // Create the constructor
         guard let constructor = try self
             .createSwiftUIViewBuilderCode(children: childrenLayerEntities,
-                                          layerEntityMap: layerEntityMap) else {
+                                          layerEntityMap: layerEntityMap,
+                                          varIdNameMap: varIdNameMap) else {
             return nil
         }
         
         // Create modifiers from custom_layer_input_values
-        let modifiersString = try self.getSwiftUIViewModifierStrings()
+        let modifiersString = try self.getSwiftUIViewModifierStrings(varIdNameMap: varIdNameMap)
 //        createStrictViewModifiersFromLayerData(layerData, idMap: &idMap)
         
         
@@ -229,7 +240,8 @@ extension LayerNodeEntity {
         if !childrenLayerEntities.isEmpty {
             // Convert children recursively
             let swiftUICodeForChildren = try childrenLayerEntities.compactMap {
-                try $0.createSwiftUICode(layerEntityMap: layerEntityMap)
+                try $0.createSwiftUICode(layerEntityMap: layerEntityMap,
+                                         varIdNameMap: varIdNameMap)
             }
             
             swiftUICode += "\n\(swiftUICodeForChildren)"
@@ -297,9 +309,11 @@ extension LayerNodeEntity {
 
 extension Array where Element == LayerNodeEntity {
     @MainActor
-    func createSwiftUICode(layerEntityMap: [UUID: LayerNodeEntity]) throws -> String {
+    func createSwiftUICode(layerEntityMap: [UUID: LayerNodeEntity],
+                           varIdNameMap: [UUID: String]) throws -> String {
         let strings = try self.compactMap {
-            try $0.createSwiftUICode(layerEntityMap: layerEntityMap)
+            try $0.createSwiftUICode(layerEntityMap: layerEntityMap,
+                                     varIdNameMap: varIdNameMap)
         }
         
         return strings.joined(separator: "\n")
@@ -411,7 +425,7 @@ func createAlignmentArg(anchoring: Anchoring,
 extension LayerNodeEntity {
     /// Creates StrictViewModifier array from LayerData custom input values
     @MainActor
-    func getSwiftUIViewModifierStrings() throws -> [String] {
+    func getSwiftUIViewModifierStrings(varIdNameMap: [UUID: String]) throws -> [String] {
         let ports = self.layer.inputDefinitions
         
         return try ports.compactMap { port -> String? in
@@ -429,26 +443,26 @@ extension LayerNodeEntity {
                 return nil
             }
             
-            let portValueArgs = try inputData.getSwiftUICodeForValues()
+            let portValueArgs = try inputData.getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
             return ".\(viewModifier.rawValue)(\(portValueArgs))"
         }
     }
 }
 
 extension LayerInputEntity {
-    func getSwiftUICodeForValues() throws -> String {
+    func getSwiftUICodeForValues(varIdNameMap: [UUID: String]) throws -> String {
         let portValueArgsString: String
         
         // Check packed/unpacked mode
         switch self.mode {
         case .packed:
             let packedData = self.packedData.inputPort
-            portValueArgsString = try packedData.createSwiftUICodeArg()
+            portValueArgsString = try packedData.createSwiftUICodeArg(varIdNameMap: varIdNameMap)
             
         case .unpacked:
             let unpackedData = self.unpackedData
             let portValueArgs = try unpackedData.map {
-                try $0.inputPort.createSwiftUICodeArg()
+                try $0.inputPort.createSwiftUICodeArg(varIdNameMap: varIdNameMap)
             }
             portValueArgsString = portValueArgs.joined(separator: ", ")
         }

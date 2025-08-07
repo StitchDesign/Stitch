@@ -285,7 +285,7 @@ extension CurrentAIGraphData.GraphData {
                 guard let upstreamPatchCoordinate = viewStatePatchConnections
                     .get(varName),
                       let upstreamNodeId = idMap.get(upstreamPatchCoordinate.node_id) else {
-                    fatalErrorIfDebug()
+//                    fatalErrorIfDebug()
                     return
                 }
                 
