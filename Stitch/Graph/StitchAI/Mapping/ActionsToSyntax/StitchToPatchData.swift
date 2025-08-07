@@ -104,12 +104,11 @@ extension NodeConnectionType {
             
         case .upstreamConnection(let upstream):
             // Variable name should already exist given topological order, otherwise its a cycle case which we should ignore
-            guard let upstreamVarName = varIdNameMap.get(upstream.nodeId),
-                  let portId = upstream.portId else {
+            guard let upstreamVarName = varIdNameMap.get(upstream.nodeId) else {
                 throw SwiftUISyntaxError.upstreamVarNameNotFound(upstream)
             }
             
-            return "\(upstreamVarName)[\(portId)]"
+            return "\(upstreamVarName)"
         }
     }
 }
