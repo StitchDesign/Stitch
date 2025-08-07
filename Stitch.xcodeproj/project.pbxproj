@@ -244,6 +244,9 @@
 		B58E97D52DF0B671007913E3 /* AIGraphCreationRequestBody_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E97D42DF0B65C007913E3 /* AIGraphCreationRequestBody_V0.swift */; };
 		B58E97D72DF0B87B007913E3 /* AIEditJsNodeRequestBody_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E97D62DF0B871007913E3 /* AIEditJsNodeRequestBody_V0.swift */; };
 		B58E97D92DF0BAD5007913E3 /* StitchAISchemaVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E97D82DF0BAD1007913E3 /* StitchAISchemaVersion.swift */; };
+		B58E9D6D2E4529A90070816A /* PortValueToCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E9D6C2E4529A30070816A /* PortValueToCode.swift */; };
+		B58E9D702E452A230070816A /* FontToCodeUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E9D6F2E452A1E0070816A /* FontToCodeUtil.swift */; };
+		B58E9D722E452A500070816A /* PortValueToCodeUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E9D712E452A450070816A /* PortValueToCodeUtil.swift */; };
 		B58F9C24294AE0AA00FFBF2C /* KeyPressState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58F9C23294AE0AA00FFBF2C /* KeyPressState.swift */; };
 		B58F9C26294AE0E800FFBF2C /* KeyPressActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58F9C25294AE0E800FFBF2C /* KeyPressActions.swift */; };
 		B590041A28501E6700EDDDFD /* MediaPickerValueEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B590041928501E6700EDDDFD /* MediaPickerValueEntry.swift */; };
@@ -1425,6 +1428,9 @@
 		B58E97D42DF0B65C007913E3 /* AIGraphCreationRequestBody_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphCreationRequestBody_V0.swift; sourceTree = "<group>"; };
 		B58E97D62DF0B871007913E3 /* AIEditJsNodeRequestBody_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEditJsNodeRequestBody_V0.swift; sourceTree = "<group>"; };
 		B58E97D82DF0BAD1007913E3 /* StitchAISchemaVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAISchemaVersion.swift; sourceTree = "<group>"; };
+		B58E9D6C2E4529A30070816A /* PortValueToCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueToCode.swift; sourceTree = "<group>"; };
+		B58E9D6F2E452A1E0070816A /* FontToCodeUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontToCodeUtil.swift; sourceTree = "<group>"; };
+		B58E9D712E452A450070816A /* PortValueToCodeUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueToCodeUtil.swift; sourceTree = "<group>"; };
 		B58F9C23294AE0AA00FFBF2C /* KeyPressState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPressState.swift; sourceTree = "<group>"; };
 		B58F9C25294AE0E800FFBF2C /* KeyPressActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPressActions.swift; sourceTree = "<group>"; };
 		B590041928501E6700EDDDFD /* MediaPickerValueEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPickerValueEntry.swift; sourceTree = "<group>"; };
@@ -4115,6 +4121,16 @@
 			path = V1;
 			sourceTree = "<group>";
 		};
+		B58E9D6E2E452A0A0070816A /* PortValue */ = {
+			isa = PBXGroup;
+			children = (
+				B58E9D6C2E4529A30070816A /* PortValueToCode.swift */,
+				B58E9D6F2E452A1E0070816A /* FontToCodeUtil.swift */,
+				B58E9D712E452A450070816A /* PortValueToCodeUtil.swift */,
+			);
+			path = PortValue;
+			sourceTree = "<group>";
+		};
 		B59660812C1A19E600BE75D7 /* Model */ = {
 			isa = PBXGroup;
 			children = (
@@ -4742,6 +4758,7 @@
 			children = (
 				B512A9AD2E3D757400CF70E1 /* PatchVPLToCode.swift */,
 				EC035BE92E385E050002E109 /* LayerVPLToCode.swift */,
+				B58E9D6E2E452A0A0070816A /* PortValue */,
 			);
 			path = VPLToCode;
 			sourceTree = "<group>";
@@ -5992,6 +6009,7 @@
 				EC4D9BC92829EBCD0066DFC8 /* GestureUtils.swift in Sources */,
 				EC1B97CD2E2A00400029B80C /* SpacerLayerNode.swift in Sources */,
 				B5136F542DED5C5A007F12D0 /* StitchAIUUID_V0.swift in Sources */,
+				B58E9D722E452A500070816A /* PortValueToCodeUtil.swift in Sources */,
 				EC68A6FE288B314A00689F92 /* GroupNodeCreationActions.swift in Sources */,
 				ECA929F0260A68DF00281B52 /* SplitterPatchNode.swift in Sources */,
 				ECB238DF2E0B914100D55A25 /* SyntaxArgumentKind.swift in Sources */,
@@ -6072,6 +6090,7 @@
 				EC560E09293A72B900350046 /* AnyPatchNode.swift in Sources */,
 				EC82540A287DE2E80020D943 /* LabelDisplayView.swift in Sources */,
 				EC560E13293A913D00350046 /* LoopRemoveNode.swift in Sources */,
+				B58E9D702E452A230070816A /* FontToCodeUtil.swift in Sources */,
 				ECABB561269CE23100AC9931 /* NetworkRequestNode.swift in Sources */,
 				EC609DC62935474000BF60A5 /* MinNode.swift in Sources */,
 				EC004DCD2B4498C200C5DB33 /* CanvasSketchLayerNode.swift in Sources */,
@@ -6580,6 +6599,7 @@
 				EC733DC22639E22E00DD4EC1 /* PatchNodeViewModel.swift in Sources */,
 				EC1DE584260A9ACB009497CF /* HSLColorNode.swift in Sources */,
 				EC844A6A2B5F210A00C79B0B /* StitchFont.swift in Sources */,
+				B58E9D6D2E4529A90070816A /* PortValueToCode.swift in Sources */,
 				205BB3B425BA210500F144A7 /* InsertNodeMenu.swift in Sources */,
 				EC8C5C2326165C870099C374 /* PulseOnChangeNode.swift in Sources */,
 				EC252405269F5CB7003ABF8F /* PickerValueEntry.swift in Sources */,
