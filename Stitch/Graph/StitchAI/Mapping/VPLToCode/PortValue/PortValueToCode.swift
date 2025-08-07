@@ -57,7 +57,7 @@ extension NodeConnectionType {
             }
             
             // Port indices used just for patches
-            if isLayer {
+            if !isLayer {
                 return "\(upstreamVarName)[\(portIndex)]"
             }
             
