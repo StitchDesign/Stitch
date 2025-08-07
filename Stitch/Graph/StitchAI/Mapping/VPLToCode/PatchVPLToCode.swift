@@ -13,9 +13,6 @@ extension GraphState {
         let graphEntity = self.createSchema()
         let aiGraph = try AIGraphData_V0.GraphData(from: graphEntity)
         
-        // TODO: check if needed
-        var idMap = [String : UUID]()
-        
         let patchNodeDeclarations = try graphEntity
             .createBindingDeclarations(nodeIdsInTopologicalOrder: self.nodeIdsInTopologicalOrder,
                                        viewStatePatchConnections: aiGraph.viewStatePatchConnections)
@@ -26,15 +23,32 @@ extension GraphState {
         }
             .joined(separator: "\n\t")
         
-        let syntaxes = try aiGraph.layer_data_list.compactMap { layerData in
-            try layerDataToStrictSyntaxView(layerData, idMap: &idMap)
+        let allLayerEntities = graphEntity.nodes
+            .compactMap { $0.layerNodeEntity }
+        
+        let layerEntitiesMap = allLayerEntities.reduce(into: [UUID: LayerNodeEntity]()) { result, layerNode in
+            result.updateValue(layerNode, forKey: layerNode.id)
         }
         
-        // Generate complete SwiftUI code from StrictSyntaxView
-        let viewCode = syntaxes.map { strictSyntaxView in
-            strictSyntaxView.toSwiftUICode(usePortValueDescription: usePortValueDescription)
-        }.joined(separator: "\n\n\t\t")
+        // Filter for just top layer entities in beginning
+        let topLevelLayerEntities = allLayerEntities
+            .filter { $0.layerGroupId == nil }
         
+        // Maps upstream patch node ID to a variable name
+        let varNameIdMap = aiGraph.viewStatePatchConnections.reduce(into: [UUID: String]()) { result, data in
+            let (variableName, nodeIndexCoordiante) = data
+            
+            guard let nodeId = UUID(nodeIndexCoordiante.node_id) else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            result.updateValue(variableName, forKey: nodeId)
+        }
+        
+        let viewCode = try topLevelLayerEntities
+            .createSwiftUICode(layerEntityMap: layerEntitiesMap,
+                               varIdNameMap: varNameIdMap)
         
         if ignoreScript {
             return viewCode

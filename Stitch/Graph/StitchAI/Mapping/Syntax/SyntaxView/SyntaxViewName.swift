@@ -211,3 +211,9 @@ enum SyntaxViewName: String, Equatable, Codable, Hashable, CaseIterable, Sendabl
     case picker = "Picker"
     case unevenRoundedRectangle = "UnevenRoundedRectangle"
 }
+
+extension SyntaxViewName {
+    func createConstructorCode(_ argsString: String = "") -> String {
+        "\(self.rawValue)(\(argsString))"
+    }
+}

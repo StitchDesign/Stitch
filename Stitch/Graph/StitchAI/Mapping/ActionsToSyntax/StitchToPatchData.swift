@@ -35,30 +35,8 @@ extension GraphEntity {
             
             let varName = patchNodeEntity.patch.rawValue.createUniqueVarName(nodeId: nodeId)
             
-            let args: [String] = try patchNodeEntity.inputs.map { inputData in
-                switch inputData.portData {
-                case .values(let values):
-                    guard let firstValue = values.first else {
-                        fatalError()
-                    }
-                    
-                    let valueDesc = PrintablePortValueDescription(firstValue)
-                    let string = try valueDesc.jsonWithoutQuotedKeys()
-                    
-                    // gets rid of brackets
-                    let trimmedStr = string.dropFirst().dropLast()
-                    return "[PortValueDescription(\(trimmedStr))]"
-                    
-                case .upstreamConnection(let upstream):
-                    // Variable name should already exist given topological order, otherwise its a cycle case which we should ignore
-                    guard let upstreamVarName = varIdNameMap.get(upstream.nodeId),
-                          let portId = upstream.portId else {
-                        throw SwiftUISyntaxError.upstreamVarNameNotFound(upstream)
-                    }
-                    
-                    return "\(upstreamVarName)[\(portId)]"
-                }
-            }
+            let args: [String] = try patchNodeEntity.inputs.map { $0.portData }
+                .createSwiftUICodeArgs(patchNodeEntityMap: patchNodeEntityDict)
             
             let patchDeclaration = """
                 let \(varName) = NATIVE_STITCH_PATCH_FUNCTIONS["\(patchNodeEntity.patch.aiDisplayTitle)"]([
