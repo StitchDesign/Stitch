@@ -102,9 +102,18 @@ extension MappingExamples {
         RotationModifierCodeExamples.rotationEffectPortValueDescriptionVariable,
         RotationModifierCodeExamples.rotation3DEffectPortValueDescriptionMultiAxis,
         
+        // Preprocessing examples - testing our new multiple root view logic
+        PreprocessingCodeExamples.singleRootView,
+        PreprocessingCodeExamples.multipleRootViews,
+        PreprocessingCodeExamples.singleStackWithChildren,
+        PreprocessingCodeExamples.mixedMultipleViews,
+        PreprocessingCodeExamples.phoneKeypadExample,
+        PreprocessingCodeExamples.complexNestedExample,
+        
         //        // // NOT YET SUPPORTED:
         //        RotationModifierCodeExamples.rotationEffectAnchor,
         //        RotationModifierCodeExamples.rotationEffectRadians,
         //        RotationModifierCodeExamples.rotation3DEffectPerspective,
     ]
 }
+

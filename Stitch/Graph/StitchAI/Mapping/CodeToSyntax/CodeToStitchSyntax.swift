@@ -260,9 +260,15 @@ extension SwiftUIViewVisitor {
                                  varNameIdMap: [String : String]) -> SwiftUIViewParserResult {
 //        log("\n==== PARSING CODE ====\n\(swiftUICode)\n=====================\n")
         
+        // Preprocess the code to ensure single root view in var body
+        let preprocessedCode = preprocessSwiftUICode(swiftUICode)
+        
+        log("DEBUG: swiftUICode: \n\(swiftUICode)")
+        log("DEBUG: preprocessedCode: \n\(preprocessedCode)")
+        
         // Fall back to the original visitor-based approach for now
         // but add our own post-processing for modifiers
-        let sourceFile = Parser.parse(source: swiftUICode)
+        let sourceFile = Parser.parse(source: preprocessedCode)
         
 //#if DEV_DEBUG
 //        print("\n==== DEBUG: SOURCE FILE STRUCTURE ====\n")
@@ -277,5 +283,68 @@ extension SwiftUIViewVisitor {
         return .init(rootView: visitor.rootViewNode,
                      bindingDeclarations: visitor.bindingDeclarations,
                      caughtErrors: visitor.caughtErrors)
+    }
+    
+    /// Preprocesses SwiftUI code to wrap multiple top-level views in var body with VStack
+    private static func preprocessSwiftUICode(_ code: String) -> String {
+        // Simple approach: if the code doesn't have var body, it's just raw views - wrap them
+        if !code.contains("var body") {
+            // Count top-level SwiftUI view declarations
+            let topLevelViewCount = countTopLevelViewDeclarations(in: code)
+            
+            if topLevelViewCount > 1 {
+                // Multiple top-level views - wrap in VStack  
+                let indentedContent = code.components(separatedBy: .newlines)
+                    .map { line in line.isEmpty ? line : "    \(line)" }
+                    .joined(separator: "\n")
+                return "VStack {\n\(indentedContent)\n}"
+            }
+        }
+        
+        return code
+    }
+    
+    /// Counts actual top-level SwiftUI view declarations (not lines)
+    private static func countTopLevelViewDeclarations(in code: String) -> Int {
+        let swiftUIViews = ["Text", "Rectangle", "Ellipse", "Circle", "Image", "VStack", "HStack", "ZStack", "ScrollView", "Button"]
+        var count = 0
+        var braceDepth = 0
+        var inString = false
+        var escapeNext = false
+        
+        var i = code.startIndex
+        while i < code.endIndex {
+            let char = code[i]
+            
+            // Handle string literals
+            if escapeNext {
+                escapeNext = false
+            } else if char == "\\" && inString {
+                escapeNext = true
+            } else if char == "\"" {
+                inString.toggle()
+            } else if !inString {
+                // Track brace depth to know when we're at top level
+                if char == "{" {
+                    braceDepth += 1
+                } else if char == "}" {
+                    braceDepth -= 1
+                }
+                
+                // Check for SwiftUI view at top level (braceDepth == 0)
+                if braceDepth == 0 {
+                    for viewName in swiftUIViews {
+                        if code[i...].hasPrefix(viewName + "(") || code[i...].hasPrefix(viewName + " {") {
+                            count += 1
+                            break
+                        }
+                    }
+                }
+            }
+            
+            i = code.index(after: i)
+        }
+        
+        return count
     }
 }

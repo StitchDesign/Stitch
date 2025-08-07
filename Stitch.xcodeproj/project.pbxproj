@@ -572,6 +572,7 @@
 		EC3420DE2AF9C2BE00EBD896 /* CommentBoxDataUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3420DD2AF9C2BE00EBD896 /* CommentBoxDataUtils.swift */; };
 		EC3420E02AF9C2C700EBD896 /* CommentExpansionBoxUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3420DF2AF9C2C700EBD896 /* CommentExpansionBoxUtils.swift */; };
 		EC3420E22AF9C2EC00EBD896 /* CommentBoxHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3420E12AF9C2EC00EBD896 /* CommentBoxHelpers.swift */; };
+		EC34B7FF2E44419F00649A3F /* PreprocessingExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC34B7FE2E44419F00649A3F /* PreprocessingExamples.swift */; };
 		EC35A511297622030014D14A /* JSONShapeCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC35A510297622030014D14A /* JSONShapeCommand.swift */; };
 		EC363D56294282FD0093C473 /* Triangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC363D55294282FD0093C473 /* Triangle.swift */; };
 		EC365A832D7F48E60015B8D7 /* ShadowInspectorRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC365A822D7F48E60015B8D7 /* ShadowInspectorRow.swift */; };
@@ -1740,6 +1741,7 @@
 		EC3420DD2AF9C2BE00EBD896 /* CommentBoxDataUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentBoxDataUtils.swift; sourceTree = "<group>"; };
 		EC3420DF2AF9C2C700EBD896 /* CommentExpansionBoxUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentExpansionBoxUtils.swift; sourceTree = "<group>"; };
 		EC3420E12AF9C2EC00EBD896 /* CommentBoxHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentBoxHelpers.swift; sourceTree = "<group>"; };
+		EC34B7FE2E44419F00649A3F /* PreprocessingExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreprocessingExamples.swift; sourceTree = "<group>"; };
 		EC35A510297622030014D14A /* JSONShapeCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONShapeCommand.swift; sourceTree = "<group>"; };
 		EC363D55294282FD0093C473 /* Triangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Triangle.swift; sourceTree = "<group>"; };
 		EC365A822D7F48E60015B8D7 /* ShadowInspectorRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowInspectorRow.swift; sourceTree = "<group>"; };
@@ -5127,6 +5129,7 @@
 			children = (
 				ECC734732E0DE95A00AC266C /* CodeExamples.swift */,
 				EC7062B22E14BFC50017A9F0 /* ScrollViewCodeExamples.swift */,
+				EC34B7FE2E44419F00649A3F /* PreprocessingExamples.swift */,
 				EC5251E02E3B0B2800E1AAC1 /* FontCodeExamples.swift */,
 				EC7062C22E15E78C0017A9F0 /* VarBodyCodeExamples.swift */,
 				EC97004F2E3C80860049202B /* PortValueDescriptionCodeExamples.swift */,
@@ -6820,6 +6823,7 @@
 				EC9486A22AE1ACED00B51AB1 /* LayerHoveredActions.swift in Sources */,
 				ECB6EE9F29314D51003D60C7 /* PatchNodeType.swift in Sources */,
 				EC3420DE2AF9C2BE00EBD896 /* CommentBoxDataUtils.swift in Sources */,
+				EC34B7FF2E44419F00649A3F /* PreprocessingExamples.swift in Sources */,
 				ECC301B329380EBB00C34F10 /* ValueAtPathNode.swift in Sources */,
 				B5EFD5B12D5D896B006A68FB /* StitchAISystemPromptGenerator.swift in Sources */,
 				EC1587452DE1287900A9C50A /* HardcodedPatchByNodeTypeSizes.swift in Sources */,
