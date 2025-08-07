@@ -204,7 +204,8 @@ extension SwiftParserInitializerType {
                     
                     patchConnections.append(
                         .init(src_port: usptreamCoordinate,
-                              dest_port: .init(node_id: patchNodeData.id,                          port_index: portIndex))
+                              dest_port: .init(node_id: patchNodeData.id,
+                                               port_index: portIndex))
                     )
                     
                 case .value(let argType):
