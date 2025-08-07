@@ -32,6 +32,86 @@ protocol FromSwiftUIViewToStitch: Encodable {
     func createCustomValueEvents() throws -> [ASTCustomInputValue]
 }
 
+// TODO: MOVE
+
+extension Array where Element == LayerPortDerivationType {
+    func createUnpackedEvents(layerInputPort: LayerInputPort) throws -> [LayerPortDerivation] {
+        let unpackedPortEvents = self.enumerated().map { portIndex, layerPortEvent in
+            guard let unpackedPortIndex = UnpackedPortType(rawValue: portIndex) else {
+                fatalErrorIfDebug()
+                return LayerPortDerivation(input: layerInputPort,
+                                           inputData: layerPortEvent)
+            }
+            
+            return LayerPortDerivation(coordinate: .init(
+                layerInput: layerInputPort,
+                portType: .unpacked(unpackedPortIndex)),
+                                       inputData: layerPortEvent)
+            
+        }
+        
+        return unpackedPortEvents
+    }
+}
+
+/// View modifiers who may pack or unapck their portvalue data.
+protocol PortValuesPackModifiable: FromSwiftUIViewModifierToStitch {
+    static var layerInputPort: LayerInputPort { get }
+    
+    static var nodeType: NodeType { get }
+    
+    init(args: [SyntaxViewModifierArgumentType])
+    
+    var args: [SyntaxViewModifierArgumentType] { get }
+}
+
+extension PortValuesPackModifiable {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+        // Handle each argument argument
+        let layerPortEvents: [LayerPortDerivationType] = try self.args.flatMap {
+            try $0.derivePortValues()
+        }
+        
+        let parsedValues = try layerPortEvents.compactMap { event -> PortValue? in
+            guard let valueDesc = event.value else { return nil }
+            return try PortValue(from: valueDesc)
+        }
+        
+        // If one of the parsed events isn't a value, then there's at least one state ref, and we should return an unpacked scenario
+        guard layerPortEvents.count == parsedValues.count else {
+            let unpackedPortEvents = try layerPortEvents
+                .createUnpackedEvents(layerInputPort: Self.layerInputPort)
+            return unpackedPortEvents
+        }
+        
+        // Packed scenarios--either return the only argument or pack up multiple
+        if layerPortEvents.count == 1,
+           let firstPortEvent = layerPortEvents.first {
+            return [
+                .init(input: Self.layerInputPort,
+                      inputData: firstPortEvent)
+            ]
+        }
+        
+        // Pack up multiple values
+        guard let packedValue = parsedValues.pack(type: Self.nodeType) else {
+            fatalErrorIfDebug()
+            let unpackedPortEvents = try layerPortEvents
+                .createUnpackedEvents(layerInputPort: Self.layerInputPort)
+            return unpackedPortEvents
+        }
+        
+        return [
+            .init(input: Self.layerInputPort,
+                  value: packedValue)
+        ]
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> Self? {
+        self.init(args: arguments.map(\.value))
+    }
+}
 
 // TODO: can we just the `FromSwiftUIViewToStitch` protocol instead? But tricky, since `FromSwiftUIViewToStitch` has an associated i.e. generic type, which would bubble up elsewhere.
 enum StrictViewConstructor: Equatable, Encodable {
@@ -1391,7 +1471,7 @@ enum LazyVStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 /// Mirrors how `ViewConstructor` wraps typed view constructors.
 /// Each case carries the specific typed modifier struct/enum and exposes a unified
 /// `value` that conforms to `FromSwiftUIViewModifierToStitch`.
-enum StrictViewModifier: Equatable, Encodable {
+enum StrictViewModifier: Encodable {
     case opacity(OpacityViewModifier)
     case scaleEffect(ScaleEffectViewModifier)
     case blur(BlurViewModifier)
@@ -1708,68 +1788,11 @@ struct CornerRadiusViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
 
 // MARK: - Frame View Modifier
 
-struct FrameViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
-    let width: SyntaxViewModifierArgumentType?
-    let height: SyntaxViewModifierArgumentType?
+struct FrameViewModifier: PortValuesPackModifiable {
+    static let layerInputPort = LayerInputPort.size
+    static let nodeType = NodeType.size
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        var result: [ASTCustomInputValue] = []
-        
-        // Handle width argument
-        if let width = width {
-            let widthPortDerivations = try width.derivePortValues()
-            for derivation in widthPortDerivations {
-                
-                let customValue = ASTCustomInputValue(
-                    coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .size,
-                                                                       portType: .unpacked(.port0)),
-                    inputData: derivation)
-                
-                result.append(customValue)
-            }
-        }
-        
-        // Handle height argument  
-        if let height = height {
-            let heightPortDerivations = try height.derivePortValues()
-            for derivation in heightPortDerivations {
-                
-                let customValue = ASTCustomInputValue(
-                    coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .size,
-                                                                       portType: .unpacked(.port1)),
-                    inputData: derivation)
-                
-                result.append(customValue)
-            }
-        }
-        
-        // If no width or height provided, create default size
-        if result.isEmpty {
-            let layerSize = LayerSize(width: .auto, height: .auto)
-            result.append(ASTCustomInputValue(input: .size, value: .size(layerSize)))
-        }
-        
-        return result
-    }
-    
-    static func from(_ arguments: [SyntaxViewArgumentData],
-                     modifierName: SyntaxViewModifierName) -> FrameViewModifier? {
-        var width: SyntaxViewModifierArgumentType?
-        var height: SyntaxViewModifierArgumentType?
-        
-        for arg in arguments {
-            switch arg.label {
-            case "width":  width = arg.value
-            case "height": height = arg.value
-            default: break
-            }
-        }
-        
-        // Require at least one dimension to be present
-        guard width != nil || height != nil else { return nil }
-        
-        return FrameViewModifier(width: width, height: height)
-    }
+    let args: [SyntaxViewModifierArgumentType]
 }
 
 // MARK: - Color View Modifiers
