@@ -157,33 +157,43 @@ extension LayerNodeEntity {
             $0.layerGroupId == self.id
         }
         
-        if self.layer == .group {
-            let groupSwiftUICode = try self
+        let isGroup = self.layer == .group
+        let isNotGroupButHasChildren = !isGroup && !childrenLayerEntities.isEmpty
+        let constructorCode: String
+        
+        if isGroup {
+            guard let groupSwiftUICode = try self
                 .createNestedGroupSwiftUICode(children: childrenLayerEntities,
                                               layerEntityMap: layerEntityMap,
-                                              varIdNameMap: varIdNameMap)
+                                              varIdNameMap: varIdNameMap) else {
+                return nil
+            }
             
-            return groupSwiftUICode
+            constructorCode = groupSwiftUICode
         }
         
-        // Create the constructor
-        guard let constructor = try self
-            .createSwiftUIViewBuilderCode(children: childrenLayerEntities,
-                                          layerEntityMap: layerEntityMap,
-                                          varIdNameMap: varIdNameMap) else {
-            return nil
+        else {
+            // Create the constructor
+            guard let constructor = try self
+                .createSwiftUIViewBuilderCode(children: childrenLayerEntities,
+                                              layerEntityMap: layerEntityMap,
+                                              varIdNameMap: varIdNameMap) else {
+                return nil
+            }
+                
+            constructorCode = constructor
         }
         
         // Create modifiers from custom_layer_input_values
         let modifiersString = try self.getSwiftUIViewModifierStrings(varIdNameMap: varIdNameMap)
         
         var swiftUICode = """
-            \(constructor)
+            \(constructorCode)
                 .layerId(\(self.id))
                 \(modifiersString.joined(separator: "\n\t\t"))
             """
         
-        if !childrenLayerEntities.isEmpty {
+        if isNotGroupButHasChildren {
             // Convert children recursively
             let swiftUICodeForChildren = try childrenLayerEntities.compactMap {
                 try $0.createSwiftUICode(layerEntityMap: layerEntityMap,
