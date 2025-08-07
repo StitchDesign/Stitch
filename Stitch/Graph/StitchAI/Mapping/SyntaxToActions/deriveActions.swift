@@ -104,9 +104,18 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                     continue
                 }
                 
-            case .stateMutation:
+            case .stateMutation(let mutationData):
                 // Create state with disconnected upstream patch port, feed this into layer data and update all the helpers
                 viewStateVarNames.insert(varName)
+                
+                // Save outputs that are assigned to this variable
+                switch mutationData {
+                case .subscriptRef(let subscriptData):
+                    varNameOutputPortMap.updateValue(subscriptData, forKey: varName)
+                    
+                default:
+                    break
+                }
             }
         }
         
