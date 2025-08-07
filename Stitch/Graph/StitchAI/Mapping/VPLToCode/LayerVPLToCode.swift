@@ -138,18 +138,18 @@ extension LayerNodeEntity {
             let axesArg: String
             if scrollXEnabled && scrollYEnabled {
                 // Both axes enabled → ScrollView([.horizontal, .vertical])
-                axesArg = "[.horizontal, .vertical]"
+                axesArg = "axes: [.horizontal, .vertical], "
 
             } else if scrollXEnabled {
                 // Only horizontal → ScrollView(.horizontal)
-                axesArg = "[.horizontal]"
+                axesArg = "axes: [.horizontal], "
             } else {
                 // Only vertical (default) → ScrollView() - no axes parameter needed as vertical is default
                 axesArg = ""
             }
             
             return """
-                ScrollView(axes: \(axesArg), showsIndicators: nil) {
+                ScrollView(\(axesArg)showsIndicators: nil) {
                     \(childrenContents)
                 }
                 """
