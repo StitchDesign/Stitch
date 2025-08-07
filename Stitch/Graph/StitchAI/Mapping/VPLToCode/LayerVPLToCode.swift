@@ -428,23 +428,60 @@ extension LayerNodeEntity {
     func getSwiftUIViewModifierStrings(varIdNameMap: [UUID: String]) throws -> [String] {
         let ports = self.layer.inputDefinitions
         
-        return try ports.compactMap { port -> String? in
+        return try ports.compactMap { (port: LayerInputPort) -> String? in
             guard let viewModifier = port.viewModifierString(from: self.layer) else {
                 log("getSwiftUIViewModifierStrings: no view modifier for \(port) in \(self.layer)")
                 return nil
             }
             let inputData = self[keyPath: port.schemaPortKeyPath]
-
-            let defaultData = port.getDefaultValueForAI(for: self.layer)
-            let firstValue = inputData.packedData.inputPort.values?.first
+            let defaultValue: PortValue = port.getDefaultValueForAI(for: self.layer)
             
-            guard defaultData != firstValue else {
-                // Skip if default data is equal--no view modifier needed in this event
-                return nil
+            let hasDefaultData: Bool
+            
+            switch inputData.mode {
+            case .packed:
+                let packedInputValue: PortValue? = inputData.packedData.inputPort.values?.first
+                hasDefaultData = packedInputValue == defaultValue
+            case .unpacked:
+                let unpackedDefaultValue: PortValues? = defaultValue.unpackValues()
+                let unpackedInputValue: PortValues = inputData.unpackedData.compactMap { $0.inputPort.values?.first }
+                hasDefaultData = unpackedDefaultValue == unpackedInputValue
             }
             
-            let portValueArgs = try inputData.getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
-            return ".\(viewModifier.rawValue)(\(portValueArgs))"
+            if hasDefaultData {
+                // Skip if default data is equal--no view modifier needed in this event
+                
+                if port == .size {
+                    log("DEFAULT DATA FOR SIZE")
+                }
+                
+                return nil
+            } else {
+                if port == .size {
+                    log("NON DEFAULT DATA FOR SIZE")
+                }
+                
+                let portValueArgs = try inputData.getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
+                return ".\(viewModifier.rawValue)(\(portValueArgs))"
+            }
+// 
+//            // TODO: helpers / a better way to sync packed vs unpacked layer input data on LayerNodeEntity (as opposed to LayerNodeViewModel)
+//            
+//            
+//            
+//           
+//            
+//            let hasNonDefaultData = (packedInputValue != defaultValue) || (unpackedDefaultValue != unpackedInputValue)
+//            
+//            // Checking against unpacked data means we
+//                        
+//            guard hasNonDefaultData else {
+//                // Skip if default data is equal--no view modifier needed in this event
+//                return nil
+//            }
+//            
+//            let portValueArgs = try inputData.getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
+//            return ".\(viewModifier.rawValue)(\(portValueArgs))"
         }
     }
 }
