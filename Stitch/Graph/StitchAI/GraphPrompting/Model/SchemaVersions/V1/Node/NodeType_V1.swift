@@ -240,7 +240,7 @@ extension StitchAIPortValue_V1.NodeType {
             guard let newId = idMap.get(xString) else {
                 // Try to decode UUID if no map
                 guard let uuid = UUID(xString) else {
-                    fatalErrorIfDebug()
+                    log("coerceToPortValueForStitchAI: no layer ID found for: \(xString)")
                     return .assignedLayer(nil)
                 }
                 return .assignedLayer(.init(uuid))
