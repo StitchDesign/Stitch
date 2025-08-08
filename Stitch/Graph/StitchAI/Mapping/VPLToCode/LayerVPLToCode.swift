@@ -189,7 +189,7 @@ extension LayerNodeEntity {
         
         var swiftUICode = """
             \(constructorCode)
-                .layerId(\(self.id))
+                .layerId("\(self.id)")
                 \(modifiersString.joined(separator: "\n\t\t"))
             """
         
@@ -309,15 +309,26 @@ extension LayerNodeEntity {
             let inputData = self[keyPath: port.schemaPortKeyPath]
 
             let defaultData = port.getDefaultValueForAI(for: self.layer)
-            let firstValue = inputData.packedData.inputPort.values?.first
             
-            guard defaultData != firstValue else {
-                // Skip if default data is equal--no view modifier needed in this event
-                return nil
+            switch inputData.mode {
+            case .packed:
+                let firstValue = inputData.packedData.inputPort.values?.first
+                
+                guard defaultData != firstValue else {
+                    // Skip if default data is equal--no view modifier needed in this event
+                    return nil
+                }
+                
+                let portValueArgs = try inputData.getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
+                return ".\(viewModifier.rawValue)(\(portValueArgs))"
+                
+            case .unpacked:
+                let unpackedArgsString = try inputData
+                    .getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
+                
+                return ".\(viewModifier.rawValue)(\(unpackedArgsString))"
             }
             
-            let portValueArgs = try inputData.getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
-            return ".\(viewModifier.rawValue)(\(portValueArgs))"
         }
     }
 }

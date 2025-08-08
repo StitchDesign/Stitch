@@ -247,6 +247,7 @@
 		B58E9D6D2E4529A90070816A /* PortValueToCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E9D6C2E4529A30070816A /* PortValueToCode.swift */; };
 		B58E9D702E452A230070816A /* FontToCodeUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E9D6F2E452A1E0070816A /* FontToCodeUtil.swift */; };
 		B58E9D722E452A500070816A /* PortValueToCodeUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E9D712E452A450070816A /* PortValueToCodeUtil.swift */; };
+		B58E9D742E4581B20070816A /* SwiftUItoStitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E9D732E4581A60070816A /* SwiftUItoStitch.swift */; };
 		B58F9C24294AE0AA00FFBF2C /* KeyPressState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58F9C23294AE0AA00FFBF2C /* KeyPressState.swift */; };
 		B58F9C26294AE0E800FFBF2C /* KeyPressActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58F9C25294AE0E800FFBF2C /* KeyPressActions.swift */; };
 		B590041A28501E6700EDDDFD /* MediaPickerValueEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B590041928501E6700EDDDFD /* MediaPickerValueEntry.swift */; };
@@ -1431,6 +1432,7 @@
 		B58E9D6C2E4529A30070816A /* PortValueToCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueToCode.swift; sourceTree = "<group>"; };
 		B58E9D6F2E452A1E0070816A /* FontToCodeUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontToCodeUtil.swift; sourceTree = "<group>"; };
 		B58E9D712E452A450070816A /* PortValueToCodeUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueToCodeUtil.swift; sourceTree = "<group>"; };
+		B58E9D732E4581A60070816A /* SwiftUItoStitch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUItoStitch.swift; sourceTree = "<group>"; };
 		B58F9C23294AE0AA00FFBF2C /* KeyPressState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPressState.swift; sourceTree = "<group>"; };
 		B58F9C25294AE0E800FFBF2C /* KeyPressActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPressActions.swift; sourceTree = "<group>"; };
 		B590041928501E6700EDDDFD /* MediaPickerValueEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPickerValueEntry.swift; sourceTree = "<group>"; };
@@ -5124,6 +5126,7 @@
 		EC6A705F2E22D2C7009ED3C1 /* Declarative */ = {
 			isa = PBXGroup;
 			children = (
+				B58E9D732E4581A60070816A /* SwiftUItoStitch.swift */,
 				ECDAFFF42E1F739A00AF71E9 /* DeclarativeViewConstructors.swift */,
 				EC6A70612E22D364009ED3C1 /* DeclarativeViewConstructorsDemoView.swift */,
 				EC6A70632E22D405009ED3C1 /* Parameter.swift */,
@@ -6008,6 +6011,7 @@
 				EC165EDC29C8B9330024ECDF /* JSONShapeCommandParsing.swift in Sources */,
 				EC4D9BC92829EBCD0066DFC8 /* GestureUtils.swift in Sources */,
 				EC1B97CD2E2A00400029B80C /* SpacerLayerNode.swift in Sources */,
+				B58E9D742E4581B20070816A /* SwiftUItoStitch.swift in Sources */,
 				B5136F542DED5C5A007F12D0 /* StitchAIUUID_V0.swift in Sources */,
 				B58E9D722E452A500070816A /* PortValueToCodeUtil.swift in Sources */,
 				EC68A6FE288B314A00689F92 /* GroupNodeCreationActions.swift in Sources */,

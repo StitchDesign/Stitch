@@ -13,26 +13,6 @@ import SwiftSyntax
 import SwiftParser
 
 
-
-protocol FromSwiftUIViewToStitch: Encodable {
-    associatedtype T
-    
-    // nil if ViewConstructor could not be turned into Stitch concepts
-    //    var toStitch: (
-    //        Layer?, // nil e.g. for ScrollView, which contributes custom-values but not own layer
-    //        [ValueOrEdge]
-    //    )? { get }
-    
-    static func from(_ args: [SyntaxViewArgumentData],
-                     viewName: SyntaxViewName) -> T?
-    
-    // TODO: this property is incorrect -- some SwiftUI views like ScrollView may not become a Layer
-    var layer: AIGraphData_V0.Layer { get }
-    
-    func createCustomValueEvents() throws -> [ASTCustomInputValue]
-}
-
-
 // TODO: can we just the `FromSwiftUIViewToStitch` protocol instead? But tricky, since `FromSwiftUIViewToStitch` has an associated i.e. generic type, which would bubble up elsewhere.
 enum StrictViewConstructor: Equatable, Encodable {
     case text(TextViewConstructor)
@@ -1391,7 +1371,7 @@ enum LazyVStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 /// Mirrors how `ViewConstructor` wraps typed view constructors.
 /// Each case carries the specific typed modifier struct/enum and exposes a unified
 /// `value` that conforms to `FromSwiftUIViewModifierToStitch`.
-enum StrictViewModifier: Equatable, Encodable {
+enum StrictViewModifier: Encodable {
     case opacity(OpacityViewModifier)
     case scaleEffect(ScaleEffectViewModifier)
     case blur(BlurViewModifier)
@@ -1708,68 +1688,11 @@ struct CornerRadiusViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
 
 // MARK: - Frame View Modifier
 
-struct FrameViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
-    let width: SyntaxViewModifierArgumentType?
-    let height: SyntaxViewModifierArgumentType?
+struct FrameViewModifier: PortValuesPackModifiable {
+    static let layerInputPort = LayerInputPort.size
+    static let nodeType = NodeType.size
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        var result: [ASTCustomInputValue] = []
-        
-        // Handle width argument
-        if let width = width {
-            let widthPortDerivations = try width.derivePortValues()
-            for derivation in widthPortDerivations {
-                
-                let customValue = ASTCustomInputValue(
-                    coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .size,
-                                                                       portType: .unpacked(.port0)),
-                    inputData: derivation)
-                
-                result.append(customValue)
-            }
-        }
-        
-        // Handle height argument  
-        if let height = height {
-            let heightPortDerivations = try height.derivePortValues()
-            for derivation in heightPortDerivations {
-                
-                let customValue = ASTCustomInputValue(
-                    coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .size,
-                                                                       portType: .unpacked(.port1)),
-                    inputData: derivation)
-                
-                result.append(customValue)
-            }
-        }
-        
-        // If no width or height provided, create default size
-        if result.isEmpty {
-            let layerSize = LayerSize(width: .auto, height: .auto)
-            result.append(ASTCustomInputValue(input: .size, value: .size(layerSize)))
-        }
-        
-        return result
-    }
-    
-    static func from(_ arguments: [SyntaxViewArgumentData],
-                     modifierName: SyntaxViewModifierName) -> FrameViewModifier? {
-        var width: SyntaxViewModifierArgumentType?
-        var height: SyntaxViewModifierArgumentType?
-        
-        for arg in arguments {
-            switch arg.label {
-            case "width":  width = arg.value
-            case "height": height = arg.value
-            default: break
-            }
-        }
-        
-        // Require at least one dimension to be present
-        guard width != nil || height != nil else { return nil }
-        
-        return FrameViewModifier(width: width, height: height)
-    }
+    let args: [SyntaxViewModifierArgumentType]
 }
 
 // MARK: - Color View Modifiers
@@ -1932,148 +1855,18 @@ struct ColorInvertViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
 
 // MARK: - Positioning View Modifiers
 
-enum PositionViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
-    case packed(SyntaxViewModifierArgumentType)
-    case unpacked(x: SyntaxViewModifierArgumentType, y: SyntaxViewModifierArgumentType)
+struct PositionViewModifier: PortValuesPackModifiable {
+    static let layerInputPort = LayerInputPort.position
+    static let nodeType = NodeType.position
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        switch self {
-        case .packed(let arg):
-            guard let pv = try arg.derivePortValues().first else {
-                throw SwiftUISyntaxError.portValueNotFound(argument: arg)
-            }
-            
-            return [
-                ASTCustomInputValue(
-                    coordinate: CurrentAIGraphData
-                        .LayerInputType(layerInput: .position,
-                                        portType: .packed),
-                    inputData: pv)
-            ]
-            
-        case .unpacked(let x, let y):
-            var result: [ASTCustomInputValue] = []
-            
-            // Handle x argument
-            let xPortDerivations = try x.derivePortValues()
-            for derivation in xPortDerivations {
-                let customValue = ASTCustomInputValue(
-                    coordinate: CurrentAIGraphData
-                        .LayerInputType(layerInput: .position,
-                                        portType: .unpacked(.port0)),
-                    inputData: derivation)
-                result.append(customValue)
-            }
-            
-            // Handle y argument
-            let yPortDerivations = try y.derivePortValues()
-            for derivation in yPortDerivations {
-                let customValue = ASTCustomInputValue(
-                    coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .position,
-                                                                       portType: .unpacked(.port1)),
-                    inputData: derivation)
-                result.append(customValue)
-            }
-         
-            return result
-        }
-    }
-    
-    static func from(_ arguments: [SyntaxViewArgumentData],
-                     modifierName: SyntaxViewModifierName) -> PositionViewModifier? {
-        if arguments.count == 1,
-           let arg = arguments.first {
-            return PositionViewModifier.packed(arg.value)
-        }
-        
-        else if arguments.count == 2 {
-            var x: SyntaxViewModifierArgumentType?
-            var y: SyntaxViewModifierArgumentType?
-            
-            // .position(x: X, y: Y) or .position(CGPoint(x: X, y: Y))
-            for arg in arguments {
-                switch arg.label {
-                case "x": x = arg.value
-                case "y": y = arg.value
-                case nil:
-                    // Handle CGPoint case - would need more complex parsing
-                    return nil
-                default: break
-                }
-            }
-            
-            guard let x = x, let y = y else { return nil }
-            return PositionViewModifier.unpacked(x: x, y: y)
-        }
-        
-        else {
-            log("PositionViewModifier: incorrect args count for position.")
-            return nil
-        }
-    }
-    
-    var allArgs: [SyntaxViewModifierArgumentType] {
-        switch self {
-        case .packed(let syntaxViewModifierArgumentType):
-            return [syntaxViewModifierArgumentType]
-        case .unpacked(let x, let y):
-            return [x, y]
-        }
-    }
+    let args: [SyntaxViewModifierArgumentType]
 }
 
-struct OffsetViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
-    let x: SyntaxViewModifierArgumentType
-    let y: SyntaxViewModifierArgumentType
+struct OffsetViewModifier: PortValuesPackModifiable {
+    static let layerInputPort = LayerInputPort.offsetInGroup
+    static let nodeType = NodeType.position
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        var result: [ASTCustomInputValue] = []
-        
-        // Handle x argument
-        let xPortDerivations = try x.derivePortValues()
-        for derivation in xPortDerivations {
-            
-            let customValue = ASTCustomInputValue(
-                coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .offsetInGroup,
-                                                                   portType: .unpacked(.port0)),
-                inputData: derivation)
-            
-            result.append(customValue)
-        }
-        
-        // Handle y argument  
-        let yPortDerivations = try y.derivePortValues()
-        for derivation in yPortDerivations {
-            let customValue = ASTCustomInputValue(
-                coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .offsetInGroup,
-                                                                   portType: .unpacked(.port1)),
-                inputData: derivation)
-            
-            result.append(customValue)
-        }
-        
-        return result
-    }
-    
-    static func from(_ arguments: [SyntaxViewArgumentData],
-                     modifierName: SyntaxViewModifierName) -> OffsetViewModifier? {
-        var x: SyntaxViewModifierArgumentType?
-        var y: SyntaxViewModifierArgumentType?
-        
-        for arg in arguments {
-            switch arg.label {
-            case "x": x = arg.value
-            case "y": y = arg.value
-            case nil:
-                // Handle CGSize case - would need more complex parsing
-                return nil
-            default: break
-            }
-        }
-        
-        guard let x = x, let y = y else { return nil }
-        return OffsetViewModifier(x: x, y: y)
-    }
+    let args: [SyntaxViewModifierArgumentType]
 }
 
 // MARK: - Layout View Modifiers

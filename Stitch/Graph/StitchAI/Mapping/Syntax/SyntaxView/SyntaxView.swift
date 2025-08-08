@@ -10,7 +10,7 @@ import Foundation
 
 // MARK: intended for turning Stitch concepts into SwiftUI code; the mapping from vpl -> code is known and therefore "strict"
 
-struct StrictSyntaxView: Equatable {
+struct StrictSyntaxView {
     var constructor: StrictViewConstructor
     var modifiers: [StrictViewModifier]
     var children: [StrictSyntaxView]
