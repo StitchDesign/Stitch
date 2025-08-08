@@ -15,6 +15,12 @@ extension String {
 }
 
 
+extension StitchSpacing: CustomStringConvertible {
+    public var description: String {
+        self.display
+    }
+}
+
 extension StitchSpacing {
     
     static func fromUserEdit(edit: String) -> StitchSpacing? {
@@ -22,6 +28,8 @@ extension StitchSpacing {
             return .evenly
         } else if edit.lowercased() == .BETWEEN_SPACING_STRING {
             return .between
+        } else if let number = toNumber(edit) {
+            return .number(number)
         } else {
             return nil
         }

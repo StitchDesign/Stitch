@@ -8,6 +8,7 @@
 import SwiftUI
 import StitchSchemaKit
 
+
 enum StitchAISizeDimension_V1: StitchSchemaVersionable {
     // MARK: - ensure versions are correct
     static let version = StitchAISchemaVersion._V1
