@@ -100,20 +100,21 @@ extension CurrentAIGraphData.GraphData {
             // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
             try self.createAIGraph(document: document)
             
-        case .imagePrompt:
-            // Image upload-based requests are assumed to provide supplementary graph data, rather than full-on replacements. We create a mock document view model and then use copy-paste logic for support.
-            let mockDocumentViewModel = StitchDocumentViewModel.createEmpty()
-            try self.createAIGraph(document: mockDocumentViewModel)
-            let graphEntity = mockDocumentViewModel.visibleGraph.createSchema()
-            
-            document.visibleGraph
-                .insertNewComponent(graphEntity: graphEntity,
-                                    encoder: document.documentEncoder,
-                                    copiedFiles: .init(importedMediaUrls: [],
-                                                       componentDirs: []),
-                                    isCopyPaste: false,
-                                    originGraphOutputValuesMap: .init(),
-                                    document: document)
+        // TODO: can we really assume that "image upload = adding a new sub-graph to the existing graph" ?
+//        case .imagePrompt:
+//            // Image upload-based requests are assumed to provide supplementary graph data, rather than full-on replacements. We create a mock document view model and then use copy-paste logic for support.
+//            let mockDocumentViewModel = StitchDocumentViewModel.createEmpty()
+//            try self.createAIGraph(document: mockDocumentViewModel)
+//            let graphEntity = mockDocumentViewModel.visibleGraph.createSchema()
+//            
+//            document.visibleGraph
+//                .insertNewComponent(graphEntity: graphEntity,
+//                                    encoder: document.documentEncoder,
+//                                    copiedFiles: .init(importedMediaUrls: [],
+//                                                       componentDirs: []),
+//                                    isCopyPaste: false,
+//                                    originGraphOutputValuesMap: .init(),
+//                                    document: document)
         }
         
         document.encodeProjectInBackground()

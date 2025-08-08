@@ -50,7 +50,7 @@ struct StitchAIRequestBuilder_V0 {
 extension StitchAIRequestBuilder_V0 {
     enum StitchAIRequestType {
         case userPrompt
-        case imagePrompt
+//        case imagePrompt
     }
     
 //    enum StitchAIRequestBuilderFunction: String {
@@ -84,10 +84,10 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestType {
             return """
                 The end-goal is to produce structured data that modifies an existing document. To get there, we will first convert existing graph data into SwiftUI code, make modifications to that SwiftUI code based on user prompt, and then convert that data back into Stitch graph data.
                 """
-        case .imagePrompt:
-            return """
-                The end-goal is to produce structured data that creates prototype data from an uploaded image. To get there, we will first create SwiftUI code that produces a view matching the image, and then convert the source code into Stitch graph data.
-                """
+//        case .imagePrompt:
+//            return """
+//                The end-goal is to produce structured data that creates prototype data from an uploaded image. To get there, we will first create SwiftUI code that produces a view matching the image, and then convert the source code into Stitch graph data.
+//                """
         }
     }
     
@@ -103,8 +103,8 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestType {
         switch self {
         case .userPrompt:
             return "SwiftUI Code Builder from Stitch Graph Data"
-        case .imagePrompt:
-            return "SwiftUI Code Builder from Image Upload"
+//        case .imagePrompt:
+//            return "SwiftUI Code Builder from Image Upload"
         }
     }
     
@@ -112,8 +112,8 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestType {
         switch self {
         case .userPrompt:
             return "existing graph data"
-        case .imagePrompt:
-            return "image upload"
+//        case .imagePrompt:
+//            return "image upload"
         }
     }
 }
