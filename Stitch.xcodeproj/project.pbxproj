@@ -987,6 +987,7 @@
 		ECC2BCEB2B9B867E00D5F942 /* SidebarListActionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCEA2B9B867E00D5F942 /* SidebarListActionHelpers.swift */; };
 		ECC2BCED2B9CD43100D5F942 /* SidebarListItemGroupActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCEC2B9CD43100D5F942 /* SidebarListItemGroupActions.swift */; };
 		ECC2CBE02E46B31A008A4EF0 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = ECC2CBDF2E46B31A008A4EF0 /* StitchSchemaKit */; };
+		ECC2CBE22E46B444008A4EF0 /* StitchAISpacing_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2CBE12E46B444008A4EF0 /* StitchAISpacing_V1.swift */; };
 		ECC301AB293808BF00C34F10 /* ArraySortNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301AA293808BF00C34F10 /* ArraySortNode.swift */; };
 		ECC301AD2938096000C34F10 /* GetKeysNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301AC2938096000C34F10 /* GetKeysNode.swift */; };
 		ECC301AF293809D200C34F10 /* IndexOf.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301AE293809D200C34F10 /* IndexOf.swift */; };
@@ -2140,6 +2141,7 @@
 		ECC2BCE42B9B7E8000D5F942 /* SidebarListItemSelectionCircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemSelectionCircleView.swift; sourceTree = "<group>"; };
 		ECC2BCEA2B9B867E00D5F942 /* SidebarListActionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListActionHelpers.swift; sourceTree = "<group>"; };
 		ECC2BCEC2B9CD43100D5F942 /* SidebarListItemGroupActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemGroupActions.swift; sourceTree = "<group>"; };
+		ECC2CBE12E46B444008A4EF0 /* StitchAISpacing_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAISpacing_V1.swift; sourceTree = "<group>"; };
 		ECC301AA293808BF00C34F10 /* ArraySortNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArraySortNode.swift; sourceTree = "<group>"; };
 		ECC301AC2938096000C34F10 /* GetKeysNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetKeysNode.swift; sourceTree = "<group>"; };
 		ECC301AE293809D200C34F10 /* IndexOf.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexOf.swift; sourceTree = "<group>"; };
@@ -4106,6 +4108,7 @@
 				B5849FD12DFBDF3600D668ED /* StitchAIPosition_V1.swift */,
 				B5849FD22DFBDF3600D668ED /* StitchAISize_V1.swift */,
 				B5849FD32DFBDF3600D668ED /* StitchAISizeDimension_V1.swift */,
+				ECC2CBE12E46B444008A4EF0 /* StitchAISpacing_V1.swift */,
 				B5849FD42DFBDF3600D668ED /* StitchAIUUID_V1.swift */,
 			);
 			path = Value;
@@ -5914,6 +5917,7 @@
 				EC47F54228D18AB0009EE90E /* HapticFeedbackNode.swift in Sources */,
 				ECE708642B8D492A009F4525 /* CurveToUnpackNode.swift in Sources */,
 				ECA3915D29A6C3DD005C10A8 /* ProjectsHomeViewWrapper.swift in Sources */,
+				ECC2CBE22E46B444008A4EF0 /* StitchAISpacing_V1.swift in Sources */,
 				ECAFD08E2D4878CC00101226 /* LLMActionHelpers.swift in Sources */,
 				ECA3915B29A6C3C9005C10A8 /* StitchProjectView.swift in Sources */,
 				ECC2BCDB2B9B747A00D5F942 /* SidebarListLabelView.swift in Sources */,
