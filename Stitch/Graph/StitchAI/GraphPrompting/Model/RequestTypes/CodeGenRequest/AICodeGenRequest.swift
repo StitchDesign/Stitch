@@ -50,65 +50,68 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
     }
 }
 
-//struct AICodeGenFromImageRequest: StitchAICodeCreator {
-//    static let type = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt
-//    
-//    let id: UUID
-//    let userPrompt: String
-//    let base64Image: String
-//    
-//    init(prompt: String,
-//         base64ImageDescription: String) throws {
-//        
-//        // The id of the user's inference call; does not change across retries etc.
-//        self.id = .init()
-//        self.userPrompt = prompt
-//        self.base64Image = base64ImageDescription
-//    }
-//    
-//    func createAssistantPrompt() throws -> String {
-//        try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: Self.type)
-//    }
-//    
-//    func createCode(document: StitchDocumentViewModel,
-//                    aiManager: StitchAIManager,
-//                    dataGlossaryPrompt: String) async throws -> String {
-//        
-//        // TODO: images aren't being decoded properly from OpenAI, will come back
-//        fatalError()
-//        
-////        let imageRequestInput = OpenAIUserImageContent(base64Image: self.base64Image)
-////        let userRequestInput = OpenAIUserTextContent(text: self.userPrompt)
-////        let userInputsFull = try [
-////            try imageRequestInput.encodeToString(),
-////            try userRequestInput.encodeToString()
-////        ].encodeToString()
-//        
-//        var content: [OpenAIMessageContent] = [
-//             .text(userPrompt)
-//         ]
-//        
-//        let imageUrl = "data:image/jpeg;base64,\(self.base64Image)"
-//         content.append(.image(url: imageUrl, detail: "high"))
-//
-//         // TODO: AI IMAGE IS WIP
-//         let encodedContent = try content.encodeToPrintableString()
-//        
-//        let createCodeRequest = try OpenAIChatCompletionRequest(
-//            id: self.id,
-//            requestType: Self.type,
-//            dataGlossaryPrompt: dataGlossaryPrompt,
-////            assistantPrompt: try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .imagePrompt),
-//            assistantPrompt: try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .userPrompt),
-//            inputs: encodedContent)
-//        
-//        let codeResult = try await createCodeRequest
-//            .request(document: document,
-//                     aiManager: aiManager)
-//        
-//        return codeResult
-//    }
-//}
+struct AICodeGenWithImageRequest: StitchAICodeCreator {
+    static let type = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt
+    
+    let id: UUID
+    let userPrompt: String
+    let swiftUICodeOfGraph: String
+    let base64Image: String?
+    
+    @MainActor
+    init(prompt: String,
+         swiftUICodeOfGraph: String,
+         base64Image: String? = nil) throws {
+        
+        // The id of the user's inference call; does not change across retries etc.
+        self.id = .init()
+        self.userPrompt = prompt
+        self.swiftUICodeOfGraph = swiftUICodeOfGraph
+        self.base64Image = base64Image
+    }
+    
+    func createCode(document: StitchDocumentViewModel,
+                    aiManager: StitchAIManager,
+                    dataGlossaryPrompt: String) async throws -> String {
+        log("AICodeGenWithImageRequest.createCode initial code:\n\(self.swiftUICodeOfGraph)")
+        
+        let editInputs = StitchAIRequestBuilder_V0.EditCodeParams(
+            source_code: swiftUICodeOfGraph,
+            user_prompt: userPrompt)
+        
+        // If we have an image, use the vision request; otherwise use the regular request
+        if let imageData = base64Image {
+            // Request for code edit with image
+            let visionEditRequest = try OpenAIVisionChatCompletionRequest(
+                id: self.id,
+                requestType: Self.type,
+                dataGlossaryPrompt: dataGlossaryPrompt,
+                assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type),
+                textInput: try editInputs.encodeToString(),
+                base64Image: imageData)
+            
+            let codeEditResult = try await visionEditRequest
+                .request(document: document,
+                         aiManager: aiManager)
+            
+            return codeEditResult
+        } else {
+            // Fallback to regular text-only request
+            let codeEditRequest = try OpenAIChatCompletionRequest(
+                id: self.id,
+                requestType: Self.type,
+                dataGlossaryPrompt: dataGlossaryPrompt,
+                assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type),
+                inputs: editInputs)
+            
+            let codeEditResult = try await codeEditRequest
+                .request(document: document,
+                         aiManager: aiManager)
+            
+            return codeEditResult
+        }
+    }
+}
 
 extension StitchAICodeCreator {
     @MainActor
