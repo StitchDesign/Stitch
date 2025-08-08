@@ -38,14 +38,17 @@ struct OpenAIChatCompletionRequest: StitchAIChatCompletionRequestable {
     // Object for creating actual code creation request
     init(id: UUID,
          requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
-         systemPrompt: String,
+         dataGlossaryPrompt: String,
          assistantPrompt: String,
          inputs: any Encodable) throws {
         let messages: [OpenAIMessage] = [
             .init(role: .system,
-                  content: systemPrompt),
-            .init(role: .system,
                   content: assistantPrompt),
+            
+            // MARK: for improved results, make data glossary after main system prompt
+            
+            .init(role: .system,
+                  content: dataGlossaryPrompt),
             .init(role: .user,
                   content: try inputs.encodeToString())
         ]
