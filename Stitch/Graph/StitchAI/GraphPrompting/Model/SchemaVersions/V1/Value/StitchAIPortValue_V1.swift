@@ -18,6 +18,7 @@ enum StitchAIPortValue_V1: StitchSchemaVersionable {
     typealias TextDecoration = LayerTextDecoration_V33.LayerTextDecoration
     typealias CustomShape = CustomShape_V33.CustomShape
     typealias SizeDimension = StitchAISizeDimension_V1.StitchAISizeDimension
+    typealias StitchSpacing = StitchAISpacing_V1.StitchAISpacing
     typealias PreviousInstance = StitchAIPortValue_V0.PortValue
     // MARK: - end
     
@@ -193,7 +194,9 @@ extension StitchAIPortValue_V1.PortValue {
         case .contentMode(let x):
             return x
         case .spacing(let x):
-            return x
+//            return x
+             return StitchAISpacing_V1.StitchAISpacing(value: x)
+//            return StitchSpacing(value: x)
         case .padding(let x):
             return x
         case .sizingScenario(let x):
