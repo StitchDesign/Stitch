@@ -40,6 +40,26 @@ extension LayerPortDerivationType {
     }
 }
 
+extension Array where Element == LayerPortDerivationType {
+    func createUnpackedEvents(layerInputPort: LayerInputPort) throws -> [LayerPortDerivation] {
+        let unpackedPortEvents = self.enumerated().map { portIndex, layerPortEvent in
+            guard let unpackedPortIndex = UnpackedPortType(rawValue: portIndex) else {
+                fatalErrorIfDebug()
+                return LayerPortDerivation(input: layerInputPort,
+                                           inputData: layerPortEvent)
+            }
+            
+            return LayerPortDerivation(coordinate: .init(
+                layerInput: layerInputPort,
+                portType: .unpacked(unpackedPortIndex)),
+                                       inputData: layerPortEvent)
+            
+        }
+        
+        return unpackedPortEvents
+    }
+}
+
 struct PortValueDescription {
     let value: any (Codable & Sendable)
     let value_type: AIGraphData_V0.StitchAINodeType
