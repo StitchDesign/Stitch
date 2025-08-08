@@ -27,7 +27,7 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
     
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
-                    systemPrompt: String) async throws -> String {
+                    dataGlossaryPrompt: String) async throws -> String {
         log("AICodeGenFromGraphRequest.createCode initial code:\n\(self.swiftUICodeOfGraph)")
         
         let editInputs = StitchAIRequestBuilder_V0.EditCodeParams(
@@ -38,7 +38,7 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
         let codeEditRequest = try OpenAIChatCompletionRequest(
             id: self.id,
             requestType: Self.type,
-            systemPrompt: systemPrompt,
+            dataGlossaryPrompt: dataGlossaryPrompt,
             assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type),
             inputs: editInputs)
         
@@ -72,7 +72,7 @@ struct AICodeGenFromImageRequest: StitchAICodeCreator {
     
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
-                    systemPrompt: String) async throws -> String {
+                    dataGlossaryPrompt: String) async throws -> String {
         
         // TODO: images aren't being decoded properly from OpenAI, will come back
         fatalError()
@@ -97,7 +97,7 @@ struct AICodeGenFromImageRequest: StitchAICodeCreator {
         let createCodeRequest = try OpenAIChatCompletionRequest(
             id: self.id,
             requestType: Self.type,
-            systemPrompt: systemPrompt,
+            dataGlossaryPrompt: dataGlossaryPrompt,
             assistantPrompt: try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .imagePrompt),
             inputs: encodedContent)
         
@@ -115,8 +115,8 @@ extension StitchAICodeCreator {
                         document: StitchDocumentViewModel) throws -> Task<Result<AIGraphData_V0.GraphData, any Error>, Never> {
         log("getRequestTask: user prompt: \(userPrompt)")
         
-        let systemPrompt = try StitchAIManager.stitchAIGraphBuilderSystem(graph: document.visibleGraph,
-                                                                          requestType: Self.type)
+        let dataGlossaryPrompt = try StitchAIManager
+            .stitchAIDataGlossarySystemPrompt(graph: document.visibleGraph)
         let request = self
         
         return Task(priority: .high) { [weak document] in
@@ -137,7 +137,7 @@ extension StitchAICodeCreator {
                     .processRequest(userPrompt: userPrompt,
                                     document: document,
                                     aiManager: aiManager,
-                                    systemPrompt: systemPrompt)
+                                    dataGlossaryPrompt: dataGlossaryPrompt)
                 
                 let graphData = actionsResult.graphData
                 let allDiscoveredErrors = actionsResult.caughtErrors
@@ -184,13 +184,13 @@ extension StitchAICodeCreator {
     private func processRequest(userPrompt: String,
                                 document: StitchDocumentViewModel,
                                 aiManager: StitchAIManager,
-                                systemPrompt: String) async throws -> SwiftSyntaxActionsResult {
+                                dataGlossaryPrompt: String) async throws -> SwiftSyntaxActionsResult {
         logToServerIfRelease("SUCCESS: userPrompt: \(userPrompt)")
         
         let swiftUICode = try await self
             .createCode(document: document,
                         aiManager: aiManager,
-                        systemPrompt: systemPrompt)
+                        dataGlossaryPrompt: dataGlossaryPrompt)
 
         logToServerIfRelease("StitchAICodeCreator swiftUICode:\n\(swiftUICode)")
         

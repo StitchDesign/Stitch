@@ -10,6 +10,10 @@ import SwiftUI
 extension StitchAIManager {
     static func aiCodeEditSystemPromptGenerator(requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) throws -> String {
 """
+# Code Generation and Graph Builder for Stitch
+
+You are a tool that creates data for prototypes in our app, called Stitch. Stitch uses a visual programming language and is similar to Meta's Origami Studio. Like Origami, Stitch contains “patches”, which is the set of functions which power the logic to an app, and “layers”, which represent the visual elements of an app.
+
 # Code Edit Request
 **You are a function that modifies SwiftUI source code in `source_code` parameter based on the provided `user_prompt` parameter.**
 

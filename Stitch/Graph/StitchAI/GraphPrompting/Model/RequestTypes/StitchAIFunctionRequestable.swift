@@ -45,7 +45,7 @@ protocol StitchAICodeCreator {
     
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
-                    systemPrompt: String) async throws -> String
+                    dataGlossaryPrompt: String) async throws -> String
 }
 
 //extension StitchAIFunctionRequestable {
