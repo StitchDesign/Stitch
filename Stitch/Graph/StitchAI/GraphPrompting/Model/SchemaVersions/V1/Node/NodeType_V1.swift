@@ -112,7 +112,7 @@ extension StitchAIPortValue_V1.NodeType {
         case .contentMode:
             return StitchAIPortValue_V1.PortValueVersion.StitchContentMode.self
         case .spacing:
-            return StitchAIPortValue_V1.PortValueVersion.StitchSpacing.self
+            return StitchAISpacing_V1.StitchAISpacing.self
         case .padding:
             return StitchAIPortValue_V1.PortValueVersion.StitchPadding.self
         case .sizingScenario:
@@ -393,10 +393,10 @@ extension StitchAIPortValue_V1.NodeType {
             }
             return .contentMode(x)
         case .spacing:
-            guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StitchSpacing else {
+            guard let x = anyValue as? StitchAISpacing_V1.StitchAISpacing else {
                 throw StitchAIParsingError.typeCasting
             }
-            return .spacing(x)
+            return .spacing(x.value)
         case .padding:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StitchPadding else {
                 throw StitchAIParsingError.typeCasting
