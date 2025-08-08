@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -986,6 +986,7 @@
 		ECC2BCE52B9B7E8000D5F942 /* SidebarListItemSelectionCircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCE42B9B7E8000D5F942 /* SidebarListItemSelectionCircleView.swift */; };
 		ECC2BCEB2B9B867E00D5F942 /* SidebarListActionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCEA2B9B867E00D5F942 /* SidebarListActionHelpers.swift */; };
 		ECC2BCED2B9CD43100D5F942 /* SidebarListItemGroupActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCEC2B9CD43100D5F942 /* SidebarListItemGroupActions.swift */; };
+		ECC2CBE02E46B31A008A4EF0 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = ECC2CBDF2E46B31A008A4EF0 /* StitchSchemaKit */; };
 		ECC301AB293808BF00C34F10 /* ArraySortNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301AA293808BF00C34F10 /* ArraySortNode.swift */; };
 		ECC301AD2938096000C34F10 /* GetKeysNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301AC2938096000C34F10 /* GetKeysNode.swift */; };
 		ECC301AF293809D200C34F10 /* IndexOf.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301AE293809D200C34F10 /* IndexOf.swift */; };
@@ -2331,6 +2332,7 @@
 				B56F36252D3C1A2E0051C80E /* StitchEngine in Frameworks */,
 				B58612AF2C68681600C64313 /* StitchEngine in Frameworks */,
 				ECD5438E29A003F8009D0A30 /* DisplayLink in Frameworks */,
+				ECC2CBE02E46B31A008A4EF0 /* StitchSchemaKit in Frameworks */,
 				ECA76BA22DFD13E90018D16C /* Functions in Frameworks */,
 				ECA76BAA2DFD13E90018D16C /* Supabase in Frameworks */,
 				ECE585792DB6CC8700749ED3 /* StitchEngine in Frameworks */,
@@ -5670,6 +5672,7 @@
 				EC1B97CA2E29FEF80029B80C /* StitchSchemaKit */,
 				B5BC7E202E411AF700750E0E /* StitchEngine */,
 				EC9D45E92E4679C50033E8B3 /* StitchSchemaKit */,
+				ECC2CBDF2E46B31A008A4EF0 /* StitchSchemaKit */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -5759,7 +5762,7 @@
 				ECA76B9E2DFD13E90018D16C /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */,
 				B5BC7E1F2E411AF700750E0E /* XCRemoteSwiftPackageReference "StitchEngine" */,
-				EC9D45E82E4679C40033E8B3 /* XCLocalSwiftPackageReference "../StitchSchemaKit" */,
+				ECC2CBDE2E46B31A008A4EF0 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -8074,13 +8077,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		EC9D45E82E4679C40033E8B3 /* XCLocalSwiftPackageReference "../StitchSchemaKit" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../StitchSchemaKit;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
 		201953D825B25D3300D5296C /* XCRemoteSwiftPackageReference "swift-tagged" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -8216,6 +8212,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 601.0.1;
+			};
+		};
+		ECC2CBDE2E46B31A008A4EF0 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit.git";
+			requirement = {
+				kind = revision;
+				revision = 4d5e28b254648e9a3e432b74e5b2878844e20229;
 			};
 		};
 		ECD5438C29A003F8009D0A30 /* XCRemoteSwiftPackageReference "DisplayLink" */ = {
@@ -8442,6 +8446,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */;
 			productName = SwiftIfConfig;
+		};
+		ECC2CBDF2E46B31A008A4EF0 /* StitchSchemaKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECC2CBDE2E46B31A008A4EF0 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */;
+			productName = StitchSchemaKit;
 		};
 		ECD517FF2DFB702A008BBB37 /* StitchSchemaKit */ = {
 			isa = XCSwiftPackageProductDependency;
