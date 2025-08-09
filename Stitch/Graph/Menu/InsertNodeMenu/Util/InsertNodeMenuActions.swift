@@ -9,6 +9,37 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+/// Action for handling image drops when insert node menu is open
+struct HandleInsertNodeMenuImageDrop: StitchDocumentEvent {
+    let image: UIImage
+    
+    func handle(state: StitchDocumentViewModel) {
+        log("HandleInsertNodeMenuImageDrop: image received for AI Vision API")
+        
+        // Store the image in the insert node menu state
+        state.insertNodeMenuState.droppedImage = image
+        
+        // Convert to base64 for API usage
+        let base64Result = convertImageToBase64String(uiImage: image)
+        if case .success(let base64String) = base64Result {
+            state.insertNodeMenuState.droppedImageBase64 = base64String
+            log("Successfully converted dropped image to base64 for Vision API")
+        } else {
+            log("Failed to convert dropped image to base64")
+            state.insertNodeMenuState.droppedImageBase64 = nil
+        }
+    }
+}
+
+/// Action for clearing the dropped image
+struct ClearInsertNodeMenuImage: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
+        state.insertNodeMenuState.droppedImage = nil
+        state.insertNodeMenuState.droppedImageBase64 = nil
+        log("Cleared dropped image from insert node menu")
+    }
+}
+
 /// Toggles state to show the menu for inserting a new patch or layer node to the graph.
 
 // i.e. user toggled the insert-node-menu via

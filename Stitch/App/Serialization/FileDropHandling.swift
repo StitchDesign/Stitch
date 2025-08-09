@@ -30,14 +30,16 @@ func handleOnDrop(providers: [NSItemProvider],
                 }
                 return
             }
-            
-            handleDroppedFile(tempURL: tempURL, store: store)
+            Task { @MainActor in
+                handleDroppedFile(tempURL: tempURL, store: store)
+            }
         }
     }
     
     return true
 }
 
+@MainActor
 func handleDroppedFile(tempURL: TemporaryURL,
                        store: StitchStore) {
  
@@ -66,9 +68,28 @@ func handleDroppedFile(tempURL: TemporaryURL,
     // importing a media file
     else {
         let _ = tempURL.value.startAccessingSecurityScopedResource()
-        DispatchQueue.main.async {
-            dispatch(ImportFileToNewNode(url: tempURL.value))
+        
+        // Check if insert node menu is open - if so, handle as AI image input
+        if let document = store.currentDocument,
+           document.insertNodeMenuState.show,
+           isImageFile(pathExtension: tempURL.value.pathExtension) {
+            
+            // Load image for AI Vision API
+            DispatchQueue.main.async {
+                if let image = UIImage(contentsOfFile: tempURL.value.path) {
+                    dispatch(HandleInsertNodeMenuImageDrop(image: image))
+                } else {
+                    log("Failed to load dropped image file")
+                }
+            }
         }
+        // Otherwise, create media node as usual
+        else {
+            DispatchQueue.main.async {
+                dispatch(ImportFileToNewNode(url: tempURL.value))
+            }
+        }
+        
         tempURL.value.stopAccessingSecurityScopedResource()
     }
 }

@@ -54,6 +54,10 @@ struct InsertNodeMenuState: Hashable {
     
     var isAutoHiding: Bool = false
     
+    // Image for OpenAI Vision API when user drops an image
+    var droppedImage: UIImage?
+    var droppedImageBase64: String?
+    
     static let startingActiveSelection = allSearchOptions.first
     // TODO: needs to be dynamic, since we now must load in custom components
     

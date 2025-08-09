@@ -238,6 +238,10 @@ extension StitchAIManager {
         document.insertNodeMenuState.show = false
         document.aiManager?.cancelCurrentRequest()
         
+        // Clear any dropped image from the insert menu
+        document.insertNodeMenuState.droppedImage = nil
+        document.insertNodeMenuState.droppedImageBase64 = nil
+        
         log("Storing user prompt and request id")
         document.llmRecording.promptForTrainingDataOrCompletedRequest = request.userPrompt
         document.llmRecording.requestIdFromCompletedRequest = request.id
