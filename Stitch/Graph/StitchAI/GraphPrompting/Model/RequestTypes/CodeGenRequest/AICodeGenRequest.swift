@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// fka `AICodeGenFromGraphRequest`
 struct AICodeGenWithImageRequest: StitchAICodeCreator {
     static let type = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt
     
