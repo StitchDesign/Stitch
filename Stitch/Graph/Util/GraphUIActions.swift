@@ -181,20 +181,12 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
         do {
             let swiftUICodeOfGraph = try document.visibleGraph.createSwiftUICode()
                         
-            // Check if we have an image to include
-            let testImage: UIImage? = UIImage(named: "TEST_IMAGE_7")
+            // Check if user dropped an image into the insert menu
             var base64ImageData: String? = nil
-
-//            // TODO: introduce UX for image
-//            if let image = testImage {
-//                let base64Result = convertImageToBase64String(uiImage: image)
-//                if case .success(let base64String) = base64Result {
-//                    base64ImageData = base64String
-//                    print("Successfully converted image to base64 for Vision API")
-//                } else {
-//                    print("Failed to convert image to base64, proceeding without image")
-//                }
-//            }
+            if let droppedImageBase64 = document.insertNodeMenuState.droppedImageBase64 {
+                base64ImageData = droppedImageBase64
+                print("Using dropped image for Vision API")
+            }
             
             // Use vision-capable request that can handle both text and images
             let requestTask = try AICodeGenWithImageRequest(

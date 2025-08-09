@@ -13,6 +13,9 @@ import TipKit
 
 let INSERT_NODE_MENU_ADD_NODE_BUTTON_COLOR: Color = Color(uiColor: UIColor(hex: "F3F3F3")!)
 
+// Height of the image thumbnail row when visible (matches InsertNodeMenuWithModalBackground)
+let INSERT_NODE_MENU_IMAGE_THUMBNAIL_HEIGHT: CGFloat = 56
+
 // let INSERT_NODE_MENU_WIDTH: CGFloat = 700
 let INSERT_NODE_MENU_WIDTH: CGFloat = 639
 
@@ -124,6 +127,42 @@ struct InsertNodeMenuView: View {
                                     launchTip: self.launchTip,
                                     queryString: $queryString,
                                     userSubmitted: userSubmitted)
+            
+            // Show dropped image thumbnail if available
+            if let droppedImage = insertNodeMenuState.droppedImage {
+                HStack {
+                    HStack(spacing: 8) {
+                        Image(uiImage: droppedImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 40, height: 40)
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(theme.themeData.edgeColor.opacity(0.3), lineWidth: 1)
+                            )
+                        
+                        Text("Image attached for AI Vision")
+                            .font(.caption)
+                            .foregroundColor(theme.themeData.edgeColor)
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            dispatch(ClearInsertNodeMenuImage())
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(theme.themeData.edgeColor.opacity(0.6))
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                }
+                .frame(height: INSERT_NODE_MENU_IMAGE_THUMBNAIL_HEIGHT)
+                // .background(theme.themeData.graphBackground.opacity(0.1))
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
 
             if !isGeneratingAINode {
                 HStack(spacing: .zero) {
