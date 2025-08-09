@@ -13,6 +13,9 @@ import TipKit
 
 let INSERT_NODE_MENU_ADD_NODE_BUTTON_COLOR: Color = Color(uiColor: UIColor(hex: "F3F3F3")!)
 
+// Height of the image thumbnail row when visible (matches InsertNodeMenuWithModalBackground)
+let INSERT_NODE_MENU_IMAGE_THUMBNAIL_HEIGHT: CGFloat = 56
+
 // let INSERT_NODE_MENU_WIDTH: CGFloat = 700
 let INSERT_NODE_MENU_WIDTH: CGFloat = 639
 
@@ -156,6 +159,7 @@ struct InsertNodeMenuView: View {
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
                 }
+                .frame(height: INSERT_NODE_MENU_IMAGE_THUMBNAIL_HEIGHT)
                 // .background(theme.themeData.graphBackground.opacity(0.1))
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }

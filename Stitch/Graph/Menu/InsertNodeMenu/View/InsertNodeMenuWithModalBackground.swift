@@ -44,9 +44,14 @@ struct InsertNodeMenuWithModalBackground: View {
     }
     
     var menuYOffset: CGFloat {
-        isLoadingAIRequest
-        ? (-menuHeight/2 + INSERT_NODE_MENU_SEARCH_BAR_HEIGHT/2)
-        : 0
+        guard isLoadingAIRequest else { return 0 }
+        
+        // Calculate visible height when collapsed (search bar + optional image thumbnail)
+        let visibleHeight = INSERT_NODE_MENU_SEARCH_BAR_HEIGHT + 
+                           (insertNodeMenuState.droppedImage != nil ? INSERT_NODE_MENU_IMAGE_THUMBNAIL_HEIGHT : 0)
+        
+        // Offset to keep visible content centered
+        return -menuHeight/2 + visibleHeight/2
     }
     
     var body: some View {
