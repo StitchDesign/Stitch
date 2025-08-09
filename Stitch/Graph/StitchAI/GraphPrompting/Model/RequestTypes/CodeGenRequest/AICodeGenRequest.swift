@@ -51,7 +51,7 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
 }
 
 struct AICodeGenWithImageRequest: StitchAICodeCreator {
-    static let type = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt
+    static let type = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt
     
     let id: UUID
     let userPrompt: String
