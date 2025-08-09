@@ -7,49 +7,6 @@
 
 import SwiftUI
 
-struct AICodeGenFromGraphRequest: StitchAICodeCreator {
-    static let type = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt
-    
-    let id: UUID
-    let userPrompt: String             // User's input prompt
-    let swiftUICodeOfGraph: String
-    
-    @MainActor
-    init(prompt: String,
-         swiftUICodeOfGraph: String) throws {
-        
-        // The id of the user's inference call; does not change across retries etc.
-        self.id = .init()
-        
-        self.userPrompt = prompt
-        self.swiftUICodeOfGraph = swiftUICodeOfGraph
-    }
-    
-    func createCode(document: StitchDocumentViewModel,
-                    aiManager: StitchAIManager,
-                    dataGlossaryPrompt: String) async throws -> String {
-        log("AICodeGenFromGraphRequest.createCode initial code:\n\(self.swiftUICodeOfGraph)")
-        
-        let editInputs = StitchAIRequestBuilder_V0.EditCodeParams(
-            source_code: swiftUICodeOfGraph,
-            user_prompt: userPrompt)
-        
-        // Request for code edit
-        let codeEditRequest = try OpenAIChatCompletionRequest(
-            id: self.id,
-            requestType: Self.type,
-            dataGlossaryPrompt: dataGlossaryPrompt,
-            assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type),
-            inputs: editInputs)
-        
-        let codeEditResult = try await codeEditRequest
-            .request(document: document,
-                     aiManager: aiManager)
-        
-        return codeEditResult
-    }
-}
-
 struct AICodeGenWithImageRequest: StitchAICodeCreator {
     static let type = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt
     
