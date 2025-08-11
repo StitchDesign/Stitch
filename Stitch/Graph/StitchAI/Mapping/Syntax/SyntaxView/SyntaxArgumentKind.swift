@@ -63,6 +63,8 @@ extension SyntaxArgumentKind {
             kind = .literal(.integer)
         } else if expression.is(FloatLiteralExprSyntax.self) {
             kind = .literal(.float)
+        } else if expression.is(PrefixOperatorExprSyntax.self) {
+            kind = .literal(.prefixOperator)
         } else if expression.is(StringLiteralExprSyntax.self) {
             kind = .literal(.string)
         } else if expression.is(BooleanLiteralExprSyntax.self) {
@@ -131,6 +133,7 @@ enum SyntaxArgumentLiteralKind: String, Equatable, Hashable, Codable {
     case integer          = "IntegerLiteral"        // `42`
     case float            = "FloatLiteral"          // `3.14`
     case string           = "StringLiteral"         // `"hello"`
+    case prefixOperator   = "PrefixOperator"
     case boolean          = "BooleanLiteral"        // `true`, `false`
     case nilLiteral       = "NilLiteral"            // `nil`
     case array            = "ArrayLiteral"          // `[1, 2, 3]`
@@ -192,6 +195,17 @@ extension SyntaxViewSimpleData {
             // Strip surrounding quotes
             let text = raw
             return text
+            
+        case .prefixOperator:
+            guard let intValue = Int(raw) else {
+                guard let doubleValue = Double(raw) else {
+                    throw SwiftUISyntaxError.invalidFloatLiteral(raw)
+                }
+                
+                return doubleValue
+            }
+            
+            return intValue
             
         case .boolean:
             guard let boolValue = Bool(raw) else {
