@@ -567,6 +567,7 @@ struct GroupPreviewLayersView: View {
             default:
                 Color.clear
                     .onAppear {
+                        log("GroupPreviewLayersView: FAILURE: layerNode.layer: \(layerNode.layer)")
                         fatalErrorIfDebug()
                     }
             }
