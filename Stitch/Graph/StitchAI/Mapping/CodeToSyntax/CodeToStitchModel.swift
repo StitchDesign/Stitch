@@ -50,10 +50,6 @@ indirect enum SwiftParserInitializerType: Sendable {
     case stateMutation(SwiftParserInitializerType)
 }
 
-//enum SwiftParserStateMutation: Sendable {
-//    case initializer(SwiftParserInitializerType)
-//}
-
 // Subscripts can be used on references or nodes themselves
 enum SwiftParserSubscriptType {
     case ref(String)
