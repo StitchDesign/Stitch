@@ -152,7 +152,6 @@ extension LayerNodeEntity {
     @MainActor
     func createSwiftUICode(layerEntityMap: [UUID: LayerNodeEntity],
                            varIdNameMap: [UUID: String]) throws -> String? {
-        // TODO: handle nesting edge case here
         let childrenLayerEntities = layerEntityMap.values.filter {
             $0.layerGroupId == self.id
         }

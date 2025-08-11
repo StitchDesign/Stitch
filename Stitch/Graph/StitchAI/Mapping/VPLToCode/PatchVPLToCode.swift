@@ -23,8 +23,12 @@ extension GraphState {
         }
             .joined(separator: "\n\t")
         
+        log("createSwiftUICode: stateVarDeclarations: \(stateVarDeclarations)")
+        
         let allLayerEntities = graphEntity.nodes
             .compactMap { $0.layerNodeEntity }
+        
+        log("createSwiftUICode: allLayerEntities: \(allLayerEntities)")
         
         let layerEntitiesMap = allLayerEntities.reduce(into: [UUID: LayerNodeEntity]()) { result, layerNode in
             result.updateValue(layerNode, forKey: layerNode.id)
@@ -33,6 +37,8 @@ extension GraphState {
         // Filter for just top layer entities in beginning
         let topLevelLayerEntities = allLayerEntities
             .filter { $0.layerGroupId == nil }
+        
+        log("createSwiftUICode: topLevelLayerEntities: \(topLevelLayerEntities)")
         
         // Maps upstream patch node ID to a variable name
         let varNameIdMap = aiGraph.viewStatePatchConnections.reduce(into: [UUID: String]()) { result, data in
@@ -45,6 +51,8 @@ extension GraphState {
             
             result.updateValue(variableName, forKey: nodeId)
         }
+        
+        log("createSwiftUICode: varNameIdMap: \(varNameIdMap)")
         
         let viewCode = try topLevelLayerEntities
             .createSwiftUICode(layerEntityMap: layerEntitiesMap,
