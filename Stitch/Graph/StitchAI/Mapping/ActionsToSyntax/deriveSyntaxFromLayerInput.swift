@@ -37,7 +37,7 @@ enum SwiftUISyntaxError: Error, Sendable {
     // e.g. `.cornerRadius()`, when that view modifier *requires* an explicit number argument
     case unsupportedConstructorArgument(CurrentAIGraphData.Layer, String?, SyntaxViewModifierArgumentFlatType?)
     case unexpectedUpstreamLayerCoordinate
-    case unexpectedStateMutatorFound(SwiftParserStateMutation)
+    case unexpectedStateMutatorFound(SwiftParserInitializerType)
     
     // Patch decoding errors
     case unexpectedPatch(CurrentAIGraphData.Patch)

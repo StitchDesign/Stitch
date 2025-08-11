@@ -10,21 +10,31 @@ import SwiftParser
 import SwiftSyntaxBuilder
 import SwiftUI
 
-extension SwiftUIViewVisitor {
-    func visitPatchData(_ node: FunctionCallExprSyntax,
-                        // var names are provided from already created nodes
-                        varName: String?) -> SwiftParserPatchData? {
-        guard
-            let subscriptExpr = node.calledExpression.as(SubscriptCallExprSyntax.self),
-            let baseIdent = subscriptExpr.calledExpression.as(DeclReferenceExprSyntax.self),
+extension SubscriptCallExprSyntax {
+    func getPatchNodeName() -> String? {
+        guard let baseIdent = self.calledExpression.as(DeclReferenceExprSyntax.self),
             baseIdent.baseName.text == "NATIVE_STITCH_PATCH_FUNCTIONS",
-            let firstArg = subscriptExpr.arguments.first,
+            let firstArg = self.arguments.first,
             let stringLit = firstArg.expression.as(StringLiteralExprSyntax.self)
         else {
             return nil
         }
         
         guard let patchNode = stringLit.segments.first?.description else {
+            return nil
+        }
+        
+        return patchNode
+    }
+}
+
+extension SwiftUIViewVisitor {
+    func visitPatchData(_ node: FunctionCallExprSyntax,
+                        // var names are provided from already created nodes
+                        varName: String?) -> SwiftParserPatchData? {
+        guard
+            let subscriptExpr = node.calledExpression.as(SubscriptCallExprSyntax.self),
+            let patchNode = subscriptExpr.getPatchNodeName() else {
             return nil
         }
         
@@ -50,8 +60,8 @@ extension SwiftUIViewVisitor {
                 return .binding(declrRefSyntax)
             }
             
-            else if let subscriptCallExpr = arg.expression.as(SubscriptCallExprSyntax.self) {
-                let subscriptData = self.visitSubscriptData(subscriptCallExpr: subscriptCallExpr)
+            else if let subscriptCallExpr = arg.expression.as(SubscriptCallExprSyntax.self),
+                    let subscriptData = self.visitSubscriptData(subscriptCallExpr: subscriptCallExpr).subscriptRef {
                 return .subscriptRef(subscriptData)
             }
             
@@ -74,24 +84,26 @@ extension SwiftUIViewVisitor {
                      args: patchNodeArgs)
     }
     
-    func visitSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax) -> SwiftParserSubscript {
+    func visitSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax) -> SwiftParserInitializerType {
         // Subscript reference to some existing outputs
-        let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptCallExpr)
+        let initializerFromSubscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptCallExpr)
         
         // Check for function expressions here too, needed for deriving patch data
-        if let patchFn = subscriptCallExpr.calledExpression.as(FunctionCallExprSyntax.self) {
+        if let subscriptRef = initializerFromSubscriptRef.subscriptRef,
+           let patchFn = subscriptCallExpr.calledExpression.as(FunctionCallExprSyntax.self) {
             // Assumed to be patch node
             guard let patchNode = self.visitPatchData(patchFn,
                                                       varName: nil) else {
                 fatalError()
             }
             
-            return .init(subscriptType: .patchNode(patchNode),
-                         portIndex: subscriptRef.portIndex)
+            let _subscriptRef = SwiftParserSubscript(subscriptType: .patchNode(patchNode),
+                                                    portIndex: subscriptRef.portIndex)
+            return .subscriptRef(_subscriptRef)
         }
         
         else {
-            return subscriptRef
+            return initializerFromSubscriptRef
         }
     }
 }
@@ -142,10 +154,15 @@ extension SwiftParserPatchData {
 }
 
 extension SwiftUIViewVisitor {
-    func deriveSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax) -> SwiftParserSubscript {
+    func deriveSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax) -> SwiftParserInitializerType {
         guard let labeledExpr = subscriptCallExpr.arguments.first?.expression.as(IntegerLiteralExprSyntax.self),
               let portIndex = Int(labeledExpr.literal.text) else {
-            fatalError()
+            // Check if it's a subscript call for a stitch function
+            guard let patchNodeName = subscriptCallExpr.getPatchNodeName() else {
+                fatalError()
+            }
+            
+            return .patchNodeRef(patchNodeName)
         }
         
         // Patch declarations can call here too
@@ -159,7 +176,7 @@ extension SwiftUIViewVisitor {
             let subscriptRef = SwiftParserSubscript(subscriptType: .patchNode(patchNode),
                                                     portIndex: portIndex)
             
-            return subscriptRef
+            return .subscriptRef(subscriptRef)
         }
         
         // Output port index access of some patch node in the form of index access of a patch fn's output values
@@ -168,7 +185,7 @@ extension SwiftUIViewVisitor {
             let outputPortData = SwiftParserSubscript(subscriptType: .ref(declRef.baseName.text),
                                                       portIndex: portIndex)
             
-            return outputPortData
+            return .subscriptRef(outputPortData)
         }
         
         else {
@@ -182,6 +199,7 @@ extension SwiftParserInitializerType {
                             varNameIdMap: [String : String],
                             varNameOutputPortMap: [String : SwiftParserSubscript],
     customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue],
+                            varNamePatchNodeRefMap: [String : String],
                             patchConnections: inout [CurrentAIGraphData.PatchConnection],
                             viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate],
                             subscriptParentInfo: AIGraphData_V0.NodeIndexedCoordinate? = nil) throws {
@@ -229,7 +247,7 @@ extension SwiftParserInitializerType {
                                     .parseStitchActions(varName: varName,
                                                         varNameIdMap: varNameIdMap,
                                                         varNameOutputPortMap: varNameOutputPortMap,
-                                                        customPatchInputValues: &customPatchInputValues,
+                                                        customPatchInputValues: &customPatchInputValues, varNamePatchNodeRefMap: varNamePatchNodeRefMap,
                                                         patchConnections: &patchConnections,
                                                         viewStatePatchConnections: &viewStatePatchConnections,
                                                         subscriptParentInfo: .init(node_id: patchNodeData.id,
@@ -248,6 +266,7 @@ extension SwiftParserInitializerType {
                                             varNameIdMap: varNameIdMap,
                                             varNameOutputPortMap: varNameOutputPortMap,
                                             customPatchInputValues: &customPatchInputValues,
+                                            varNamePatchNodeRefMap: varNamePatchNodeRefMap,
                                             patchConnections: &patchConnections,
                                             viewStatePatchConnections: &viewStatePatchConnections,
                                             subscriptParentInfo: .init(node_id: patchNodeData.id,
@@ -263,12 +282,19 @@ extension SwiftParserInitializerType {
             case .subscriptRef(let _subscriptData):
                 subscriptData = _subscriptData
                 
+            case .patchNodeRef:
+                // Check if we need this
+                fatalError()
+                
             case .declrRef(let ref):
                 guard let refData = varNameOutputPortMap.get(ref) else {
                     throw SwiftUISyntaxError.unexpectedStateMutatorFound(mutationData)
                 }
                 
                 subscriptData = refData
+                
+            default:
+                return
             }
             
             // Track upstream patch coordinate to some TBD layer input
@@ -290,6 +316,7 @@ extension SwiftParserInitializerType {
                                         varNameIdMap: varNameIdMap,
                                         varNameOutputPortMap: varNameOutputPortMap,
                                         customPatchInputValues: &customPatchInputValues,
+                                        varNamePatchNodeRefMap: varNamePatchNodeRefMap,
                                         patchConnections: &patchConnections,
                                         viewStatePatchConnections: &viewStatePatchConnections)
                 
@@ -306,6 +333,14 @@ extension SwiftParserInitializerType {
                           dest_port: destCoordinate)
                 )
             }
+            
+        case .patchNodeRef:
+            // Check if we need this
+            fatalError()
+            
+        case .declrRef:
+            // Ignore here
+            return
         }
     }
 }
