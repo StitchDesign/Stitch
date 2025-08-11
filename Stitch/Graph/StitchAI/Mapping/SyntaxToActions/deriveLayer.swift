@@ -1157,7 +1157,7 @@ extension SyntaxArgumentLiteralKind {
     // Note: intended for simple syntaxKind
     func getValueType() throws -> NodeType {
         switch self {
-        case .integer, .float:
+        case .integer, .float, .prefixOperator:
             return .number
         case .string:
             return .string
