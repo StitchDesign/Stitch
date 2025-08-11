@@ -26,8 +26,8 @@ enum AIGraphData_V0 {
     }
     
     struct PatchData: Codable {
-        let javascript_patches: [AIGraphData_V0.JsPatchNode]
-        let native_patches: [AIGraphData_V0.NativePatchNode]
+        let javascript_patches: [AIGraphData_V0.PreprocessedJSPatchNode]
+        let native_patches: [AIGraphData_V0.PatchNode]
         let native_patch_value_type_settings: [AIGraphData_V0.NativePatchNodeValueTypeSetting]
         let patch_connections: [PatchConnection]
         let custom_patch_input_values: [CustomPatchInputValue]
@@ -44,6 +44,12 @@ enum AIGraphData_V0 {
         var custom_layer_input_values: [LayerPortDerivation] = []
     }
     
+    struct PreprocessedJSPatchNode: Codable {
+        let node_id: String
+        let funcName: String
+        let sourceCode: String
+    }
+    
     struct JsPatchNode: Codable {
         let node_id: String
         let javascript_source_code: String
@@ -52,7 +58,7 @@ enum AIGraphData_V0 {
         let output_definitions: [JavaScriptPortDefinitionAI_V1.JavaScriptPortDefinitionAI]
     }
     
-    struct NativePatchNode: Codable {
+    struct PatchNode: Codable {
         let node_id: String
         let node_name: StitchAIPatchOrLayer
     }

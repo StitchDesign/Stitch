@@ -134,10 +134,12 @@ extension StitchAICodeCreator {
                     guard let document = document else { return }
                     
                     do {
-                        try graphData
-                            .applyAIGraph(to: document,
-                                          viewStatePatchConnections: actionsResult.graphData .viewStatePatchConnections,
-                                          requestType: Self.type)
+                        Task(priority: .high) {
+                            try await graphData
+                                .applyAIGraph(to: document,
+                                              viewStatePatchConnections: actionsResult.graphData .viewStatePatchConnections,
+                                              requestType: Self.type)
+                        }
                         
 #if STITCH_AI_TESTING || DEBUG || DEV_DEBUG
                         // Display parsing warnings

@@ -159,6 +159,29 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         return .visitChildren
     }
     
+    /// Parse for JS nodes.
+    override func visit(_ node: MemberBlockItemSyntax) -> SyntaxVisitorContinueKind {
+        guard let funcDeclSyntax = node.decl.as(FunctionDeclSyntax.self) else {
+            return .visitChildren
+        }
+        
+        if funcDeclSyntax.name.text == "updateLayerInputs" {
+            return .visitChildren
+        }
+        
+        // JS node case
+        else {
+            guard let body = funcDeclSyntax.body else {
+                return .visitChildren
+            }
+            
+            let funcName = funcDeclSyntax.name.text
+            let jsBodyScript = body.description.trimmingOuterBraces()
+            self.bindingDeclarations.updateValue(.jsNodeScript(jsBodyScript), forKey: funcName)
+            return .skipChildren
+        }
+    }
+    
     override func visitPost(_ node: ClosureExprSyntax) {
         // log("Exiting closure expression")
         
@@ -346,5 +369,24 @@ extension SwiftUIViewVisitor {
         }
         
         return count
+    }
+}
+
+// TODO: move
+extension String {
+    func trimmingOuterBraces() -> String {
+        // Trim leading/trailing whitespace and newlines first
+        let trimmed = self.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard trimmed.hasPrefix("{"), trimmed.hasSuffix("}") else {
+            // No outer braces, return original
+            return self
+        }
+        
+        // Remove first and last character
+        let start = trimmed.index(after: trimmed.startIndex)
+        let end = trimmed.index(before: trimmed.endIndex)
+        return String(trimmed[start..<end])
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
