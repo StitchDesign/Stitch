@@ -1863,7 +1863,7 @@ struct PositionViewModifier: PortValuesPackModifiable {
 }
 
 struct OffsetViewModifier: PortValuesPackModifiable {
-    static let layerInputPort = LayerInputPort.offsetInGroup
+    static let layerInputPort = LayerInputPort.position
     static let nodeType = NodeType.position
     
     let args: [SyntaxViewModifierArgumentType]
