@@ -72,7 +72,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             // Subscript reference to some existing outputs
             let subscriptData = self.visitSubscriptData(subscriptCallExpr: subscriptCallExpr)
             self.bindingDeclarations
-                .updateValue(.subscriptRef(subscriptData),
+                .updateValue(subscriptData,
                              forKey: currentLHS)
         }
 
@@ -128,7 +128,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         if let subscriptExpr = assinmentElem.as(SubscriptCallExprSyntax.self) {
             let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptExpr)
             self.bindingDeclarations
-                .updateValue(.stateMutation(.subscriptRef(subscriptRef)),
+                .updateValue(.stateMutation(subscriptRef),
                              forKey: refExpr.baseName.trimmedDescription)
         }
         

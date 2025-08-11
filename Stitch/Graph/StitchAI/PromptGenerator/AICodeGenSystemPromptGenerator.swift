@@ -198,6 +198,18 @@ The Swift code you create will break down the problem within each loop index. Fo
 
 In some rare circumstances, you may need to output a loop count that exceeds the incoming loop count. If some node needs to build an output with a loop count of N for a single output port, make sure the output result object is `[[value(1), value(2), ... value(n)]]`, where `value` is some `PortValueDescription` object.
 
+#### Restrictive Function Calling Inside `updateLayerInputs`
+
+`updateLayerInputs` cannot contain any logic besides the following:
+* Function calls to native patch functions
+* Assignments to `@State` variables
+
+Code that is *not* allowed include:
+* Code comments
+* Conditional branching i.e. using if statements
+
+Consult "Examples of Prioritizing Native Patches Over Custom Patches" section for examples of properfly fomratted code in `updateLayerInputs`.
+
 ##### Creating Looped Views Using Native Patches
 
 Your generated code **cannot** create looped views inside the `var body` or within `@State` variable declarations. Looped views are instead managed by Stitch using logic you don't have access to.

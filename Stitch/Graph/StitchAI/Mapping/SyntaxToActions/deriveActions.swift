@@ -64,6 +64,9 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
         // Maps any declarations made of top-level outputs
         var varNameOutputPortMap = [String : SwiftParserSubscript]()
         
+        // Maps patch functions references
+        var varNamePatchNodeRefMap = [String : String]()
+        
         // Tracks @State variable declarations
         var viewStateVarNames = Set<String>()
         
@@ -104,6 +107,9 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                     continue
                 }
                 
+            case .patchNodeRef(let patchNodeRef):
+                varNamePatchNodeRefMap.updateValue(patchNodeRef, forKey: varName)
+                
             case .stateMutation(let mutationData):
                 // Create state with disconnected upstream patch port, feed this into layer data and update all the helpers
                 viewStateVarNames.insert(varName)
@@ -113,9 +119,16 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                 case .subscriptRef(let subscriptData):
                     varNameOutputPortMap.updateValue(subscriptData, forKey: varName)
                     
+                case .patchNodeRef(let patchNodeRef):
+                    varNamePatchNodeRefMap.updateValue(patchNodeRef,
+                                                       forKey: varName)
+                    
                 default:
                     break
                 }
+            
+            case .declrRef:
+                break
             }
         }
         
@@ -127,6 +140,7 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                                     varNameIdMap: varNameIdMap,
                                     varNameOutputPortMap: varNameOutputPortMap,
                                     customPatchInputValues: &customPatchInputValues,
+                                    varNamePatchNodeRefMap: varNamePatchNodeRefMap,
                                     patchConnections: &patchConnections,
                                     viewStatePatchConnections: &viewStatePatchConnections)
         }

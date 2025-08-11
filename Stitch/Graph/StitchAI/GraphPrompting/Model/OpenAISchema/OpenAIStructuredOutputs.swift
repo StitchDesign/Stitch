@@ -268,7 +268,7 @@ enum OpenAISchemaType: String, Codable {
 }
 
 struct OpenAIRequestBody: Encodable {
-    var model: String = "o4-mini-2025-04-16"
+    var model: String = "gpt-5-mini-2025-08-07"
     var n: Int = 1
     var temperature: Double = 1.0
     var messages: [OpenAIMessage]
@@ -278,7 +278,7 @@ struct OpenAIRequestBody: Encodable {
 }
 
 struct OpenAIStructuredOutputsRequestBody<ResponseFormat: OpenAIResponseFormatable>: Encodable {
-    var model: String = "o4-mini-2025-04-16"
+    var model: String = "gpt-5-mini-2025-08-07"
     var n: Int = 1
     var temperature: Double = 1.0
     var response_format: ResponseFormat

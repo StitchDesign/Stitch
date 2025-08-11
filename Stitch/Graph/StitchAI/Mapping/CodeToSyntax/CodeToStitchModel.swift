@@ -34,27 +34,48 @@ struct SwiftParserSubscript: Sendable {
     var portIndex: Int
 }
 
-enum SwiftParserInitializerType {
+indirect enum SwiftParserInitializerType: Sendable {
     // creates some patch node from a declared function
     case patchNode(SwiftParserPatchData)
     
     // access an index of some node's outputs
     case subscriptRef(SwiftParserSubscript)
     
-    // initializes state
-//    case stateVarName
+    // makes a ref to a patch node function
+    case patchNodeRef(String)
     
+    case declrRef(String)
+
     // mutates some existing state
-    case stateMutation(SwiftParserStateMutation)
+    case stateMutation(SwiftParserInitializerType)
 }
 
-enum SwiftParserStateMutation: Sendable {
-    case declrRef(String)
-    case subscriptRef(SwiftParserSubscript)
-}
+//enum SwiftParserStateMutation: Sendable {
+//    case initializer(SwiftParserInitializerType)
+//}
 
 // Subscripts can be used on references or nodes themselves
 enum SwiftParserSubscriptType {
     case ref(String)
     case patchNode(SwiftParserPatchData)
+}
+
+extension SwiftParserInitializerType {
+    var subscriptRef: SwiftParserSubscript? {
+        switch self {
+        case .subscriptRef(let swiftParserSubscript):
+            return swiftParserSubscript
+        default:
+            return nil
+        }
+    }
+    
+    var patchNodeRef: String? {
+        switch self {
+        case .patchNodeRef(let ref):
+            return ref
+        default:
+            return nil
+        }
+    }
 }
