@@ -48,13 +48,6 @@ extension PortValuesPackModifiable {
             return try PortValue(from: valueDesc)
         }
         
-        // If one of the parsed events isn't a value, then there's at least one state ref, and we should return an unpacked scenario
-        guard layerPortEvents.count == parsedValues.count else {
-            let unpackedPortEvents = try layerPortEvents
-                .createUnpackedEvents(layerInputPort: Self.layerInputPort)
-            return unpackedPortEvents
-        }
-        
         // Packed scenarios--either return the only argument or pack up multiple
         if layerPortEvents.count == 1,
            let firstPortEvent = layerPortEvents.first {
@@ -62,6 +55,13 @@ extension PortValuesPackModifiable {
                 .init(input: Self.layerInputPort,
                       inputData: firstPortEvent)
             ]
+        }
+        
+        // If one of the parsed events isn't a value, then there's at least one state ref, and we should return an unpacked scenario
+        guard layerPortEvents.count == parsedValues.count else {
+            let unpackedPortEvents = try layerPortEvents
+                .createUnpackedEvents(layerInputPort: Self.layerInputPort)
+            return unpackedPortEvents
         }
         
         // Pack up multiple values

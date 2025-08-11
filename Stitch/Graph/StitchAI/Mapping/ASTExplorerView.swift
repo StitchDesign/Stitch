@@ -84,7 +84,7 @@ struct ASTExplorerView: View {
     @State private var usePortValueDescription: Bool = false
     
     /// Controls whether to generate raw view code or full SwiftUI file with ContentView wrapper
-    @State private var ignoreScript: Bool = true
+    @State private var ignoreScript: Bool = false
 
     init(
 //        initialVisibleStages: Set<Stage> = Set(Stage.allCases)
