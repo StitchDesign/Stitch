@@ -69,4 +69,13 @@ extension SwiftParserInitializerType {
             return nil
         }
     }
+    
+    var patchNodeRef: String? {
+        switch self {
+        case .patchNodeRef(let ref):
+            return ref
+        default:
+            return nil
+        }
+    }
 }

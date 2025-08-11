@@ -28,13 +28,30 @@ extension SubscriptCallExprSyntax {
     }
 }
 
+extension FunctionCallExprSyntax {
+    func getPatchNodeRefName() -> String? {
+        guard let declExpr = self.calledExpression.as(DeclReferenceExprSyntax.self) else {
+            return nil
+        }
+        
+        return declExpr.baseName.text
+    }
+}
+
 extension SwiftUIViewVisitor {
     func visitPatchData(_ node: FunctionCallExprSyntax,
                         // var names are provided from already created nodes
                         varName: String?) -> SwiftParserPatchData? {
-        guard
-            let subscriptExpr = node.calledExpression.as(SubscriptCallExprSyntax.self),
-            let patchNode = subscriptExpr.getPatchNodeName() else {
+        let patchNode: String
+        
+        if let subscriptExpr = node.calledExpression.as(SubscriptCallExprSyntax.self),
+           // Backup check for binding declaration of the patch
+           let _patchNode = subscriptExpr.getPatchNodeName() {
+            patchNode = _patchNode
+        } else if let patchNodeRefName = node.getPatchNodeRefName(),
+                  let patchNodeRef = self.bindingDeclarations.get(patchNodeRefName)?.patchNodeRef {
+            patchNode = patchNodeRef
+        } else {
             return nil
         }
         
@@ -335,8 +352,8 @@ extension SwiftParserInitializerType {
             }
             
         case .patchNodeRef:
-            // Check if we need this
-            fatalError()
+            // Ignore here
+            return
             
         case .declrRef:
             // Ignore here
