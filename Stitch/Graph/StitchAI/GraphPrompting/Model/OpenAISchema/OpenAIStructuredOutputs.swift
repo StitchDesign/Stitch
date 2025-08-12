@@ -268,17 +268,19 @@ enum OpenAISchemaType: String, Codable {
 }
 
 struct OpenAIRequestBody: Encodable {
-    var model: String = "gpt-5-mini-2025-08-07"
+    var model: String = "gpt-5-2025-08-07"
     var n: Int = 1
     var temperature: Double = 1.0
     var messages: [OpenAIMessage]
     var tools: [OpenAIFunction]?
     var tool_choice: OpenAIFunction? = nil
     var stream: Bool = false
+    var verbosity: String? = "low"
+    var reasoning_effort: String? = "low"
 }
 
 struct OpenAIStructuredOutputsRequestBody<ResponseFormat: OpenAIResponseFormatable>: Encodable {
-    var model: String = "gpt-5-mini-2025-08-07"
+    var model: String = "gpt-5-2025-08-07"
     var n: Int = 1
     var temperature: Double = 1.0
     var response_format: ResponseFormat
@@ -286,6 +288,8 @@ struct OpenAIStructuredOutputsRequestBody<ResponseFormat: OpenAIResponseFormatab
     var tools: [OpenAIFunction]?
     var tool_choice: OpenAIFunction? = nil
     var stream: Bool = false
+    var verbosity: String? = "low"
+    var reasoning_effort: String? = "low"
 }
 
 //extension OpenAIRequestBody {
