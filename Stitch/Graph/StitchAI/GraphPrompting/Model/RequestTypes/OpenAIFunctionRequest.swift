@@ -33,7 +33,8 @@ struct OpenAIChatCompletionRequest: StitchAIChatCompletionRequestable {
     let type: StitchAIRequestBuilder_V0.StitchAIRequestType
     let config: OpenAIRequestConfig = .default
     let body: OpenAIRequestBody
-    let willStream: Bool = false
+//    let willStream: Bool = false
+    let willStream: Bool = true
     
     // Object for creating actual code creation request
     init(id: UUID,
@@ -65,7 +66,8 @@ struct OpenAIVisionChatCompletionRequest: StitchAIChatCompletionRequestable {
     let type: StitchAIRequestBuilder_V0.StitchAIRequestType
     let config: OpenAIRequestConfig = .default
     let body: OpenAIVisionRequestBody
-    let willStream: Bool = false
+//    let willStream: Bool = false
+    let willStream: Bool = true
     
     // Object for creating request with vision capabilities
     init(id: UUID,
@@ -93,7 +95,7 @@ struct OpenAIVisionChatCompletionRequest: StitchAIChatCompletionRequestable {
         
         self.id = id
         self.type = requestType
-        self.body = .init(messages: messages)
+        self.body = .init(messages: messages, stream: self.willStream)
     }
 }
 
@@ -120,7 +122,8 @@ extension OpenAIChatCompletionRequest {
     @MainActor
     func onSuccessfulDecodingChunk(result: String,
                                    currentAttempt: Int) {
-        fatalErrorIfDebug("No JavaScript node support for streaming.")
+        log("OpenAIChatCompletionRequest: onSuccessfulDecodingChunk: result: \(result)")
+        // fatalErrorIfDebug("No JavaScript node support for streaming.")
     }
     
     static func buildResponse(from streamingChunks: [String]) throws -> String {
@@ -166,11 +169,11 @@ enum OpenAIUserContentItem: Encodable {
 
 // Vision-enabled request body
 struct OpenAIVisionRequestBody: Encodable {
-    var model: String = "o4-mini-2025-04-16" // Use Vision-capable model
+    var model: String = "gpt-5-mini-2025-08-07" // Use same model as regular requests
     var n: Int = 1
     var temperature: Double = 1.0
     var messages: [OpenAIVisionMessage]
-    var stream: Bool = false
+    var stream: Bool
 }
 
 extension OpenAIVisionChatCompletionRequest {
@@ -196,7 +199,8 @@ extension OpenAIVisionChatCompletionRequest {
     @MainActor
     func onSuccessfulDecodingChunk(result: String,
                                    currentAttempt: Int) {
-        fatalErrorIfDebug("No streaming support for vision requests.")
+        log("OpenAIVisionChatCompletionRequest: onSuccessfulDecodingChunk: result: \(result)")
+        // fatalErrorIfDebug("No streaming support for vision requests.")
     }
     
     static func buildResponse(from streamingChunks: [String]) throws -> String {

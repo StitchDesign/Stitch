@@ -1147,6 +1147,7 @@
 		ECF387DD280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */; };
 		ECF387DF280B61870075F0E5 /* NodeUIKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387DE280B61860075F0E5 /* NodeUIKind.swift */; };
 		ECF387E1280B61A80075F0E5 /* NodeConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387E0280B61A80075F0E5 /* NodeConstants.swift */; };
+		ECF6394D2E4C40B1005E766E /* StreamingExplorerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6394C2E4C40B1005E766E /* StreamingExplorerView.swift */; };
 		ECF6AEF5263CB7C70011C679 /* CoreMLClassifyNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6AEF2263CB7C70011C679 /* CoreMLClassifyNode.swift */; };
 		ECF6AEF6263CB7C70011C679 /* TransitionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6AEF3263CB7C70011C679 /* TransitionNode.swift */; };
 		ECF6AEF7263CB7C70011C679 /* NotNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6AEF4263CB7C70011C679 /* NotNode.swift */; };
@@ -2298,6 +2299,7 @@
 		ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemSelectedViewModifier.swift; sourceTree = "<group>"; };
 		ECF387DE280B61860075F0E5 /* NodeUIKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeUIKind.swift; sourceTree = "<group>"; };
 		ECF387E0280B61A80075F0E5 /* NodeConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeConstants.swift; sourceTree = "<group>"; };
+		ECF6394C2E4C40B1005E766E /* StreamingExplorerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingExplorerView.swift; sourceTree = "<group>"; };
 		ECF6AEF2263CB7C70011C679 /* CoreMLClassifyNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreMLClassifyNode.swift; sourceTree = "<group>"; };
 		ECF6AEF3263CB7C70011C679 /* TransitionNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransitionNode.swift; sourceTree = "<group>"; };
 		ECF6AEF4263CB7C70011C679 /* NotNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotNode.swift; sourceTree = "<group>"; };
@@ -5502,6 +5504,7 @@
 			isa = PBXGroup;
 			children = (
 				ECE963A92E0C5710003420C5 /* ASTExplorerView.swift */,
+				ECF6394C2E4C40B1005E766E /* StreamingExplorerView.swift */,
 				EC035BEB2E385E0C0002E109 /* VPLToCode */,
 				EC035BE82E385DE70002E109 /* CodeToVPL */,
 				ECC734722E0DE92F00AC266C /* Examples */,
@@ -6421,6 +6424,7 @@
 				EC27A0CE2AF47CDF00FFD018 /* FromHSLToColor.swift in Sources */,
 				EC4A720D274C09360026B233 /* WirelessBroadcasterNode.swift in Sources */,
 				EC8967022B4E1D3B0066879B /* EdgeStyle.swift in Sources */,
+				ECF6394D2E4C40B1005E766E /* StreamingExplorerView.swift in Sources */,
 				B596608D2C1A430C00BE75D7 /* NodeIO.swift in Sources */,
 				ECD50AC8285D34930009B564 /* ShortcutsUtils.swift in Sources */,
 				B55500CC2C1BA3F60081C3F1 /* PortEdgeUI.swift in Sources */,

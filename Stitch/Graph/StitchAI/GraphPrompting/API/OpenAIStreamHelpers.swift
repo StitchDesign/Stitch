@@ -148,8 +148,8 @@ extension StitchAIManager {
                                 document: StitchDocumentViewModel) async -> Result<AIRequest.RequestResponsePayload, Error> where AIRequest: StitchAIRequestable {
         if request.willStream {
             return await self.openStream(for: urlRequest,
-                                   with: request,
-                                   attempt: attempt)
+                                         with: request,
+                                         attempt: attempt)
         } else {
             return await self.makeNonStreamedRequest(for: urlRequest,
                                                      with: request,
@@ -233,21 +233,46 @@ extension StitchAIManager {
                         continue
                     }
                     
-                    if let chunkDataString = String(data: Data(currentChunk), encoding: .utf8),
-                       let contentToken = chunkDataString.getContentToken() {
+                    if let chunkDataString = String(data: Data(currentChunk), encoding: .utf8) {
+                        log("openStream: raw chunk received: \(chunkDataString)")
                         
-                        allContentTokens.append(contentToken)
-                        contentTokensSinceLastResponse.append(contentToken)
-                        
-                        if let (newStep, newTokens) = AIRequest.decodeFromTokenStream(tokens: contentTokensSinceLastResponse) {
-                            decodedChunks.append(newStep)
-                            contentTokensSinceLastResponse = newTokens
+                        // Try streaming format first (expected format)
+                        if let contentToken = chunkDataString.getContentToken() {
+                            log("openStream: successfully parsed contentToken: \(contentToken)")
+                            allContentTokens.append(contentToken)
+                            contentTokensSinceLastResponse.append(contentToken)
                             
-                            DispatchQueue.main.async {
-                                request.onSuccessfulDecodingChunk(result: newStep,
-                                                                  currentAttempt: attempt)
+                            if let (newStep, newTokens): (AIRequest.TokenDecodedResult, [String]) = decodeFromTokenStream(tokens: contentTokensSinceLastResponse) {
+                                decodedChunks.append(newStep)
+                                contentTokensSinceLastResponse = newTokens
+                                
+                                DispatchQueue.main.async {
+                                    request.onSuccessfulDecodingChunk(result: newStep,
+                                                                      currentAttempt: attempt)
+                                }
+                            }
+                        } 
+                        // Fallback: try to parse as complete non-streaming response
+                        else if let nonStreamingContent = chunkDataString.getNonStreamingContent() {
+                            log("openStream: detected non-streaming response, extracting content: \(nonStreamingContent)")
+                            allContentTokens.append(nonStreamingContent)
+                            contentTokensSinceLastResponse.append(nonStreamingContent)
+                            
+                            if let (newStep, newTokens): (AIRequest.TokenDecodedResult, [String]) = decodeFromTokenStream(tokens: contentTokensSinceLastResponse) {
+                                decodedChunks.append(newStep)
+                                contentTokensSinceLastResponse = newTokens
+                                
+                                DispatchQueue.main.async {
+                                    request.onSuccessfulDecodingChunk(result: newStep,
+                                                                      currentAttempt: attempt)
+                                }
                             }
                         }
+                        else {
+                            log("openStream: getContentToken() returned nil for chunk: \(chunkDataString)")
+                        }
+                    } else {
+                        log("openStream: failed to convert chunk data to UTF8 string")
                     }
                     
                     // Clear the current chunk
@@ -265,7 +290,22 @@ extension StitchAIManager {
 
                 // TODO: need to come back here to support message struct
 //                return .success((validatedDecodedResponse, response))
+//                return .success(
+//                    // (validatedDecodedResponse,
+//                    OpenAIMessage(role: .)
+//                     response)
+//                )
+//                return .success()
                 fatalError()
+                
+//                return .failure
+                
+//                return .success(
+//                    (
+//                        validatedDecodedResponse.messages
+//                    
+//                    )
+//                )
             } catch {
                 log("Could not get byte from bytes: \(error.localizedDescription)")
                 return .failure(error)
@@ -292,22 +332,52 @@ extension String {
     
     // nil = could not retrieve `content` key's value
     func getContentToken() -> String? {
+        log("getContentToken: input string: \(self)")
         
-        guard let jsonStrAsData: Data = self
-                // Remove the "data: " prefix OpenAI inserts
-            .removeDataPrefix().data(using: .utf8) else {
-            
+        let afterRemovingPrefix = self.removeDataPrefix()
+        log("getContentToken: after removing data prefix: \(afterRemovingPrefix)")
+        
+        guard let jsonStrAsData: Data = afterRemovingPrefix.data(using: .utf8) else {
+            log("getContentToken: failed to convert to UTF8 data")
             return nil
         }
         
         // Retrieve the token from the deeply-nested `content` key
         guard let valueForContentKey = try? jsonStrAsData.getContentKey() else {
+            log("getContentToken: failed to parse JSON or find content key")
             return nil
         }
         
-        log("found valueForContentKey: \(valueForContentKey)")
+        log("getContentToken: found valueForContentKey: \(valueForContentKey)")
         assertInDebug(valueForContentKey.count <= 1)
         return valueForContentKey.first
+    }
+    
+    /// Extracts content from non-streaming OpenAI response (complete JSON response)
+    func getNonStreamingContent() -> String? {
+        log("getNonStreamingContent: input string: \(self)")
+        
+        guard let jsonData = self.data(using: .utf8) else {
+            log("getNonStreamingContent: failed to convert to UTF8 data")
+            return nil
+        }
+        
+        do {
+            if let json = try JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
+               let choices = json["choices"] as? [[String: Any]],
+               let firstChoice = choices.first,
+               let message = firstChoice["message"] as? [String: Any],
+               let content = message["content"] as? String {
+                log("getNonStreamingContent: successfully extracted content")
+                return content
+            }
+            
+            log("getNonStreamingContent: failed to find content in expected JSON structure")
+            return nil
+        } catch {
+            log("getNonStreamingContent: JSON parsing error: \(error)")
+            return nil
+        }
     }
     
     /// Try various trimmings of front and back characters of a string, to parse the string as a json of type T.
@@ -333,42 +403,40 @@ extension String {
     }
 }
 
-
-extension StitchAIRequestable {
-    /*
-     Iterate through the list of passed-in tokens,
-     progressively building another list of tokens which can be turned into a string
-     that can be parsed as a Step.
-     
-     If we find a Step, we return:
-     `(the Step we found, the list of tokens starting with the token where we found the Step)`
-     */
-    // fka `streamDataHelper`
-    static func decodeFromTokenStream(tokens: [String]) -> (Self.TokenDecodedResult, [String])? {
+/*
+ Iterate through the list of passed-in tokens,
+ progressively building another list of tokens which can be turned into a string
+ that can be parsed as a Step.
+ 
+ If we find a Step, we return:
+ `(the Step we found, the list of tokens starting with the token where we found the Step)`
+ */
+// fka `streamDataHelper`
+func decodeFromTokenStream<T: Decodable>(tokens: [String]) -> (T, [String])? {
+    
+    // TODO: not needed, since we reset upon finding a Step anyway ?
+    var tokensSoFar = [String]()
+    
+    for (tokenIndex, token) in tokens.enumerated() {
         
-        // TODO: not needed, since we reset upon finding a Step anyway ?
-        var tokensSoFar = [String]()
+        tokensSoFar.append(token)
         
-        for (tokenIndex, token) in tokens.enumerated() {
-            
-            tokensSoFar.append(token)
-            
-            let message: String = String(tokensSoFar.joined())
-            // Always remove the steps prefix
-                .removeStepsPrefix()
-            
-            if let result: Self.TokenDecodedResult = message.eagerlyParseAsT() {
-                log("found decoded token: \(result)")
-                let newTokens = tail(of: tokens, from: tokenIndex)
-                // print("\n newMessage: \(String(newTokens.joined()))")
-                return (result, newTokens)
-            }
-        } // for token in
+        let message: String = String(tokensSoFar.joined())
+        // Always remove the steps prefix
+            // .removeStepsPrefix()
         
-        // Didn't find anything
-        return nil
-    }
+        if let result: T = message.eagerlyParseAsT() {
+            log("found decoded token: \(result)")
+            let newTokens = tail(of: tokens, from: tokenIndex)
+            // print("\n newMessage: \(String(newTokens.joined()))")
+            return (result, newTokens)
+        }
+    } // for token in
+    
+    // Didn't find anything
+    return nil
 }
+
 
 func tail<T>(of list: [T], from index: Int) -> [T] {
     guard index < list.count else {
