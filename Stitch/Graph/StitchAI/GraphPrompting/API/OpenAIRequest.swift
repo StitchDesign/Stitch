@@ -124,7 +124,7 @@ enum AIProvider: String, CaseIterable, Codable {
 }
 
 /// Configuration for AI provider selection
-struct AIProviderConfig {
+final class AIProviderConfig: @unchecked Sendable {
     static let shared = AIProviderConfig()
     
     private let userDefaults = UserDefaults.standard
