@@ -79,16 +79,31 @@ struct PreviewCommonPositionModifier: ViewModifier {
     
     @ViewBuilder func positioningView(_ content: Content) -> some View {
         // logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
+        
+        
         if parentIsScrollableGrid {
             content
-        } else if parentDisablesPosition {
-           let offset = viewModel.offsetInGroup.getSize?.asCGSize(parentSize) ?? .zero
-            content
-               .offset(x: offset.width, y: offset.height)
         } else {
+            let offset = viewModel.offsetInGroup.getSize?.asCGSize(parentSize) ?? .zero
+             
             content
-//                .position(x: pos.x, y: pos.y)
+            
+            // .offset which is based on the `offsetInGroup` layer input
+                .offset(x: offset.width, y: offset.height)
+            
+            // .offset which is based on the `position` layer input
                 .offset(x: pos.x, y: pos.y)
         }
+        
+//        else if parentDisablesPosition {
+//           let offset = viewModel.offsetInGroup.getSize?.asCGSize(parentSize) ?? .zero
+//            content
+//               .offset(x: offset.width, y: offset.height)
+//        } else {
+//            content
+////                .position(x: pos.x, y: pos.y)
+//                .offset(x: pos.x, y: pos.y)
+//        }
+        
     }
 }
