@@ -157,7 +157,8 @@ struct InsertNodeMenuView: View {
                         .buttonStyle(PlainButtonStyle())
                     }
                     .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
+                    .padding(.top, 4)
+                    .padding(.bottom, 8)
                 }
                 .frame(height: INSERT_NODE_MENU_IMAGE_THUMBNAIL_HEIGHT)
                 // .background(theme.themeData.graphBackground.opacity(0.1))
