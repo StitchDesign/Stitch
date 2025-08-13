@@ -267,18 +267,25 @@ enum OpenAISchemaType: String, Codable {
     case null
 }
 
+let OPEN_AI_VERBOSITY = "low"
+//let OPEN_AI_REASONING_EFFORT = "low" // good for initial code gen, but meh for edit
+//let OPEN_AI_REASONING_EFFORT = "high" // timeout
+let OPEN_AI_REASONING_EFFORT = "medium"
+
 struct OpenAIRequestBody: Encodable {
-    var model: String = "gpt-5-mini-2025-08-07"
+    var model: String = "gpt-5-2025-08-07"
     var n: Int = 1
     var temperature: Double = 1.0
     var messages: [OpenAIMessage]
     var tools: [OpenAIFunction]?
     var tool_choice: OpenAIFunction? = nil
     var stream: Bool = false
+    var verbosity: String? = OPEN_AI_VERBOSITY
+    var reasoning_effort: String? = OPEN_AI_REASONING_EFFORT
 }
 
 struct OpenAIStructuredOutputsRequestBody<ResponseFormat: OpenAIResponseFormatable>: Encodable {
-    var model: String = "gpt-5-mini-2025-08-07"
+    var model: String = "gpt-5-2025-08-07"
     var n: Int = 1
     var temperature: Double = 1.0
     var response_format: ResponseFormat
@@ -286,6 +293,8 @@ struct OpenAIStructuredOutputsRequestBody<ResponseFormat: OpenAIResponseFormatab
     var tools: [OpenAIFunction]?
     var tool_choice: OpenAIFunction? = nil
     var stream: Bool = false
+    var verbosity: String? = OPEN_AI_VERBOSITY
+    var reasoning_effort: String? = OPEN_AI_REASONING_EFFORT
 }
 
 //extension OpenAIRequestBody {
