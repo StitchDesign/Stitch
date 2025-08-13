@@ -86,16 +86,22 @@ extension StitchAIManager {
         
         let config = request.config
         
-        // TODO: Claude integration pending - using OpenAI for now
-        // let isClaudeRequest = request is ClaudeCodeGenRequest
+        // Check if this is a Claude request
+        let isClaudeRequest = String(describing: type(of: request)).contains("ClaudeCodeGenRequest")
         
-        // Configure request headers and parameters for OpenAI
-        let baseURL = OPEN_AI_BASE_URL
+        // Configure request headers and parameters
+        let baseURL = isClaudeRequest ? CLAUDE_BASE_URL : OPEN_AI_BASE_URL
         var urlRequest = URLRequest(url: baseURL)
         urlRequest.httpMethod = "POST"
         urlRequest.timeoutInterval = config.timeoutInterval
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        urlRequest.setValue("Bearer \(secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
+        
+        if isClaudeRequest {
+            urlRequest.setValue(secrets.claudeAPIKey, forHTTPHeaderField: "x-api-key")
+            urlRequest.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+        } else {
+            urlRequest.setValue("Bearer \(secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
+        }
 
         let bodyPayload = try? request.getPayloadData()
         urlRequest.httpBody = bodyPayload
