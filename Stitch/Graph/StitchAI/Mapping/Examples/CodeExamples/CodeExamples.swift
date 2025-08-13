@@ -69,6 +69,11 @@ extension MappingExamples {
         StackCodeExamples.nested,
         StackCodeExamples.nested_with_scale,
         
+        // Grids
+        GridCodeExamples.simpleGrid,
+        GridCodeExamples.phoneKeypadGrid,
+        GridCodeExamples.gridWithDifferentItems,
+        
         // ViewModifiers with multiple parameters
         MultiparameterViewModifierCodeExamples.position,
         MultiparameterViewModifierCodeExamples.offset,
