@@ -13,21 +13,154 @@ import SwiftUI
 import Sentry
 import SwiftyJSON
 
+// MARK: - Claude Response Types
+
+/// Represents the complete response structure from Claude's API
+struct ClaudeResponse: Codable {
+    var id: String
+    var type: String
+    var role: String
+    var content: [ClaudeContent]
+    var model: String
+    var stopReason: String?
+    var stopSequence: String?
+    var usage: ClaudeUsage
+    
+    enum CodingKeys: String, CodingKey {
+        case id, type, role, content, model, usage
+        case stopReason = "stop_reason"
+        case stopSequence = "stop_sequence"
+    }
+}
+
+/// Represents content in Claude's response
+struct ClaudeContent: Codable {
+    var type: String
+    var text: String?
+}
+
+/// Tracks token usage metrics for Claude API requests
+struct ClaudeUsage: Codable {
+    var inputTokens: Int
+    var outputTokens: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case inputTokens = "input_tokens"
+        case outputTokens = "output_tokens"
+    }
+}
+
+/// Extension to convert Claude responses to OpenAI format for compatibility
+extension ClaudeResponse {
+    func toOpenAIResponse() -> OpenAIResponse {
+        let content = self.content.compactMap { $0.text }.joined()
+        let message = OpenAIMessage(
+            role: .assistant,
+            content: content,
+            tool_calls: nil,
+            tool_call_id: nil,
+            name: nil,
+            refusal: nil,
+            annotations: nil
+        )
+        
+        let choice = OpenAIChoice(
+            index: 0,
+            message: message,
+            logprobs: nil,
+            finishReason: self.stopReason ?? "stop"
+        )
+        
+        let usage = Usage(
+            promptTokens: self.usage.inputTokens,
+            completionTokens: self.usage.outputTokens,
+            totalTokens: self.usage.inputTokens + self.usage.outputTokens,
+            promptTokensDetails: TokenDetails(cachedTokens: 0, audioTokens: 0),
+            completionTokensDetails: CompletionTokenDetails(
+                reasoningTokens: 0,
+                audioTokens: 0,
+                acceptedPredictionTokens: 0,
+                rejectedPredictionTokens: 0
+            )
+        )
+        
+        return OpenAIResponse(
+            id: self.id,
+            object: "chat.completion",
+            created: Int(Date().timeIntervalSince1970),
+            model: self.model,
+            choices: [choice],
+            usage: usage,
+            systemFingerprint: nil,
+            serviceTier: "default"
+        )
+    }
+}
+
+// MARK: - AI Provider Configuration
+
+/// Enum representing the available AI providers
+enum AIProvider: String, CaseIterable, Codable {
+    case openAI = "openai"
+    case claude = "claude"
+    
+    var displayName: String {
+        switch self {
+        case .openAI:
+            return "OpenAI"
+        case .claude:
+            return "Claude"
+        }
+    }
+    
+    var baseURL: String {
+        switch self {
+        case .openAI:
+            return "https://api.openai.com/v1/chat/completions"
+        case .claude:
+            return "https://api.anthropic.com/v1/messages"
+        }
+    }
+}
+
+/// Configuration for AI provider selection
+struct AIProviderConfig {
+    static let shared = AIProviderConfig()
+    
+    private let userDefaults = UserDefaults.standard
+    private let providerKey = "ai_provider_preference"
+    
+    var currentProvider: AIProvider {
+        get {
+            guard let rawValue = userDefaults.string(forKey: providerKey),
+                  let provider = AIProvider(rawValue: rawValue) else {
+                return .openAI // Default to OpenAI
+            }
+            return provider
+        }
+        set {
+            userDefaults.set(newValue.rawValue, forKey: providerKey)
+        }
+    }
+    
+    private init() {}
+}
+
 extension StitchAIManager {
     
     // Used when we need to kick off a request, either initially or as a retry
     @MainActor
-    func getOpenAITask(request: AIGraphCreationRequest,
-                       attempt: Int,
-                       document: StitchDocumentViewModel,
-                       canShareAIRetries: Bool) -> Task<OpenAIMessage, any Error> {
+    func getAITask(request: AIGraphCreationRequest,
+                   attempt: Int,
+                   document: StitchDocumentViewModel,
+                   canShareAIRetries: Bool) -> Task<OpenAIMessage, any Error> {
         Task(priority: .high) { [weak self] in
             guard let aiManager = self else {
                 fatalErrorIfDebug()
                 throw NSError()
             }
             
-            switch await aiManager.startOpenAIRequest(
+            switch await aiManager.startAIRequest(
                 request,
                 attempt: attempt,
                 lastCapturedError: document.llmRecording.actionsError ?? "",
@@ -99,7 +232,30 @@ extension StitchAIManager {
         return urlRequest
     }
     
-    /// Execute the API request with retry logic
+    /// Execute the AI API request with retry logic
+    // Routes to either OpenAI or Claude based on configuration
+    func startAIRequest<AIRequest>(_ request: AIRequest,
+                                   attempt: Int,
+                                   lastCapturedError: String,
+                                   document: StitchDocumentViewModel) async -> Result<OpenAIMessage, StitchAIStreamingError> where AIRequest: StitchAIRequestable {
+        
+        let provider = AIProviderConfig.shared.currentProvider
+        
+        switch provider {
+        case .openAI:
+            return await startOpenAIRequest(request,
+                                            attempt: attempt,
+                                            lastCapturedError: lastCapturedError,
+                                            document: document)
+        case .claude:
+            return await startClaudeRequest(request,
+                                            attempt: attempt,
+                                            lastCapturedError: lastCapturedError,
+                                            document: document)
+        }
+    }
+    
+    /// Execute the OpenAI API request with retry logic
     // fka `makeRequest`
     func startOpenAIRequest<AIRequest>(_ request: AIRequest,
                                        attempt: Int,
@@ -253,15 +409,257 @@ extension StitchAIManager {
                 
         document.encodeProjectInBackground()
     }
+    
+    // MARK: - Claude API Methods
+    
+    /// Execute Claude API request
+    func startClaudeRequest<AIRequest>(_ request: AIRequest,
+                                       attempt: Int,
+                                       lastCapturedError: String,
+                                       document: StitchDocumentViewModel) async -> Result<OpenAIMessage, StitchAIStreamingError> where AIRequest: StitchAIRequestable {
+        
+        // Check if we've exceeded retry attempts
+        guard attempt <= request.config.maxRetries else {
+            log("All StitchAI retry attempts exhausted", .logToServer)
+            return .failure(.maxRetriesError(request.config.maxRetries,
+                                             lastCapturedError))
+        }
+        
+        guard let urlRequest = Self.getURLRequestForClaude(request: request,
+                                                           secrets: self.secrets) else {
+            log("StitchAIManager: startClaudeRequest: could not get request", .logToServer)
+            return .failure(.urlRequestCreationFailure)
+        }
+        
+        let streamOpeningResult = await self.makeClaudeRequest(
+            for: urlRequest,
+            with: request,
+            attempt: attempt,
+            document: document)
+        
+        switch streamOpeningResult {
+            
+        case .success(let response):
+            // Check for rate limits
+            if let error = handlePossibleClaudeRateLimit(
+                response: response.1,
+                request: request) {
+                return .failure(error)
+            }
+            
+            return .success(response.0)
+            
+        case .failure(let error):
+            log("StitchAIManager: startClaudeRequest: streaming error: \(error.localizedDescription)", .logToServer)
+            if let error = handleClaudeStreamingError(
+                error,
+                attempt: attempt,
+                request: request) {
+                return .failure(error)
+            }
+            
+            return .failure(.other(error))
+        }
+    }
+    
+    /// Create a URL request for Claude API
+    static func getURLRequestForClaude<AIRequest>(request: AIRequest,
+                                                  secrets: Secrets) -> URLRequest? where AIRequest: StitchAIRequestable {
+        
+        let config = request.config
+        let claudeURL = URL(string: AIProvider.claude.baseURL)!
+        
+        var urlRequest = URLRequest(url: claudeURL)
+        urlRequest.httpMethod = "POST"
+        urlRequest.timeoutInterval = config.timeoutInterval
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        urlRequest.setValue(secrets.claudeAPIKey, forHTTPHeaderField: "x-api-key")
+        urlRequest.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+        
+        // Convert OpenAI-style request to Claude format
+        guard let claudeBodyData = convertToClaudeRequest(request: request, secrets: secrets) else {
+            return nil
+        }
+        
+        urlRequest.httpBody = claudeBodyData
+        return urlRequest
+    }
+    
+    /// Convert OpenAI-style request to Claude format
+    private static func convertToClaudeRequest<AIRequest>(request: AIRequest,
+                                                          secrets: Secrets) -> Data? where AIRequest: StitchAIRequestable {
+        
+        guard let payloadData = try? request.getPayloadData(),
+              let payloadJSON = try? JSONSerialization.jsonObject(with: payloadData) as? [String: Any] else {
+            return nil
+        }
+        
+        // Extract OpenAI messages
+        guard let messages = payloadJSON["messages"] as? [[String: Any]] else {
+            return nil
+        }
+        
+        var claudeMessages: [[String: Any]] = []
+        var systemPrompt: String? = nil
+        
+        // Convert messages to Claude format
+        for message in messages {
+            guard let role = message["role"] as? String,
+                  let content = message["content"] as? String else {
+                continue
+            }
+            
+            if role == "system" {
+                systemPrompt = content
+            } else {
+                claudeMessages.append([
+                    "role": role == "assistant" ? "assistant" : "user",
+                    "content": content
+                ])
+            }
+        }
+        
+        // Get the appropriate Claude model
+        let claudeModel = getClaudeModel(for: request, secrets: secrets)
+        
+        var claudeRequest: [String: Any] = [
+            "model": claudeModel,
+            "max_tokens": payloadJSON["max_tokens"] ?? 1024,
+            "messages": claudeMessages
+        ]
+        
+        if let systemPrompt = systemPrompt {
+            claudeRequest["system"] = systemPrompt
+        }
+        
+        // Add temperature if present
+        if let temperature = payloadJSON["temperature"] {
+            claudeRequest["temperature"] = temperature
+        }
+        
+        // Add streaming if present
+        if let stream = payloadJSON["stream"] as? Bool, stream {
+            claudeRequest["stream"] = true
+        }
+        
+        return try? JSONSerialization.data(withJSONObject: claudeRequest)
+    }
+    
+    /// Get the appropriate Claude model based on request type
+    private static func getClaudeModel<AIRequest>(for request: AIRequest,
+                                                  secrets: Secrets) -> String where AIRequest: StitchAIRequestable {
+        // This is a simplified approach - you might want to add proper type checking
+        let requestTypeName = String(describing: type(of: request))
+        
+        if requestTypeName.contains("Graph") {
+            return secrets.claudeModelGraphCreation
+        } else if requestTypeName.contains("Js") || requestTypeName.contains("JS") {
+            return secrets.claudeModelJsNode
+        } else if requestTypeName.contains("Description") {
+            return secrets.claudeModelGraphDescription
+        } else {
+            return secrets.claudeModelGraphCreation
+        }
+    }
+    
+    /// Make Claude API request
+    private func makeClaudeRequest<AIRequest>(for urlRequest: URLRequest,
+                                              with request: AIRequest,
+                                              attempt: Int,
+                                              document: StitchDocumentViewModel) async -> Result<(OpenAIMessage, URLResponse), Error> where AIRequest: StitchAIRequestable {
+        
+        let result = await Result { @Sendable in
+            try await fetchWithRetries(urlRequest)
+        }
+        
+        switch result {
+        case .success(let success):
+            let jsonResponse = String(data: success.0, encoding: .utf8)
+            print("Successful Claude response:\n\(jsonResponse ?? "none")")
+            
+            do {
+                let claudeResponse = try JSONDecoder().decode(ClaudeResponse.self, from: success.0)
+                let openAIResponse = claudeResponse.toOpenAIResponse()
+                
+                guard let firstChoice = openAIResponse.choices.first else {
+                    return .failure(StitchAIManagerError.firstChoiceNotDecoded)
+                }
+                
+                return .success((firstChoice.message, success.1))
+            } catch {
+                print("Claude response decoding error: \(error)")
+                return .failure(StitchAIManagerError.responseDecodingFailure("\(error)"))
+            }
+            
+        case .failure(let failure):
+            print("makeClaudeRequest failure: \(failure)")
+            return .failure(failure)
+        }
+    }
+    
+    /// Handle Claude rate limits
+    private func handlePossibleClaudeRateLimit<AIRequest>(response: URLResponse,
+                                                          request: AIRequest) -> StitchAIStreamingError? where AIRequest: StitchAIRequestable {
+        
+        if let httpResponse = response as? HTTPURLResponse,
+           !(200...299).contains(httpResponse.statusCode) {
+            
+            if httpResponse.statusCode == 429 || // Rate limit
+                httpResponse.statusCode >= 500 {  // Server error
+                log("Claude Request failed with status code: \(httpResponse.statusCode)", .logToServer)
+                log("Retrying in \(request.config.retryDelay) seconds")
+                return .rateLimit
+            }
+        }
+        
+        return nil
+    }
+    
+    /// Handle Claude streaming errors
+    private func handleClaudeStreamingError<AIRequest>(_ error: Error,
+                                                       attempt: Int,
+                                                       request: AIRequest) -> StitchAIStreamingError? where AIRequest: StitchAIRequestable {
+        
+        log("Claude request failed: \(error)")
+        
+        if let _ = (error as? CancellationError) {
+            return nil // Cancellation is not an error
+        }
+        
+        guard let error = error as NSError? else {
+            return .invalidURL
+        }
+        
+        // Handle network errors similar to OpenAI
+        if error.code == NSURLErrorCancelled {
+            return nil // Cancellation is not an error
+        }
+        else if error.code == NSURLErrorTimedOut {
+            log("Claude timeout error count: \(attempt)")
+            
+            if attempt > request.config.maxTimeoutErrors {
+                return .maxTimeouts
+            } else {
+                return .timeout
+            }
+        }
+        else if error.code == NSURLErrorNotConnectedToInternet ||
+                error.code == NSURLErrorNetworkConnectionLost {
+            return .internetConnectionFailed
+        }
+        else {
+            return .other(error)
+        }
+    }
 }
 
 extension StitchAIRequestable {
     func request(document: StitchDocumentViewModel,
                  aiManager: StitchAIManager) async throws -> Self.FinalDecodedResult {
-        let result = await aiManager.startOpenAIRequest(self,
-                                                        attempt: 0,
-                                                        lastCapturedError: "",
-                                                        document: document)
+        let result = await aiManager.startAIRequest(self,
+                                                    attempt: 0,
+                                                    lastCapturedError: "",
+                                                    document: document)
         
         switch result {
             
@@ -309,13 +707,13 @@ extension StitchAIFunctionRequestable {
 //        }
 //    }
     
-    /// Called when last OpenAI function is called.
+    /// Called when last AI function is called.
     func requestMessageForFn(document: StitchDocumentViewModel,
                              aiManager: StitchAIManager) async throws -> OpenAIMessage {
-        let result = await aiManager.startOpenAIRequest(self,
-                                                        attempt: 0,
-                                                        lastCapturedError: "",
-                                                        document: document)
+        let result = await aiManager.startAIRequest(self,
+                                                    attempt: 0,
+                                                    lastCapturedError: "",
+                                                    document: document)
         switch result {
             
         case .success(let msg):

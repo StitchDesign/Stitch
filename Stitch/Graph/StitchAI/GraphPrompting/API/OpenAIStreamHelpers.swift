@@ -124,7 +124,7 @@ func provideGenuinelyUniqueUUIDForAIStep<T: StepActionable>(
 }
 
 extension StitchAIManager {
-    private func fetchWithRetries(
+    internal func fetchWithRetries(
         _ urlRequest: URLRequest,
         maxRetries: Int = 3
     ) async throws -> (Data, URLResponse) {

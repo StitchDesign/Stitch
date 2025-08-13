@@ -119,7 +119,7 @@ extension StitchAIManager {
         // This can somehow fail?
         // assertInDebug(slept.isDefined)
             
-        let task = aiManager.getOpenAITask(
+        let task = aiManager.getAITask(
             request: request,
             attempt: attempt + 1,
             document: document,
