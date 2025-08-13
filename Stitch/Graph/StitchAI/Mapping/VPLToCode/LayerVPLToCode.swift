@@ -61,11 +61,18 @@ extension LayerNodeEntity {
                     .getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
                 return SyntaxViewName.image.createConstructorCode(args)
             }
+            fatalErrorIfDebug("SF Symbol layer has empty or missing symbol name")
             return nil
             
-            // ───────── Not yet handled ─────────
-        case .linearGradient, .radialGradient, .angularGradient,
-                .textField:
+            // ───────── Text Field ─────────
+        case .textField:
+            let args = try self.textPort
+                .getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
+            return SyntaxViewName.textField.createConstructorCode(args)
+            
+        // ───────── Not yet handled ─────────
+        case .linearGradient, .radialGradient, .angularGradient:
+            fatalErrorIfDebug("Gradient layers (\(self.layer)) require proper color extraction implementation")
             return nil
             
         default:
@@ -142,9 +149,57 @@ extension LayerNodeEntity {
                     }
                     """
             case .grid:
-                // TODO: .grid orientation becomes SwiftUI LazyVGrid
-                return nil
+                // Generate LazyVGrid code
+                return try self.createLazyVGridCode(children: children,
+                                                    layerEntityMap: layerEntityMap,
+                                                    varIdNameMap: varIdNameMap)
             }
+        }
+    }
+    
+    @MainActor
+    func createLazyVGridCode(children: [LayerNodeEntity],
+                             layerEntityMap: [UUID: LayerNodeEntity],
+                             varIdNameMap: [UUID: String]) throws -> String? {
+        assertInDebug(self.layer == .group)
+        
+        let childrenContents = try children
+            .createSwiftUICode(layerEntityMap: layerEntityMap,
+                               varIdNameMap: varIdNameMap)
+        
+        // Get spacing from the group's spacing port
+        let spacingArgs = try self.spacingPort.getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
+        
+        // Infer column count from children count and common grid patterns
+        let columnCount = inferGridColumnCount(childrenCount: children.count)
+        
+        // Generate flexible columns array
+        let columnsDefinition = Array(repeating: "GridItem(.flexible())", count: columnCount).joined(separator: ", ")
+        
+        return """
+            LazyVGrid(columns: [\(columnsDefinition)], spacing: \(spacingArgs)) {
+                \(childrenContents)
+            }
+            """
+    }
+    
+    /// Infers reasonable column count based on children count and common patterns
+    private func inferGridColumnCount(childrenCount: Int) -> Int {
+        // Common grid patterns:
+        switch childrenCount {
+        case 0...3:
+            return max(1, childrenCount) // 1-3 items = 1-3 columns
+        case 4...6:
+            return 2 // 4-6 items = 2 columns
+        case 7...9:
+            return 3 // 7-9 items = 3 columns (common for keypads)
+        case 10...12:
+            return 3 // 10-12 items = 3 columns (phone keypad is 12 items)
+        case 13...16:
+            return 4 // 13-16 items = 4 columns
+        default:
+            // For larger grids, use square root as a reasonable default
+            return max(3, Int(ceil(sqrt(Double(childrenCount)))))
         }
     }
         
@@ -210,9 +265,23 @@ extension Array where Element == LayerNodeEntity {
     @MainActor
     func createSwiftUICode(layerEntityMap: [UUID: LayerNodeEntity],
                            varIdNameMap: [UUID: String]) throws -> String {
-        let strings = try self.compactMap {
-            try $0.createSwiftUICode(layerEntityMap: layerEntityMap,
-                                     varIdNameMap: varIdNameMap)
+        var droppedLayers: [LayerNodeEntity] = []
+        
+        let strings = try self.compactMap { layerEntity -> String? in
+            let result = try layerEntity.createSwiftUICode(layerEntityMap: layerEntityMap,
+                                                          varIdNameMap: varIdNameMap)
+            if result == nil {
+                droppedLayers.append(layerEntity)
+                log("DROPPED LAYER: \(layerEntity.layer) with id \(layerEntity.id) - createSwiftUICode returned nil")
+            }
+            return result
+        }
+        
+        if !droppedLayers.isEmpty {
+            log("TOTAL DROPPED LAYERS: \(droppedLayers.count) out of \(self.count)")
+            for dropped in droppedLayers {
+                log("  - \(dropped.layer) (id: \(dropped.id))")
+            }
         }
         
         return strings.joined(separator: "\n")
