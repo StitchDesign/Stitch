@@ -77,6 +77,10 @@ extension StitchDocumentViewModel {
 
         if showMenu {
             self.insertNodeMenuState.activeSelection = InsertNodeMenuState.startingActiveSelection
+            
+            // Clear any previously uploaded image when opening the menu
+            self.insertNodeMenuState.droppedImage = nil
+            self.insertNodeMenuState.droppedImageBase64 = nil
         } else {
             // Note: active-selection can be nil when search results give nothing; but should we really set it `nil` when we close the menu ?
 //            self.insertNodeMenuState.activeSelection = nil
