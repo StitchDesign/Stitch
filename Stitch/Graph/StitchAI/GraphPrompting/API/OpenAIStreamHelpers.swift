@@ -171,34 +171,15 @@ extension StitchAIManager {
             let jsonResponse = String(data: success.0, encoding: .utf8)
             print("Successful AI response:\n\(jsonResponse ?? "none")")
             do {
-                // Check if this is a Claude request
-                let isClaudeRequest = request is ClaudeCodeGenRequest
+                // TODO: Claude integration pending - commenting out for now
+                // let isClaudeRequest = request is ClaudeCodeGenRequest
                 
-                let message: OpenAIMessage
-                if isClaudeRequest {
-                    let claudeResponse = try JSONDecoder().decode(ClaudeResponse.self, from: success.0)
-                    guard let firstContent = claudeResponse.content.first else {
-                        fatalErrorIfDebug()
-                        return .failure(StitchAIManagerError.firstChoiceNotDecoded)
-                    }
-                    // Convert Claude response to OpenAI message format for compatibility
-                    message = OpenAIMessage(
-                        role: .assistant,
-                        content: firstContent.text,
-                        tool_calls: nil,
-                        tool_call_id: nil,
-                        name: nil,
-                        refusal: nil,
-                        annotations: nil
-                    )
-                } else {
-                    let response = try JSONDecoder().decode(OpenAIResponse.self, from: success.0)
-                    guard let firstChoice = response.choices.first else {
-                        fatalErrorIfDebug()
-                        return .failure(StitchAIManagerError.firstChoiceNotDecoded)
-                    }
-                    message = firstChoice.message
+                let response = try JSONDecoder().decode(OpenAIResponse.self, from: success.0)
+                guard let firstChoice = response.choices.first else {
+                    fatalErrorIfDebug()
+                    return .failure(StitchAIManagerError.firstChoiceNotDecoded)
                 }
+                let message = firstChoice.message
                 
                 return .success((message, success.1))
             } catch {
