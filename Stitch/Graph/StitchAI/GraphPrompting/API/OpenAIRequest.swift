@@ -427,9 +427,11 @@ extension StitchAIManager {
         
         guard let urlRequest = Self.getURLRequestForClaude(request: request,
                                                            secrets: self.secrets) else {
-            log("StitchAIManager: startClaudeRequest: could not get request", .logToServer)
+            log("StitchAIManager: startClaudeRequest: could not get request - conversion failed", .logToServer)
             return .failure(.urlRequestCreationFailure)
         }
+        
+        log("StitchAIManager: startClaudeRequest: Claude request created successfully", .logToServer)
         
         let streamOpeningResult = await self.makeClaudeRequest(
             for: urlRequest,
@@ -451,6 +453,17 @@ extension StitchAIManager {
             
         case .failure(let error):
             log("StitchAIManager: startClaudeRequest: streaming error: \(error.localizedDescription)", .logToServer)
+            
+            // Add more detailed error logging for Claude requests
+            if let httpError = error as? URLError {
+                log("Claude request URLError: \(httpError.code.rawValue) - \(httpError.localizedDescription)", .logToServer)
+            } else if let nsError = error as NSError? {
+                log("Claude request NSError: \(nsError.domain) - \(nsError.code) - \(nsError.localizedDescription)", .logToServer)
+                if let userInfo = nsError.userInfo as? [String: Any] {
+                    log("Claude request error userInfo: \(userInfo)", .logToServer)
+                }
+            }
+            
             if let error = handleClaudeStreamingError(
                 error,
                 attempt: attempt,
@@ -491,11 +504,13 @@ extension StitchAIManager {
         
         guard let payloadData = try? request.getPayloadData(),
               let payloadJSON = try? JSONSerialization.jsonObject(with: payloadData) as? [String: Any] else {
+            log("Claude conversion: Failed to get payload data")
             return nil
         }
         
         // Extract OpenAI messages
         guard let messages = payloadJSON["messages"] as? [[String: Any]] else {
+            log("Claude conversion: Failed to extract messages")
             return nil
         }
         
@@ -504,17 +519,84 @@ extension StitchAIManager {
         
         // Convert messages to Claude format
         for message in messages {
-            guard let role = message["role"] as? String,
-                  let content = message["content"] as? String else {
+            guard let role = message["role"] as? String else {
                 continue
             }
             
+            // Handle different content formats (string vs array for vision)
+            var contentText: String = ""
+            
+            if let content = message["content"] as? String {
+                // Regular text content
+                contentText = content
+            } else if let contentArray = message["content"] as? [[String: Any]] {
+                // Vision content array - convert to Claude format
+                var claudeContentArray: [[String: Any]] = []
+                
+                for contentItem in contentArray {
+                    if let type = contentItem["type"] as? String {
+                        if type == "text", let text = contentItem["text"] as? String {
+                            claudeContentArray.append([
+                                "type": "text",
+                                "text": text
+                            ])
+                        } else if type == "image_url", 
+                                  let imageUrl = contentItem["image_url"] as? [String: Any],
+                                  let url = imageUrl["url"] as? String {
+                            
+                            // Convert OpenAI image_url format to Claude format
+                            if url.hasPrefix("data:") {
+                                // Handle base64 data URLs (data:image/jpeg;base64,...)
+                                if let range = url.range(of: "base64,") {
+                                    let base64Data = String(url[range.upperBound...])
+                                    let mediaType = extractMediaTypeFromDataURL(url) ?? "image/jpeg"
+                                    
+                                    claudeContentArray.append([
+                                        "type": "image",
+                                        "source": [
+                                            "type": "base64",
+                                            "media_type": mediaType,
+                                            "data": base64Data
+                                        ]
+                                    ])
+                                }
+                            } else {
+                                // Handle regular URLs
+                                claudeContentArray.append([
+                                    "type": "image", 
+                                    "source": [
+                                        "type": "url",
+                                        "url": url
+                                    ]
+                                ])
+                            }
+                        }
+                    }
+                }
+                
+                // For Claude, if we have multiple content items, we need to handle it differently
+                if claudeContentArray.count == 1 && claudeContentArray[0]["type"] as? String == "text" {
+                    // Single text content - use as string
+                    contentText = claudeContentArray[0]["text"] as? String ?? ""
+                } else {
+                    // Multiple content items or has images - don't convert to string
+                    // We'll handle this differently below for Claude messages
+                    claudeMessages.append([
+                        "role": role == "assistant" ? "assistant" : "user",
+                        "content": claudeContentArray
+                    ])
+                    continue
+                }
+            } else {
+                continue // Skip messages with unsupported content format
+            }
+            
             if role == "system" {
-                systemPrompt = content
+                systemPrompt = contentText
             } else {
                 claudeMessages.append([
                     "role": role == "assistant" ? "assistant" : "user",
-                    "content": content
+                    "content": contentText
                 ])
             }
         }
@@ -542,7 +624,19 @@ extension StitchAIManager {
             claudeRequest["stream"] = true
         }
         
+        log("Claude conversion successful for request type: \(String(describing: type(of: request)))")
         return try? JSONSerialization.data(withJSONObject: claudeRequest)
+    }
+    
+    /// Extract media type from data URL (e.g., "data:image/jpeg;base64,..." -> "image/jpeg")
+    private static func extractMediaTypeFromDataURL(_ dataURL: String) -> String? {
+        if let range = dataURL.range(of: "data:") {
+            let afterData = String(dataURL[range.upperBound...])
+            if let semicolonRange = afterData.range(of: ";") {
+                return String(afterData[..<semicolonRange.lowerBound])
+            }
+        }
+        return nil
     }
     
     /// Get the appropriate Claude model based on request type
