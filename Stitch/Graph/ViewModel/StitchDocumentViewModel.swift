@@ -54,10 +54,18 @@ final class StitchDocumentViewModel: Sendable {
         
     @MainActor var aiManager: StitchAIManager?
     
-    // OpenAI Configuration
-    @MainActor var openaiModel: String = "gpt-5-2025-08-07"
-    @MainActor var openaiVerbosity: String = "low"
-    @MainActor var openaiReasoningEffort: String = "medium"
+    // OpenAI Configuration - read from UserDefaults (persisted via OpenAIConfigurationPicker)
+    @MainActor var openaiModel: String {
+        UserDefaults.standard.string(forKey: StitchAppSettings.OPENAI_MODEL.rawValue) ?? "gpt-5-2025-08-07"
+    }
+    
+    @MainActor var openaiVerbosity: String {
+        UserDefaults.standard.string(forKey: StitchAppSettings.OPENAI_VERBOSITY.rawValue) ?? "low"
+    }
+    
+    @MainActor var openaiReasoningEffort: String {
+        UserDefaults.standard.string(forKey: StitchAppSettings.OPENAI_REASONING_EFFORT.rawValue) ?? "medium"
+    }
     
     // Remains false if an encoding action never happened (used for thumbnail creation)
     @MainActor var didDocumentChange: Bool = false

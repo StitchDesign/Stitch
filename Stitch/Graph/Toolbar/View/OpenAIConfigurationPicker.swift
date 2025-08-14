@@ -10,17 +10,27 @@ import SwiftUI
 struct OpenAIConfigurationPicker: View {
     @Bindable var document: StitchDocumentViewModel
     
+    // OpenAI Configuration - Persisted via @AppStorage
+    @AppStorage(StitchAppSettings.OPENAI_MODEL.rawValue) 
+    private var openaiModel: String = "gpt-5-2025-08-07"
+    
+    @AppStorage(StitchAppSettings.OPENAI_VERBOSITY.rawValue) 
+    private var openaiVerbosity: String = "low"
+    
+    @AppStorage(StitchAppSettings.OPENAI_REASONING_EFFORT.rawValue) 
+    private var openaiReasoningEffort: String = "medium"
+    
     var body: some View {
         Menu {
             Section("Model") {
                 ForEach(OpenAIModel.allCases) { model in
                     Button(action: {
-                        document.openaiModel = model.rawValue
-                        print("🎯 Model changed to: \(model.rawValue)")
+                        openaiModel = model.rawValue
+                        log("🎯 Model changed to: \(model.rawValue)")
                     }) {
                         HStack {
                             Text(model.displayName)
-                            if document.openaiModel == model.rawValue {
+                            if openaiModel == model.rawValue {
                                 Spacer()
                                 Image(systemName: "checkmark")
                             }
@@ -32,12 +42,12 @@ struct OpenAIConfigurationPicker: View {
             Section("Verbosity") {
                 ForEach(OpenAIVerbosity.allCases) { verbosity in
                     Button(action: {
-                        document.openaiVerbosity = verbosity.rawValue
-                        print("🎯 Verbosity changed to: \(verbosity.rawValue)")
+                        openaiVerbosity = verbosity.rawValue
+                        log("🎯 Verbosity changed to: \(verbosity.rawValue)")
                     }) {
                         HStack {
                             Text(verbosity.displayName)
-                            if document.openaiVerbosity == verbosity.rawValue {
+                            if openaiVerbosity == verbosity.rawValue {
                                 Spacer()
                                 Image(systemName: "checkmark")
                             }
@@ -49,12 +59,12 @@ struct OpenAIConfigurationPicker: View {
             Section("Reasoning Effort") {
                 ForEach(OpenAIReasoningEffort.allCases) { effort in
                     Button(action: {
-                        document.openaiReasoningEffort = effort.rawValue
-                        print("🎯 Reasoning Effort changed to: \(effort.rawValue)")
+                        openaiReasoningEffort = effort.rawValue
+                        log("🎯 Reasoning Effort changed to: \(effort.rawValue)")
                     }) {
                         HStack {
                             Text(effort.displayName)
-                            if document.openaiReasoningEffort == effort.rawValue {
+                            if openaiReasoningEffort == effort.rawValue {
                                 Spacer()
                                 Image(systemName: "checkmark")
                             }
