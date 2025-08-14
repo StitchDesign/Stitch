@@ -146,6 +146,7 @@ enum StitchAppSettings: String {
     case OPENAI_MODEL = "OpenAIModel"
     case OPENAI_VERBOSITY = "OpenAIVerbosity"
     case OPENAI_REASONING_EFFORT = "OpenAIReasoningEffort"
+    case CLAUDE_MODEL = "ClaudeModel"
 }
 
 struct AppSettingsView: View {

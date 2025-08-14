@@ -54,7 +54,7 @@ final class StitchDocumentViewModel: Sendable {
         
     @MainActor var aiManager: StitchAIManager?
     
-    // OpenAI Configuration - read from UserDefaults (persisted via OpenAIConfigurationPicker)
+    // AI Configuration - read from UserDefaults (persisted via OpenAIConfigurationPicker)
     @MainActor var openaiModel: String {
         UserDefaults.standard.string(forKey: StitchAppSettings.OPENAI_MODEL.rawValue) ?? "gpt-5-2025-08-07"
     }
@@ -65,6 +65,20 @@ final class StitchDocumentViewModel: Sendable {
     
     @MainActor var openaiReasoningEffort: String {
         UserDefaults.standard.string(forKey: StitchAppSettings.OPENAI_REASONING_EFFORT.rawValue) ?? "medium"
+    }
+    
+    @MainActor var claudeModel: String {
+        UserDefaults.standard.string(forKey: StitchAppSettings.CLAUDE_MODEL.rawValue) ?? "claude-3-5-sonnet-20241022"
+    }
+    
+    // Get the appropriate model string based on current AI provider
+    @MainActor var currentAIModel: String {
+        switch AIProviderConfig.shared.currentProvider {
+        case .openAI:
+            return openaiModel
+        case .claude:
+            return claudeModel
+        }
     }
     
     // Remains false if an encoding action never happened (used for thumbnail creation)
@@ -173,6 +187,9 @@ final class StitchDocumentViewModel: Sendable {
             self.aiManager = try StitchAIManager()
         } catch {
             log("Stitch AI manager failed to load with error: \(error.localizedDescription)")
+            #if DEV_DEBUG
+            fatalError()
+            #endif
         }
         
         self.lastEncodedDocument = schema

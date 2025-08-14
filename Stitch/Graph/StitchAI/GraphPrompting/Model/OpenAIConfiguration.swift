@@ -98,6 +98,32 @@ struct OpenAIModelConstraints {
     }
 }
 
+// MARK: - Claude Model Configuration
+
+enum ClaudeModel: String, CaseIterable, Identifiable {
+    case claude35Sonnet = "claude-3-5-sonnet-20241022"
+    case claude37Sonnet = "claude-3-5-sonnet-20250107" 
+    case claude4Sonnet = "claude-4-sonnet-20250115"
+    case claude4Opus = "claude-4-opus-20250115"
+    
+    var id: String { rawValue }
+    
+    var displayName: String {
+        switch self {
+        case .claude35Sonnet:
+            return "Claude 3.5 Sonnet"
+        case .claude37Sonnet:
+            return "Claude 3.7 Sonnet"
+        case .claude4Sonnet:
+            return "Claude 4 Sonnet"
+        case .claude4Opus:
+            return "Claude 4 Opus"
+        }
+    }
+    
+    static var `default`: ClaudeModel { .claude35Sonnet }
+}
+
 extension String {
     var asOpenAIModel: OpenAIModel {
         OpenAIModel(rawValue: self) ?? .default
@@ -109,5 +135,9 @@ extension String {
     
     var asOpenAIReasoningEffort: OpenAIReasoningEffort {
         OpenAIReasoningEffort(rawValue: self) ?? .default
+    }
+    
+    var asClaudeModel: ClaudeModel {
+        ClaudeModel(rawValue: self) ?? .default
     }
 }

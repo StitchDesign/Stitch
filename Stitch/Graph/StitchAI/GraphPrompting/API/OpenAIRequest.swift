@@ -140,6 +140,7 @@ final class AIProviderConfig: @unchecked Sendable {
         }
         set {
             userDefaults.set(newValue.rawValue, forKey: providerKey)
+            NotificationCenter.default.post(name: .init("AIProviderChanged"), object: nil)
         }
     }
     
@@ -667,13 +668,19 @@ extension StitchAIManager {
         return nil
     }
     
-    /// Get the appropriate Claude model based on request type
+    /// Get the appropriate Claude model based on user selection and request type
     private static func getClaudeModel<AIRequest>(for request: AIRequest,
                                                   secrets: Secrets) -> String where AIRequest: StitchAIRequestable {
-        // This is a simplified approach - you might want to add proper type checking
-        let requestTypeName = String(describing: type(of: request))
+        // First check if user has selected a specific Claude model from the UI
+        let userSelectedModel = UserDefaults.standard.string(forKey: StitchAppSettings.CLAUDE_MODEL.rawValue)
         
-        // Default Claude model to use if specific ones aren't configured
+        if let selectedModel = userSelectedModel, !selectedModel.isEmpty {
+            log("Using user-selected Claude model: \(selectedModel)", .logToServer)
+            return selectedModel
+        }
+        
+        // Fallback to secrets configuration based on request type
+        let requestTypeName = String(describing: type(of: request))
         let defaultModel = "claude-3-5-sonnet-20241022"
         
         if requestTypeName.contains("Graph") {
