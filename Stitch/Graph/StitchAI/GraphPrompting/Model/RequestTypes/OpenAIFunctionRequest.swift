@@ -40,7 +40,10 @@ struct OpenAIChatCompletionRequest: StitchAIChatCompletionRequestable {
          requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
          dataGlossaryPrompt: String,
          assistantPrompt: String,
-         inputs: any Encodable) throws {
+         inputs: any Encodable,
+         model: String = "gpt-5-2025-08-07",
+         verbosity: String? = nil,
+         reasoningEffort: String? = nil) throws {
         let messages: [OpenAIMessage] = [
             .init(role: .system,
                   content: assistantPrompt),
@@ -55,7 +58,14 @@ struct OpenAIChatCompletionRequest: StitchAIChatCompletionRequestable {
         
         self.id = id
         self.type = requestType
-        self.body = .init(messages: messages)
+        
+        // Debug print final request configuration
+        log("🔧 OpenAIChatCompletionRequest body - Model: \(model), Verbosity: \(verbosity ?? "nil"), Reasoning Effort: \(reasoningEffort ?? "nil")")
+        
+        self.body = .init(model: model,
+                          messages: messages,
+                          verbosity: verbosity,
+                          reasoning_effort: reasoningEffort)
     }
 }
 
@@ -65,7 +75,7 @@ struct OpenAIVisionChatCompletionRequest: StitchAIChatCompletionRequestable {
     let type: StitchAIRequestBuilder_V0.StitchAIRequestType
     let config: OpenAIRequestConfig = .default
     let body: OpenAIVisionRequestBody
-    let willStream: Bool = false
+    let willStream: Bool
     
     // Object for creating request with vision capabilities
     init(id: UUID,
@@ -73,7 +83,11 @@ struct OpenAIVisionChatCompletionRequest: StitchAIChatCompletionRequestable {
          dataGlossaryPrompt: String,
          assistantPrompt: String,
          textInput: String,
-         base64Image: String?) throws {
+         base64Image: String?,
+         model: String = "gpt-5-mini-2025-08-07",
+         verbosity: String? = nil,
+         reasoningEffort: String? = nil,
+         willStream: Bool = false) throws {
         
         var userContentArray: [OpenAIUserContentItem] = []
         
@@ -93,7 +107,16 @@ struct OpenAIVisionChatCompletionRequest: StitchAIChatCompletionRequestable {
         
         self.id = id
         self.type = requestType
-        self.body = .init(messages: messages)
+        self.willStream = willStream
+        
+        // Debug print final Vision request configuration
+        log("🔧 OpenAIVisionChatCompletionRequest body - Model: \(model), Verbosity: \(verbosity ?? "nil"), Reasoning Effort: \(reasoningEffort ?? "nil"), Stream: \(willStream)")
+        
+        self.body = .init(model: model,
+                          messages: messages,
+                          stream: willStream,
+                          verbosity: verbosity,
+                          reasoning_effort: reasoningEffort)
     }
 }
 
@@ -166,11 +189,25 @@ enum OpenAIUserContentItem: Encodable {
 
 // Vision-enabled request body
 struct OpenAIVisionRequestBody: Encodable {
-    var model: String = "o4-mini-2025-04-16" // Use Vision-capable model
+    var model: String
     var n: Int = 1
     var temperature: Double = 1.0
     var messages: [OpenAIVisionMessage]
-    var stream: Bool = false
+    var stream: Bool
+    var verbosity: String?
+    var reasoning_effort: String?
+    
+    init(model: String,
+         messages: [OpenAIVisionMessage],
+         stream: Bool = false,
+         verbosity: String? = nil,
+         reasoning_effort: String? = nil) {
+        self.model = model
+        self.messages = messages
+        self.stream = stream
+        self.verbosity = verbosity
+        self.reasoning_effort = reasoning_effort
+    }
 }
 
 extension OpenAIVisionChatCompletionRequest {
@@ -217,7 +254,10 @@ struct OpenAIChatCompletionStructuredOutputsRequest<ResponseFormat: OpenAIRespon
          systemPrompt: String,
          assistantPrompt: String,
          responseFormat: ResponseFormat,
-         inputs: any Encodable) throws {
+         inputs: any Encodable,
+         model: String = "gpt-5-2025-08-07",
+         verbosity: String? = nil,
+         reasoningEffort: String? = nil) throws {
         let messages: [OpenAIMessage] = [
             .init(role: .system,
                   content: systemPrompt),
@@ -229,8 +269,11 @@ struct OpenAIChatCompletionStructuredOutputsRequest<ResponseFormat: OpenAIRespon
         
         self.id = id
         self.type = requestType
-        self.body = .init(response_format: responseFormat,
-                          messages: messages)
+        self.body = .init(model: model,
+                          response_format: responseFormat,
+                          messages: messages,
+                          verbosity: verbosity,
+                          reasoning_effort: reasoningEffort)
     }
     
     @MainActor

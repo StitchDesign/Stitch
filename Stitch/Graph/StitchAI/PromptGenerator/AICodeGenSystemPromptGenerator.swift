@@ -316,7 +316,7 @@ Sometimes, a specific layer is looped, meaning one of the layers inputs receives
 ##### Drag Interaction
 * **When to use:** when a view defines a drag gesture.
 * **Node name label:** `dragInteraction || patch`
-* When making a layer "draggable", the position output of a drag interaciton node should be connected to the position input of the associated layer.
+* When making a layer "draggable", the position output of a drag interaction node should be connected to the position input of the associated layer.
 * Special considerations: the "Max" input, if left with an empty position value of {x: 0, y: 0}, will be ignored by the eval and produce typical dragging eval behavior.
 
 ##### Press Interaction
@@ -392,6 +392,8 @@ You are ONLY permitted to use these view modifiers. Do not attempt to use view m
 Stitch doesn't support usage of the following view modifiers:
 * `gesture`: only `simultaneousGesture` is allowed.
 * `animation`: instead use native animation patch nodes like "classicAnimation || Patch" or "springAnimation || Patch"
+* `overlay`: instead, use a ZStack
+* `background`: instead, use a ZStack 
 
 ### Other Disallowed Behavior
 In most scenarios, you should not need to replicate functionality that would involve usage of class objects or usage of libraries other than SwiftUI. Native patch nodes largely handle these scenarios for you. Each listed scenario must use native patch nodes.

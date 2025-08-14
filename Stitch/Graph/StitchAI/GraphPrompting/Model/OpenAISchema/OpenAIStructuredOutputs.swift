@@ -267,25 +267,36 @@ enum OpenAISchemaType: String, Codable {
     case null
 }
 
-let OPEN_AI_VERBOSITY = "low"
-//let OPEN_AI_REASONING_EFFORT = "low" // good for initial code gen, but meh for edit
-//let OPEN_AI_REASONING_EFFORT = "high" // timeout
-let OPEN_AI_REASONING_EFFORT = "medium"
-
 struct OpenAIRequestBody: Encodable {
-    var model: String = "gpt-5-2025-08-07"
+    var model: String
     var n: Int = 1
     var temperature: Double = 1.0
     var messages: [OpenAIMessage]
     var tools: [OpenAIFunction]?
     var tool_choice: OpenAIFunction? = nil
     var stream: Bool = false
-    var verbosity: String? = OPEN_AI_VERBOSITY
-    var reasoning_effort: String? = OPEN_AI_REASONING_EFFORT
+    var verbosity: String?
+    var reasoning_effort: String?
+    
+    init(model: String,
+         messages: [OpenAIMessage],
+         tools: [OpenAIFunction]? = nil,
+         tool_choice: OpenAIFunction? = nil,
+         stream: Bool = false,
+         verbosity: String? = nil,
+         reasoning_effort: String? = nil) {
+        self.model = model
+        self.messages = messages
+        self.tools = tools
+        self.tool_choice = tool_choice
+        self.stream = stream
+        self.verbosity = verbosity
+        self.reasoning_effort = reasoning_effort
+    }
 }
 
 struct OpenAIStructuredOutputsRequestBody<ResponseFormat: OpenAIResponseFormatable>: Encodable {
-    var model: String = "gpt-5-2025-08-07"
+    var model: String
     var n: Int = 1
     var temperature: Double = 1.0
     var response_format: ResponseFormat
@@ -293,8 +304,26 @@ struct OpenAIStructuredOutputsRequestBody<ResponseFormat: OpenAIResponseFormatab
     var tools: [OpenAIFunction]?
     var tool_choice: OpenAIFunction? = nil
     var stream: Bool = false
-    var verbosity: String? = OPEN_AI_VERBOSITY
-    var reasoning_effort: String? = OPEN_AI_REASONING_EFFORT
+    var verbosity: String?
+    var reasoning_effort: String?
+    
+    init(model: String,
+         response_format: ResponseFormat,
+         messages: [OpenAIMessage],
+         tools: [OpenAIFunction]? = nil,
+         tool_choice: OpenAIFunction? = nil,
+         stream: Bool = false,
+         verbosity: String? = nil,
+         reasoning_effort: String? = nil) {
+        self.model = model
+        self.response_format = response_format
+        self.messages = messages
+        self.tools = tools
+        self.tool_choice = tool_choice
+        self.stream = stream
+        self.verbosity = verbosity
+        self.reasoning_effort = reasoning_effort
+    }
 }
 
 //extension OpenAIRequestBody {

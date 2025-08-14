@@ -143,6 +143,9 @@ enum StitchAppSettings: String {
     case CAN_SHARE_AI_DATA = "CanShareAIData"
     case EXPERIMENTAL_JS_NODE = "ExperimentalJsNode"
     case EXPERIMENTAL_NODE_SUMMARIES = "ExperimentalNodeSummaries"
+    case OPENAI_MODEL = "OpenAIModel"
+    case OPENAI_VERBOSITY = "OpenAIVerbosity"
+    case OPENAI_REASONING_EFFORT = "OpenAIReasoningEffort"
 }
 
 struct AppSettingsView: View {
@@ -155,7 +158,7 @@ struct AppSettingsView: View {
     @AppStorage(StitchAppSettings.DEFAULT_PREVIEW_WINDOW_DEVICE.rawValue) private var defaultPreviewWindowDevice: String = PreviewWindowDevice.defaultPreviewWindowDevice.rawValue
 
     @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
-
+    
     @AppStorage(StitchAppSettings.EDGE_STYLE.rawValue) private var edgeStyle: EdgeStyle = EdgeStyle.defaultEdgeStyle
     
     @AppStorage(StitchAppSettings.IS_OPTION_REQUIRED_FOR_SHORTCUTS.rawValue) private var isOptionRequiredForShortcuts: Bool = Bool.defaultIsOptionRequiredForShortcuts
@@ -397,11 +400,11 @@ struct AppSettingsView: View {
     }
 }
 
-struct AppSettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        AppSettingsView()
-    }
-}
+//struct AppSettingsView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        AppSettingsView()
+//    }
+//}
 
 extension StitchStore {
     static var canShareAIData: Bool {
