@@ -142,6 +142,10 @@ struct NativeScrollGestureViewInner: ViewModifier {
                 .frame(width: self.customContentWidth)
                 .frame(height: self.customContentHeight)
             
+            // TODO: only apply this when FeatureFlags.USE_SWIFTUI_IMPLEMENTATION is true ?
+            // outer "infinite frame" to allow better hit area on children scroll-group is unclipped
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            
             // factor out parent-scroll's offset, so that view does not move unless we explicitly connect scroll interaction node's output to the layer's position input
                 .offset(x: self.finalScrollOffset.x,
                         y: self.finalScrollOffset.y)
