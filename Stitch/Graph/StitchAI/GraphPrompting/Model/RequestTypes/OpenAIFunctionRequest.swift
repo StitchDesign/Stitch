@@ -58,6 +58,10 @@ struct OpenAIChatCompletionRequest: StitchAIChatCompletionRequestable {
         
         self.id = id
         self.type = requestType
+        
+        // Debug print final request configuration
+        log("🔧 OpenAIChatCompletionRequest body - Model: \(model), Verbosity: \(verbosity ?? "nil"), Reasoning Effort: \(reasoningEffort ?? "nil")")
+        
         self.body = .init(model: model,
                           messages: messages,
                           verbosity: verbosity,
@@ -104,6 +108,10 @@ struct OpenAIVisionChatCompletionRequest: StitchAIChatCompletionRequestable {
         self.id = id
         self.type = requestType
         self.willStream = willStream
+        
+        // Debug print final Vision request configuration
+        log("🔧 OpenAIVisionChatCompletionRequest body - Model: \(model), Verbosity: \(verbosity ?? "nil"), Reasoning Effort: \(reasoningEffort ?? "nil"), Stream: \(willStream)")
+        
         self.body = .init(model: model,
                           messages: messages,
                           stream: willStream,

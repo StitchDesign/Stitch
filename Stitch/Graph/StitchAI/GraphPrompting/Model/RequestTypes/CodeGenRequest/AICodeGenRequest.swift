@@ -39,6 +39,9 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
         
         // If we have an image, use the vision request; otherwise use the regular request
         if let imageData = base64Image {
+            // Debug print OpenAI configuration
+            log("🤖 Vision Request - Model: \(document.openaiModel), Verbosity: \(document.openaiVerbosity), Reasoning Effort: \(document.openaiReasoningEffort)")
+            
             // Request for code edit with image
             let visionEditRequest = try await OpenAIVisionChatCompletionRequest(
                 id: self.id,
@@ -58,6 +61,9 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
             
             return codeEditResult
         } else {
+            // Debug print OpenAI configuration
+            log("🤖 Regular Request - Model: \(document.openaiModel), Verbosity: \(document.openaiVerbosity), Reasoning Effort: \(document.openaiReasoningEffort)")
+            
             // Fallback to regular text-only request
             let codeEditRequest = try await OpenAIChatCompletionRequest(
                 id: self.id,
