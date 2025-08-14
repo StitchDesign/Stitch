@@ -27,10 +27,10 @@ struct Secrets: Equatable {
     let openAIModelJsNode: String
     let openAIModelGraphDescription: String
     
-    let claudeAPIKey: String
-    let claudeModelGraphCreation: String
-    let claudeModelJsNode: String
-    let claudeModelGraphDescription: String
+    let claudeAPIKey: String?
+    let claudeModelGraphCreation: String?
+    let claudeModelJsNode: String?
+    let claudeModelGraphDescription: String?
     
     let sentryDSN: String
     

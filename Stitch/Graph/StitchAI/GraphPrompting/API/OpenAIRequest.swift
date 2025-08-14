@@ -239,15 +239,22 @@ extension StitchAIManager {
                                    lastCapturedError: String,
                                    document: StitchDocumentViewModel) async -> Result<OpenAIMessage, StitchAIStreamingError> where AIRequest: StitchAIRequestable {
         
+        print("🔥 DEBUG: startAIRequest called!")
+        log("StitchAIManager: startAIRequest called", .logToServer)
+        
         let provider = AIProviderConfig.shared.currentProvider
+        print("🔥 DEBUG: Current provider: \(provider.displayName)")
+        log("StitchAIManager: startAIRequest: Using provider: \(provider.displayName)", .logToServer)
         
         switch provider {
         case .openAI:
+            log("StitchAIManager: Routing to OpenAI", .logToServer)
             return await startOpenAIRequest(request,
                                             attempt: attempt,
                                             lastCapturedError: lastCapturedError,
                                             document: document)
         case .claude:
+            log("StitchAIManager: Routing to Claude", .logToServer)
             return await startClaudeRequest(request,
                                             attempt: attempt,
                                             lastCapturedError: lastCapturedError,
@@ -479,6 +486,14 @@ extension StitchAIManager {
     static func getURLRequestForClaude<AIRequest>(request: AIRequest,
                                                   secrets: Secrets) -> URLRequest? where AIRequest: StitchAIRequestable {
         
+        guard let claudeAPIKey = secrets.claudeAPIKey, !claudeAPIKey.isEmpty else {
+            log("ERROR: Claude API key not configured", .logToServer)
+            return nil
+        }
+        
+        log("Claude API Key available: true", .logToServer)
+        log("Claude API Key length: \(claudeAPIKey.count)", .logToServer)
+        
         let config = request.config
         let claudeURL = URL(string: AIProvider.claude.baseURL)!
         
@@ -486,13 +501,19 @@ extension StitchAIManager {
         urlRequest.httpMethod = "POST"
         urlRequest.timeoutInterval = config.timeoutInterval
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        urlRequest.setValue(secrets.claudeAPIKey, forHTTPHeaderField: "x-api-key")
+        urlRequest.setValue(claudeAPIKey, forHTTPHeaderField: "x-api-key")
         urlRequest.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+        
+        log("Claude request URL: \(claudeURL)", .logToServer)
+        log("Claude request headers configured", .logToServer)
         
         // Convert OpenAI-style request to Claude format
         guard let claudeBodyData = convertToClaudeRequest(request: request, secrets: secrets) else {
+            log("ERROR: Failed to convert request to Claude format", .logToServer)
             return nil
         }
+        
+        log("Claude request body created successfully", .logToServer)
         
         urlRequest.httpBody = claudeBodyData
         return urlRequest
@@ -625,6 +646,13 @@ extension StitchAIManager {
         }
         
         log("Claude conversion successful for request type: \(String(describing: type(of: request)))")
+        
+        // Debug log the final Claude request
+        if let debugData = try? JSONSerialization.data(withJSONObject: claudeRequest, options: .prettyPrinted),
+           let debugString = String(data: debugData, encoding: .utf8) {
+            log("Final Claude request body:\n\(debugString)", .logToServer)
+        }
+        
         return try? JSONSerialization.data(withJSONObject: claudeRequest)
     }
     
@@ -645,14 +673,17 @@ extension StitchAIManager {
         // This is a simplified approach - you might want to add proper type checking
         let requestTypeName = String(describing: type(of: request))
         
+        // Default Claude model to use if specific ones aren't configured
+        let defaultModel = "claude-3-5-sonnet-20241022"
+        
         if requestTypeName.contains("Graph") {
-            return secrets.claudeModelGraphCreation
+            return secrets.claudeModelGraphCreation ?? defaultModel
         } else if requestTypeName.contains("Js") || requestTypeName.contains("JS") {
-            return secrets.claudeModelJsNode
+            return secrets.claudeModelJsNode ?? defaultModel
         } else if requestTypeName.contains("Description") {
-            return secrets.claudeModelGraphDescription
+            return secrets.claudeModelGraphDescription ?? defaultModel
         } else {
-            return secrets.claudeModelGraphCreation
+            return secrets.claudeModelGraphCreation ?? defaultModel
         }
     }
     
@@ -669,24 +700,38 @@ extension StitchAIManager {
         switch result {
         case .success(let success):
             let jsonResponse = String(data: success.0, encoding: .utf8)
-            print("Successful Claude response:\n\(jsonResponse ?? "none")")
+            log("Claude API Response Status: Success", .logToServer)
+            log("Claude Response Body: \(jsonResponse ?? "none")", .logToServer)
+            
+            if let httpResponse = success.1 as? HTTPURLResponse {
+                log("Claude Response HTTP Status: \(httpResponse.statusCode)", .logToServer)
+                log("Claude Response Headers: \(httpResponse.allHeaderFields)", .logToServer)
+            }
             
             do {
                 let claudeResponse = try JSONDecoder().decode(ClaudeResponse.self, from: success.0)
                 let openAIResponse = claudeResponse.toOpenAIResponse()
                 
                 guard let firstChoice = openAIResponse.choices.first else {
+                    log("ERROR: Claude response has no choices", .logToServer)
                     return .failure(StitchAIManagerError.firstChoiceNotDecoded)
                 }
                 
+                log("Claude response successfully converted to OpenAI format", .logToServer)
                 return .success((firstChoice.message, success.1))
             } catch {
-                print("Claude response decoding error: \(error)")
+                log("ERROR: Claude response decoding failed: \(error)", .logToServer)
+                log("Raw response for debugging: \(jsonResponse ?? "none")", .logToServer)
                 return .failure(StitchAIManagerError.responseDecodingFailure("\(error)"))
             }
             
         case .failure(let failure):
-            print("makeClaudeRequest failure: \(failure)")
+            log("Claude API Request Failed: \(failure)", .logToServer)
+            
+            if let httpError = failure as? URLError {
+                log("Claude URLError details: code=\(httpError.code.rawValue), localizedDescription=\(httpError.localizedDescription)", .logToServer)
+            }
+            
             return .failure(failure)
         }
     }
@@ -750,6 +795,9 @@ extension StitchAIManager {
 extension StitchAIRequestable {
     func request(document: StitchDocumentViewModel,
                  aiManager: StitchAIManager) async throws -> Self.FinalDecodedResult {
+        print("🔥 DEBUG: StitchAIRequestable.request called for \(String(describing: type(of: self)))")
+        log("StitchAIRequestable.request called for \(String(describing: type(of: self)))", .logToServer)
+        
         let result = await aiManager.startAIRequest(self,
                                                     attempt: 0,
                                                     lastCapturedError: "",

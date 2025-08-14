@@ -171,6 +171,9 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
     let prompt: String
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
+        print("🔥 DEBUG: SubmitUserPromptToOpenAI called with prompt: \(prompt)")
+        log("SubmitUserPromptToOpenAI called with prompt: \(prompt)", .logToServer)
+        
         guard let document = store.currentDocument,
               let aiManager = document.aiManager else {
             log("SubmitUserPromptToOpenAI: missing either document or aiManager", .logToServer)
