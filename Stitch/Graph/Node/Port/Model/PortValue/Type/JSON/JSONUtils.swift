@@ -114,12 +114,12 @@ extension Data {
             let json = try JSONSerialization.jsonObject(with: self, options: [])
             let data = try JSONSerialization.data(withJSONObject: json, options: options)
             guard let jsonString = String(data: data, encoding: .utf8) else {
-                print("createPrintableJsonString: invalid data.")
+                fatalErrorIfDebug("createPrintableJsonString: invalid data.")
                 throw SwiftyJSONError.invalidJSON
             }
             return jsonString
         } catch {
-            log("createPrintableJsonString: error: \(error.localizedDescription)")
+            fatalErrorIfDebug("createPrintableJsonString: error: \(error.localizedDescription)")
             throw error
         }
     }
