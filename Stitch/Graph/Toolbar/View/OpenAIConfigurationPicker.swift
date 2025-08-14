@@ -70,38 +70,3 @@ struct OpenAIConfigurationPicker: View {
         .modifier(iPadTopBarButtonStyle())
     }
 }
-
-struct CompactOpenAIConfigurationIndicator: View {
-    @Bindable var document: StitchDocumentViewModel
-    
-    var modelShortName: String {
-        document.openaiModel.asOpenAIModel.displayName
-    }
-    
-    var verbosityInitial: String {
-        String(document.openaiVerbosity.asOpenAIVerbosity.displayName.prefix(1))
-    }
-    
-    var reasoningEffortInitial: String {
-        String(document.openaiReasoningEffort.asOpenAIReasoningEffort.displayName.prefix(1))
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(modelShortName)
-                .font(.caption2)
-                .fontWeight(.medium)
-            HStack(spacing: 4) {
-                Text("V:\(verbosityInitial)")
-                    .font(.caption2)
-                Text("R:\(reasoningEffortInitial)")
-                    .font(.caption2)
-            }
-            .foregroundColor(.secondary)
-        }
-        .padding(.horizontal, 6)
-        .padding(.vertical, 4)
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(6)
-    }
-}

@@ -28,6 +28,7 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
         self.base64Image = base64Image
     }
     
+    @MainActor
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
                     dataGlossaryPrompt: String) async throws -> String {
@@ -43,7 +44,7 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
             log("🤖 Vision Request - Model: \(document.openaiModel), Verbosity: \(document.openaiVerbosity), Reasoning Effort: \(document.openaiReasoningEffort)")
             
             // Request for code edit with image
-            let visionEditRequest = try await OpenAIVisionChatCompletionRequest(
+            let visionEditRequest = try OpenAIVisionChatCompletionRequest(
                 id: self.id,
                 requestType: Self.type,
                 dataGlossaryPrompt: dataGlossaryPrompt,
@@ -65,7 +66,7 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
             log("🤖 Regular Request - Model: \(document.openaiModel), Verbosity: \(document.openaiVerbosity), Reasoning Effort: \(document.openaiReasoningEffort)")
             
             // Fallback to regular text-only request
-            let codeEditRequest = try await OpenAIChatCompletionRequest(
+            let codeEditRequest = try OpenAIChatCompletionRequest(
                 id: self.id,
                 requestType: Self.type,
                 dataGlossaryPrompt: dataGlossaryPrompt,
