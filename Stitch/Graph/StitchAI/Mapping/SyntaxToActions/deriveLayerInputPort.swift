@@ -373,8 +373,6 @@ extension SyntaxViewModifierName {
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case .foregroundStyle:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case .gesture:
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case .help:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case .highPriorityGesture:
@@ -427,13 +425,9 @@ extension SyntaxViewModifierName {
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case .onDrop:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case .onHover:
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case .onLongPressGesture:
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+
+            
         case .onSubmit:
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case .onTapGesture:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case .overlay:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
@@ -459,8 +453,7 @@ extension SyntaxViewModifierName {
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case .shadow:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case .simultaneousGesture:
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        
         case .sliderStyle:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case .smallCaps:
@@ -476,10 +469,26 @@ extension SyntaxViewModifierName {
         case .tableStyle:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         
+        // Gestures -- currently these are all handled via the prompt and special Stitch-flavored Swift code
+        case .onHover:
+            // throw SwiftUISyntaxError.unsupportedViewModifier(self)
+            return nil
+        case .onLongPressGesture:
+            // throw SwiftUISyntaxError.unsupportedViewModifier(self)
+            return nil
+        case .gesture:
+            // throw SwiftUISyntaxError.unsupportedViewModifier(self)
+            return nil
+        case .onTapGesture:
+            // throw SwiftUISyntaxError.unsupportedViewModifier(self)
+            return nil
+        case .simultaneousGesture:
+            // throw SwiftUISyntaxError.unsupportedViewModifier(self)
+            return nil
+            
         // Probably never will be implemented?
         case .task:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-    
 
         case .toggleStyle:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
