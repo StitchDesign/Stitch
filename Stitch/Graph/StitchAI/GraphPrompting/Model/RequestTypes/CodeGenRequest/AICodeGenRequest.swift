@@ -28,6 +28,7 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
         self.base64Image = base64Image
     }
     
+    @MainActor
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
                     dataGlossaryPrompt: String) async throws -> String {
@@ -39,6 +40,9 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
         
         // If we have an image, use the vision request; otherwise use the regular request
         if let imageData = base64Image {
+            // Debug print OpenAI configuration
+            log("🤖 Vision Request - Model: \(document.openaiModel), Verbosity: \(document.openaiVerbosity), Reasoning Effort: \(document.openaiReasoningEffort)")
+            
             // Request for code edit with image
             let visionEditRequest = try OpenAIVisionChatCompletionRequest(
                 id: self.id,
@@ -46,7 +50,11 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
                 dataGlossaryPrompt: dataGlossaryPrompt,
                 assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type),
                 textInput: try editInputs.encodeToString(),
-                base64Image: imageData)
+                base64Image: imageData,
+                model: document.openaiModel,
+                verbosity: document.openaiVerbosity,
+                reasoningEffort: document.openaiReasoningEffort,
+                willStream: false)
             
             let codeEditResult = try await visionEditRequest
                 .request(document: document,
@@ -54,13 +62,19 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
             
             return codeEditResult
         } else {
+            // Debug print OpenAI configuration
+            log("🤖 Regular Request - Model: \(document.openaiModel), Verbosity: \(document.openaiVerbosity), Reasoning Effort: \(document.openaiReasoningEffort)")
+            
             // Fallback to regular text-only request
             let codeEditRequest = try OpenAIChatCompletionRequest(
                 id: self.id,
                 requestType: Self.type,
                 dataGlossaryPrompt: dataGlossaryPrompt,
                 assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type),
-                inputs: editInputs)
+                inputs: editInputs,
+                model: document.openaiModel,
+                verbosity: document.openaiVerbosity,
+                reasoningEffort: document.openaiReasoningEffort)
             
             let codeEditResult = try await codeEditRequest
                 .request(document: document,

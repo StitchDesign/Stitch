@@ -80,6 +80,10 @@ struct CatalystTopBarGraphButtons: View {
                 }
             }
             
+            // OpenAI Configuration Picker
+            OpenAIConfigurationPicker(document: document)
+                .modifier(CatalystTopBarButtonStyle())
+            
             CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME,
                                  toolTip: "Add Node") {
                 dispatch(ToggleInsertNodeMenu())
