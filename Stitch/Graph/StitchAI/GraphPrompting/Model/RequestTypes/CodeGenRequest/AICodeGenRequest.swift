@@ -40,8 +40,13 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
         
         // If we have an image, use the vision request; otherwise use the regular request
         if let imageData = base64Image {
+            // Validate parameters for the selected model
+            let selectedModel = document.openaiModel.asOpenAIModel
+            let validatedVerbosity = OpenAIModelConstraints.validateVerbosity(for: selectedModel, requestedVerbosity: document.openaiVerbosity)
+            let validatedReasoningEffort = OpenAIModelConstraints.validateReasoningEffort(for: selectedModel, requestedEffort: document.openaiReasoningEffort)
+            
             // Debug print OpenAI configuration
-            log("🤖 Vision Request - Model: \(document.openaiModel), Verbosity: \(document.openaiVerbosity), Reasoning Effort: \(document.openaiReasoningEffort)")
+            log("🤖 Vision Request - Model: \(document.openaiModel), Verbosity: \(validatedVerbosity) (requested: \(document.openaiVerbosity)), Reasoning Effort: \(validatedReasoningEffort) (requested: \(document.openaiReasoningEffort))")
             
             // Request for code edit with image
             let visionEditRequest = try OpenAIVisionChatCompletionRequest(
@@ -52,8 +57,8 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
                 textInput: try editInputs.encodeToString(),
                 base64Image: imageData,
                 model: document.openaiModel,
-                verbosity: document.openaiVerbosity,
-                reasoningEffort: document.openaiReasoningEffort,
+                verbosity: validatedVerbosity,
+                reasoningEffort: validatedReasoningEffort,
                 willStream: false)
             
             let codeEditResult = try await visionEditRequest
@@ -62,8 +67,13 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
             
             return codeEditResult
         } else {
+            // Validate parameters for the selected model
+            let selectedModel = document.openaiModel.asOpenAIModel
+            let validatedVerbosity = OpenAIModelConstraints.validateVerbosity(for: selectedModel, requestedVerbosity: document.openaiVerbosity)
+            let validatedReasoningEffort = OpenAIModelConstraints.validateReasoningEffort(for: selectedModel, requestedEffort: document.openaiReasoningEffort)
+            
             // Debug print OpenAI configuration
-            log("🤖 Regular Request - Model: \(document.openaiModel), Verbosity: \(document.openaiVerbosity), Reasoning Effort: \(document.openaiReasoningEffort)")
+            log("🤖 Regular Request - Model: \(document.openaiModel), Verbosity: \(validatedVerbosity) (requested: \(document.openaiVerbosity)), Reasoning Effort: \(validatedReasoningEffort) (requested: \(document.openaiReasoningEffort))")
             
             // Fallback to regular text-only request
             let codeEditRequest = try OpenAIChatCompletionRequest(
@@ -73,8 +83,8 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
                 assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type),
                 inputs: editInputs,
                 model: document.openaiModel,
-                verbosity: document.openaiVerbosity,
-                reasoningEffort: document.openaiReasoningEffort)
+                verbosity: validatedVerbosity,
+                reasoningEffort: validatedReasoningEffort)
             
             let codeEditResult = try await codeEditRequest
                 .request(document: document,
