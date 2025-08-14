@@ -14,7 +14,10 @@ struct FeatureFlags {
     static let USE_COMPONENTS = false
     static let USE_AI_MODE = true
     
-    static let USE_AI_IMAGE_REQUEST = true
+    // For changes that move Stitch's implementation details closer to SwiftUI,
+    // but which may not be good to expose to most beta testers quite yet.
+    // TODO: set false for
+    static let USE_SWIFTUI_IMPLEMENTATION: Bool = true
     
     // TODO: SET FALSE BEFORE NEXT RELEASE / just use Stitch AI Reasoning ?
     static let SHOW_AI_TABLE_ROWS_VIEWER = true

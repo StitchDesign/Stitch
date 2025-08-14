@@ -83,7 +83,12 @@ struct PreviewCommonPositionModifier: ViewModifier {
         
         if parentIsScrollableGrid {
             content
-        } else {
+        }
+        
+        // An implementation that is a little bit closer to SwiftUI;
+        // really, LayerInputPort.position should correspond to SwiftUI's .position view modifier, etc.;
+        // Helpful for simplifying confusion between .offsetInGroup vs .position
+        else if FeatureFlags.USE_SWIFTUI_IMPLEMENTATION {
             let offset = viewModel.offsetInGroup.getSize?.asCGSize(parentSize) ?? .zero
              
             content
@@ -95,15 +100,15 @@ struct PreviewCommonPositionModifier: ViewModifier {
                 .offset(x: pos.x, y: pos.y)
         }
         
-//        else if parentDisablesPosition {
-//           let offset = viewModel.offsetInGroup.getSize?.asCGSize(parentSize) ?? .zero
-//            content
-//               .offset(x: offset.width, y: offset.height)
-//        } else {
-//            content
-////                .position(x: pos.x, y: pos.y)
-//                .offset(x: pos.x, y: pos.y)
-//        }
+        else if parentDisablesPosition {
+           let offset = viewModel.offsetInGroup.getSize?.asCGSize(parentSize) ?? .zero
+            content
+               .offset(x: offset.width, y: offset.height)
+        } else {
+            content
+//                .position(x: pos.x, y: pos.y)
+                .offset(x: pos.x, y: pos.y)
+        }
         
     }
 }
