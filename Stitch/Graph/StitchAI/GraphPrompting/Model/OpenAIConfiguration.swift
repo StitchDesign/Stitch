@@ -10,6 +10,7 @@ import Foundation
 enum OpenAIModel: String, CaseIterable, Identifiable {
     case gpt5 = "gpt-5-2025-08-07"
     case gpt5Mini = "gpt-5-mini-2025-08-07"
+    case gpt5Nano = "gpt-5-nano-2025-08-07"
     case o4Mini = "o4-mini-2025-04-16"
     
     var id: String { rawValue }
@@ -20,6 +21,8 @@ enum OpenAIModel: String, CaseIterable, Identifiable {
             return "GPT-5"
         case .gpt5Mini:
             return "GPT-5 Mini"
+        case .gpt5Nano:
+            return "GPT-5 Nano"
         case .o4Mini:
             return "O4 Mini"
         }
