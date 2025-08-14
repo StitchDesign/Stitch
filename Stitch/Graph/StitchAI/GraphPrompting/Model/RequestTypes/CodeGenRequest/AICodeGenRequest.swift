@@ -40,13 +40,17 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
         // If we have an image, use the vision request; otherwise use the regular request
         if let imageData = base64Image {
             // Request for code edit with image
-            let visionEditRequest = try OpenAIVisionChatCompletionRequest(
+            let visionEditRequest = try await OpenAIVisionChatCompletionRequest(
                 id: self.id,
                 requestType: Self.type,
                 dataGlossaryPrompt: dataGlossaryPrompt,
                 assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type),
                 textInput: try editInputs.encodeToString(),
-                base64Image: imageData)
+                base64Image: imageData,
+                model: document.openaiModel,
+                verbosity: document.openaiVerbosity,
+                reasoningEffort: document.openaiReasoningEffort,
+                willStream: false)
             
             let codeEditResult = try await visionEditRequest
                 .request(document: document,
@@ -55,12 +59,15 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
             return codeEditResult
         } else {
             // Fallback to regular text-only request
-            let codeEditRequest = try OpenAIChatCompletionRequest(
+            let codeEditRequest = try await OpenAIChatCompletionRequest(
                 id: self.id,
                 requestType: Self.type,
                 dataGlossaryPrompt: dataGlossaryPrompt,
                 assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type),
-                inputs: editInputs)
+                inputs: editInputs,
+                model: document.openaiModel,
+                verbosity: document.openaiVerbosity,
+                reasoningEffort: document.openaiReasoningEffort)
             
             let codeEditResult = try await codeEditRequest
                 .request(document: document,

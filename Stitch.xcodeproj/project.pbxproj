@@ -1147,6 +1147,8 @@
 		ECF387DD280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */; };
 		ECF387DF280B61870075F0E5 /* NodeUIKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387DE280B61860075F0E5 /* NodeUIKind.swift */; };
 		ECF387E1280B61A80075F0E5 /* NodeConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387E0280B61A80075F0E5 /* NodeConstants.swift */; };
+		ECF6394F2E4DA912005E766E /* OpenAIConfigurationPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6394E2E4DA912005E766E /* OpenAIConfigurationPicker.swift */; };
+		ECF639512E4DA955005E766E /* OpenAIConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF639502E4DA955005E766E /* OpenAIConfiguration.swift */; };
 		ECF6AEF5263CB7C70011C679 /* CoreMLClassifyNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6AEF2263CB7C70011C679 /* CoreMLClassifyNode.swift */; };
 		ECF6AEF6263CB7C70011C679 /* TransitionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6AEF3263CB7C70011C679 /* TransitionNode.swift */; };
 		ECF6AEF7263CB7C70011C679 /* NotNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6AEF4263CB7C70011C679 /* NotNode.swift */; };
@@ -2298,6 +2300,8 @@
 		ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemSelectedViewModifier.swift; sourceTree = "<group>"; };
 		ECF387DE280B61860075F0E5 /* NodeUIKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeUIKind.swift; sourceTree = "<group>"; };
 		ECF387E0280B61A80075F0E5 /* NodeConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeConstants.swift; sourceTree = "<group>"; };
+		ECF6394E2E4DA912005E766E /* OpenAIConfigurationPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIConfigurationPicker.swift; sourceTree = "<group>"; };
+		ECF639502E4DA955005E766E /* OpenAIConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIConfiguration.swift; sourceTree = "<group>"; };
 		ECF6AEF2263CB7C70011C679 /* CoreMLClassifyNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreMLClassifyNode.swift; sourceTree = "<group>"; };
 		ECF6AEF3263CB7C70011C679 /* TransitionNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransitionNode.swift; sourceTree = "<group>"; };
 		ECF6AEF4263CB7C70011C679 /* NotNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotNode.swift; sourceTree = "<group>"; };
@@ -3337,6 +3341,7 @@
 			isa = PBXGroup;
 			children = (
 				B55FB4472DC2D4700003E390 /* TopBarSharingButtonsView.swift */,
+				ECF6394E2E4DA912005E766E /* OpenAIConfigurationPicker.swift */,
 				EC865B8329E7584F0030FD89 /* TopBarButtonView.swift */,
 				EC0FD2DD2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift */,
 				ECC27E0B2DFBFA3000C2C6AF /* CatalystProjectTitleEdit.swift */,
@@ -4696,6 +4701,7 @@
 				B5D34C8C2DF53903007405BF /* RequestTypes */,
 				B5EFD5C22D64EC85006A68FB /* OpenAIRequestable.swift */,
 				EC913A712DE54A0E0056CEE1 /* StitchAIRatingToast.swift */,
+				ECF639502E4DA955005E766E /* OpenAIConfiguration.swift */,
 				EC6914DF2DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift */,
 				ECC27E092DFBF94E00C2C6AF /* AINodeHelpers.swift */,
 				B5EFD5C62D650D47006A68FB /* StitchAITrainingData.swift */,
@@ -6105,6 +6111,7 @@
 				EC560E09293A72B900350046 /* AnyPatchNode.swift in Sources */,
 				EC82540A287DE2E80020D943 /* LabelDisplayView.swift in Sources */,
 				EC560E13293A913D00350046 /* LoopRemoveNode.swift in Sources */,
+				ECF639512E4DA955005E766E /* OpenAIConfiguration.swift in Sources */,
 				B58E9D702E452A230070816A /* FontToCodeUtil.swift in Sources */,
 				ECABB561269CE23100AC9931 /* NetworkRequestNode.swift in Sources */,
 				EC609DC62935474000BF60A5 /* MinNode.swift in Sources */,
@@ -6427,6 +6434,7 @@
 				B539C2EA2B92BF3D00C6CEC3 /* DocumentEncodable.swift in Sources */,
 				B5D34C8B2DF51F70007405BF /* AIGraphDescriptionSystemPrompt_V0.swift in Sources */,
 				B5368D132A886C1900FE3489 /* InteractionLayer.swift in Sources */,
+				ECF6394F2E4DA912005E766E /* OpenAIConfigurationPicker.swift in Sources */,
 				B500F3682DE6BF1600904992 /* StitchDocsPopoverView.swift in Sources */,
 				ECC2BCED2B9CD43100D5F942 /* SidebarListItemGroupActions.swift in Sources */,
 				ECD8871C29410BF500003B47 /* LoopFilterNode.swift in Sources */,

@@ -54,6 +54,11 @@ final class StitchDocumentViewModel: Sendable {
         
     @MainActor var aiManager: StitchAIManager?
     
+    // OpenAI Configuration
+    @MainActor var openaiModel: String = "gpt-5-2025-08-07"
+    @MainActor var openaiVerbosity: String = "low"
+    @MainActor var openaiReasoningEffort: String = "medium"
+    
     // Remains false if an encoding action never happened (used for thumbnail creation)
     @MainActor var didDocumentChange: Bool = false
     
