@@ -284,12 +284,9 @@ extension StitchAIManager {
         
         document.encodeProjectInBackground()
     }
-    
-    
-    
-    
+        
     /// Extract media type from data URL (e.g., "data:image/jpeg;base64,..." -> "image/jpeg")
-    private static func extractMediaTypeFromDataURL(_ dataURL: String) -> String? {
+    static func extractMediaTypeFromDataURL(_ dataURL: String) -> String? {
         if let range = dataURL.range(of: "data:") {
             let afterData = String(dataURL[range.upperBound...])
             if let semicolonRange = afterData.range(of: ";") {
