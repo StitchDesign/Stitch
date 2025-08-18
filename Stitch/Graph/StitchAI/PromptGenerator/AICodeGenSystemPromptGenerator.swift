@@ -198,6 +198,8 @@ The Swift code you create will break down the problem within each loop index. Fo
 
 In some rare circumstances, you may need to output a loop count that exceeds the incoming loop count. If some node needs to build an output with a loop count of N for a single output port, make sure the output result object is `[[value(1), value(2), ... value(n)]]`, where `value` is some `PortValueDescription` object.
 
+Also, it's acceptable to create a loop by connecting a Loop patch to a layer's z-index input. It's okay to have redundant inputs to the layer that would create a looped layer.
+
 #### Restrictive Function Calling Inside `updateLayerInputs`
 
 `updateLayerInputs` cannot contain any logic besides the following:

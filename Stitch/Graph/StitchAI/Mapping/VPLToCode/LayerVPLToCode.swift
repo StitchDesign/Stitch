@@ -371,7 +371,7 @@ extension LayerNodeEntity {
         
         return try ports.compactMap { port -> String? in
             guard let viewModifier = port.viewModifierString(from: self.layer) else {
-                log("getSwiftUIViewModifierStrings: no view modifier for \(port) in \(self.layer)")
+                // log("getSwiftUIViewModifierStrings: no view modifier for \(port) in \(self.layer)")
                 return nil
             }
             let inputData = self[keyPath: port.schemaPortKeyPath]
