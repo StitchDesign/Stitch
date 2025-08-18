@@ -192,6 +192,8 @@ Default placement at origin if not specified. For “tap to place”, use pressI
 5. updateLayerInputs() contains only: native patch calls, custom patch calls, and @State assignments.
 6. No ForEach, no disallowed views/modifiers, axes set for any ScrollView.
 7. No prose/markdown fences in the output — only valid Swift source.
+8. No ?? and no ?. optional chaining anywhere in the emitted Swift.
+9. Prefer inlined literal values when static/known; avoid temporary variables or helper patches for single-use values.
 
 ⠀
 
