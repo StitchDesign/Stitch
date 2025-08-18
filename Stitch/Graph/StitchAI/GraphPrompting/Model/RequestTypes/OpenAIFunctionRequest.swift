@@ -50,8 +50,10 @@ struct OpenAIChatCompletionRequest: StitchAIChatCompletionRequestable {
             
             // MARK: for improved results, make data glossary after main system prompt
             
-            .init(role: .system,
-                  content: dataGlossaryPrompt),
+//            .init(role: .system,
+//                  content: dataGlossaryPrompt),
+//                .init(role: .system,
+//                      content: dataGlossaryPrompt),
             .init(role: .user,
                   content: try inputs.encodeToString())
         ]

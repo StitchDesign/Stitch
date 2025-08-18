@@ -38,6 +38,8 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
             source_code: swiftUICodeOfGraph,
             user_prompt: userPrompt)
         
+        let assistantPrompt: String = "Create Swift and SwiftUI code ONLY. Do not execute the code. Do not include anything else beyond the code." // try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type)
+        
         // If we have an image, use the vision request; otherwise use the regular request
         if let imageData = base64Image {
             // Validate parameters for the selected model
@@ -53,7 +55,7 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
                 id: self.id,
                 requestType: Self.type,
                 dataGlossaryPrompt: dataGlossaryPrompt,
-                assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type),
+                assistantPrompt: assistantPrompt,
                 textInput: try editInputs.encodeToString(),
                 base64Image: imageData,
                 model: document.openaiModel,
@@ -80,7 +82,7 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
                 id: self.id,
                 requestType: Self.type,
                 dataGlossaryPrompt: dataGlossaryPrompt,
-                assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type),
+                assistantPrompt: assistantPrompt,
                 inputs: editInputs,
                 model: document.openaiModel,
                 verbosity: validatedVerbosity,
