@@ -192,6 +192,9 @@ func capitalizeString(inputValuesList) { ... }
 Initially create patch data code using `patch_data` inputs. This data contains invocations of native patch nodes, JavaScript patch nodes, custom value settings, custom node types, connections between patches, and connections between patches and layers.
 
 #### Patches Create Looped Views
+
+ALWAYS CREATE LOOPS BY CONNECTING THE OUTPUT OF A LOOP PATCH TO THE Z-INDEX OF A LAYER.
+
 Each function in the script must follow a specific set of rules and expectations for data behavior. Inputs must be a 2D list of a specific JSON type. Your output must also be a 2D list using the same type. The first nested array in the 2D list represents a port in a node. Each port contains a list of values, representing the inner nested array.
 
 The Swift code you create will break down the problem within each loop index. For example, if each input contains a count of 3 values, then the Swift eval with solve the problem individually using the 0th, 1st, and 2nd index of each value in each input port. The only exceptions to this looping behavior are for instances where we may need to return a specific element in a loop, or are building a new loop.
@@ -652,7 +655,7 @@ ScrollView() {
 
 The following examples showcase how Stitch would handle looping behavior. These view samples are **NOT** examples of what you should make, rather, they present information on how looping is understood in Stitch. 
  
-A layer is ALWAYS looped by connecting a Loop patch to the layer's `LayerInputPort.zIndex`.
+A layer is ALWAYS looped by connecting a Loop patch to the layer's `zIndex` input.
 The layer may also optionally receive other edges from the Loop patch. 
 
 Example 0:  
@@ -667,7 +670,7 @@ ForEach(1...100) { number in
 
 Becomes:
 - a Loop with its input as 100
-- the Loop's output is connected to the Rectangle layer’s `LayerInputPort.zIndex` input.
+- the Loop's output is connected to the Rectangle layer’s `zIndex` input.
 
 
 Example 1:
@@ -682,8 +685,8 @@ ForEach(1...5) { number in
 
 Becomes:
 - a Loop with its input as 5
-- the Loop's output is connected to the Rectangle layer’s `LayerInputPort.zIndex` input.
-- the Loop's output is also connected to the Rectangle layer’s `LayerInputPort.scale` input.
+- the Loop's output is connected to the Rectangle layer’s `zIndex` input.
+- the Loop's output is also connected to the Rectangle layer’s `scale` input.
 
 
 Example 2:
@@ -698,8 +701,8 @@ ForEach(1...5) { number in
 
 Becomes:
 - a Loop with its input as 5
-- the Loop's output is connected to the Rectangle layer’s `LayerInputPort.zIndex` input.
-- the Loop's output is also connected to the Rectangle layer’s `LayerInputPort.scale` input.
+- the Loop's output is connected to the Rectangle layer’s `zIndex` input.
+- the Loop's output is also connected to the Rectangle layer’s `scale` input.
 
 
 
@@ -715,8 +718,8 @@ ForEach([100, 200, 300]) { number in
 
 Becomes:
 - a LoopBuilder with its first input as 100, its second input as 200, and its third input as 300
-- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.zIndex` input.
-- the LoopBuilder’s output is also connected to the Rectangle layer’s `LayerInputPort.size` input.
+- the LoopBuilder’s output is connected to the Rectangle layer’s `zIndex` input.
+- the LoopBuilder’s output is also connected to the Rectangle layer’s `size` input.
 
 
 Example 4:
@@ -731,7 +734,7 @@ ForEach([Color.blue, Color.yellow, Color.green]) { color in
 
 Becomes:
 - a LoopBuilder with its first input as Color.blue, its second input as Color.yellow, and its third input as Color.green
-- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.color` input.
+- the LoopBuilder’s output is connected to the Rectangle layer’s `color` input.
 
 ### Examples of Prioritizing Native Patches Over Custom Patches
 
@@ -770,6 +773,7 @@ func updateLayerInputs() {
     let colorList = rgbOutputs[0]
     let colorValues = colorList.map { $0.value }
     rectColors = PortValueDescription(value: colorValues, value_type: "color")
+    rectZIndex = loopOutputs[0]
 }
 ```
 
