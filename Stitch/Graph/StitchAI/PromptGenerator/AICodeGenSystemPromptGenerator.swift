@@ -8,7 +8,13 @@
 extension StitchAIManager {
     static func aiCodeGenSystemPromptGenerator(requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) throws -> String {
         let supportedViewModifiers = SyntaxViewModifierName.allCases
-            .filter { (try? $0.deriveLayerInputPort()) != nil }
+            .filter {
+                if $0 == .gesture {
+                    return true
+                }
+                
+                return (try? $0.deriveLayerInputPort()) != nil
+            }
             .map(\.rawValue)
         
         return """
@@ -310,20 +316,7 @@ You can view the list of inputs and outputs supported by each node by reference 
 
 Support for native patch functions are listed below:
 
-#### Gesture Patch Nodes
-Gesture patch nodes track specific events to some specified layer. The input value for a selected layer is specified as a `"Layer"` value type, with its underlying ID matching the layer ID of some layer.
 
-Sometimes, a specific layer is looped, meaning one of the layers inputs receives a loop of values, causing the layer itself to be repeated n times for an n-length size of values in a loop. Native Stitch patch functions for gestures automatically handle loops and will process each looped instance of a layer in its eval.
-
-##### Drag Interaction
-* **When to use:** when a view defines a drag gesture.
-* **Node name label:** `dragInteraction || patch`
-* When making a layer "draggable", the position output of a drag interaction node should be connected to the position input of the associated layer.
-* Special considerations: the "Max" input, if left with an empty position value of {x: 0, y: 0}, will be ignored by the eval and produce typical dragging eval behavior.
-
-##### Press Interaction
-* **When to use:** when a view defines a tap interaction.
-* **Node name label:** `pressInteraction || patch`
 
 #### Special Considerations for Native Nodes
 * For the `"rgbColor || Patch"` node, RGB values are processed on a decimal between 0 and 1 instead of 0 - 255. **Make sure any custom values for this node use input values between 0 and 1, rather than 0 to 255.**
@@ -350,14 +343,6 @@ The listed views below are the only permitted views inside a `var body`:
 
 ```
 \(SyntaxViewName.supportedViews.map(\.rawValue))
-```
-
-#### Disallowed Views
-* `GeometryReader`: use the "deviceInfo || Patch" native patch function for getting full device info, or "layerInfo || Patch" for getting sizing info on a specific view.
-* `Spacer`: use `rectangle || Layer` with opacity = 0 and size = auto or some specific size that makes sense for the layout.
-The full list of unsupported views includes:
-```
-\(SyntaxViewName.unsupportedViews.map(\.rawValue))
 ```
 
 #### ScrollView Considerations
@@ -387,12 +372,11 @@ Responding to these events is possible using native Stitch patch functions, whic
 #### Allowed View Modifiers
 You are ONLY permitted to use these view modifiers. Do not attempt to use view modifiers not included in the list below:
 ```
-\(supportedViewModifiers)
+\(supportedViewModifiers) "" 
 ```
 
 #### Disallowed View Modifiers
 Stitch doesn't support usage of the following view modifiers:
-* `gesture`: only `simultaneousGesture` is allowed.
 * `animation`: instead use native animation patch nodes like "classicAnimation || Patch" or "springAnimation || Patch"
 * `overlay`: instead, use a ZStack
 * `background`: instead, use a ZStack 
@@ -646,161 +630,6 @@ ScrollView() {
 }
 ```
 
-### Examples of Looped Views Using Native Patches
-
-**Do NOT use `ForEach` views in your SwiftUI view**. Looping is automatically handled by Stitch, making `ForEach` views unnecessary.
-
-The following examples showcase how Stitch would handle looping behavior. These view samples are **NOT** examples of what you should make, rather, they present information on how looping is understood in Stitch. 
- 
-A layer is ALWAYS looped by connecting a Loop patch to the layer's `LayerInputPort.zIndex`.
-The layer may also optionally receive other edges from the Loop patch. 
-
-Example 0:  
-
-This code: 
-
-```swift
-ForEach(1...100) { number in 
-    Rectangle().scaleEffect(1)
-}
-```
-
-Becomes:
-- a Loop with its input as 100
-- the Loop's output is connected to the Rectangle layer’s `LayerInputPort.zIndex` input.
-
-
-Example 1:
-
-This code: 
-
-```swift
-ForEach(1...5) { number in 
-    Rectangle().scaleEffect(number)
-}
-```
-
-Becomes:
-- a Loop with its input as 5
-- the Loop's output is connected to the Rectangle layer’s `LayerInputPort.zIndex` input.
-- the Loop's output is also connected to the Rectangle layer’s `LayerInputPort.scale` input.
-
-
-Example 2:
-
-This code: 
-
-```swift
-ForEach(1...5) { number in 
-    Rectangle().scaleEffect(number)
-}
-```
-
-Becomes:
-- a Loop with its input as 5
-- the Loop's output is connected to the Rectangle layer’s `LayerInputPort.zIndex` input.
-- the Loop's output is also connected to the Rectangle layer’s `LayerInputPort.scale` input.
-
-
-
-Example 3:
-
-This code: 
-
-```swift
-ForEach([100, 200, 300]) { number in 
-    Rectangle().frame(width: number, height: number)
-}
-```
-
-Becomes:
-- a LoopBuilder with its first input as 100, its second input as 200, and its third input as 300
-- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.zIndex` input.
-- the LoopBuilder’s output is also connected to the Rectangle layer’s `LayerInputPort.size` input.
-
-
-Example 4:
-
-This code: 
-
-```swift
-ForEach([Color.blue, Color.yellow, Color.green]) { color in 
-    Rectangle().fill(color)
-}
-```
-
-Becomes:
-- a LoopBuilder with its first input as Color.blue, its second input as Color.yellow, and its third input as Color.green
-- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.color` input.
-
-### Examples of Prioritizing Native Patches Over Custom Patches
-
-As mentioned previously, `updateLayerInputs` is only allowed to invoke patch functions and update view state. Ideally, `updateLayerInputs` solves problems using native patches only. Here's an example of where this done properly given a user prompt of "scrollview of 100 rectangles with randomly generated colors":
-
-```swift
-func updateLayerInputs() {
-    let loopOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["loop || Patch"]([
-        [PortValueDescription(value: 100, value_type: "number")]
-    ])
-    let indices = loopOutputs[0]
-    let randomROutputs = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
-        indices,
-        [PortValueDescription(value: 0, value_type: "number")],
-        [PortValueDescription(value: 1, value_type: "number")]
-    ])
-    let rList = randomROutputs[0]
-    let randomGOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
-        indices,
-        [PortValueDescription(value: 0, value_type: "number")],
-        [PortValueDescription(value: 1, value_type: "number")]
-    ])
-    let gList = randomGOutputs[0]
-    let randomBOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
-        indices,
-        [PortValueDescription(value: 0, value_type: "number")],
-        [PortValueDescription(value: 1, value_type: "number")]
-    ])
-    let bList = randomBOutputs[0]
-    let rgbOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["rgbColor || Patch"]([
-        rList,
-        gList,
-        bList,
-        [PortValueDescription(value: 1, value_type: "number")]
-    ])
-    let colorList = rgbOutputs[0]
-    let colorValues = colorList.map { $0.value }
-    rectColors = PortValueDescription(value: colorValues, value_type: "color")
-}
-```
-
-Where `rectColors` is a `@State` variable.
-
-Conversely, here's an improper example using the same prompt:
-
-```swift
-func updateLayerInputs() {
-    let output = Self.randomColors([])
-    let list = output[0].map { $0.value }
-    self.colors = PortValueDescription(value: list, value_type: "color")
-}
-
-static func randomColors(_ inputs: [[PortValueDescription]]) -> [[PortValueDescription]] {
-    var result: [PortValueDescription] = []
-    for _ in 0..<100 {
-        let r = Double.random(in: 0...1)
-        let g = Double.random(in: 0...1)
-        let b = Double.random(in: 0...1)
-        let red = Int(r * 255)
-        let green = Int(g * 255)
-        let blue = Int(b * 255)
-        let hex = String(format: "#%02X%02X%02XFF", red, green, blue)
-        result.append(PortValueDescription(value: hex, value_type: "color"))
-    }
-    return [result]
-}
-```
-
-This example is bad because this custom patch function uses redundant logic from native patch nodes. The first example correctly used Random and RGB Color patch nodes, all while supporting a loop of 100 rectangles.
 
 ### Preferred color for shapes (Rectangles, Ellipses, etc.)
 

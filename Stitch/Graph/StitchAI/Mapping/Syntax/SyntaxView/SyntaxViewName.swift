@@ -52,7 +52,10 @@ extension SyntaxViewName {
     }
 
     static let supportedViews: [Self] = Self.allCases.filter {
-        $0.isSupported
+        if $0 == .forEach {
+            return true
+        }
+        return $0.isSupported
     }
     
     static let unsupportedViews: [Self] = Self.allCases.filter {
