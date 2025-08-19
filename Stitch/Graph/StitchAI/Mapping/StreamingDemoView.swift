@@ -16,7 +16,7 @@ struct StreamingDemoView: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            Text("OpenAI Streaming Demo")
+            Text("OpenAI Responses API Demo")
                 .font(.largeTitle)
                 .padding()
             
@@ -79,7 +79,7 @@ struct StreamingDemoView: View {
     
     @MainActor
     private func performStreamingRequest() async {
-        guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
+        guard let url = URL(string: "https://api.openai.com/v1/responses") else {
             isStreaming = false
             return
         }
@@ -91,51 +91,102 @@ struct StreamingDemoView: View {
         
         let requestBody: [String: Any] = [
             "model": "gpt-4o-mini",
-            "messages": [
-                ["role": "user", "content": prompt]
+            "input": [
+                [
+                    "role": "user",
+                    "content": prompt
+                ]
             ],
-            "stream": true,
-            "max_tokens": 1000
+            "stream": true
         ]
+        
+        print("DEBUG: Request URL: \(url)")
+        print("DEBUG: Request Body: \(requestBody)")
         
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
             
             let (asyncBytes, response) = try await URLSession.shared.bytes(for: request)
             
-            guard let httpResponse = response as? HTTPURLResponse,
-                  httpResponse.statusCode == 200 else {
+            guard let httpResponse = response as? HTTPURLResponse else {
                 await MainActor.run {
-                    streamingResponse = "Error: Invalid response"
+                    streamingResponse = "Error: No HTTP response"
+                    isStreaming = false
+                }
+                return
+            }
+            
+            print("DEBUG: HTTP Status Code: \(httpResponse.statusCode)")
+            print("DEBUG: HTTP Headers: \(httpResponse.allHeaderFields)")
+            
+            guard httpResponse.statusCode == 200 else {
+                // Read error response body
+                let errorData = try await URLSession.shared.data(for: request).0
+                let errorString = String(data: errorData, encoding: .utf8) ?? "No error body"
+                print("DEBUG: Error response body: \(errorString)")
+                
+                await MainActor.run {
+                    streamingResponse = "Error: HTTP \(httpResponse.statusCode)\nHeaders: \(httpResponse.allHeaderFields)\nBody: \(errorString)"
                     isStreaming = false
                 }
                 return
             }
             
             for try await line in asyncBytes.lines {
+                print("DEBUG: Raw line received: '\(line)'")
+                
                 if line.hasPrefix("data: ") {
                     let dataString = String(line.dropFirst(6))
+                    print("DEBUG: Data string: '\(dataString)'")
                     
                     if dataString == "[DONE]" {
+                        print("DEBUG: Received [DONE], breaking")
                         break
                     }
                     
                     if let data = dataString.data(using: .utf8) {
                         do {
-                            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                               let choices = json["choices"] as? [[String: Any]],
-                               let firstChoice = choices.first,
-                               let delta = firstChoice["delta"] as? [String: Any],
-                               let content = delta["content"] as? String {
+                            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                                print("DEBUG: Parsed JSON: \(json)")
                                 
-                                await MainActor.run {
-                                    streamingResponse += content
+                                // Handle Responses API streaming events
+                                if let eventType = json["type"] as? String {
+                                    print("DEBUG: Event type: \(eventType)")
+                                    
+                                    switch eventType {
+                                    case "response.output_text.delta":
+                                        if let delta = json["delta"] as? String {
+                                            print("DEBUG: Text delta: '\(delta)'")
+                                            await MainActor.run {
+                                                streamingResponse += delta
+                                            }
+                                        }
+                                    case "response.created":
+                                        print("DEBUG: Response started")
+                                    case "response.completed":
+                                        print("DEBUG: Response completed")
+                                    case "error":
+                                        if let error = json["error"] as? [String: Any] {
+                                            print("DEBUG: Error event: \(error)")
+                                            await MainActor.run {
+                                                streamingResponse = "API Error: \(error)"
+                                                isStreaming = false
+                                            }
+                                        }
+                                    default:
+                                        print("DEBUG: Unhandled event type: \(eventType)")
+                                    }
+                                } else {
+                                    print("DEBUG: No 'type' field found in JSON")
                                 }
                             }
                         } catch {
-                            // Skip malformed JSON chunks
+                            print("DEBUG: JSON parsing error: \(error)")
+                            print("DEBUG: Failed to parse data: '\(dataString)'")
                         }
                     }
+                } else if !line.isEmpty {
+                    print("DEBUG: Non-data line: '\(line)'")
                 }
             }
             
@@ -149,6 +200,7 @@ struct StreamingDemoView: View {
             isStreaming = false
         }
     }
+    
 }
 
 
