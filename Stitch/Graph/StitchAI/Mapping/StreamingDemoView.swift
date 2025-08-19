@@ -9,10 +9,24 @@ import SwiftUI
 import Foundation
 
 struct StreamingDemoView: View {
+    
     @State private var apiKey: String = ""
-    @State private var prompt: String = "Write a short poem about coding"
+    
+    @State private var prompt: String = "In SwiftUI, create 100 rectangles that are all different colors."
+    
+    @State private var selectedModel: String = "o4-mini"
+    
     @State private var streamingResponse: String = ""
+    @State private var reasoningSteps: String = ""
+    
+    @State private var showReasoningSteps: Bool = true
+    
     @State private var isStreaming: Bool = false
+    
+    private let availableModels = [
+        "o3-mini": "o3-mini (Reasoning)",
+        "o4-mini": "o4-mini (Reasoning)"
+    ]
     
     var body: some View {
         VStack(spacing: 20) {
@@ -28,11 +42,27 @@ struct StreamingDemoView: View {
             }
             
             VStack(alignment: .leading, spacing: 10) {
+                Text("Model:")
+                    .font(.headline)
+                Picker("Select Model", selection: $selectedModel) {
+                    ForEach(availableModels.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
+                        Text(value).tag(key)
+                    }
+                }
+                .pickerStyle(MenuPickerStyle())
+            }
+            
+            VStack(alignment: .leading, spacing: 10) {
                 Text("Prompt:")
                     .font(.headline)
                 TextField("Enter your prompt", text: $prompt, axis: .vertical)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .lineLimit(3...6)
+            }
+            
+            if isReasoningModel(selectedModel) {
+                Toggle("Show Thinking Steps", isOn: $showReasoningSteps)
+                    .font(.headline)
             }
             
             Button(action: startStreaming) {
@@ -47,23 +77,43 @@ struct StreamingDemoView: View {
             .disabled(apiKey.isEmpty || isStreaming)
             .buttonStyle(.borderedProminent)
             
-            VStack(alignment: .leading, spacing: 10) {
-                Text("Response:")
-                    .font(.headline)
-                ScrollView {
-                    Text(streamingResponse.isEmpty ? "Response will appear here..." : streamingResponse)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
-                        .background(Color.gray.opacity(0.1))
-                        .cornerRadius(8)
+            HStack {
+                if isReasoningModel(selectedModel) && showReasoningSteps && !reasoningSteps.isEmpty {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("🤔 Thinking Steps:")
+                            .font(.headline)
+                            .foregroundColor(.blue)
+                        ScrollView {
+                            Text(reasoningSteps)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding()
+                                .background(Color.blue.opacity(0.1))
+                                .cornerRadius(8)
+                                .font(.system(.body, design: .monospaced))
+                        }
+                        .frame(minHeight: 150)
+                    }
                 }
-                .frame(minHeight: 200)
+                
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Response:")
+                        .font(.headline)
+                    ScrollView {
+                        Text(streamingResponse.isEmpty ? "Response will appear here..." : streamingResponse)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding()
+                            .background(Color.gray.opacity(0.1))
+                            .cornerRadius(8)
+                    }
+                    .frame(minHeight: 200)
+                }
             }
+           
             
             Spacer()
         }
         .padding()
-        .frame(maxWidth: 600)
+//        .frame(maxWidth: 600)
     }
     
     private func startStreaming() {
@@ -71,10 +121,16 @@ struct StreamingDemoView: View {
         
         isStreaming = true
         streamingResponse = ""
+        reasoningSteps = ""
         
         Task {
             await performStreamingRequest()
         }
+    }
+    
+    private func isReasoningModel(_ model: String) -> Bool {
+        true
+        // return model.contains("o3") || model.contains("o4")
     }
     
     @MainActor
@@ -89,8 +145,8 @@ struct StreamingDemoView: View {
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let requestBody: [String: Any] = [
-            "model": "gpt-4o-mini",
+        var requestBody: [String: Any] = [
+            "model": selectedModel,
             "input": [
                 [
                     "role": "user",
@@ -99,6 +155,14 @@ struct StreamingDemoView: View {
             ],
             "stream": true
         ]
+        
+        // Add reasoning parameter for reasoning models
+        if isReasoningModel(selectedModel) {
+            requestBody["reasoning"] = [
+                "summary": "auto",
+                "effort": "medium"
+            ]
+        }
         
         print("DEBUG: Request URL: \(url)")
         print("DEBUG: Request Body: \(requestBody)")
@@ -161,10 +225,64 @@ struct StreamingDemoView: View {
                                                 streamingResponse += delta
                                             }
                                         }
+                                    // Reasoning Summary Part Events
+                                    case "response.reasoning_summary_part.added":
+                                        print("DEBUG: 🧠 Reasoning summary part added: \(json)")
+                                    case "response.reasoning_summary_part.done":
+                                        print("DEBUG: 🧠 Reasoning summary part done: \(json)")
+                                        if let part = json["part"] as? [String: Any],
+                                           let text = part["text"] as? String {
+                                            print("DEBUG: 🧠 Reasoning summary part text: '\(text)'")
+                                            await MainActor.run {
+                                                reasoningSteps += text
+                                            }
+                                        }
+                                    
+                                    // Reasoning Summary Text Events  
+                                    case "response.reasoning_summary_text.delta":
+                                        if let delta = json["delta"] as? String {
+                                            print("DEBUG: 🧠 Reasoning summary text delta: '\(delta)'")
+                                            await MainActor.run {
+                                                reasoningSteps += delta
+                                            }
+                                        }
+                                    case "response.reasoning_summary_text.done":
+                                        if let text = json["text"] as? String {
+                                            print("DEBUG: 🧠 Reasoning summary text done: '\(text)'")
+                                            await MainActor.run {
+                                                reasoningSteps = text
+                                            }
+                                        }
+                                    
+                                    // Raw Reasoning Text Events
+                                    case "response.reasoning_text.delta":
+                                        if let delta = json["delta"] as? String {
+                                            print("DEBUG: 🧠 Reasoning text delta: '\(delta)'")
+                                            await MainActor.run {
+                                                // Only use raw reasoning if we don't have summary
+                                                if reasoningSteps.isEmpty {
+                                                    reasoningSteps += delta
+                                                }
+                                            }
+                                        }
+                                    case "response.reasoning_text.done":
+                                        if let text = json["text"] as? String {
+                                            print("DEBUG: 🧠 Reasoning text done: '\(text)'")
+                                            await MainActor.run {
+                                                // Only use raw reasoning if we don't have summary
+                                                if reasoningSteps.isEmpty {
+                                                    reasoningSteps = text
+                                                }
+                                            }
+                                        }
                                     case "response.created":
                                         print("DEBUG: Response started")
+                                        // Don't set initial thinking message - only show if we actually get reasoning events
                                     case "response.completed":
                                         print("DEBUG: Response completed")
+                                        await MainActor.run {
+                                            isStreaming = false
+                                        }
                                     case "error":
                                         if let error = json["error"] as? [String: Any] {
                                             print("DEBUG: Error event: \(error)")
@@ -173,8 +291,53 @@ struct StreamingDemoView: View {
                                                 isStreaming = false
                                             }
                                         }
+                                    // Additional reasoning and output events
+                                    case "response.output_item.added":
+                                        print("DEBUG: Output item added: \(json)")
+                                        // Check if this is a reasoning item
+                                        if let outputItem = json["output_item"] as? [String: Any],
+                                           let outputType = outputItem["type"] as? String,
+                                           outputType == "reasoning" {
+                                            print("DEBUG: 🧠 REASONING ITEM DETECTED!")
+                                        }
+                                    case "response.output_item.done":
+                                        print("DEBUG: Output item done: \(json)")
+                                        // Extract reasoning summary from completed item
+                                        if let outputItem = json["output_item"] as? [String: Any],
+                                           let outputType = outputItem["type"] as? String,
+                                           outputType == "reasoning",
+                                           let summary = outputItem["summary"] as? [[String: Any]] {
+                                            var summaryText = ""
+                                            for summaryPart in summary {
+                                                if let text = summaryPart["text"] as? String {
+                                                    summaryText += text
+                                                }
+                                            }
+                                            if !summaryText.isEmpty {
+                                                print("DEBUG: 🧠 REASONING SUMMARY: '\(summaryText)'")
+                                                await MainActor.run {
+                                                    reasoningSteps = summaryText
+                                                }
+                                            }
+                                        }
+                                    case "response.content_part.added":
+                                        print("DEBUG: Content part added: \(json)")
+                                    case "response.content_part.done":
+                                        print("DEBUG: Content part done: \(json)")
+                                    case "response.text.done":
+                                        print("DEBUG: Text done: \(json)")
+                                    case "response.refusal.delta":
+                                        print("DEBUG: Refusal delta: \(json)")
+                                    case "response.refusal.done":
+                                        print("DEBUG: Refusal done: \(json)")
                                     default:
-                                        print("DEBUG: Unhandled event type: \(eventType)")
+                                        print("DEBUG: ⚠️  UNHANDLED EVENT TYPE: \(eventType)")
+                                        print("DEBUG: 📋 FULL EVENT DATA: \(json)")
+                                        
+                                        // Check if there's any reasoning-related content in unhandled events
+                                        if eventType.contains("reasoning") || eventType.contains("thinking") || eventType.contains("chain") {
+                                            print("DEBUG: 🧠 POTENTIAL REASONING EVENT DETECTED!")
+                                        }
                                     }
                                 } else {
                                     print("DEBUG: No 'type' field found in JSON")
