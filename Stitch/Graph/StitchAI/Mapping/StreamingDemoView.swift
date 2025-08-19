@@ -8,6 +8,8 @@
 import SwiftUI
 import Foundation
 
+// MARK: Relevant OpenAI docs, the response.reasoning_* objects for the Responses endpoint: https://platform.openai.com/docs/api-reference/responses_streaming/response/reasoning_text
+
 struct StreamingDemoView: View {
     
     @State private var apiKey: String = ""
@@ -17,7 +19,11 @@ struct StreamingDemoView: View {
     @State private var selectedModel: String = "o4-mini"
     
     @State private var streamingResponse: String = ""
-    @State private var reasoningSteps: String = ""
+    @State private var reasoningStepsList: [String] = []
+    
+    private var reasoningSteps: String {
+        reasoningStepsList.joined(separator: "\n")
+    }
     
     @State private var showReasoningSteps: Bool = true
     
@@ -34,24 +40,24 @@ struct StreamingDemoView: View {
                 .font(.largeTitle)
                 .padding()
             
-            VStack(alignment: .leading, spacing: 10) {
-                Text("API Key:")
-                    .font(.headline)
-                SecureField("Enter OpenAI API Key", text: $apiKey)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-            }
-            
-            VStack(alignment: .leading, spacing: 10) {
-                Text("Model:")
-                    .font(.headline)
-                Picker("Select Model", selection: $selectedModel) {
-                    ForEach(availableModels.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
-                        Text(value).tag(key)
-                    }
-                }
-                .pickerStyle(MenuPickerStyle())
-            }
-            
+//            VStack(alignment: .leading, spacing: 10) {
+//                Text("API Key:")
+//                    .font(.headline)
+//                SecureField("Enter OpenAI API Key", text: $apiKey)
+//                    .textFieldStyle(RoundedBorderTextFieldStyle())
+//            }
+//            
+//            VStack(alignment: .leading, spacing: 10) {
+//                Text("Model:")
+//                    .font(.headline)
+//                Picker("Select Model", selection: $selectedModel) {
+//                    ForEach(availableModels.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
+//                        Text(value).tag(key)
+//                    }
+//                }
+//                .pickerStyle(MenuPickerStyle())
+//            }
+//            
             VStack(alignment: .leading, spacing: 10) {
                 Text("Prompt:")
                     .font(.headline)
@@ -59,12 +65,7 @@ struct StreamingDemoView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .lineLimit(3...6)
             }
-            
-            if isReasoningModel(selectedModel) {
-                Toggle("Show Thinking Steps", isOn: $showReasoningSteps)
-                    .font(.headline)
-            }
-            
+                        
             Button(action: startStreaming) {
                 HStack {
                     if isStreaming {
@@ -90,6 +91,7 @@ struct StreamingDemoView: View {
                                 .background(Color.blue.opacity(0.1))
                                 .cornerRadius(8)
                                 .font(.system(.body, design: .monospaced))
+                                .textSelection(.enabled)
                         }
                         .frame(minHeight: 150)
                     }
@@ -113,7 +115,6 @@ struct StreamingDemoView: View {
             Spacer()
         }
         .padding()
-//        .frame(maxWidth: 600)
     }
     
     private func startStreaming() {
@@ -121,7 +122,7 @@ struct StreamingDemoView: View {
         
         isStreaming = true
         streamingResponse = ""
-        reasoningSteps = ""
+        reasoningStepsList = []
         
         Task {
             await performStreamingRequest()
@@ -234,47 +235,39 @@ struct StreamingDemoView: View {
                                            let text = part["text"] as? String {
                                             print("DEBUG: 🧠 Reasoning summary part text: '\(text)'")
                                             await MainActor.run {
-                                                reasoningSteps += text
+                                                // Only add if it's not a duplicate of the last entry
+                                                if reasoningStepsList.last != text {
+                                                    reasoningStepsList.append(text)
+                                                } else {
+                                                    print("DEBUG: 🧠 Skipping duplicate reasoning part")
+                                                }
                                             }
                                         }
                                     
                                     // Reasoning Summary Text Events  
                                     case "response.reasoning_summary_text.delta":
-                                        if let delta = json["delta"] as? String {
-                                            print("DEBUG: 🧠 Reasoning summary text delta: '\(delta)'")
-                                            await MainActor.run {
-                                                reasoningSteps += delta
-                                            }
-                                        }
+                                        print("DEBUG: 🧠 Reasoning summary text delta - ignoring, using .done events instead")
+                                        // Ignore delta events to avoid duplication
                                     case "response.reasoning_summary_text.done":
                                         if let text = json["text"] as? String {
                                             print("DEBUG: 🧠 Reasoning summary text done: '\(text)'")
                                             await MainActor.run {
-                                                reasoningSteps = text
+                                                // Only add if it's not a duplicate of the last entry
+                                                if reasoningStepsList.last != text {
+                                                    reasoningStepsList.append(text)
+                                                } else {
+                                                    print("DEBUG: 🧠 Skipping duplicate reasoning text")
+                                                }
                                             }
                                         }
                                     
-                                    // Raw Reasoning Text Events
+                                    // Raw Reasoning Text Events (fallback if no summary)
                                     case "response.reasoning_text.delta":
-                                        if let delta = json["delta"] as? String {
-                                            print("DEBUG: 🧠 Reasoning text delta: '\(delta)'")
-                                            await MainActor.run {
-                                                // Only use raw reasoning if we don't have summary
-                                                if reasoningSteps.isEmpty {
-                                                    reasoningSteps += delta
-                                                }
-                                            }
-                                        }
+                                        print("DEBUG: 🧠 Reasoning text delta - ignoring to avoid duplication with summary")
+                                        // Don't use raw reasoning if we have summary events
                                     case "response.reasoning_text.done":
-                                        if let text = json["text"] as? String {
-                                            print("DEBUG: 🧠 Reasoning text done: '\(text)'")
-                                            await MainActor.run {
-                                                // Only use raw reasoning if we don't have summary
-                                                if reasoningSteps.isEmpty {
-                                                    reasoningSteps = text
-                                                }
-                                            }
-                                        }
+                                        print("DEBUG: 🧠 Reasoning text done - not appending to avoid duplication")
+                                        // Don't append here since we already got the content via delta events
                                     case "response.created":
                                         print("DEBUG: Response started")
                                         // Don't set initial thinking message - only show if we actually get reasoning events
@@ -316,7 +309,12 @@ struct StreamingDemoView: View {
                                             if !summaryText.isEmpty {
                                                 print("DEBUG: 🧠 REASONING SUMMARY: '\(summaryText)'")
                                                 await MainActor.run {
-                                                    reasoningSteps = summaryText
+                                                    // Only add if it's not a duplicate of the last entry
+                                                    if reasoningStepsList.last != summaryText {
+                                                        reasoningStepsList.append(summaryText)
+                                                    } else {
+                                                        print("DEBUG: 🧠 Skipping duplicate output item reasoning")
+                                                    }
                                                 }
                                             }
                                         }
