@@ -651,6 +651,9 @@ ScrollView() {
 **Do NOT use `ForEach` views in your SwiftUI view**. Looping is automatically handled by Stitch, making `ForEach` views unnecessary.
 
 The following examples showcase how Stitch would handle looping behavior. These view samples are **NOT** examples of what you should make, rather, they present information on how looping is understood in Stitch. 
+ 
+A layer is ALWAYS looped by connecting a Loop patch to the layer's `LayerInputPort.zIndex`.
+The layer may also optionally receive other edges from the Loop patch. 
 
 Example 0:  
 
@@ -658,13 +661,13 @@ This code:
 
 ```swift
 ForEach(1...100) { number in 
-    Rectangle().scaleEffect(number)
+    Rectangle().scaleEffect(1)
 }
 ```
 
 Becomes:
 - a Loop with its input as 100
-- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.scale` input.
+- the Loop's output is connected to the Rectangle layer’s `LayerInputPort.zIndex` input.
 
 
 Example 1:
@@ -679,7 +682,8 @@ ForEach(1...5) { number in
 
 Becomes:
 - a Loop with its input as 5
-- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.scale` input.
+- the Loop's output is connected to the Rectangle layer’s `LayerInputPort.zIndex` input.
+- the Loop's output is also connected to the Rectangle layer’s `LayerInputPort.scale` input.
 
 
 Example 2:
@@ -694,7 +698,8 @@ ForEach(1...5) { number in
 
 Becomes:
 - a Loop with its input as 5
-- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.scale` input.
+- the Loop's output is connected to the Rectangle layer’s `LayerInputPort.zIndex` input.
+- the Loop's output is also connected to the Rectangle layer’s `LayerInputPort.scale` input.
 
 
 
@@ -710,7 +715,8 @@ ForEach([100, 200, 300]) { number in
 
 Becomes:
 - a LoopBuilder with its first input as 100, its second input as 200, and its third input as 300
-- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.size` input.
+- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.zIndex` input.
+- the LoopBuilder’s output is also connected to the Rectangle layer’s `LayerInputPort.size` input.
 
 
 Example 4:
