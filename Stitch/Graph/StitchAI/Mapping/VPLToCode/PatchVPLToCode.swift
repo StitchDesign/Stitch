@@ -52,7 +52,7 @@ extension GraphState {
             result.updateValue(variableName, forKey: nodeId)
         }
         
-        log("createSwiftUICode: varNameIdMap: \(varNameIdMap)")
+        // log("createSwiftUICode: varNameIdMap: \(varNameIdMap)")
         
         let viewCode = try topLevelLayerEntities
             .createSwiftUICode(layerEntityMap: layerEntitiesMap,

@@ -72,6 +72,7 @@ extension GraphEntity {
 extension String {
     func createUniqueVarName(nodeId: UUID) -> String {
         "\(self)_\(nodeId.uuidString)"
+            .replacingOccurrences(of: " ", with: "_")
             .replacingOccurrences(of: "-", with: "_")
     }
 }
