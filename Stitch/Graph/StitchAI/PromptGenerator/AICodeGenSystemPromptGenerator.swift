@@ -42,6 +42,7 @@ Your SwiftUI code must decouple view from logic as much as possible. Code must b
 * **All other view functions:** must be static and represent the behavior of a patch node, detailed later.
 
 **The returned source code must be a valid SwiftUI view containing a `struct ContentView: View` declaraion along with a `var body: some View`.**
+**We should NEVER use an `extension ContentView: View` anywhere in our code.
 
 Code components **not** allowed in our view are:
 * **Top-level view arguments.** Our view must be able to be invoked without any arguments.
@@ -433,7 +434,7 @@ Do **not** declare your own `struct`, `enum`, `Shape`, or custom `View` or metho
 * Need custom shapes? Compose with the built‑in shapes (`Rectangle`, `Capsule`, `RoundedRectangle`, etc.).
 
 
-For example, we SHOULD NOT define a method like `private func dialButton(title: String) -> some View`"
+For example, we SHOULD NOT define a method like `private func dialButton(title: String) -> some View`:
 
 ```swift
 struct ContentView: View {
