@@ -42,6 +42,7 @@ Your SwiftUI code must decouple view from logic as much as possible. Code must b
 * **All other view functions:** must be static and represent the behavior of a patch node, detailed later.
 
 **The returned source code must be a valid SwiftUI view containing a `struct ContentView: View` declaraion along with a `var body: some View`.**
+**We should NEVER use an `extension ContentView: View` anywhere in our code.
 
 Code components **not** allowed in our view are:
 * **Top-level view arguments.** Our view must be able to be invoked without any arguments.
@@ -427,10 +428,51 @@ In most scenarios, you should not need to replicate functionality that would inv
 #### 🚫 No Custom Views / Structs / Enums
 
 Stitch’s parser understands **only native SwiftUI views, modifiers, and value types**.  
-Do **not** declare your own `struct`, `enum`, `Shape`, or custom `View`.
+Do **not** declare your own `struct`, `enum`, `Shape`, or custom `View` or methods or functions that return `some View`.
 
 * Need structured data? Represent it with `PortValueDescription` objects. Use the Data Glossary for accepted data structures for `PortValueDescription`.
 * Need custom shapes? Compose with the built‑in shapes (`Rectangle`, `Capsule`, `RoundedRectangle`, etc.).
+
+
+For example, we SHOULD NOT define a method like `private func dialButton(title: String) -> some View`:
+
+```swift
+struct ContentView: View {
+
+    var body: some View {
+        VStack(spacing: 16) {
+            dialButton(title: "love")
+        }
+        .layerId("9012A3B4-C5D6-45E7-F8A9-0123A456789B")
+    }
+
+    func updateLayerInputs() {
+        // No dynamic updates for static design
+    }
+
+    private func dialButton(title: String) -> some View {
+        Text(title)
+    }
+}
+```
+
+Instead, define the dialButton inline and NOT as a separate `some View`-returning method:
+
+```swift
+struct ContentView: View {
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("love")
+        }
+        .layerId("9012A3B4-C5D6-45E7-F8A9-0123A456789B")
+    }
+
+    func updateLayerInputs() {
+        // No dynamic updates for static design
+    }
+}
+```
 
 ### Augmented Reality Guidelines (StitchRealityView)
 
