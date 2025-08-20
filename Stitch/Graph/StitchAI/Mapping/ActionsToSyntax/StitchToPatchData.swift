@@ -71,11 +71,7 @@ extension GraphEntity {
 
 extension String {
     func createUniqueVarName(nodeId: UUID) -> String {
-//        let camelCased = self.toCamelCase() // turns "Z Index" into "zIndex"
-//        return "\(camelCased)_\(nodeId.uuidString)"
-//            .replacingOccurrences(of: "-", with: "_")
-        
-        return "\(self)_\(nodeId.uuidString)"
+        "\(self)_\(nodeId.uuidString)"
             .replacingOccurrences(of: " ", with: "_")
             .replacingOccurrences(of: "-", with: "_")
     }
