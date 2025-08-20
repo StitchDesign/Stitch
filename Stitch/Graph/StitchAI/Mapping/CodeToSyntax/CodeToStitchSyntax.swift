@@ -372,7 +372,6 @@ extension SwiftUIViewVisitor {
     }
 }
 
-// TODO: move
 extension String {
     func trimmingOuterBraces() -> String {
         // Trim leading/trailing whitespace and newlines first

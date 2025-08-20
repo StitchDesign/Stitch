@@ -193,17 +193,6 @@ extension CurrentAIGraphData.GraphData {
                 newNode.initializeDelegate(graph: graph,
                                            document: document)
             }
-            //            else if let existingPatchNode = existingPatchNode {
-            //                newNode = existingPatchNode
-            //            } else {
-            //                fatalErrorIfDebug()
-            //                continue
-            //            }
-            //
-            //            guard let patchNode = newNode.patchNodeViewModel else {
-            //                fatalErrorIfDebug()
-            //                continue
-            //            }
         }
         
         // Set input values for new nodes

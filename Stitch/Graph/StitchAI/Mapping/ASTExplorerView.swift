@@ -293,7 +293,6 @@ struct ASTExplorerView: View {
                     .font(.system(.body, design: .monospaced))
                     .padding()
                     .border(Color.secondary)
-//                    .onChange(of: binding.wrappedValue) { _,_  in transform() }
             } else {
                 TextEditor(text: .constant(text))
                     .font(.system(.body, design: .monospaced))
