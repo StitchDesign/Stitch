@@ -427,7 +427,9 @@ In most scenarios, you should not need to replicate functionality that would inv
 #### 🚫 No Custom Views / Structs / Enums
 
 Stitch’s parser understands **only native SwiftUI views, modifiers, and value types**.  
-Do **not** declare your own `struct`, `enum`, `Shape`, or custom `View`.
+Do **not** declare your own `struct`, `enum`, `Shape`, or custom `View` or methods or functions that return `some View`.
+
+
 
 * Need structured data? Represent it with `PortValueDescription` objects. Use the Data Glossary for accepted data structures for `PortValueDescription`.
 * Need custom shapes? Compose with the built‑in shapes (`Rectangle`, `Capsule`, `RoundedRectangle`, etc.).
