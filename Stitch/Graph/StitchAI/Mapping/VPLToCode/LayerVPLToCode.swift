@@ -55,7 +55,7 @@ extension LayerNodeEntity {
             
             // ───────── SF Symbol / Image ─────────
         case .sfSymbol:
-            if let symbolName = self.sfSymbolPort.packedData.inputPort.values?.first?.sfSymbol,
+            if let symbolName = self.sfSymbolPort.packedData.inputPort.values?.first?.getString,
                symbolName != "" {
                 let args = try self.sfSymbolPort
                     .getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
