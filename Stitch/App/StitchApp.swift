@@ -45,11 +45,7 @@ struct StitchApp: App {
 //#if DEV_DEBUG
     var body: some Scene {
         WindowGroup {
-//            ConstructorDemoView()
-//             VarBodyParserDemoView()
-             
             ASTExplorerView()
-            
 //                .onAppear {
 //                    let prompt = try! StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .userPrompt)
 //                    print("PROMPT HERE:")
