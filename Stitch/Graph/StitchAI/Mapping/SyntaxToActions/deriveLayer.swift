@@ -1127,7 +1127,8 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
             let aiPortValue = try complexType.arguments.decode(CurrentAIGraphData.StitchAIPortValue.self)
             return [.value(.init(aiPortValue.value))]
         } catch {
-            print("PortValue decoding error: \(error)")
+            log("PortValue decoding error: \(error)")
+            // fatalErrorIfDevDebug()
             throw error
         }
     

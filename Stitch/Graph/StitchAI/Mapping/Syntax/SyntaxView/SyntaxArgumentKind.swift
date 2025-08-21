@@ -232,13 +232,19 @@ extension SyntaxViewSimpleData {
 }
 
 func parseStringToDictionary(_ string: String) throws -> [String: AnyEncodable] {
+    
     // Remove the asterisks and outer quotes
     let cleaned = string
         .replacingOccurrences(of: "*", with: "")
+    
+    // NOTE: BAD: this turns e.g. `{"height": "fill", "width": "80"}` into `{"height": fill, "width": 80}, where `fill` is invalid JSON
+    // Multiple ways to fix this, including e.g. eagerly turning number-strings into actual numbers;
+    // For now, I've merely fixed the parsing order
         .replacingOccurrences(of: "\"", with: "")
     
     // Add quotes around keys to make it valid JSON
     let jsonString = cleaned.replacingOccurrences(of: "([a-zA-Z]+):", with: "\"$1\":", options: .regularExpression)
+//    let jsonString = cleaned
     
     // Parse as JSON
     guard let data = jsonString.data(using: .utf8) else {
@@ -251,6 +257,21 @@ func parseStringToDictionary(_ string: String) throws -> [String: AnyEncodable] 
                 let (key, value) = data
                 let encodedValue: AnyEncodable
                 
+//                // VERY IMPORTANT: PARSE AS MOST SPECIFIC TYPE FIRST
+//                // (There are other approaches, see above)
+//                if let value = value as? Int {
+//                    encodedValue = AnyEncodable(value)
+//                } else  if let value = value as? CGFloat {
+//                    encodedValue = AnyEncodable(value)
+//                } else   if let value = value as? Double {
+//                    encodedValue = AnyEncodable(value)
+//                } else if let value = value as? String {
+//                    encodedValue = AnyEncodable(value)
+//                } else if let value = value as? Bool {
+//                    encodedValue = AnyEncodable(value)
+//                }
+  
+                // ORIGINAL
                 if let value = value as? String {
                     encodedValue = AnyEncodable(value)
                 } else if let value = value as? Int {
@@ -261,7 +282,8 @@ func parseStringToDictionary(_ string: String) throws -> [String: AnyEncodable] 
                     encodedValue = AnyEncodable(value)
                 } else if let value = value as? Bool {
                     encodedValue = AnyEncodable(value)
-                } else {
+                }
+                else {
                     throw SwiftUISyntaxError.unsupportedJsonData(string)
                 }
                 
