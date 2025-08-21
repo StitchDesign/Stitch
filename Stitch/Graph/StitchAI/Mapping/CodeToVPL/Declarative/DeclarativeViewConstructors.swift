@@ -1892,17 +1892,12 @@ struct PaddingViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
         }
         
         guard let lengthPortValue = try length.derivePortValues().first?.value,
-              let paddingNumber = try PortValue(from: lengthPortValue).getNumber else {
+              let paddingValue: StitchPadding = try PortValue(from: lengthPortValue).getPadding else {
             throw SwiftUISyntaxError.portValueNotFound(argument: length)
         }
-        
-        let paddingValue = PortValue.padding(StitchPadding(
-            top: paddingNumber,
-            right: paddingNumber,
-            bottom: paddingNumber,
-            left: paddingNumber
-        ))
-        return [ASTCustomInputValue(input: .padding, value: paddingValue)]
+   
+        return [ASTCustomInputValue(input: .padding,
+                                    value: .padding(paddingValue))]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
