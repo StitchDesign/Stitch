@@ -577,3 +577,16 @@ struct GroupPreviewLayersView: View {
 //        }
     }
 }
+
+extension Layer {
+    var canHaveChildren: Bool {
+        switch self {
+        
+        case .group, .realityView:
+            return true
+            
+        case .text, .oval, .rectangle, .image, .video, .model3D, .shape, .colorFill, .hitArea, .canvasSketch, .textField, .map, .progressIndicator, .switchLayer, .linearGradient, .radialGradient, .angularGradient, .sfSymbol, .videoStreaming, .material, .box, .sphere, .cylinder, .cone, .spacer:
+            return false
+        }
+    }
+}

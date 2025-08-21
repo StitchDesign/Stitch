@@ -44,6 +44,11 @@ extension SwiftUIViewVisitor {
                 //                errors: self.caughtErrors
             )
             
+            // Validate that views that can't have children don't have any children
+            if !syntaxViewName.canHaveChildren && !viewNode.children.isEmpty {
+                fatalErrorIfDebug("SyntaxView '\(syntaxViewName.rawValue)' cannot have children but has \(viewNode.children.count) children")
+            }
+            
 //            log("Created new ViewNode for \(viewName)")
             
             // Set as root or add as child to current node (context-aware)
@@ -65,6 +70,12 @@ extension SwiftUIViewVisitor {
                     // We're inside a closure of a container view - this IS a legitimate child
                     if let currentNode = currentViewNode {
 //                        log("Adding \(viewName) as child to \(currentNode.name.rawValue) (inside closure)")
+                        
+                        // Validate that the parent can have children before adding
+                        if !currentNode.name.canHaveChildren {
+                            fatalErrorIfDebug("SyntaxView '\(currentNode.name.rawValue)' cannot have children but attempted to add child '\(viewName)'")
+                        }
+                        
                         var updatedCurrentNode = currentNode
                         updatedCurrentNode.children.append(viewNode)
                         updateCurrentViewNode(updatedCurrentNode)
@@ -99,6 +110,11 @@ extension SwiftUIViewVisitor {
                                 children: [existingRoot, viewNode],
                                 id: UUID()
                             )
+                            
+                            // Validate that ZStack can have children (it should)
+                            if !SyntaxViewName.zStack.canHaveChildren && !zStackNode.children.isEmpty {
+                                fatalErrorIfDebug("SyntaxView 'ZStack' cannot have children but has \(zStackNode.children.count) children")
+                            }
                             
                             // Update viewStack and root
                             viewStack = [zStackNode]
