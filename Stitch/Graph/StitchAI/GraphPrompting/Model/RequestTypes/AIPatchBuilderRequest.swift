@@ -197,8 +197,7 @@ extension CurrentAIGraphData.GraphData {
         
         // Set input values for new nodes
         for (oldId, newId) in idMap {
-            guard let newNode = graph.nodes.get(newId),
-                  let patchNode = newNode.patchNodeViewModel else {
+            guard let newNode = graph.nodes.get(newId) else {
                 fatalErrorIfDebug()
                 continue
             }
@@ -215,20 +214,22 @@ extension CurrentAIGraphData.GraphData {
             }
             
             // MARK: BEFORE creating edges/inputs, determine if new patch nodes need extra inputs
-            let supportsNewInputs = patchNode.patch.canChangeInputCounts
-            if let maxModifiedInputIndex = maxModifiedPortIndex.get(oldId) {
-                let missingRowCount = maxModifiedInputIndex - patchNode.inputsObservers.count
-
-                if missingRowCount > 0 {
-                    guard supportsNewInputs else {
-                        throw SwiftUISyntaxError.unexpectedPatchInputRowCount(patchNode.patch)
-                    }
+            if let patchNode = newNode.patchNodeViewModel {
+                let supportsNewInputs = patchNode.patch.canChangeInputCounts
+                if let maxModifiedInputIndex = maxModifiedPortIndex.get(oldId) {
+                    let missingRowCount = maxModifiedInputIndex - patchNode.inputsObservers.count
                     
-                    for _ in (0..<missingRowCount) {
-                        newNode.addInputObserver(graph: document.graph,
-                                                 document: document)
+                    if missingRowCount > 0 {
+                        guard supportsNewInputs else {
+                            throw SwiftUISyntaxError.unexpectedPatchInputRowCount(patchNode.patch)
+                        }
+                        
+                        for _ in (0..<missingRowCount) {
+                            newNode.addInputObserver(graph: document.graph,
+                                                     document: document)
+                        }
                     }
-                }
+                }                
             }
         }
         
