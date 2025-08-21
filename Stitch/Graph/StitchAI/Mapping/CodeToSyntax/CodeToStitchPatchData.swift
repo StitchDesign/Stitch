@@ -42,15 +42,18 @@ extension SwiftUIViewVisitor {
     func visitPatchData(_ node: FunctionCallExprSyntax,
                         // var names are provided from already created nodes
                         varName: String?) -> SwiftParserPatchData? {
-        let patchNode: String
+        let patchNode: SwiftParserPatchType
         
         if let subscriptExpr = node.calledExpression.as(SubscriptCallExprSyntax.self),
            // Backup check for binding declaration of the patch
            let _patchNode = subscriptExpr.getPatchNodeName() {
-            patchNode = _patchNode
+            patchNode = .native(_patchNode)
         } else if let patchNodeRefName = node.getPatchNodeRefName(),
                   let patchNodeRef = self.bindingDeclarations.get(patchNodeRefName)?.patchNodeRef {
-            patchNode = patchNodeRef
+            patchNode = .native(patchNodeRef)
+        } else if let memberAccess = node.calledExpression.as(MemberAccessExprSyntax.self) {
+            // Assume to be a reference to a JavaScript node
+            patchNode = .js(memberAccess.declName.baseName.text)
         } else {
             return nil
         }
@@ -97,7 +100,7 @@ extension SwiftUIViewVisitor {
         }
         
         return .init(id: id,
-                     patchName: patchNode,
+                     patchType: patchNode,
                      args: patchNodeArgs)
     }
     
@@ -127,9 +130,22 @@ extension SwiftUIViewVisitor {
 
 extension SwiftParserPatchData {
     func createStitchData(varName: String,
-                          varNameIdMap: inout [String : String]) -> CurrentAIGraphData.NativePatchNode {
-        guard let patchName = CurrentAIGraphData.StitchAIPatchOrLayer.init(value: .init(self.patchName)) else {
-            fatalError()
+                          varNameIdMap: inout [String : String],
+                          varNameJsFnMap: inout [String : String]) -> CurrentAIGraphData.PatchNode {
+        let patchName: CurrentAIGraphData.StitchAIPatchOrLayer
+        
+        switch self.patchType {
+        case .native(let nativePatchType):
+            guard let _patchName = CurrentAIGraphData.StitchAIPatchOrLayer.init(value: .init(nativePatchType)) else {
+                fatalError()
+            }
+            patchName = _patchName
+            
+        case .js(let fnName):
+            // Track fn name
+            varNameJsFnMap.updateValue(varName, forKey: fnName)
+            
+            patchName = .init(value: .patch(.javascript))
         }
         
         // Re-use id from Stitch -> Code if node is unchanged
@@ -140,8 +156,8 @@ extension SwiftParserPatchData {
         varNameIdMap.updateValue(id, forKey: varName)
         
         let newPatchNode = CurrentAIGraphData
-            .NativePatchNode(node_id: self.id,
-                             node_name: patchName)
+            .PatchNode(node_id: self.id,
+                       node_name: patchName)
         return newPatchNode
     }
 }
@@ -219,6 +235,8 @@ extension SwiftParserInitializerType {
                             varNamePatchNodeRefMap: [String : String],
                             patchConnections: inout [CurrentAIGraphData.PatchConnection],
                             viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate],
+                            preprocessedJSNodes: inout [CurrentAIGraphData.PreprocessedJSPatchNode],
+                            varNameJsFnMap: inout [String: String],
                             subscriptParentInfo: AIGraphData_V0.NodeIndexedCoordinate? = nil) throws {
         switch self {
         case .patchNode(let patchNodeData):
@@ -230,7 +248,8 @@ extension SwiftParserInitializerType {
                                             
                     guard let upstreamRefData = varNameOutputPortMap.get(refName) else {
                         // TODO: this may happen as a result of bad code from ChatGPT
-                        fatalError()
+//                        fatalError()
+                        continue
                     }
                     
                     let usptreamCoordinate = SwiftParserPatchData
@@ -267,6 +286,8 @@ extension SwiftParserInitializerType {
                                                         customPatchInputValues: &customPatchInputValues, varNamePatchNodeRefMap: varNamePatchNodeRefMap,
                                                         patchConnections: &patchConnections,
                                                         viewStatePatchConnections: &viewStatePatchConnections,
+                                                        preprocessedJSNodes: &preprocessedJSNodes,
+                                                        varNameJsFnMap: &varNameJsFnMap,
                                                         subscriptParentInfo: .init(node_id: patchNodeData.id,
                                                                                    port_index: portIndex))
                             } else {
@@ -286,6 +307,8 @@ extension SwiftParserInitializerType {
                                             varNamePatchNodeRefMap: varNamePatchNodeRefMap,
                                             patchConnections: &patchConnections,
                                             viewStatePatchConnections: &viewStatePatchConnections,
+                                            preprocessedJSNodes: &preprocessedJSNodes,
+                                            varNameJsFnMap: &varNameJsFnMap,
                                             subscriptParentInfo: .init(node_id: patchNodeData.id,
                                                                        port_index: portIndex))
                 }
@@ -335,7 +358,9 @@ extension SwiftParserInitializerType {
                                         customPatchInputValues: &customPatchInputValues,
                                         varNamePatchNodeRefMap: varNamePatchNodeRefMap,
                                         patchConnections: &patchConnections,
-                                        viewStatePatchConnections: &viewStatePatchConnections)
+                                        viewStatePatchConnections: &viewStatePatchConnections,
+                                        preprocessedJSNodes: &preprocessedJSNodes,
+                                        varNameJsFnMap: &varNameJsFnMap,)
                 
             case .ref(let refName):
                 // Get edge data
@@ -358,6 +383,21 @@ extension SwiftParserInitializerType {
         case .declrRef:
             // Ignore here
             return
+        
+        case .jsNodeScript(let script):
+            // Must reuse ID
+            guard let varNameForJsFn = varNameJsFnMap.get(varName),
+                  let id = varNameIdMap.get(varNameForJsFn) else {
+                fatalErrorIfDebug()
+                break
+            }
+            
+            // Create JS node
+            let newJSNode = AIGraphData_V0
+                .PreprocessedJSPatchNode(node_id: id,
+                                         funcName: varName,
+                                         sourceCode: script)
+            preprocessedJSNodes.append(newJSNode)
         }
     }
 }

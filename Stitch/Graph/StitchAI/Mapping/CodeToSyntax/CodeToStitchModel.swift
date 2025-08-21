@@ -24,8 +24,13 @@ enum SwiftParserPatternBindingArg {
 
 struct SwiftParserPatchData {
     let id: String
-    var patchName: String
+    var patchType: SwiftParserPatchType
     var args: [SwiftParserPatternBindingArg]
+}
+
+enum SwiftParserPatchType {
+    case native(String)
+    case js(String)
 }
 
 struct SwiftParserSubscript: Sendable {
@@ -48,6 +53,9 @@ indirect enum SwiftParserInitializerType: Sendable {
 
     // mutates some existing state
     case stateMutation(SwiftParserInitializerType)
+    
+    // js nodes
+    case jsNodeScript(String)
 }
 
 // Subscripts can be used on references or nodes themselves

@@ -137,7 +137,7 @@ struct ASTExplorerView: View {
                 }
             }
             .tabViewStyle(.automatic)
-            .onChange(of: selectedTab, initial: true) { _, _ in transform() }
+            .onChange(of: selectedTab) { _, _ in transform() }
             
             if let errorString = errorString {
                 VStack(alignment: .leading) {
@@ -265,12 +265,16 @@ struct ASTExplorerView: View {
             silentlyCaughtErrors += stitchActionsResult.caughtErrors
             
             // Apply AI result to fake document
-            try stitchActionsResult.graphData
-                .createAIGraph(document: fakeDoc)
-            
-            // Generate SwiftUI code with configurable script wrapper
-            let newSwiftUICode = try fakeDoc.graph.createSwiftUICode(ignoreScript: ignoreScript, usePortValueDescription: usePortValueDescription)
-            self.regeneratedCode = newSwiftUICode
+            Task(priority: .high) {
+                try await stitchActionsResult.graphData
+                    .createAIGraph(document: fakeDoc)
+                
+                try await MainActor.run {
+                    // Generate SwiftUI code with configurable script wrapper
+                    let newSwiftUICode = try fakeDoc.graph.createSwiftUICode(ignoreScript: ignoreScript, usePortValueDescription: usePortValueDescription)
+                    self.regeneratedCode = newSwiftUICode
+                }
+            }
         } catch {
             errorString = "\(error)"
         }
@@ -289,7 +293,6 @@ struct ASTExplorerView: View {
                     .font(.system(.body, design: .monospaced))
                     .padding()
                     .border(Color.secondary)
-                    .onChange(of: binding.wrappedValue, initial: true) { _,_  in transform() }
             } else {
                 TextEditor(text: .constant(text))
                     .font(.system(.body, design: .monospaced))

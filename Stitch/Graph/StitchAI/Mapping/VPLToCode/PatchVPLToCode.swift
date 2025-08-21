@@ -13,10 +13,11 @@ extension GraphState {
         let graphEntity = self.createSchema()
         let aiGraph = try AIGraphData_V0.GraphData(from: graphEntity)
         
-        let patchNodeDeclarations = try graphEntity
+        let patchData = try graphEntity
             .createBindingDeclarations(nodeIdsInTopologicalOrder: self.nodeIdsInTopologicalOrder,
                                        viewStatePatchConnections: aiGraph.viewStatePatchConnections)
-            .patchNodeDeclarations
+        
+        let patchNodeDeclarations = patchData.patchNodeDeclarations
         
         let stateVarDeclarations = aiGraph.viewStatePatchConnections.keys.map { stateVarName in
             "@State var \(stateVarName): [PortValueDescription] = []"
@@ -62,6 +63,16 @@ extension GraphState {
             return viewCode
         }
         
+        // Create js nodes script
+        let jsNodesScript = patchData.jsNodeFns.map { jsNodeData in
+            """
+            static func fn_\(jsNodeData.key)(_ inputs: [[PortValueDescription]]) -> [[PortValueDescription]] {
+                \(jsNodeData.value)
+            }
+            """
+        }
+            .joined(separator: "\n\n")
+        
         let script = """
 struct ContentView: some View {
     \(stateVarDeclarations)
@@ -73,6 +84,8 @@ struct ContentView: some View {
     func updateLayerInputs() {
         \(patchNodeDeclarations.joined(separator: "\n\t\t"))
     }
+
+    \(jsNodesScript)
 }
 """
         

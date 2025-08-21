@@ -39,8 +39,8 @@ extension AIGraphData_V0.GraphData {
             result.updateValue(node, forKey: node.id)
         }
         
-        var jsNodes = [AIGraphData_V0.JsPatchNode]()
-        var nativeNodes = [AIGraphData_V0.NativePatchNode]()
+        var jsNodes = [AIGraphData_V0.PreprocessedJSPatchNode]()
+        var nativeNodes = [AIGraphData_V0.PatchNode]()
         var nodeTypeSettings = [AIGraphData_V0.NativePatchNodeValueTypeSetting]()
         var patchConnections = [AIGraphData_V0.PatchConnection]()
         var customPatchInputs = [AIGraphData_V0.CustomPatchInputValue]()
@@ -54,8 +54,9 @@ extension AIGraphData_V0.GraphData {
             case .patch(let patchNodeEntity):
                 // JS node scenario
                 if let jsData = patchNodeEntity.javaScriptNodeSettings {
-                    jsNodes.append( .init(from: jsData,
-                                          id: patchNodeEntity.id))
+                    jsNodes.append(.init(node_id: patchNodeEntity.id.uuidString,
+                                         funcName: nodeEntity.title.toCamelCase(),
+                                         sourceCode: jsData.script))
                 }
                 
                 // Native node scenario

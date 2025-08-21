@@ -94,18 +94,22 @@ extension CurrentAIGraphData.GraphData {
     @MainActor
     func applyAIGraph(to document: StitchDocumentViewModel,
                       viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate],
-                      requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) throws {
+                      requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) async throws {
         switch requestType {
         case .userPrompt:
             // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
-            try self.createAIGraph(document: document)
+            try await self.createAIGraph(document: document)
         }
         
         document.encodeProjectInBackground()
     }
     
     @MainActor
-    func createAIGraph(document: StitchDocumentViewModel) throws {
+    func createAIGraph(document: StitchDocumentViewModel) async throws {
+        guard let aiManager = document.aiManager else {
+            return
+        }
+        
         let graph = document.visibleGraph
         let graphCenter = document.viewPortCenter
         let highestZIndex = document.visibleGraph.highestZIndex
@@ -148,14 +152,18 @@ extension CurrentAIGraphData.GraphData {
                                        document: document)
             
             if let patchNode = newNode.patchNode {
-                let jsSettings = try JavaScriptNodeSettings(
-                    suggestedTitle: newPatch.suggested_title,
-                    script: newPatch.javascript_source_code,
-                    inputDefinitions: newPatch.input_definitions.map(JavaScriptPortDefinition.init),
-                    outputDefinitions: newPatch.output_definitions.map(JavaScriptPortDefinition.init))
+                // Get AI info
+                let jsNodeRequest = AIJSNodeSettingsFromScritptRequest(existingScript: newPatch.sourceCode)
+                
+                let jsSettings = try await jsNodeRequest
+                    .request(document: document,
+                             aiManager: aiManager)
                 
                 patchNode.processNewJavascript(response: jsSettings,
                                                document: document)
+                
+                // Check here
+                assertInDebug(patchNode.javaScriptNodeSettings != nil)
             }
         }
         
@@ -184,14 +192,13 @@ extension CurrentAIGraphData.GraphData {
                 // Initialize delegates for later helpers (like edges)
                 newNode.initializeDelegate(graph: graph,
                                            document: document)
-            } else if let existingPatchNode = existingPatchNode {
-                newNode = existingPatchNode
-            } else {
-                fatalErrorIfDebug()
-                continue
             }
-            
-            guard let patchNode = newNode.patchNodeViewModel else {
+        }
+        
+        // Set input values for new nodes
+        for (oldId, newId) in idMap {
+            guard let newNode = graph.nodes.get(newId),
+                  let patchNode = newNode.patchNodeViewModel else {
                 fatalErrorIfDebug()
                 continue
             }

@@ -12,6 +12,7 @@ import SwiftUI
 
 struct StitchPatchCodeConversionResult {
     let patchNodeDeclarations: [String]
+    let jsNodeFns: [String: String]
     let varNameIdMap: [String : String]
 }
 
@@ -33,19 +34,36 @@ extension GraphEntity {
                 return nil
             }
             
+            let isJSNode = patchNodeEntity.patch == .javascript
             let varName = patchNodeEntity.patch.rawValue.createUniqueVarName(nodeId: nodeId)
             
             let args: [String] = try patchNodeEntity.inputs.map { $0.portData }
                 .createSwiftUICodeArgs(patchNodeEntityMap: patchNodeEntityDict)
             
+            let fnNameSpace = isJSNode ? "Self.fn_\(varName)" : """
+            NATIVE_STITCH_PATCH_FUNCTIONS["\(patchNodeEntity.patch.aiDisplayTitle)"]
+            """
+            
             let patchDeclaration = """
-                let \(varName) = NATIVE_STITCH_PATCH_FUNCTIONS["\(patchNodeEntity.patch.aiDisplayTitle)"]([
+                let \(varName) = \(fnNameSpace)([
                         \(args.joined(separator: ",\n\t\t"))
                     ])
                 """
             
             varIdNameMap.updateValue(varName, forKey: nodeId)
             return patchDeclaration
+        }
+        
+        // Save scripts for JS nodes
+        let jsNodeFns: [String: String] = patchNodeEntityDict.values.reduce(into: .init()) { result, node in
+            guard let jsSettings = node.javaScriptNodeSettings else {
+                return
+            }
+            
+            let varName = node.patch.rawValue.createUniqueVarName(nodeId: node.id)
+//            let fnName = "fn_\(varName)"
+            
+            result.updateValue(jsSettings.script, forKey: varName)
         }
         
         // Create new script that maps var names to some ID, which we use later to get actual UUID for node
@@ -65,6 +83,7 @@ extension GraphEntity {
         }
         
         return .init(patchNodeDeclarations: patchNodeDeclarations + layerStateAssignments,
+                     jsNodeFns: jsNodeFns,
                      varNameIdMap: varNameIdMap)
     }
 }

@@ -70,12 +70,16 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
         // Tracks @State variable declarations
         var viewStateVarNames = Set<String>()
         
+        // Tracks a variable name for each JS function name
+        var varNameJsFnMap = [String : String]()
+        
         // MARK: data to be returned
         var caughtErrors: [SwiftUISyntaxError] = []
-        var nativePatchNodes = [CurrentAIGraphData.NativePatchNode]()
+        var nativePatchNodes = [CurrentAIGraphData.PatchNode]()
         var nativePatchValueTypeSettings = [CurrentAIGraphData.NativePatchNodeValueTypeSetting]()
         var patchConnections = [CurrentAIGraphData.PatchConnection]()
         var customPatchInputValues = [CurrentAIGraphData.CustomPatchInputValue]()
+        var preprocessedJSNodes = [CurrentAIGraphData.PreprocessedJSPatchNode]()
         
         // Because patch data is decoded before layer data, we don't yet know the destination ports for layer edges, therefore, we just track the source patch to some state variable
         var viewStatePatchConnections = [String : AIGraphData_V0.NodeIndexedCoordinate]()
@@ -88,7 +92,8 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
             case .patchNode(let patchNodeData):
                 let newPatchNode = patchNodeData
                     .createStitchData(varName: varName,
-                                      varNameIdMap: &varNameIdMap)
+                                      varNameIdMap: &varNameIdMap,
+                                      varNameJsFnMap: &varNameJsFnMap)
                 nativePatchNodes.append(newPatchNode)
                 
             case .subscriptRef(let subscriptData):
@@ -100,7 +105,8 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                     // Track more patch nodes
                     let newPatchNode = patchNodeData
                         .createStitchData(varName: varName,
-                                          varNameIdMap: &varNameIdMap)
+                                          varNameIdMap: &varNameIdMap,
+                                          varNameJsFnMap: &varNameJsFnMap)
                     nativePatchNodes.append(newPatchNode)
                     
                 case .ref:
@@ -127,6 +133,10 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                     break
                 }
             
+            case .jsNodeScript:
+                // Skipping here
+                break
+                
             case .declrRef:
                 break
             }
@@ -142,11 +152,13 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                                     customPatchInputValues: &customPatchInputValues,
                                     varNamePatchNodeRefMap: varNamePatchNodeRefMap,
                                     patchConnections: &patchConnections,
-                                    viewStatePatchConnections: &viewStatePatchConnections)
+                                    viewStatePatchConnections: &viewStatePatchConnections,
+                                    preprocessedJSNodes: &preprocessedJSNodes,
+                                    varNameJsFnMap: &varNameJsFnMap)
         }
         
         return .init(actions: AIGraphData_V0
-            .PatchData(javascript_patches: [],
+            .PatchData(javascript_patches: preprocessedJSNodes,
                        native_patches: nativePatchNodes,
                        native_patch_value_type_settings: nativePatchValueTypeSettings,
                        patch_connections: patchConnections,
