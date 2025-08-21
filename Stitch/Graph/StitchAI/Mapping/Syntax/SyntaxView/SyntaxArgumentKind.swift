@@ -233,67 +233,60 @@ extension SyntaxViewSimpleData {
 
 func parseStringToDictionary(_ string: String) throws -> [String: AnyEncodable] {
     
-    // Remove the asterisks and outer quotes
-    let cleaned = string
-        .replacingOccurrences(of: "*", with: "")
+    // Remove asterisks but keep quotes intact
+    // Note: we cannot simply 'remove all quotes' from non-keys in the json, since that turns `{"height": "fill", "width": "80"}` into `{"height": fill, "width": 80}, where `fill` is invalid JSON
+    let cleaned = string.replacingOccurrences(of: "*", with: "")
     
-    // NOTE: BAD: this turns e.g. `{"height": "fill", "width": "80"}` into `{"height": fill, "width": 80}, where `fill` is invalid JSON
-    // Multiple ways to fix this, including e.g. eagerly turning number-strings into actual numbers;
-    // For now, I've merely fixed the parsing order
-        .replacingOccurrences(of: "\"", with: "")
+    // Ensure keys are properly quoted (if they aren't already)
+    let withQuotedKeys = cleaned.replacingOccurrences(
+        of: "([a-zA-Z]+):", 
+        with: "\"$1\":", 
+        options: .regularExpression
+    )
     
-    // Add quotes around keys to make it valid JSON
-    let jsonString = cleaned.replacingOccurrences(of: "([a-zA-Z]+):", with: "\"$1\":", options: .regularExpression)
-//    let jsonString = cleaned
-    
-    // Parse as JSON
-    guard let data = jsonString.data(using: .utf8) else {
+    guard let data = withQuotedKeys.data(using: .utf8) else {
         throw SwiftUISyntaxError.unsupportedJsonData(string)
     }
         
     do {
-        if let dictionary = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-            let convertedDict = try dictionary.reduce(into: [String: AnyEncodable]()) { result, data in
-                let (key, value) = data
-                let encodedValue: AnyEncodable
-                
-//                // VERY IMPORTANT: PARSE AS MOST SPECIFIC TYPE FIRST
-//                // (There are other approaches, see above)
-//                if let value = value as? Int {
-//                    encodedValue = AnyEncodable(value)
-//                } else  if let value = value as? CGFloat {
-//                    encodedValue = AnyEncodable(value)
-//                } else   if let value = value as? Double {
-//                    encodedValue = AnyEncodable(value)
-//                } else if let value = value as? String {
-//                    encodedValue = AnyEncodable(value)
-//                } else if let value = value as? Bool {
-//                    encodedValue = AnyEncodable(value)
-//                }
-  
-                // ORIGINAL
-                if let value = value as? String {
-                    encodedValue = AnyEncodable(value)
-                } else if let value = value as? Int {
-                    encodedValue = AnyEncodable(value)
-                } else if let value = value as? CGFloat {
-                    encodedValue = AnyEncodable(value)
-                } else if let value = value as? Double {
-                    encodedValue = AnyEncodable(value)
-                } else if let value = value as? Bool {
-                    encodedValue = AnyEncodable(value)
-                }
-                else {
-                    throw SwiftUISyntaxError.unsupportedJsonData(string)
-                }
-                
-                result.updateValue(encodedValue, forKey: key)
-            }
-            
-            return convertedDict
+        // Parse as valid JSON first
+        guard let jsonObject = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw SwiftUISyntaxError.unsupportedJsonData(string)
         }
         
-        throw SwiftUISyntaxError.unsupportedJsonData(string)
+        // Post-process values: convert numeric strings to numbers while preserving string values
+        let convertedDict = try jsonObject.reduce(into: [String: AnyEncodable]()) { result, element in
+            let (key, value) = element
+            let encodedValue: AnyEncodable
+        
+            if let stringValue = value as? String {
+                // Try to convert string to appropriate type: Int -> Double -> Bool -> String
+                if let intValue = Int(stringValue) {
+                    encodedValue = AnyEncodable(intValue)
+                } else if let doubleValue = Double(stringValue) {
+                    encodedValue = AnyEncodable(doubleValue)
+                } else if let boolValue = Bool(stringValue) {
+                    encodedValue = AnyEncodable(boolValue)
+                } else {
+                    // Keep as string
+                    encodedValue = AnyEncodable(stringValue)
+                }
+            } else if let intValue = value as? Int {
+                encodedValue = AnyEncodable(intValue)
+            } else if let doubleValue = value as? Double {
+                encodedValue = AnyEncodable(doubleValue)
+            } else if let cgFloatValue = value as? CGFloat {
+                encodedValue = AnyEncodable(cgFloatValue)
+            } else if let boolValue = value as? Bool {
+                encodedValue = AnyEncodable(boolValue)
+            } else {
+                throw SwiftUISyntaxError.unsupportedJsonData(string)
+            }
+            
+            result[key] = encodedValue
+        }
+        
+        return convertedDict
     } catch {
         print("JSON parsing error: \(error)")
         throw error
