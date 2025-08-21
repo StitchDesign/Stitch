@@ -78,7 +78,17 @@ extension GraphState {
             } children: { item in
                 item.children
             } makeWithChildren: { sidebarLayerData, sidebarLayerDataList in
-                var sidebarLayerData = sidebarLayerData
+                
+                // Doesn't say which layer it is...
+                var sidebarLayerData: SidebarLayerData = sidebarLayerData
+                
+                let layerId = sidebarLayerData.id
+                if let layer = self.getLayerNode(layerId)?.layer {
+                    if !layer.canHaveChildren && sidebarLayerData.children.isDefined {
+                        fatalErrorIfDebug("Had children for a Stitch Layer that does not support children")
+                    }
+                }
+                
                 // Important: non-nil `children` = "this is a group"
                 if sidebarLayerData.children.isDefined {
                     sidebarLayerData.children = sidebarLayerDataList
