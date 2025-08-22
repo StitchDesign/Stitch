@@ -8,7 +8,7 @@
 import SwiftUI
 
 extension StitchAIManager {
-    static func aiCodeEditSystemPromptGenerator(requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) throws -> String {
+    static func aiCodeEditSystemPromptGenerator(requestType: StitchAIRequestBuilder_V0.StitchAIRequestType, previewWindowSize: CGSize, previewWindowBackgroundColor: Color) throws -> String {
 """
 # Code Generation and Graph Builder for Stitch
 
@@ -272,7 +272,7 @@ struct ContentView: View {
 # Code Generation Rules
 Adhere to the following guideliens:
 
-\(try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: requestType))
+\(try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: requestType, previewWindowSize: previewWindowSize, previewWindowBackgroundColor: previewWindowBackgroundColor))
 
 # Summary
 Edit the provided source code given the provided user prompt. Adhere to the strict guidelines provided in the above document.
