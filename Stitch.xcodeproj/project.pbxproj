@@ -1113,6 +1113,7 @@
 		ECEA600E28E611AD002D7F4F /* NodeTypeChangedHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA600D28E611AD002D7F4F /* NodeTypeChangedHelpers.swift */; };
 		ECEACE8C2A8587C3007ACDE2 /* StitchFPS.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEACE8B2A8587C3007ACDE2 /* StitchFPS.swift */; };
 		ECEAFE61270E1E0D007DF78D /* OperationEvaluationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEAFE60270E1E0D007DF78D /* OperationEvaluationHelpers.swift */; };
+		ECEB1B162E59233200C80553 /* StitchAISpacing_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEB1B152E59233200C80553 /* StitchAISpacing_V0.swift */; };
 		ECEC4A442CE2FB900062ACAF /* StateChangeToStepAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEC4A432CE2FB900062ACAF /* StateChangeToStepAction.swift */; };
 		ECEC4A462CE3BEAF0062ACAF /* StepActionToStateChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEC4A452CE3BEAF0062ACAF /* StepActionToStateChange.swift */; };
 		ECEC7E0826CCBEAC008A39C1 /* ClassicAnimationCurve.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEC7E0726CCBEAC008A39C1 /* ClassicAnimationCurve.swift */; };
@@ -2266,6 +2267,7 @@
 		ECEA600D28E611AD002D7F4F /* NodeTypeChangedHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTypeChangedHelpers.swift; sourceTree = "<group>"; };
 		ECEACE8B2A8587C3007ACDE2 /* StitchFPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFPS.swift; sourceTree = "<group>"; };
 		ECEAFE60270E1E0D007DF78D /* OperationEvaluationHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationEvaluationHelpers.swift; sourceTree = "<group>"; };
+		ECEB1B152E59233200C80553 /* StitchAISpacing_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAISpacing_V0.swift; sourceTree = "<group>"; };
 		ECEC4A432CE2FB900062ACAF /* StateChangeToStepAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateChangeToStepAction.swift; sourceTree = "<group>"; };
 		ECEC4A452CE3BEAF0062ACAF /* StepActionToStateChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepActionToStateChange.swift; sourceTree = "<group>"; };
 		ECEC7E0726CCBEAC008A39C1 /* ClassicAnimationCurve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationCurve.swift; sourceTree = "<group>"; };
@@ -2583,6 +2585,7 @@
 				B5136F512DED5C0A007F12D0 /* StitchAIColor_V0.swift */,
 				B5136F4F2DED5BC0007F12D0 /* StitchAISize_V0.swift */,
 				B5136F4A2DED27B7007F12D0 /* StitchAIPortValue_V0.swift */,
+				ECEB1B152E59233200C80553 /* StitchAISpacing_V0.swift */,
 				B5136F442DED2642007F12D0 /* StitchAIPosition_V0.swift */,
 			);
 			path = Value;
@@ -6433,6 +6436,7 @@
 				B55500CC2C1BA3F60081C3F1 /* PortEdgeUI.swift in Sources */,
 				B539C2EA2B92BF3D00C6CEC3 /* DocumentEncodable.swift in Sources */,
 				B5D34C8B2DF51F70007405BF /* AIGraphDescriptionSystemPrompt_V0.swift in Sources */,
+				ECEB1B162E59233200C80553 /* StitchAISpacing_V0.swift in Sources */,
 				B5368D132A886C1900FE3489 /* InteractionLayer.swift in Sources */,
 				ECF6394F2E4DA912005E766E /* OpenAIConfigurationPicker.swift in Sources */,
 				B500F3682DE6BF1600904992 /* StitchDocsPopoverView.swift in Sources */,
