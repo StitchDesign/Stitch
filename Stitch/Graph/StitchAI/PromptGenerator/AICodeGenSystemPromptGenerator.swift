@@ -444,7 +444,7 @@ For example, we SHOULD NOT define a method like `private func dialButton(title: 
 struct ContentView: View {
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack([PortValueDescription(value_type: "spacing", value: "16")]) {
             dialButton(title: "love")
         }
         .layerId("9012A3B4-C5D6-45E7-F8A9-0123A456789B")
@@ -466,7 +466,7 @@ Instead, define the dialButton inline and NOT as a separate `some View`-returnin
 struct ContentView: View {
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack([PortValueDescription(value_type: "spacing", value: "16")]) {
             Text("love")
         }
         .layerId("9012A3B4-C5D6-45E7-F8A9-0123A456789B")

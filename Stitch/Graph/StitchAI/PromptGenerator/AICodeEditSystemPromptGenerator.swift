@@ -54,7 +54,7 @@ ScrollView([.vertical]) {
 .layerId("1D822183-260F-4997-9AB5-C896B00C013C")
 ```
 
-And instead use a `ZStack`:
+Instead, use a `ZStack`:
 
 ```swift
 ZStack {
