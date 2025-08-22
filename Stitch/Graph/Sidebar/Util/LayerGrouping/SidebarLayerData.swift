@@ -54,11 +54,3 @@ extension SidebarLayerData: StitchNestedListElement {
         UUID()
     }
 }
-
-extension Array where Element == SidebarLayerData {
-    var flattenedIds: [UUID] {
-        self.flatMap {
-            [$0.id] + ($0.children?.flattenedIds ?? [])
-        }
-    }
-}

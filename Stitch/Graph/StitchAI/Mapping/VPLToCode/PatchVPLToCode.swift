@@ -32,15 +32,7 @@ extension GraphState {
         // log("createSwiftUICode: allLayerEntities: \(allLayerEntities)")
         
         let orderedLayerEntities = graphEntity.orderedSidebarLayers
-            .flattenedIds
-            .compactMap { id -> LayerNodeEntity? in
-                guard let layerEntity = self.nodes.get(id)?.layerNodeViewModel else {
-                    fatalErrorIfDebug()
-                    return nil
-                }
-                
-                return layerEntity.createSchema()
-            }
+            .createOrderedLayersForCodeGen(nodes: self.nodes)
         
         // Filter for just top layer entities in beginning
         let topLevelLayerEntities = allLayerEntities
@@ -97,5 +89,26 @@ struct ContentView: some View {
 """
         
         return script
+    }
+}
+
+extension Array where Element == SidebarLayerData {
+    /// Takes into consideration `ZStack`'s for reversing items when appropriate
+    @MainActor
+    func createOrderedLayersForCodeGen(nodes: [UUID : NodeViewModel]) -> [LayerNodeEntity] {
+        self.flatMap { sidebarData -> [LayerNodeEntity] in
+            guard let layerEntity = nodes.get(sidebarData.id)?.layerNodeViewModel else {
+                fatalErrorIfDebug()
+                return []
+            }
+            
+            let orientationValue = layerEntity.orientationPort.values.first?.getOrientation ?? .defaultOrientation
+            let isThisParentUnordered = layerEntity.isGroupLayer && orientationValue == .none
+            
+            // Reverse children if code to be created is for `ZStack`.
+            let children = isThisParentUnordered ? sidebarData.children?.reversed() : sidebarData.children
+            
+            return [layerEntity.createSchema()] + (children?.createOrderedLayersForCodeGen(nodes: nodes) ?? [])
+        }
     }
 }
