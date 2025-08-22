@@ -31,9 +31,16 @@ extension GraphState {
         
         // log("createSwiftUICode: allLayerEntities: \(allLayerEntities)")
         
-        let layerEntitiesMap = allLayerEntities.reduce(into: [UUID: LayerNodeEntity]()) { result, layerNode in
-            result.updateValue(layerNode, forKey: layerNode.id)
-        }
+        let orderedLayerEntities = graphEntity.orderedSidebarLayers
+            .flattenedIds
+            .compactMap { id -> LayerNodeEntity? in
+                guard let layerEntity = self.nodes.get(id)?.layerNodeViewModel else {
+                    fatalErrorIfDebug()
+                    return nil
+                }
+                
+                return layerEntity.createSchema()
+            }
         
         // Filter for just top layer entities in beginning
         let topLevelLayerEntities = allLayerEntities
@@ -56,7 +63,7 @@ extension GraphState {
         // log("createSwiftUICode: varNameIdMap: \(varNameIdMap)")
         
         let viewCode = try topLevelLayerEntities
-            .createSwiftUICode(layerEntityMap: layerEntitiesMap,
+            .createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
                                varIdNameMap: varNameIdMap)
         
         if ignoreScript {
