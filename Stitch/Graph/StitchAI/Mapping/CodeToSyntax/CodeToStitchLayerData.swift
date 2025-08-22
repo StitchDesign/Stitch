@@ -73,7 +73,9 @@ extension SwiftUIViewVisitor {
                         
                         // Validate that the parent can have children before adding
                         if !currentNode.name.canHaveChildren {
-                            fatalErrorIfDebug("SyntaxView '\(currentNode.name.rawValue)' cannot have children but attempted to add child '\(viewName)'")
+//                            fatalErrorIfDevDebug("SyntaxView '\(currentNode.name.rawValue)' cannot have children but attempted to add child '\(viewName)'")
+                            log("SyntaxView '\(currentNode.name.rawValue)' cannot have children but attempted to add child '\(viewName)'")
+                            break
                         }
                         
                         var updatedCurrentNode = currentNode

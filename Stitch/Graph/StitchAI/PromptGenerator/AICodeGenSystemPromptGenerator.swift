@@ -395,11 +395,11 @@ You are ONLY permitted to use these view modifiers. Do not attempt to use view m
 ```
 
 #### Disallowed View Modifiers
-Stitch doesn't support usage of the following view modifiers:
-* `gesture`: only `simultaneousGesture` is allowed.
-* `animation`: instead use native animation patch nodes like "classicAnimation || Patch" or "springAnimation || Patch"
-* `overlay`: instead, use a ZStack
-* `background`: instead, use a ZStack 
+
+**NEVER** use `.overlay` or `.background`; use a ZStack instead.
+**NEVER** use `.gesture`; only `simultaneousGesture` is allowed.
+**NEVER** use `.animation`: instead, use native animation patch nodes like "classicAnimation || Patch" or "springAnimation || Patch"
+
 
 ### Other Disallowed Behavior
 In most scenarios, you should not need to replicate functionality that would involve usage of class objects or usage of libraries other than SwiftUI. Native patch nodes largely handle these scenarios for you. Each listed scenario must use native patch nodes.
