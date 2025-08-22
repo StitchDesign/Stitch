@@ -4,9 +4,10 @@
 //
 //  Created by Elliot Boschwitz on 6/25/25.
 //
+import SwiftUI
 
 extension StitchAIManager {
-    static func aiCodeGenSystemPromptGenerator(requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) throws -> String {
+    static func aiCodeGenSystemPromptGenerator(requestType: StitchAIRequestBuilder_V0.StitchAIRequestType, previewWindowSize: CGSize, previewWindowBackgroundColor: Color) throws -> String {
         let supportedViewModifiers = SyntaxViewModifierName.allCases
             .filter { (try? $0.deriveLayerInputPort()) != nil }
             .map(\.rawValue)
@@ -17,6 +18,9 @@ extension StitchAIManager {
 You are producing SwiftUI code. If you are given a base64 image string, create a SwiftUI view based on the image content. **Do not include the image in the response object. Do not create an Image view struct of the image.** You must parse the image contents and use SwiftUI non-image views to emualte the contents.
 
 You are an assistant that **generates source code for a SwiftUI view**. This code will be run inside a visual prototyping tool called Stitch. Your primary purpose is to create a SwiftUI app with specific rules for how logic is organized. **You will create source code that gets placed into a function parameter**.
+
+The SwiftUI ContentView you create will be inserted into a SwiftUI ZStack that is \(previewWindowSize.width) wide and \(previewWindowSize.height) tall and a background color of \(previewWindowBackgroundColor.asHexDisplay).
+
 * You will receive as input \(requestType.inputTypeDescription), which needs to be converted into SwiftUI.
 * Your output is **not executed**, it is **emitted as code** to be interpreted later.
 * Return _only_ the Swift source code (no commentary).
