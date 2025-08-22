@@ -466,7 +466,12 @@ extension SyntaxViewName {
                               custom_layer_input_values: customInputValuesFromViewConstructor.inputValues)
             
             if !childrenLayers.isEmpty {
-                layerData.children = childrenLayers
+                if !self.canHaveChildren {
+                    fatalErrorIfDebug("SyntaxViewName '\(self.rawValue)' cannot have children but LayerData was created with \(childrenLayers.count) children")
+                    // In release mode, continue with nil children and log the error
+                } else {
+                    layerData.children = childrenLayers
+                }
             }
             
             silentErrors += customInputValuesFromViewConstructor.silentErrors
@@ -728,7 +733,12 @@ extension SyntaxViewName {
                        custom_layer_input_values: customValues)
         
         if !childrenLayers.isEmpty {
-            layerNode.children = childrenLayers
+            if !self.canHaveChildren {
+                fatalErrorIfDebug("SyntaxViewName '\(self.rawValue)' cannot have children but LayerData was created with \(childrenLayers.count) children")
+                // In release mode, continue with nil children and log the error
+            } else {
+                layerNode.children = childrenLayers
+            }
         }
         
         return (layerType, layerNode)

@@ -30,6 +30,19 @@ extension StitchDocumentViewModel {
                                existingGraph: GraphState,
                                idMap: inout [String : UUID]) throws {
         let newId = idMap.get(newLayer.node_id) ?? UUID()
+        
+        // Validation: Check for ID conflicts with different layer types
+        if let existingId = idMap.get(newLayer.node_id),
+           let existingNode = existingGraph.nodes.get(existingId),
+           let existingLayerType = existingNode.kind.getLayer {
+            let newLayerType = try newLayer.node_name.value.convert(to: PatchOrLayer.self).layer
+            if existingLayerType != newLayerType {
+                log("⚠️ ID conflict detected: \(newLayer.node_id) already maps to \(existingLayerType) but new layer is \(newLayerType)")
+                fatalErrorIfDebug("ID conflict: same node_id with different layer types")
+                // In release mode, this should have been caught by fixDuplicateNodeIds
+            }
+        }
+        
         idMap.updateValue(newId, forKey: newLayer.node_id)
         idMap.updateValue(newId, forKey: newId.description)
         let graph = self.visibleGraph
@@ -37,6 +50,8 @@ extension StitchDocumentViewModel {
         let migratedNodeName = try newLayer.node_name.value.convert(to: PatchOrLayer.self)
         let existingLayerNode = existingGraph.nodes.get(newId)
         let needsNewNodeCreation = existingLayerNode?.kind.getLayer != migratedNodeName.layer
+        
+        log("  📝 Processing: \(newLayer.node_id) -> \(newId), LayerType: \(migratedNodeName.layer), needsNew: \(needsNewNodeCreation)")
         
         if needsNewNodeCreation {
             // Creates new layer node view model
@@ -53,9 +68,12 @@ extension StitchDocumentViewModel {
             // Initialize delegates for later helpers (like edges)
             newLayerNode.initializeDelegate(graph: graph,
                                             document: self)
+            
+            log("    ✅ Created node: \(newId), actualType: \(newLayerNode.kind.getLayer)")
         }
         
         if let children = newLayer.children {
+            log("    👶 Processing \(children.count) children for \(newLayer.node_id)")
             for child in children {
                 // Recursive call
                 try self.createLayerNodeFromAI(newLayer: child,
@@ -233,8 +251,20 @@ extension CurrentAIGraphData.GraphData {
             }
         }
         
+        // Fix any duplicate node_ids in the layer hierarchy
+        log("🔍 Checking for duplicate node IDs in layer_data_list...")
+        let (fixedLayerDataList, duplicateIdMapping) = self.layer_data_list.fixDuplicateNodeIds()
+        
+        if !duplicateIdMapping.isEmpty {
+            log("⚠️ Fixed \(duplicateIdMapping.count) duplicate node IDs:")
+            for (oldId, newId) in duplicateIdMapping {
+                log("  \(oldId) -> \(newId)")
+            }
+        }
+        
         // create nested layer nodes in graph
-        for newLayer in self.layer_data_list {
+        for newLayer in fixedLayerDataList {
+            log("🔍 Creating layer node: \(newLayer.node_id), type: \(newLayer.node_name.value), children: \(newLayer.children?.count ?? 0)")
             // Recursive caller
             try document.createLayerNodeFromAI(newLayer: newLayer,
                                                existingGraph: graph,
@@ -242,7 +272,30 @@ extension CurrentAIGraphData.GraphData {
         }
         
         // Create nested sidebar layer data AFTER idMap gets updated from above layer logic
-        let newSidebarData = try self.layer_data_list.map { try $0.createSidebarLayerData(idMap: idMap) }
+        log("🎯 Creating SidebarLayerData from LayerData...")
+        let newSidebarData = try fixedLayerDataList.map { try $0.createSidebarLayerData(idMap: idMap) }
+        
+        // Debug: Check what's in the graph before detection
+        log("📊 Graph nodes summary:")
+        for (nodeId, node) in graph.nodes {
+            if let layer = node.kind.getLayer {
+                log("  Graph[\(nodeId)]: \(layer)")
+            }
+        }
+        
+        // Debug: Check for oval layers with children before updating sidebar
+        let ovalLayersWithChildren = newSidebarData.detectOvalLayersWithChildren(graph: graph)
+        if !ovalLayersWithChildren.isEmpty {
+            log("⚠️ Detected oval layers with children:")
+            for (layerId, childrenCount) in ovalLayersWithChildren {
+                if let node = graph.getNode(layerId) {
+                    log("  - Layer \(layerId): \(childrenCount) children, graphNodeType: \(node.kind.getLayer)")
+                } else {
+                    log("  - Layer \(layerId): \(childrenCount) children, graphNode: NOT FOUND")
+                }
+            }
+            fatalErrorIfDebug("Found oval layers with children - this should not happen")
+        }
         
         // Update sidebar view model data with new layer data
         graph.layersSidebarViewModel.update(from: newSidebarData)
@@ -259,7 +312,7 @@ extension CurrentAIGraphData.GraphData {
         }
         
         // new state for layers
-        try self.layer_data_list.allNestedCustomInputValues { layerNodeId, newInputValueSetting in
+        try fixedLayerDataList.allNestedCustomInputValues { layerNodeId, newInputValueSetting in
             let inputCoordinate = try NodeIOCoordinate(
                 from: .init(layer_id: layerNodeId,
                             input_port_type: newInputValueSetting.coordinate),
@@ -325,7 +378,7 @@ extension CurrentAIGraphData.GraphData {
         // Delete unused nodes
         let allNewIds = self.patch_data.javascript_patches.map(\.node_id) +
         self.patch_data.native_patches.map(\.node_id) +
-        self.layer_data_list.allFlattenedItems.map(\.node_id)
+        fixedLayerDataList.allFlattenedItems.map(\.node_id)
         
         let allNewMappedIds = allNewIds.compactMap { idMap.get($0) }
         let nodeIdsToDelete = Set(document.visibleGraph.nodes.keys).subtracting(allNewMappedIds)
@@ -356,6 +409,74 @@ extension CurrentAIGraphData.GraphData {
 ////            fatalError(error.localizedDescription)
 //        }
 //        #endif
+    }
+}
+
+extension Array where Element == CurrentAIGraphData.LayerData {
+    /// Detects and fixes duplicate node_ids in the layer hierarchy.
+    /// Returns new layer data with unique IDs and a mapping of old->new IDs.
+    func fixDuplicateNodeIds() -> (fixedLayers: [CurrentAIGraphData.LayerData], idMapping: [String: String]) {
+        var seenIds = Set<String>()
+        var idMapping = [String: String]()
+        
+        func fixLayer(_ layer: CurrentAIGraphData.LayerData) -> CurrentAIGraphData.LayerData {
+            let originalId = layer.node_id
+            var fixedLayer = layer
+            
+            // Check if this ID has been seen before
+            if seenIds.contains(originalId) {
+                // Generate a new unique ID
+                let newId = UUID().uuidString
+                log("🔧 Fixed duplicate ID: \(originalId) -> \(newId)")
+                fixedLayer.node_id = newId
+                idMapping[originalId] = newId
+            } else {
+                seenIds.insert(originalId)
+            }
+            
+            // Recursively fix children
+            if let children = layer.children {
+                fixedLayer.children = children.map { fixLayer($0) }
+            }
+            
+            return fixedLayer
+        }
+        
+        let fixedLayers = self.map { fixLayer($0) }
+        return (fixedLayers: fixedLayers, idMapping: idMapping)
+    }
+}
+
+extension Array where Element == SidebarLayerData {
+    /// Recursively detects oval layers that incorrectly have children.
+    /// Returns array of problematic layer IDs with their children count.
+    
+    @MainActor
+    func detectOvalLayersWithChildren(graph: GraphState) -> [(layerId: UUID, childrenCount: Int)] {
+        var results: [(layerId: UUID, childrenCount: Int)] = []
+        
+        func crawlLayer(_ layer: SidebarLayerData) {
+            // Check if this layer is an oval with children
+            if let layerNode = graph.getNode(layer.id),
+               let layerKind = layerNode.kind.getLayer,
+               layerKind == .oval,
+               let children = layer.children,
+               !children.isEmpty {
+                results.append((layerId: layer.id, childrenCount: children.count))
+            }
+            
+            // Recursively check all children
+            layer.children?.forEach { childLayer in
+                crawlLayer(childLayer)
+            }
+        }
+        
+        // Process all layers at the top level
+        self.forEach { layer in
+            crawlLayer(layer)
+        }
+        
+        return results
     }
 }
 

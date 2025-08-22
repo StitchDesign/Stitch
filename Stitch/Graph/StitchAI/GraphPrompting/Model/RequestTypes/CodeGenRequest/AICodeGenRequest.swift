@@ -180,6 +180,206 @@ extension StitchAICodeCreator {
                         aiManager: aiManager,
                         dataGlossaryPrompt: dataGlossaryPrompt)
 
+//        let swiftUICode = """
+//            struct ContentView: View {
+//                var body: some View {
+//                    VStack(spacing: 32) {
+//                        Text(PortValueDescription(value: "1 (234) 567-8900", value_type: "string"))
+//                            .layerId("22222222-2222-2222-2222-222222222222")
+//                        Text(PortValueDescription(value: "Add Number", value_type: "string"))
+//                            .foregroundColor([PortValueDescription(value: "#007AFFFF", value_type: "color")])
+//                            .layerId("33333333-3333-3333-3333-333333333333")
+//                        VStack(spacing: 24) {
+//                            HStack(spacing: 24) {
+//                                ZStack {
+//                                    Circle()
+//                                        .fill([PortValueDescription(value: "#E5E5E5FF", value_type: "color")])
+//                                        .layerId("51000000-0000-0000-0000-000000000001")
+//                                    VStack(spacing: 0) {
+//                                        Text(PortValueDescription(value: "1", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000000A")
+//                                        Text(PortValueDescription(value: "", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000000B")
+//                                    }
+//                                    .layerId("51000000-0000-0000-0000-00000000000C")
+//                                }
+//                                .frame([PortValueDescription(value: ["height":"80.0","width":"80.0"], value_type: "size")])
+//                                ZStack {
+//                                    Circle()
+//                                        .fill([PortValueDescription(value: "#E5E5E5FF", value_type: "color")])
+//                                        .layerId("51000000-0000-0000-0000-000000000002")
+//                                    VStack(spacing: 0) {
+//                                        Text(PortValueDescription(value: "2", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000001A")
+//                                        Text(PortValueDescription(value: "ABC", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000001B")
+//                                    }
+//                                    .layerId("51000000-0000-0000-0000-00000000001C")
+//                                }
+//                                .frame([PortValueDescription(value: ["height":"80.0","width":"80.0"], value_type: "size")])
+//                                ZStack {
+//                                    Circle()
+//                                        .fill([PortValueDescription(value: "#E5E5E5FF", value_type: "color")])
+//                                        .layerId("51000000-0000-0000-0000-000000000003")
+//                                    VStack(spacing: 0) {
+//                                        Text(PortValueDescription(value: "3", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000002A")
+//                                        Text(PortValueDescription(value: "DEF", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000002B")
+//                                    }
+//                                    .layerId("51000000-0000-0000-0000-00000000002C")
+//                                }
+//                                .frame([PortValueDescription(value: ["height":"80.0","width":"80.0"], value_type: "size")])
+//                            }
+//                            HStack(spacing: 24) {
+//                                ZStack {
+//                                    Circle()
+//                                        .fill([PortValueDescription(value: "#E5E5E5FF", value_type: "color")])
+//                                        .layerId("51000000-0000-0000-0000-000000000004")
+//                                    VStack(spacing: 0) {
+//                                        Text(PortValueDescription(value: "4", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000003A")
+//                                        Text(PortValueDescription(value: "GHI", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000003B")
+//                                    }
+//                                    .layerId("51000000-0000-0000-0000-00000000003C")
+//                                }
+//                                .frame([PortValueDescription(value: ["height":"80.0","width":"80.0"], value_type: "size")])
+//                                ZStack {
+//                                    Circle()
+//                                        .fill([PortValueDescription(value: "#E5E5E5FF", value_type: "color")])
+//                                        .layerId("51000000-0000-0000-0000-000000000005")
+//                                    VStack(spacing: 0) {
+//                                        Text(PortValueDescription(value: "5", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000004A")
+//                                        Text(PortValueDescription(value: "JKL", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000004B")
+//                                    }
+//                                    .layerId("51000000-0000-0000-0000-00000000004C")
+//                                }
+//                                .frame([PortValueDescription(value: ["height":"80.0","width":"80.0"], value_type: "size")])
+//                                ZStack {
+//                                    Circle()
+//                                        .fill([PortValueDescription(value: "#E5E5E5FF", value_type: "color")])
+//                                        .layerId("51000000-0000-0000-0000-000000000006")
+//                                    VStack(spacing: 0) {
+//                                        Text(PortValueDescription(value: "6", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000005A")
+//                                        Text(PortValueDescription(value: "MNO", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000005B")
+//                                    }
+//                                    .layerId("51000000-0000-0000-0000-00000000005C")
+//                                }
+//                                .frame([PortValueDescription(value: ["height":"80.0","width":"80.0"], value_type: "size")])
+//                            }
+//                            HStack(spacing: 24) {
+//                                ZStack {
+//                                    Circle()
+//                                        .fill([PortValueDescription(value: "#E5E5E5FF", value_type: "color")])
+//                                        .layerId("51000000-0000-0000-0000-000000000007")
+//                                    VStack(spacing: 0) {
+//                                        Text(PortValueDescription(value: "7", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000006A")
+//                                        Text(PortValueDescription(value: "PQRS", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000006B")
+//                                    }
+//                                    .layerId("51000000-0000-0000-0000-00000000006C")
+//                                }
+//                                .frame([PortValueDescription(value: ["height":"80.0","width":"80.0"], value_type: "size")])
+//                                ZStack {
+//                                    Circle()
+//                                        .fill([PortValueDescription(value: "#E5E5E5FF", value_type: "color")])
+//                                        .layerId("51000000-0000-0000-0000-000000000008")
+//                                    VStack(spacing: 0) {
+//                                        Text(PortValueDescription(value: "8", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000007A")
+//                                        Text(PortValueDescription(value: "TUV", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000007B")
+//                                    }
+//                                    .layerId("51000000-0000-0000-0000-00000000007C")
+//                                }
+//                                .frame([PortValueDescription(value: ["height":"80.0","width":"80.0"], value_type: "size")])
+//                                ZStack {
+//                                    Circle()
+//                                        .fill([PortValueDescription(value: "#E5E5E5FF", value_type: "color")])
+//                                        .layerId("51000000-0000-0000-0000-000000000009")
+//                                    VStack(spacing: 0) {
+//                                        Text(PortValueDescription(value: "9", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000008A")
+//                                        Text(PortValueDescription(value: "WXYZ", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-00000000008B")
+//                                    }
+//                                    .layerId("51000000-0000-0000-0000-00000000008C")
+//                                }
+//                                .frame([PortValueDescription(value: ["height":"80.0","width":"80.0"], value_type: "size")])
+//                            }
+//                            HStack(spacing: 24) {
+//                                ZStack {
+//                                    Circle()
+//                                        .fill([PortValueDescription(value: "#E5E5E5FF", value_type: "color")])
+//                                        .layerId("51000000-0000-0000-0000-00000000000A")
+//                                    Text(PortValueDescription(value: "*", value_type: "string"))
+//                                        .layerId("51000000-0000-0000-0000-00000000009A")
+//                                }
+//                                .frame([PortValueDescription(value: ["height":"80.0","width":"80.0"], value_type: "size")])
+//                                ZStack {
+//                                    Circle()
+//                                        .fill([PortValueDescription(value: "#E5E5E5FF", value_type: "color")])
+//                                        .layerId("51000000-0000-0000-0000-00000000000B")
+//                                    VStack(spacing: 0) {
+//                                        Text(PortValueDescription(value: "0", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-0000000000AA")
+//                                        Text(PortValueDescription(value: "+", value_type: "string"))
+//                                            .layerId("51000000-0000-0000-0000-0000000000AB")
+//                                    }
+//                                    .layerId("51000000-0000-0000-0000-0000000000AC")
+//                                }
+//                                .frame([PortValueDescription(value: ["height":"80.0","width":"80.0"], value_type: "size")])
+//                                ZStack {
+//                                    Circle()
+//                                        .fill([PortValueDescription(value: "#E5E5E5FF", value_type: "color")])
+//                                        .layerId("51000000-0000-0000-0000-00000000000C")
+//                                    Text(PortValueDescription(value: "#", value_type: "string"))
+//                                        .layerId("51000000-0000-0000-0000-0000000000BA")
+//                                }
+//                                .frame([PortValueDescription(value: ["height":"80.0","width":"80.0"], value_type: "size")])
+//                            }
+//                        }
+//                        .layerId("44444444-4444-4444-4444-444444444444")
+//                        HStack(spacing: 100) {
+//                            Circle()
+//                                .fill([PortValueDescription(value: "#FFFFFF00", value_type: "color")])
+//                                .frame([PortValueDescription(value: ["height":"64.0","width":"64.0"], value_type: "size")])
+//                                .layerId("blank0000-0000-0000-0000-000000000000")
+//                            ZStack {
+//                                Circle()
+//                                    .fill([PortValueDescription(value: "#FF9500FF", value_type: "color")])
+//                                    .layerId("60000000-0000-0000-0000-000000000000")
+//                                Text(PortValueDescription(value: "📞", value_type: "string"))
+//                                    .layerId("60000000-0000-0000-0000-00000000000A")
+//                            }
+//                            .frame([PortValueDescription(value: ["height":"64.0","width":"64.0"], value_type: "size")])
+//                            ZStack {
+//                                Circle()
+//                                    .fill([PortValueDescription(value: "#E5E5E5FF", value_type: "color")])
+//                                    .layerId("70000000-0000-0000-0000-000000000000")
+//                                Text(PortValueDescription(value: "×", value_type: "string"))
+//                                    .layerId("70000000-0000-0000-0000-00000000000A")
+//                            }
+//                            .frame([PortValueDescription(value: ["height":"64.0","width":"64.0"], value_type: "size")])
+//                        }
+//                        .layerId("55555555-5555-5555-5555-555555555555")
+//                    }
+//                    .padding()
+//                    .layerId("11111111-1111-1111-1111-111111111111")
+//                }
+//
+//                func updateLayerInputs() {
+//                }
+//            }
+//
+//            """
+        
         logToServerIfRelease("StitchAICodeCreator swiftUICode:\n\(swiftUICode)")
         
 //        guard let parsedVarBody = VarBodyParser.extract(from: swiftUICode) else {

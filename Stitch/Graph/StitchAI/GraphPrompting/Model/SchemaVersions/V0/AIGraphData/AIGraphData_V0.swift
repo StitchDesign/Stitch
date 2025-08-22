@@ -399,8 +399,18 @@ extension AIGraphData_V0.LayerData {
             throw AIPatchBuilderRequestError.nodeIdNotFound
         }
         
-        let children = try self.children?.map {
-            try $0.createSidebarLayerData(idMap: idMap)
+        // Final validation: strip children from layers that shouldn't have them
+        let children: [SidebarLayerData]?
+        if let layer = self.node_name.value.layer,
+           !layer.canHaveChildren && self.children.isDefined {
+            log("🛡️ Final validation: Stripping \(self.children?.count ?? 0) children from \(layer) layer \(self.node_id)")
+            fatalErrorIfDebug("Layer \(layer) cannot have children but LayerData has \(self.children?.count ?? 0) children")
+            // In release mode, strip the invalid children
+            children = nil
+        } else {
+            children = try self.children?.map {
+                try $0.createSidebarLayerData(idMap: idMap)
+            }
         }
         
         return SidebarLayerData(id: newId,
