@@ -111,7 +111,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         let elements = Array(node.elements)
 
         guard elements.count == 3 else {
-            fatalError()
+            // Comes up from conditionals using `??`, just ignore
+            return .skipChildren
         }
         
         guard let assignmentExpr = elements[1].as(AssignmentExprSyntax.self),
