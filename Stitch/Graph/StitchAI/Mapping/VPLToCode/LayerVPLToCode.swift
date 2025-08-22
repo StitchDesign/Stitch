@@ -16,7 +16,7 @@ extension LayerNodeEntity {
     /// Only constructor-surface arguments are considered; **no view modifiers**.
     @MainActor
     func createSwiftUIViewBuilderCode(children: [LayerNodeEntity],
-                                      layerEntityMap: [UUID: LayerNodeEntity],
+                                      orderedLayerEntities: [LayerNodeEntity],
                                       varIdNameMap: [UUID: String]) throws -> String? {
         switch self.layer {
             
@@ -37,7 +37,7 @@ extension LayerNodeEntity {
         case .group:
             return try self
                 .createNestedGroupSwiftUICode(children: children,
-                                              layerEntityMap: layerEntityMap,
+                                              orderedLayerEntities: orderedLayerEntities,
                                               varIdNameMap: varIdNameMap)
             
             
@@ -83,12 +83,12 @@ extension LayerNodeEntity {
     
     @MainActor
     func createNestedGroupSwiftUICode(children: [LayerNodeEntity],
-                                      layerEntityMap: [UUID: LayerNodeEntity],
+                                      orderedLayerEntities: [LayerNodeEntity],
                                       varIdNameMap: [UUID: String]) throws -> String? {
         assertInDebug(self.layer == .group)
         
         let childrenContents = try children
-            .createSwiftUICode(layerEntityMap: layerEntityMap,
+            .createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
                                varIdNameMap: varIdNameMap)
         
         // Check if scroll is enabled
@@ -151,7 +151,7 @@ extension LayerNodeEntity {
             case .grid:
                 // Generate LazyVGrid code
                 return try self.createLazyVGridCode(children: children,
-                                                    layerEntityMap: layerEntityMap,
+                                                    orderedLayerEntities: orderedLayerEntities,
                                                     varIdNameMap: varIdNameMap)
             }
         }
@@ -159,12 +159,12 @@ extension LayerNodeEntity {
     
     @MainActor
     func createLazyVGridCode(children: [LayerNodeEntity],
-                             layerEntityMap: [UUID: LayerNodeEntity],
+                             orderedLayerEntities: [LayerNodeEntity],
                              varIdNameMap: [UUID: String]) throws -> String? {
         assertInDebug(self.layer == .group)
         
         let childrenContents = try children
-            .createSwiftUICode(layerEntityMap: layerEntityMap,
+            .createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
                                varIdNameMap: varIdNameMap)
         
         // Get spacing from the group's spacing port
@@ -205,9 +205,9 @@ extension LayerNodeEntity {
         
     /// Converts layer data from graph to SwiftUI code
     @MainActor
-    func createSwiftUICode(layerEntityMap: [UUID: LayerNodeEntity],
+    func createSwiftUICode(orderedLayerEntities: [LayerNodeEntity],
                            varIdNameMap: [UUID: String]) throws -> String? {
-        let childrenLayerEntities = layerEntityMap.values.filter {
+        let childrenLayerEntities = orderedLayerEntities.filter {
             $0.layerGroupId == self.id
         }
         
@@ -218,7 +218,7 @@ extension LayerNodeEntity {
         if isGroup {
             guard let groupSwiftUICode = try self
                 .createNestedGroupSwiftUICode(children: childrenLayerEntities,
-                                              layerEntityMap: layerEntityMap,
+                                              orderedLayerEntities: orderedLayerEntities,
                                               varIdNameMap: varIdNameMap) else {
                 return nil
             }
@@ -230,7 +230,7 @@ extension LayerNodeEntity {
             // Create the constructor
             guard let constructor = try self
                 .createSwiftUIViewBuilderCode(children: childrenLayerEntities,
-                                              layerEntityMap: layerEntityMap,
+                                              orderedLayerEntities: orderedLayerEntities,
                                               varIdNameMap: varIdNameMap) else {
                 return nil
             }
@@ -250,7 +250,7 @@ extension LayerNodeEntity {
         if isNotGroupButHasChildren {
             // Convert children recursively
             let swiftUICodeForChildren = try childrenLayerEntities.compactMap {
-                try $0.createSwiftUICode(layerEntityMap: layerEntityMap,
+                try $0.createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
                                          varIdNameMap: varIdNameMap)
             }
             
@@ -263,13 +263,13 @@ extension LayerNodeEntity {
 
 extension Array where Element == LayerNodeEntity {
     @MainActor
-    func createSwiftUICode(layerEntityMap: [UUID: LayerNodeEntity],
+    func createSwiftUICode(orderedLayerEntities: [LayerNodeEntity],
                            varIdNameMap: [UUID: String]) throws -> String {
         var droppedLayers: [LayerNodeEntity] = []
         
         let strings = try self.compactMap { layerEntity -> String? in
-            let result = try layerEntity.createSwiftUICode(layerEntityMap: layerEntityMap,
-                                                          varIdNameMap: varIdNameMap)
+            let result = try layerEntity.createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
+                                                           varIdNameMap: varIdNameMap)
             if result == nil {
                 droppedLayers.append(layerEntity)
                 log("DROPPED LAYER: \(layerEntity.layer) with id \(layerEntity.id) - createSwiftUICode returned nil")
