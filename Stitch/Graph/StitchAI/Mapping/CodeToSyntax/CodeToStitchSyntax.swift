@@ -183,6 +183,15 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         }
     }
     
+    /// Ensures we only parse view structs.
+    override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
+        guard let inheritanceClause = node.inheritanceClause,
+              inheritanceClause.inheritedTypes.contains(where: { $0.type.trimmedDescription == "View" }) else {
+            return .skipChildren
+        }
+        return .visitChildren
+    }
+    
     override func visitPost(_ node: ClosureExprSyntax) {
         // log("Exiting closure expression")
         
