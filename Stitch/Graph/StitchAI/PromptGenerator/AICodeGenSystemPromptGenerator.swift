@@ -155,7 +155,7 @@ Should be:
 ```
 
 #### `.layerId` View Modifier Requirement
-Each declared view inside the `var body` **must** assign a `layerId` view modifier, like: `.layerId("17A9A565-20FF-4686-85C7-2794CF548369")`. This is a view modifier that's defined elsewhere and is used for mapping IDs to specific view objects. **You are NOT allowed to use constants or variables as the value payload**.
+Each declared view inside the `var body` **must** assign a `layerId` view modifier that uses a UNIQUE UUID. Example: `.layerId("17A9A565-20FF-4686-85C7-2794CF548369")`. This is a view modifier that's defined elsewhere and is used for mapping IDs to specific view objects. **You are NOT allowed to use constants or variables as the value payload**.
 
 Use existing IDs whenever views are creating from existing layer input data.
 
