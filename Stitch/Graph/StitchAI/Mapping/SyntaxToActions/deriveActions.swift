@@ -32,7 +32,7 @@ struct SwiftSyntaxActionsResult: Encodable {
 
 extension Array where Element == SyntaxView {
     func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) throws -> SwiftSyntaxLayerActionsResult {
-        let allResults = try self.map { try $0.deriveStitchActions(bindingDeclarations: bindingDeclarations) }
+        let allResults = try self.compactMap { try $0.deriveStitchActions(bindingDeclarations: bindingDeclarations) }
         
         return .init(actions: allResults.flatMap { $0.actions },
                      caughtErrors: allResults.flatMap { $0.caughtErrors })
@@ -173,7 +173,7 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
 }
 
 extension SyntaxView {
-    func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) throws -> SwiftSyntaxLayerActionsResult {
+    func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) throws -> SwiftSyntaxLayerActionsResult? {
         // TODO: map references to specific layer IDs
         
         // Tracks all silent errors
@@ -251,7 +251,7 @@ extension SyntaxView {
             
         case .value:
             // No view here, just continue
-            throw SwiftUISyntaxError.incorrectParsing(message: "Unexpected value type found in action derivation.")
+            return nil
         }
     }
 }
