@@ -261,7 +261,7 @@ struct ASTExplorerView: View {
 
         do {
             // Syntax → Actions
-            let stitchActionsResult = try codeParserResult.deriveStitchActions()
+            let stitchActionsResult = try codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
             
             stitchActions = stitchActionsResult
             silentlyCaughtErrors += stitchActionsResult.caughtErrors

@@ -168,12 +168,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 let parseResult = SwiftUIViewVisitor.parseSwiftUICode(bodyScript,
                                                                       varNameIdMap: self.varNameIdMap)
                 
-                if let syntaxView = parseResult.viewStack.first {
-                    assertInDebug(parseResult.viewStack.count == 1)
-                    
-                    self.bindingDeclarations.updateValue(.viewBuilder(syntaxView),
-                                                         forKey: funcName)
-                }
+                self.bindingDeclarations.updateValue(.viewBuilder(bodyScript),
+                                                     forKey: funcName)
                 
                 return .skipChildren
             }
