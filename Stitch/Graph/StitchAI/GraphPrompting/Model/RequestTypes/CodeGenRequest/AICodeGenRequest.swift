@@ -61,9 +61,13 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
                 reasoningEffort: validatedReasoningEffort,
                 willStream: false)
             
+            let startTime = CFAbsoluteTimeGetCurrent()
             let codeEditResult = try await visionEditRequest
                 .request(document: document,
                          aiManager: aiManager)
+            let endTime = CFAbsoluteTimeGetCurrent()
+            let duration = endTime - startTime
+            log("⏱️ OpenAI Vision Request completed in \(String(format: "%.2f", duration)) seconds")
             
             return codeEditResult
         } else {
@@ -86,9 +90,13 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
                 verbosity: validatedVerbosity,
                 reasoningEffort: validatedReasoningEffort)
             
+            let startTime = CFAbsoluteTimeGetCurrent()
             let codeEditResult = try await codeEditRequest
                 .request(document: document,
                          aiManager: aiManager)
+            let endTime = CFAbsoluteTimeGetCurrent()
+            let duration = endTime - startTime
+            log("⏱️ OpenAI Regular Request completed in \(String(format: "%.2f", duration)) seconds")
             
             return codeEditResult
         }
