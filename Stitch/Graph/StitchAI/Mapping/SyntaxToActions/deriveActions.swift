@@ -45,10 +45,10 @@ extension SwiftUIViewParserResult {
         let patchResults = try self.bindingDeclarations.deriveStitchActions()
 
         // Extract layer data
-        let layerResults = try self.rootView?.deriveStitchActions()
-        let allLayerErrors = layerResults.flatMap { $0.caughtErrors } ?? []
+        let layerResults = try self.viewStack.deriveStitchActions()
+        let allLayerErrors = layerResults.caughtErrors
         
-        return .init(graphData: .init(layer_data_list: layerResults?.actions ?? [],
+        return .init(graphData: .init(layer_data_list: layerResults.actions,
                                       patch_data: patchResults.actions,
                                       viewStatePatchConnections: patchResults.viewStatePatchConnections),
                      caughtErrors: allLayerErrors + patchResults.caughtErrors)

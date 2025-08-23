@@ -11,7 +11,7 @@ import SwiftSyntaxBuilder
 import SwiftUI
 
 struct SwiftUIViewParserResult {
-    let rootView: SyntaxView?
+    let viewStack: [SyntaxView]
     let bindingDeclarations: [String : SwiftParserInitializerType]
     let caughtErrors: [SwiftUISyntaxError]
 }

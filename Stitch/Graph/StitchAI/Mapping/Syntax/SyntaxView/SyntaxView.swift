@@ -21,7 +21,7 @@ struct StrictSyntaxView {
 // MARK: intended for parsing arbitrary SwiftUI code that might or might not have a corresponding Stitch concept, i.e. the code -> vpl direction
 
 // fka `ViewNode`
-struct SyntaxView: Equatable {
+struct SyntaxView: Equatable, Sendable {
         
     // representation of a SwiftUI View
     // e.g. `Text`, `Rectangle`, `Image`

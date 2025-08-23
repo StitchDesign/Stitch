@@ -21,23 +21,27 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         super.init(viewMode: .sourceAccurate)
     }
     
-    var rootViewNode: SyntaxView?
+    // Captures context for parsing, no longer used as a return value
+//    private var rootViewNode: SyntaxView?
     
     // Top-level declarations of patch data
     var bindingDeclarations = [String : SwiftParserInitializerType]()
     
-    var currentNodeIndex: Int? // Index into the view stack
+//    var currentNodeIndex: Int? // Index into the view stack
     var viewStack: [SyntaxView] = []
-    private var idCounter = 0
+    
+//    var currentView: SyntaxView?
+    
+//    private var idCounter = 0
     
     // Context tracking for proper child vs argument parsing
-    enum ParsingContext: Equatable {
-        case root
-        case closure(parentView: SyntaxViewName)
-        case arguments
-    }
+//    enum ParsingContext: Equatable {
+////        case root
+//        case closure(parentView: SyntaxViewName)
+//        case arguments
+//    }
     
-    var contextStack: [ParsingContext] = [.root]
+//    var contextStack: [ParsingContext] = [.root]
     
     // Tracks decoding errors
     var caughtErrors: [SwiftUISyntaxError] = []
@@ -94,9 +98,11 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             
             // TODO: consider how visitLayerData works with functions not yet known. do we bubble up info to root node as a preprocessed thing?
             
-            return self.visitLayerData(identifierExpr: identifierExpr,
-                                       node: node)
-            
+            if let node = self.visitLayerData(node: node) {
+                self.viewStack.append(node)
+            }
+
+            return .skipChildren
         }
 //        else if let memberAccessExpr = node.calledExpression.as(MemberAccessExprSyntax.self) {
             // Detected a modifier call (e.g. .padding()).  We *do not* attach the modifier
@@ -147,23 +153,28 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         return .visitChildren
     }
     
-    // Handle closure expressions (for container views like VStack, HStack, ZStack)
-    override func visit(_ node: ClosureExprSyntax) -> SyntaxVisitorContinueKind {
-        // log("Entering closure expression")
-        
-        // Check if we're inside a container view that can have children
-        if let currentView = currentViewNode, currentView.name.canHaveChildren {
-            // log("Entering closure for container view: \(currentView.name.rawValue)")
-            contextStack.append(.closure(parentView: currentView.name))
-        } else {
-            // log("Entering closure in non-container context (likely function arguments)")
-            contextStack.append(.arguments)
-        }
-        
-        return .visitChildren
-    }
+//    // Handle closure expressions (for container views like VStack, HStack, ZStack)
+//    override func visit(_ node: ClosureExprSyntax) -> SyntaxVisitorContinueKind {
+//        // log("Entering closure expression")
+//        
+//        // Check if we're inside a container view that can have children
+//        if let currentView = self.currentView, currentView.name.canHaveChildren {
+//            // log("Entering closure for container view: \(currentView.name.rawValue)")
+//            contextStack.append(.closure(parentView: currentView.name))
+//        } else {
+//            // log("Entering closure in non-container context (likely function arguments)")
+//            contextStack.append(.arguments)
+//        }
+//        
+//        return .visitChildren
+//    }
     
     /// Parse for JS nodes.
+
+    // TODO: we can probably remove this in favor of a FunctionDeclSyntax override?
+    
+    
+    
     override func visit(_ node: MemberBlockItemSyntax) -> SyntaxVisitorContinueKind {
         guard let funcDeclSyntax = node.decl.as(FunctionDeclSyntax.self) else {
             return .visitChildren
@@ -189,13 +200,16 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 let parseResult = SwiftUIViewVisitor.parseSwiftUICode(bodyScript,
                                                                       varNameIdMap: self.varNameIdMap)
                 
-                if let syntaxView = parseResult.rootView {
+                if let syntaxView = parseResult.viewStack.first {
+                    assertInDebug(parseResult.viewStack.count == 1)
+                    
                     self.bindingDeclarations.updateValue(.viewBuilder(syntaxView),
                                                          forKey: funcName)
                 }
                 
                 return .skipChildren
             }
+            
 
             // JS node case
             else {
@@ -214,15 +228,15 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         return .visitChildren
     }
     
-    override func visitPost(_ node: ClosureExprSyntax) {
-        // log("Exiting closure expression")
-        
-        // Pop the context we pushed when entering the closure
-        if contextStack.count > 1 {
-            let poppedContext = contextStack.removeLast()
-            // log("Popped context: \(poppedContext)")
-        }
-    }
+//    override func visitPost(_ node: ClosureExprSyntax) {
+//        // log("Exiting closure expression")
+//        
+//        // Pop the context we pushed when entering the closure
+//        if contextStack.count > 1 {
+//            let poppedContext = contextStack.removeLast()
+//            // log("Popped context: \(poppedContext)")
+//        }
+//    }
     
     // MARK: - SyntaxVisitor Overrides
     
@@ -247,41 +261,41 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
 //            log("ViewStack before adjustment - count: \(viewStack.count), current node index: \(String(describing: currentNodeIndex))")
             
             // Debug the current stack state
-            if !viewStack.isEmpty {
-//                log("Current stack state:")
-                for (index, stackNode) in viewStack.enumerated() {
-//                    log("  [\(index)] \(stackNode.name.rawValue) with \(stackNode.modifiers.count) modifiers")
-                }
-            }
+//            if !viewStack.isEmpty {
+////                log("Current stack state:")
+//                for (index, stackNode) in viewStack.enumerated() {
+////                    log("  [\(index)] \(stackNode.name.rawValue) with \(stackNode.modifiers.count) modifiers")
+//                }
+//            }
             
             // We're exiting a view initialization
-            if let lastNode = viewStack.last,
-               let nameType = SyntaxNameType.from(viewName),
-               // Ensure a view here instead of a value
-               nameType.isView {
-                // Before removing the node, make sure we capture any modifiers that were added
-//                log("Node being popped: \(lastNode.name.rawValue) with \(lastNode.modifiers.count) modifiers")
-                
-                // Remove the last node
-                viewStack.removeLast()
-                
-                // Update current node index to point to the new last node
-                currentNodeIndex = viewStack.count > 0 ? viewStack.count - 1 : nil
-                
-//                log("Stack after pop - depth: \(viewStack.count), new current index: \(String(describing: currentNodeIndex))")
-                
-                // Debug the root node state
-                if let root = rootViewNode {
-//                    log("Root node: \(root.name.rawValue) with \(root.modifiers.count) modifiers and \(root.children.count) children")
-                    if !root.children.isEmpty {
-                        for (index, child) in root.children.enumerated() {
-//                            log("  Root child[\(index)]: \(child.name.rawValue) with \(child.modifiers.count) modifiers")
-                        }
-                    }
-                }
-            } else {
-//                log("View stack empty, nothing to pop")
-            }
+//            if let lastNode = self.currentView,
+//               let nameType = SyntaxNameType.from(viewName),
+//               // Ensure a view here instead of a value
+//               nameType.isView {
+//                // Before removing the node, make sure we capture any modifiers that were added
+////                log("Node being popped: \(lastNode.name.rawValue) with \(lastNode.modifiers.count) modifiers")
+//                
+//                // Update the view stack
+//                viewStack.append(lastNode)
+//                
+//                // Update current node index to point to the new last node
+////                currentNodeIndex = viewStack.count > 0 ? viewStack.count - 1 : nil
+//                
+////                log("Stack after pop - depth: \(viewStack.count), new current index: \(String(describing: currentNodeIndex))")
+//                
+//                // Debug the root node state
+////                if let root = rootViewNode {
+//////                    log("Root node: \(root.name.rawValue) with \(root.modifiers.count) modifiers and \(root.children.count) children")
+////                    if !root.children.isEmpty {
+////                        for (index, child) in root.children.enumerated() {
+//////                            log("  Root child[\(index)]: \(child.name.rawValue) with \(child.modifiers.count) modifiers")
+////                        }
+////                    }
+////                }
+//            } else {
+////                log("View stack empty, nothing to pop")
+//            }
         }
         
  
@@ -295,12 +309,12 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 
                 // If this FunctionCallExpr is not nested inside *another* MemberAccessExpr,
                 // we are at the end of the modifier chain; pop the base view.
-                if node.parent?.as(MemberAccessExprSyntax.self) == nil {
-                    if let popped = viewStack.popLast() {
-                        // log("visitPost → popped view \(popped.name.rawValue) after completing modifier chain")
-                    }
-                    currentNodeIndex = viewStack.isEmpty ? nil : viewStack.count - 1
-                }
+//                if node.parent?.as(MemberAccessExprSyntax.self) == nil {
+//                    if let popped = viewStack.popLast() {
+//                        // log("visitPost → popped view \(popped.name.rawValue) after completing modifier chain")
+//                    }
+//                    currentNodeIndex = viewStack.isEmpty ? nil : viewStack.count - 1
+//                }
             } else {
                 // log("visitPost error: unable to parse view modifier name: \(modifierName)")
                 self.caughtErrors.append(.unsupportedSyntaxViewModifierName(modifierName))
@@ -335,7 +349,7 @@ extension SwiftUIViewVisitor {
         let visitor = SwiftUIViewVisitor(varNameIdMap: varNameIdMap)
         visitor.walk(sourceFile)
                 
-        return .init(rootView: visitor.rootViewNode,
+        return .init(viewStack: visitor.viewStack,
                      bindingDeclarations: visitor.bindingDeclarations,
                      caughtErrors: visitor.caughtErrors)
     }
