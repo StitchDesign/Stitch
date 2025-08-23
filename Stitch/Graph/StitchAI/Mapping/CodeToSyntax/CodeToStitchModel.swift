@@ -56,6 +56,9 @@ indirect enum SwiftParserInitializerType: Sendable {
     
     // js nodes
     case jsNodeScript(String)
+    
+    // view builder functions
+    case viewBuilder(SyntaxView)
 }
 
 // Subscripts can be used on references or nodes themselves

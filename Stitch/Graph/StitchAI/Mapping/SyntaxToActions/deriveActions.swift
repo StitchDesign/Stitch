@@ -139,6 +139,10 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                 
             case .declrRef:
                 break
+                
+            case .viewBuilder:
+                break
+                
             }
         }
         

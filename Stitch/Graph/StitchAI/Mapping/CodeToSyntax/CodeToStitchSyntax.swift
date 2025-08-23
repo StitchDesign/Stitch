@@ -92,16 +92,19 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         if let identifierExpr = node.calledExpression.as(DeclReferenceExprSyntax.self) {
             // log("LAYER DATA")
             
+            // TODO: consider how visitLayerData works with functions not yet known. do we bubble up info to root node as a preprocessed thing?
+            
             return self.visitLayerData(identifierExpr: identifierExpr,
                                        node: node)
             
-        } else if let memberAccessExpr = node.calledExpression.as(MemberAccessExprSyntax.self) {
+        }
+//        else if let memberAccessExpr = node.calledExpression.as(MemberAccessExprSyntax.self) {
             // Detected a modifier call (e.g. .padding()).  We *do not* attach the modifier
             // here because the base view may not have been pushed onto the stack yet.
             // Instead, we defer actual attachment to `visitPost(_:)`, which runs after the
             // base `FunctionCallExprSyntax` has been visited.
             // log("visit → encountered potential modifier .\(memberAccessExpr.declName.baseName.text) – deferring to visitPost")
-        }
+//        }
         
         return .visitChildren
     }
@@ -170,16 +173,35 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             return .visitChildren
         }
         
-        // JS node case
         else {
             guard let body = funcDeclSyntax.body else {
                 return .visitChildren
             }
             
             let funcName = funcDeclSyntax.name.text
-            let jsBodyScript = body.description.trimmingOuterBraces()
-            self.bindingDeclarations.updateValue(.jsNodeScript(jsBodyScript), forKey: funcName)
-            return .skipChildren
+            let bodyScript = body.description.trimmingOuterBraces()
+
+            // View builder function
+            if let someOrAnyReturnType = funcDeclSyntax.signature.returnClause?.type.as(SomeOrAnyTypeSyntax.self),
+               someOrAnyReturnType.constraint.trimmedDescription == "View" {
+                
+                // Create new visitor class
+                let parseResult = SwiftUIViewVisitor.parseSwiftUICode(bodyScript,
+                                                                      varNameIdMap: self.varNameIdMap)
+                
+                if let syntaxView = parseResult.rootView {
+                    self.bindingDeclarations.updateValue(.viewBuilder(syntaxView),
+                                                         forKey: funcName)
+                }
+                
+                return .skipChildren
+            }
+
+            // JS node case
+            else {
+                self.bindingDeclarations.updateValue(.jsNodeScript(bodyScript), forKey: funcName)
+                return .skipChildren
+            }
         }
     }
     

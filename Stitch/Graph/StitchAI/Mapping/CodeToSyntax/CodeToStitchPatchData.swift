@@ -398,6 +398,9 @@ extension SwiftParserInitializerType {
                                          funcName: varName,
                                          sourceCode: script)
             preprocessedJSNodes.append(newJSNode)
+            
+        case .viewBuilder:
+            return
         }
     }
 }
