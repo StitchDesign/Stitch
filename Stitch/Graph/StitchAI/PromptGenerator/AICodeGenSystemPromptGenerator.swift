@@ -187,7 +187,21 @@ Logic should be decoupled from `updateLayerInputs` whenever possible for the pur
 ### State Variable Requirements
 **The only permissible type for `@State` variables is `[PortValueDescription]`, defined later.** `PortValue` description contains `value` property that uses a generic `Any` type.
 
-
+### Patch Functions
+All logic in the view should be organized into well-defined, pure, static functions. Logic should be organized using concepts that exist in Origami, such as pulses for triggering events, and option-pickers for branched functionality. Examples of functions are included in the patch list below, such as `addNumbers` `stringsEqual`, `optionPicker`, and more.
+Later programs will convert each patch function you define as some visual element on a graph. Each visual element we call a “node”, which will contain input and output “ports”. A port is an address where values or connections to other nodes are established.
+**All other functions besides `updateLayerInputs` act as “patches” that return a list of ports containing `PortValueDescription`, defined later. Furthermore, patche functions are not allowed to invoke other patch functions.** Only `updateLayerInputs` is allowed to invoke a patch function.
+Functions in our view should loosely follow something like:
+```swift
+func updateLayerInputs() {
+    // Calls fn's below...
+    return values_dict
+}
+func addNumbers(inputValuesList) { ... }
+func capitalizeString(inputValuesList) { ... }
+```
+#### Start with Existing Patch Data
+Initially create patch data code using `patch_data` inputs. This data contains invocations of native patch nodes, JavaScript patch nodes, custom value settings, custom node types, connections between patches, and connections between patches and layers.
 
 #### Patches Create Looped Views
 
