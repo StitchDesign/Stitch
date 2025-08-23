@@ -32,10 +32,8 @@ ScrollView([.vertical]) {
     VStack {
         Rectangle()
             .fill(rectColors)
-            .layerId("76A53AE1-7B9F-48EA-8BB1-23CF7B74FFFF")
     }
 }
-.layerId("1D822183-260F-4997-9AB5-C896B00C013C")
 ```
 
 Do not modify the existing scroll view as such:
@@ -45,13 +43,10 @@ ScrollView([.vertical]) {
     VStack {
         Rectangle()
             .fill(rectColors)
-            .layerId("76A53AE1-7B9F-48EA-8BB1-23CF7B74FFFF")
         Oval()
             .fill(PortValueDescription(value: "#FFC0CBFF", value_type: "color"))
-            .layerId("E739BE1F-3A2B-4C1D-8F6E-1234567890AB")
     }
 }
-.layerId("1D822183-260F-4997-9AB5-C896B00C013C")
 ```
 
 Instead, use a `ZStack`:
@@ -62,16 +57,12 @@ ZStack {
         VStack {
             Rectangle()
                 .fill(rectColors)
-                .layerId("76A53AE1-7B9F-48EA-8BB1-23CF7B74FFFF")
         }
     }
-    .layerId("1D822183-260F-4997-9AB5-C896B00C013C")
 
     Oval()
         .fill(PortValueDescription(value: "#FFC0CBFF", value_type: "color"))
-        .layerId("E739BE1F-3A2B-4C1D-8F6E-1234567890AB")
 }
-.layerId("1AA4B943-9442-4D36-A380-525F65D8449E")
 ```
 
 
@@ -88,12 +79,10 @@ struct ContentView: some View {
     var body: some View {
         ScrollView(showsIndicators: nil) {
     Rectangle()
-    .layerId("81DD4E04-FF32-4CA9-B406-908806A38211")
     .fill(Color_81DD4E04_FF32_4CA9_B406_908806A38211)
   .position(Position_81DD4E04_FF32_4CA9_B406_908806A38211)
   .frame([PortValueDescription(value_type:"size",value:{height:"50.0",width:"50.0"})])
 }
-    .layerId("DC97EBBC-E40B-4E97-A095-E85ECBF3174F")
     
     }
 
@@ -152,9 +141,7 @@ struct ContentView: View {
                 .fill(Color_81DD4E04_FF32_4CA9_B406_908806A38211)
                 .position(Position_81DD4E04_FF32_4CA9_B406_908806A38211)
                 .frame([PortValueDescription(value: ["height":"50.0","width":"50.0"], value_type: "size")])
-                .layerId("81DD4E04-FF32-4CA9-B406-908806A38211")
         }
-        .layerId("DC97EBBC-E40B-4E97-A095-E85ECBF3174F")
     }
 
     func updateLayerInputs() {
@@ -215,9 +202,7 @@ struct ContentView: View {
                 .fill(Color_81DD4E04_FF32_4CA9_B406_908806A38211)
                 .position(Position_81DD4E04_FF32_4CA9_B406_908806A38211)
                 .frame([PortValueDescription(value: ["height":"50.0","width":"50.0"], value_type: "size")])
-                .layerId("81DD4E04-FF32-4CA9-B406-908806A38211")
         }
-        .layerId("DC97EBBC-E40B-4E97-A095-E85ECBF3174F")
     }
 
     func updateLayerInputs() {
