@@ -187,7 +187,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     /// Ensures we only parse view structs.
     override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
         guard let inheritanceClause = node.inheritanceClause,
-              inheritanceClause.inheritedTypes.contains(where: { $0.type.trimmedDescription.contains("some View") }) else {
+              inheritanceClause.inheritedTypes.contains(where: { $0.type.trimmedDescription.contains("View") }) else {
             return .skipChildren
         }
         return .visitChildren
