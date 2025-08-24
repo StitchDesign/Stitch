@@ -64,6 +64,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             
             self.bindingDeclarations
                 .updateValue(.patchNode(patchNode), forKey: currentLHS)
+            
+            return .skipChildren
         }
         
         // Subscript callers used to access some node outputs
@@ -73,11 +75,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             self.bindingDeclarations
                 .updateValue(subscriptData,
                              forKey: currentLHS)
-        }
-
-        else {
-            // log("SwiftUIViewVisitor: unknown data at PatternBindingSyntax: \(node)")
-//            fatalError()
+            
+            return .skipChildren
         }
         
         return .visitChildren
@@ -144,17 +143,20 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     
     override func visit(_ node: MemberBlockItemSyntax) -> SyntaxVisitorContinueKind {
         // Checks for state variables
-//        if let varDeclSyntax = node.decl.as(VariableDeclSyntax.self) {
-//            guard varDeclSyntax.attributes.first?.as(AttributeSyntax.self)?.trimmedDescription == "@State",
-//                  let binding = varDeclSyntax.bindings.first else {
-//                return .visitChildren
-//            }
-//            
+        if let varDeclSyntax = node.decl.as(VariableDeclSyntax.self) {
+            guard varDeclSyntax.attributes.first?.as(AttributeSyntax.self)?.trimmedDescription == "@State",
+                  let binding = varDeclSyntax.bindings.first else {
+                return .visitChildren
+            }
+            
+            // If state variable, do nothing--we don't want this propagating
+            return .skipChildren
+//
 //            let stateVar = binding.pattern.trimmedDescription
 //            self.bindingDeclarations.updateValue(. , forKey: <#T##String#>)
 //            
 //            return .visitChildren
-//        }
+        }
         
         // Checks for updateLayerInputs
         if let funcDeclSyntax = node.decl.as(FunctionDeclSyntax.self) {

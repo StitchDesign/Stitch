@@ -186,7 +186,9 @@ extension SyntaxView {
             // Check for custom view builder fn
             guard let initializer = bindingDeclarations.get(self.name),
                   let viewBuilderFn = initializer.viewBuilderScript else {
-                throw SwiftUISyntaxError.unsupportedSyntaxViewName(self.name)
+//                throw SwiftUISyntaxError.unsupportedSyntaxViewName(self.name)
+                fatalErrorIfDebug()
+                return nil
             }
             
             // Parse script
