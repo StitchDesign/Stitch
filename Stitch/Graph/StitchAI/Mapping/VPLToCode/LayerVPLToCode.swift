@@ -73,10 +73,35 @@ extension LayerNodeEntity {
         case .spacer:
             return SyntaxViewName.spacer.createConstructorCode()
             
+        case .image:
+            return SyntaxViewName.image.createConstructorCode()
+            
+        case .video:
+            return SyntaxViewName.videoPlayer.createConstructorCode()
+            
+        case .radialGradient:
+            return SyntaxViewName.radialGradient.createConstructorCode()
+            
+        case .linearGradient:
+            return SyntaxViewName.linearGradient.createConstructorCode()
+            
+        case .angularGradient:
+            return SyntaxViewName.angularGradient.createConstructorCode()
+            
+        case .model3D:
+            return SyntaxViewName.model3D.createConstructorCode()
+
+        case .map:
+            return SyntaxViewName.map.createConstructorCode()
+      
+        case .material:
+            return SyntaxViewName.material.createConstructorCode()
+            
         // ───────── Not yet handled ─────────
-        case .linearGradient, .radialGradient, .angularGradient,  .image, .video, .model3D, .shape, .colorFill, .hitArea, .canvasSketch, .map, .progressIndicator, .switchLayer, .videoStreaming, .material:
-            log("Gradient layers (\(self.layer)) require proper color extraction implementation")
-            throw SwiftUISyntaxError.unsupportedSyntaxViewLayer(self.layer)
+        case .shape, .colorFill, .hitArea, .canvasSketch, .progressIndicator, .switchLayer, .videoStreaming:
+            fatalErrorIfDebug("Gradient layers (\(self.layer)) require proper color extraction implementation")
+//            throw SwiftUISyntaxError.unsupportedSyntaxViewLayer(self.layer)
+            return nil
         }
     }
     
