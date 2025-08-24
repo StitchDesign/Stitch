@@ -37,6 +37,18 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
               
         let currentLHS = identifierPattern.identifier.text
         
+        // Check for view builder (like var body)
+        if let someOrAny = node.typeAnnotation?.type.as(SomeOrAnyTypeSyntax.self),
+           someOrAny.constraint.trimmedDescription.contains("View"),
+           let codeBlockListSyntax = node.accessorBlock?.accessors.as(CodeBlockItemListSyntax.self),
+           let fnSyntax = codeBlockListSyntax.first?.item.as(FunctionCallExprSyntax.self) {
+            if let view = self.visitLayerData(node: fnSyntax) {
+                self.viewStack.append(view)
+            }
+            
+            return .skipChildren
+        }
+        
         // Record the name that's being bound (`let added = …`)
         guard let initializer = node.initializer else {
             return .visitChildren
@@ -75,8 +87,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
         // log("Visiting function call: \(node.description)")
         
-        if let node = self.visitLayerData(node: node) {
-            self.viewStack.append(node)
+        if let view = self.visitLayerData(node: node) {
+            self.viewStack.append(view)
 
             // Skip children to avoid adding redundant data
             return .skipChildren
