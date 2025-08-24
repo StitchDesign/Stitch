@@ -355,17 +355,6 @@ The full list of unsupported views includes:
 \(SyntaxViewName.unsupportedViews.map(\.rawValue))
 ```
 
-#### ScrollView Considerations
-
-A ScrollView in our app always contains a single immediate child view, which is either an `HStack`, `VStack`, `ZStack` or `LazyVGrid`.
-
-A ScrollView in our app always has its `axes` parameter explicitly filled in.
-If "y scroll is enabled", then we include the `.vertical` axis.
-If "x scroll is enabled", then we include the `.horizontal` axis.
-We can allow `[.vertical]` or `[.horizontal]` or both (i.e. `[.horizontal, .vertical]`.
-If neither y scroll nor x scroll are enabled, then we do not use a ScrollView at all.
-
-For examples of scroll views in Stitch, observe "Examples of `ScrollView` in Stitch" in the Data Glossary below.
 
 ### Supported View Modifiers
 Specific rules and allowances of view modifers in SwiftUI views are listed here.
@@ -588,98 +577,6 @@ Example payloads for each `PortValue` by its type are provided below. Strictly a
         .createSchema()
         .encodeToPrintableString()
 )
-```
-
-### Examples of `ScrollView` in Stitch
-
-Examples of valid ScrollViews in our app:
-
-Valid because immediate child is HStack and at least one axis was specified:
-```swift
-ScrollView([.horizontal, .vertical]) {
-    HStack { 
-        Ellipse()
-        Text("love")
-        // more child views here
-    }
-}
-```
-
-Valid because immediate child is VStack and at least one axis was specified:
-```swift
-ScrollView([.horizontal, .vertical]) {
-    VStack { 
-        Ellipse()
-        Text("love")
-        // more child views here
-    }
-}
-```
-
-```swift
-ScrollView([.horizontal]) {
-    HStack { 
-        Ellipse()
-        Text("love")
-        // more child views here
-    }
-}
-```
-
-```swift
-ScrollView([.vertical]) {
-    VStack { 
-        Ellipse()
-        Text("love")
-        // more child views here
-    }
-}
-```
-
-Examples of invalid ScrollViews in our app:
-
-Invalid because ScrollView contains more than one immediate child:
-```swift
-ScrollView([.vertical]) {
-    Rectangle()
-    VStack { 
-        // child views here
-    }
-}
-```
-
-Also invalid because ScrollView contains more than one immediate child:
-```swift
-ScrollView([.vertical]) {
-    VStack { 
-        // child views here
-    }
-    Ellipse()
-}
-```
-
-Invalid because ScrollView contains a non-stack view (i.e. a view that is something other than a VStack or HStack or Grid) as its immediate child.
-```swift
-ScrollView([.vertical]) {
-    Rectangle()
-}
-```
-
-Also invalid because ScrollView contains a non-stack view (i.e. a view that is something other than a VStack or HStack or Grid) as its immediate child.
-```swift
-ScrollView([.horizontal]) {
-    Ellipse()
-    Text("love")
-}
-```
-
-Invalid because no axes were specified:
-```swift
-ScrollView() {
-    HStack { 
-        // child views here
-    }
-}
 ```
 
 ### Examples of Looped Views Using Native Patches
