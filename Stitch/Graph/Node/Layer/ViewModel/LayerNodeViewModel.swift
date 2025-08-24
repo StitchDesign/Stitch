@@ -23,7 +23,7 @@ typealias LayerNodesDict = [NodeId: LayerNode]
 final class LayerNodeViewModel {
     let id: NodeId
 
-    let layer: Layer
+    @MainActor var layer: Layer
 
     // Cached for perf
     @MainActor var cachedLongestLoopLength: Int = 1
@@ -396,7 +396,9 @@ extension LayerNodeViewModel: SchemaObserver {
 
     @MainActor
     func update(from schema: LayerNodeEntity) {
-        assertInDebug(self.layer == schema.layer)
+        if self.layer != schema.layer {
+            self.layer = schema.layer
+        }
         
         if self.hasSidebarVisibility != schema.hasSidebarVisibility {
             self.hasSidebarVisibility = schema.hasSidebarVisibility
