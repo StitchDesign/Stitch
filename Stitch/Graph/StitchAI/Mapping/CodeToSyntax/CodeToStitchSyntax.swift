@@ -74,26 +74,13 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     // Visit function call expressions (which represent view initializations and modifiers)
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
         // log("Visiting function call: \(node.description)")
-        // log("Current stack depth: \(viewStack.count), current index: \(String(describing: currentNodeIndex))")
         
-        if let identifierExpr = node.calledExpression.as(DeclReferenceExprSyntax.self) {
-            // log("LAYER DATA")
-            
-            // TODO: consider how visitLayerData works with functions not yet known. do we bubble up info to root node as a preprocessed thing?
-            
-            if let node = self.visitLayerData(node: node) {
-                self.viewStack.append(node)
-            }
+        if let node = self.visitLayerData(node: node) {
+            self.viewStack.append(node)
 
+            // Skip children to avoid adding redundant data
             return .skipChildren
         }
-//        else if let memberAccessExpr = node.calledExpression.as(MemberAccessExprSyntax.self) {
-            // Detected a modifier call (e.g. .padding()).  We *do not* attach the modifier
-            // here because the base view may not have been pushed onto the stack yet.
-            // Instead, we defer actual attachment to `visitPost(_:)`, which runs after the
-            // base `FunctionCallExprSyntax` has been visited.
-            // log("visit → encountered potential modifier .\(memberAccessExpr.declName.baseName.text) – deferring to visitPost")
-//        }
         
         return .visitChildren
     }
@@ -144,43 +131,57 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     
     
     override func visit(_ node: MemberBlockItemSyntax) -> SyntaxVisitorContinueKind {
-        guard let funcDeclSyntax = node.decl.as(FunctionDeclSyntax.self) else {
-            return .visitChildren
-        }
+        // Checks for state variables
+//        if let varDeclSyntax = node.decl.as(VariableDeclSyntax.self) {
+//            guard varDeclSyntax.attributes.first?.as(AttributeSyntax.self)?.trimmedDescription == "@State",
+//                  let binding = varDeclSyntax.bindings.first else {
+//                return .visitChildren
+//            }
+//            
+//            let stateVar = binding.pattern.trimmedDescription
+//            self.bindingDeclarations.updateValue(. , forKey: <#T##String#>)
+//            
+//            return .visitChildren
+//        }
         
-        if funcDeclSyntax.name.text == "updateLayerInputs" {
-            return .visitChildren
-        }
-        
-        else {
-            guard let body = funcDeclSyntax.body else {
+        // Checks for updateLayerInputs
+        if let funcDeclSyntax = node.decl.as(FunctionDeclSyntax.self) {
+            if funcDeclSyntax.name.text == "updateLayerInputs" {
                 return .visitChildren
             }
             
-            let funcName = funcDeclSyntax.name.text
-            let bodyScript = body.description.trimmingOuterBraces()
-
-            // View builder function
-            if let someOrAnyReturnType = funcDeclSyntax.signature.returnClause?.type.as(SomeOrAnyTypeSyntax.self),
-               someOrAnyReturnType.constraint.trimmedDescription == "View" {
-                
-                // Create new visitor class
-                let parseResult = SwiftUIViewVisitor.parseSwiftUICode(bodyScript,
-                                                                      varNameIdMap: self.varNameIdMap)
-                
-                self.bindingDeclarations.updateValue(.viewBuilder(bodyScript),
-                                                     forKey: funcName)
-                
-                return .skipChildren
-            }
-            
-
-            // JS node case
             else {
-                self.bindingDeclarations.updateValue(.jsNodeScript(bodyScript), forKey: funcName)
-                return .skipChildren
+                guard let body = funcDeclSyntax.body else {
+                    return .visitChildren
+                }
+                
+                let funcName = funcDeclSyntax.name.text
+                let bodyScript = body.description.trimmingOuterBraces()
+                
+                // View builder function
+                if let someOrAnyReturnType = funcDeclSyntax.signature.returnClause?.type.as(SomeOrAnyTypeSyntax.self),
+                   someOrAnyReturnType.constraint.trimmedDescription == "View" {
+                    
+                    // Create new visitor class
+                    let parseResult = SwiftUIViewVisitor.parseSwiftUICode(bodyScript,
+                                                                          varNameIdMap: self.varNameIdMap)
+                    
+                    self.bindingDeclarations.updateValue(.viewBuilder(bodyScript),
+                                                         forKey: funcName)
+                    
+                    return .skipChildren
+                }
+                
+                
+                // JS node case
+                else {
+                    self.bindingDeclarations.updateValue(.jsNodeScript(bodyScript), forKey: funcName)
+                    return .skipChildren
+                }
             }
         }
+        
+        return .visitChildren
     }
     
     /// Ensures we only parse view structs.

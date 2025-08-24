@@ -75,8 +75,8 @@ extension LayerNodeEntity {
             
         // ───────── Not yet handled ─────────
         case .linearGradient, .radialGradient, .angularGradient,  .image, .video, .model3D, .shape, .colorFill, .hitArea, .canvasSketch, .map, .progressIndicator, .switchLayer, .videoStreaming, .material:
-            fatalErrorIfDebug("Gradient layers (\(self.layer)) require proper color extraction implementation")
-            return nil
+            log("Gradient layers (\(self.layer)) require proper color extraction implementation")
+            throw SwiftUISyntaxError.unsupportedSyntaxViewLayer(self.layer)
         }
     }
     
