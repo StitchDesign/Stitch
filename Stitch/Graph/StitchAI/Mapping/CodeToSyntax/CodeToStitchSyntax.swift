@@ -145,17 +145,12 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         // Checks for state variables
         if let varDeclSyntax = node.decl.as(VariableDeclSyntax.self) {
             guard varDeclSyntax.attributes.first?.as(AttributeSyntax.self)?.trimmedDescription == "@State",
-                  let binding = varDeclSyntax.bindings.first else {
+                  varDeclSyntax.bindings.first.isDefined else {
                 return .visitChildren
             }
             
             // If state variable, do nothing--we don't want this propagating
             return .skipChildren
-//
-//            let stateVar = binding.pattern.trimmedDescription
-//            self.bindingDeclarations.updateValue(. , forKey: <#T##String#>)
-//            
-//            return .visitChildren
         }
         
         // Checks for updateLayerInputs

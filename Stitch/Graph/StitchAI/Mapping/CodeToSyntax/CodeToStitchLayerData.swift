@@ -87,35 +87,5 @@ extension SwiftUIViewVisitor {
             id: UUID()
             //                errors: self.caughtErrors
         )
-        
-//        guard let nameType = SyntaxNameType.from(viewName) else {
-//            //                fatalErrorIfDebug("No view discovered for: \(viewName)")
-//            //            log("No concept discovered for: \(viewName)")
-//            
-//            // Tracks for later silent failures
-//            self.caughtErrors.append(.unsupportedSyntaxViewName(viewName))
-//            
-//            return nil
-//        }
-//        
-//        switch nameType {
-//        case .view(let syntaxViewName):
-//            // Create a new ViewNode for this view
-//            let viewNode = SyntaxView(
-//                name: syntaxViewName,
-//                // This is creat
-//                constructorArguments: args,
-//                modifiers: modifiers,
-//                children: [],
-//                id: UUID()
-//                //                errors: self.caughtErrors
-//            )
-//            
-//            return viewNode
-//            
-//        case .value:
-//            // No view here, just continue
-//            return nil
-//        }
     }
 }
