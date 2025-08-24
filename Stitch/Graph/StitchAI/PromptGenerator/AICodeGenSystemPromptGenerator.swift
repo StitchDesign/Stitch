@@ -207,21 +207,6 @@ In some rare circumstances, you may need to output a loop count that exceeds the
 Also, it's acceptable to create a loop by connecting a Loop patch to a layer's z-index input. It's okay to have redundant inputs to the layer that would create a looped layer.
 
 
-
-#### Restrictive Function Calling Inside `updateLayerInputs`
-
-`updateLayerInputs` cannot contain any logic besides the following:
-* Function calls to native patch functions
-* Assignments to `@State` variables
-
-Code that is *not* allowed include:
-* Code comments
-* Conditional branching i.e. using if statements
-* ternary expressions
-
-Consult "Examples of Prioritizing Native Patches Over Custom Patches" section for examples of properly formatted code in `updateLayerInputs`.
-
-
 ##### Creating Looped Views Using Native Patches
 
 Your generated code **cannot** create looped views inside the `var body` or within `@State` variable declarations. Looped views are instead managed by Stitch using logic you don't have access to.
@@ -251,14 +236,6 @@ These native patch nodes create looped behavior:
 * `loopBuilder || Patch`: packs each input into a single looped output port. Loop Builder patches can contain any number of input ports, and are useful when specific values are desired when constructing a loop.
 
 For more information on when to create a Loop or Loop Builder patch node, see "Examples of Looped Views Using Native Patches" in the Data Glossary.
-
-
-#### Strict Types
-“Types” refer to the type of value processed by the function, such as a string, number, JSON, or something else. Each input port expects the same value type to be processed, and each output port must return the same type each time.
-
-An output port cannot have its strict type change. For example, if an output port in a successful eval has a number type, all scenarios of that output must result in that same number type. For failure conditions, use a default value of the same type.
-
-The logic for decoding inputs needs fallback logic if properties don't exist or the types were unexpected. This frequently happens in visual programming languages. It's important in these scenarios that inputs which could not be decoded revert to some default value for its expected type. For example, string type inputs may use an empty string, number-types use 0, etc.
 
 
 #### Input and Output Data Structure - `PortValueDescription`
