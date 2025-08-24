@@ -56,7 +56,7 @@ private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
 // Formats a ViewNode into a readable string representation - top level so it can be reused
 func formatSyntaxView(_ node: SyntaxView, indent: String = "") -> String {
     var result = "\(indent)SyntaxView("
-    result += "\n\(indent)    name: \"\(node.name.rawValue)\","
+    result += "\n\(indent)    name: \"\(node.name)\","
     
     let argsString = (try? node.constructorArguments.encodeToPrintableString()) ?? ""
     let modifiersString = (try? node.modifiers.encodeToPrintableString()) ?? ""

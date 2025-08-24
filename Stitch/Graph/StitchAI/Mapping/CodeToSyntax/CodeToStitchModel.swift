@@ -11,7 +11,7 @@ import SwiftSyntaxBuilder
 import SwiftUI
 
 struct SwiftUIViewParserResult {
-    let rootView: SyntaxView?
+    let viewStack: [SyntaxView]
     let bindingDeclarations: [String : SwiftParserInitializerType]
     let caughtErrors: [SwiftUISyntaxError]
 }
@@ -56,6 +56,9 @@ indirect enum SwiftParserInitializerType: Sendable {
     
     // js nodes
     case jsNodeScript(String)
+    
+    // view builder functions (script in value)
+    case viewBuilder(String)
 }
 
 // Subscripts can be used on references or nodes themselves
@@ -78,6 +81,16 @@ extension SwiftParserInitializerType {
         switch self {
         case .patchNodeRef(let ref):
             return ref
+        default:
+            return nil
+        }
+    }
+    
+    var viewBuilderScript: String? {
+        switch self {
+        case .viewBuilder(let script):
+            return script
+            
         default:
             return nil
         }

@@ -31,8 +31,8 @@ struct SwiftSyntaxActionsResult: Encodable {
 }
 
 extension Array where Element == SyntaxView {
-    func deriveStitchActions() throws -> SwiftSyntaxLayerActionsResult {
-        let allResults = try self.map { try $0.deriveStitchActions() }
+    func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) throws -> SwiftSyntaxLayerActionsResult {
+        let allResults = try self.compactMap { try $0.deriveStitchActions(bindingDeclarations: bindingDeclarations) }
         
         return .init(actions: allResults.flatMap { $0.actions },
                      caughtErrors: allResults.flatMap { $0.caughtErrors })
@@ -40,15 +40,15 @@ extension Array where Element == SyntaxView {
 }
 
 extension SwiftUIViewParserResult {
-    func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
+    func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) throws -> SwiftSyntaxActionsResult {
         // Extract patch data
         let patchResults = try self.bindingDeclarations.deriveStitchActions()
 
         // Extract layer data
-        let layerResults = try self.rootView?.deriveStitchActions()
-        let allLayerErrors = layerResults.flatMap { $0.caughtErrors } ?? []
+        let layerResults = try self.viewStack.deriveStitchActions(bindingDeclarations: bindingDeclarations)
+        let allLayerErrors = layerResults.caughtErrors
         
-        return .init(graphData: .init(layer_data_list: layerResults?.actions ?? [],
+        return .init(graphData: .init(layer_data_list: layerResults.actions,
                                       patch_data: patchResults.actions,
                                       viewStatePatchConnections: patchResults.viewStatePatchConnections),
                      caughtErrors: allLayerErrors + patchResults.caughtErrors)
@@ -139,6 +139,10 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                 
             case .declrRef:
                 break
+                
+            case .viewBuilder:
+                break
+                
             }
         }
         
@@ -169,62 +173,87 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
 }
 
 extension SyntaxView {
-    func deriveStitchActions() throws -> SwiftSyntaxLayerActionsResult {
+    func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) throws -> SwiftSyntaxLayerActionsResult? {
         // TODO: map references to specific layer IDs
         
         // Tracks all silent errors
         var silentErrors = [SwiftUISyntaxError]()
         
         // Recurse into children first (DFS), we might use this data for nested scenarios like ScrollView
-        var childResults = try self.children.deriveStitchActions()
+        var childResults = try self.children.deriveStitchActions(bindingDeclarations: bindingDeclarations)
         
-        // Flip the children if we have a ZStack,
-        // since "top" layer in Stitch sidebar corresponds to "bottom" of declared-child in SwiftUI ZStack.
-        if self.name == .zStack {
-            childResults.actions = childResults.actions.reversed()
+        guard let nameType = SyntaxNameType.from(self.name) else {
+            // Check for custom view builder fn
+            guard let initializer = bindingDeclarations.get(self.name),
+                  let viewBuilderFn = initializer.viewBuilderScript else {
+//                throw SwiftUISyntaxError.unsupportedSyntaxViewName(self.name)
+                fatalErrorIfDebug()
+                return nil
+            }
             
-            // TODO: do we really need to reverse the errors?
-            childResults.caughtErrors = childResults.caughtErrors.reversed()
+            // Parse script
+            let scriptResult = SwiftUIViewVisitor.parseSwiftUICode(viewBuilderFn,
+                                                                   varNameIdMap: [:])
+            let result = try scriptResult.deriveStitchActions(bindingDeclarations: scriptResult.bindingDeclarations)
+            
+            return .init(actions: result.graphData.layer_data_list,
+                         caughtErrors: result.caughtErrors)
         }
         
-        silentErrors += childResults.caughtErrors
+        switch nameType {
+        case .view(let syntaxViewName):
+            // Flip the children if we have a ZStack,
+            // since "top" layer in Stitch sidebar corresponds to "bottom" of declared-child in SwiftUI ZStack.
+            if syntaxViewName == .zStack {
+                childResults.actions = childResults.actions.reversed()
+                
+                // TODO: do we really need to reverse the errors?
+                childResults.caughtErrors = childResults.caughtErrors.reversed()
+            }
+            
+            silentErrors += childResults.caughtErrors
 
-        // Map this node
-        do {
-            let layerDataResult = try self.name.deriveLayerData(
-                id: self.id,
-                args: self.constructorArguments,
-                modifiers: self.modifiers,
-                childrenLayers: childResults.actions)
-            
-            silentErrors += layerDataResult.silentErrors
-            var layerData = layerDataResult.layerData
-            
-            guard let layer = layerData.node_name.value.layer else {
-                fatalErrorIfDebug("deriveStitchActions error: no layer found for \(layerData.node_name.value)")
-                throw SwiftUISyntaxError.layerDecodingFailed
-            }
-            
-            if !layer.isGroupForAI {
-                // Make sure non-grouped layer has no children
-                assertInDebug(childResults.actions.isEmpty)
-                layerData.children = nil
-            }
-    
-            return .init(actions: [layerData],
-                         caughtErrors: silentErrors)
-        } catch let error as SwiftUISyntaxError {
-            if error.shouldFailSilently {
-                log("deriveStitchActions: silent failure for unsupported layer concept: \(error)")
-                // Silent error for unsupported layers
-                silentErrors.append(error)
-                return .init(actions: childResults.actions,
+            // Map this node
+            do {
+                let layerDataResult = try syntaxViewName.deriveLayerData(
+                    id: self.id,
+                    args: self.constructorArguments,
+                    modifiers: self.modifiers,
+                    childrenLayers: childResults.actions)
+                
+                silentErrors += layerDataResult.silentErrors
+                var layerData = layerDataResult.layerData
+                
+                guard let layer = layerData.node_name.value.layer else {
+                    fatalErrorIfDebug("deriveStitchActions error: no layer found for \(layerData.node_name.value)")
+                    throw SwiftUISyntaxError.layerDecodingFailed
+                }
+                
+                if !layer.isGroupForAI {
+                    // Make sure non-grouped layer has no children
+                    assertInDebug(childResults.actions.isEmpty)
+                    layerData.children = nil
+                }
+        
+                return .init(actions: [layerData],
                              caughtErrors: silentErrors)
-            } else {
+            } catch let error as SwiftUISyntaxError {
+                if error.shouldFailSilently {
+                    log("deriveStitchActions: silent failure for unsupported layer concept: \(error)")
+                    // Silent error for unsupported layers
+                    silentErrors.append(error)
+                    return .init(actions: childResults.actions,
+                                 caughtErrors: silentErrors)
+                } else {
+                    throw error
+                }
+            } catch {
                 throw error
             }
-        } catch {
-            throw error
+            
+        case .value:
+            // No view here, just continue
+            return nil
         }
     }
 }

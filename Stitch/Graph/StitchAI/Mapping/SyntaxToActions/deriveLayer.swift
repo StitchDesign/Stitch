@@ -1033,8 +1033,8 @@ extension SyntaxViewName {
                 return [.value(.init(aiPortValue.value))]
 
             default:
-                fatalErrorIfDebug()
-                return []
+                log("derivePortValues error: non-literal data found for simple case")
+                throw SwiftUISyntaxError.portValueNotFound(argument: argument)
             }
             
         case .stateAccess(let varName):

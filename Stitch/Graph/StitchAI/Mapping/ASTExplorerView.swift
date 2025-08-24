@@ -71,7 +71,7 @@ struct ASTExplorerView: View {
     @State private var codes: [String] = examples.map(\.code)
 
     // Derived / transient state for current tab
-    @State private var firstSyntax: SyntaxView?
+    @State private var firstSyntax: [SyntaxView] = []
     @State private var stitchActions: SwiftSyntaxActionsResult?
     @State private var regeneratedCode: String = ""
     @State private var errorString: String?
@@ -212,7 +212,9 @@ struct ASTExplorerView: View {
                 case .parsedSyntax:
                     stageView(
                         title: Stage.parsedSyntax.title,
-                        text: firstSyntax.map { formatSyntaxView($0) } ?? "—"
+                        text: firstSyntax
+                            .map { formatSyntaxView($0) }
+                            .joined(separator: "\n")
                     )
                     .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
                                             removal:   .move(edge: .bottom).combined(with: .opacity)))
@@ -243,7 +245,7 @@ struct ASTExplorerView: View {
         let currentCode = codes[selectedTab]
 
         // Reset all values
-        firstSyntax = nil
+        firstSyntax = []
         stitchActions = nil
         regeneratedCode = ""
         errorString = nil
@@ -253,13 +255,13 @@ struct ASTExplorerView: View {
                                                                    varNameIdMap: [:])
         
         // Parse code → Syntax
-        firstSyntax = codeParserResult.rootView
+        firstSyntax = codeParserResult.viewStack
         
         silentlyCaughtErrors += codeParserResult.caughtErrors
 
         do {
             // Syntax → Actions
-            let stitchActionsResult = try codeParserResult.deriveStitchActions()
+            let stitchActionsResult = try codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
             
             stitchActions = stitchActionsResult
             silentlyCaughtErrors += stitchActionsResult.caughtErrors

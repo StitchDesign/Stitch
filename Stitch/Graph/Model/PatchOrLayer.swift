@@ -137,6 +137,7 @@ extension PatchNodeViewModel {
 }
 
 extension LayerNodeViewModel {
+    @MainActor
     var patchOrLayer: PatchOrLayer {
         .layer(self.layer)
     }
