@@ -30,11 +30,8 @@ extension SwiftUIViewVisitor {
             }
             
             guard let fnBase = memberExpr.base?.as(FunctionCallExprSyntax.self) else {
-                // Check if view
-                guard let declRefExprSyntax = memberExpr.base?.as(MemberAccessExprSyntax.self)?.base?.as(DeclReferenceExprSyntax.self) else {
-                    log("visitLayerData error: no view data found for \(memberExpr.trimmedDescription)")
-                    return nil
-                }
+                // Get view builder data
+                let declRefExprSyntax = memberExpr.base?.as(MemberAccessExprSyntax.self)?.base?.as(DeclReferenceExprSyntax.self) ?? memberExpr.declName
                 
                 guard let viewData = self.createViewData(from: declRefExprSyntax,
                                                          args: args,

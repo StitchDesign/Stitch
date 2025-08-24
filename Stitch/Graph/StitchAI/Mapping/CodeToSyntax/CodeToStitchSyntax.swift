@@ -161,11 +161,6 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 // View builder function
                 if let someOrAnyReturnType = funcDeclSyntax.signature.returnClause?.type.as(SomeOrAnyTypeSyntax.self),
                    someOrAnyReturnType.constraint.trimmedDescription == "View" {
-                    
-                    // Create new visitor class
-                    let parseResult = SwiftUIViewVisitor.parseSwiftUICode(bodyScript,
-                                                                          varNameIdMap: self.varNameIdMap)
-                    
                     self.bindingDeclarations.updateValue(.viewBuilder(bodyScript),
                                                          forKey: funcName)
                     

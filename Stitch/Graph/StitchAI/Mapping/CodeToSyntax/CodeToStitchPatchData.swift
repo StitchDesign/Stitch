@@ -388,7 +388,7 @@ extension SwiftParserInitializerType {
             // Must reuse ID
             guard let varNameForJsFn = varNameJsFnMap.get(varName),
                   let id = varNameIdMap.get(varNameForJsFn) else {
-                fatalErrorIfDebug()
+                // Ignore js node if nothing uses it
                 break
             }
             
