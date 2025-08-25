@@ -31,21 +31,27 @@ struct SwiftSyntaxActionsResult: Encodable {
 }
 
 extension Array where Element == SyntaxView {
-    func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) throws -> SwiftSyntaxLayerActionsResult {
-        let allResults = try self.compactMap { try $0.deriveStitchActions(bindingDeclarations: bindingDeclarations) }
+    func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) -> SwiftSyntaxLayerActionsResult {
+        var result = SwiftSyntaxLayerActionsResult(actions: [],
+                                                   caughtErrors: [])
         
-        return .init(actions: allResults.flatMap { $0.actions },
-                     caughtErrors: allResults.flatMap { $0.caughtErrors })
+        for viewData in self {
+            let actions = viewData.deriveStitchActions(bindingDeclarations: bindingDeclarations)
+            result.actions += actions?.actions ?? []
+            result.caughtErrors += actions?.caughtErrors ?? []
+        }
+        
+        return result
     }
 }
 
 extension SwiftUIViewParserResult {
-    func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) throws -> SwiftSyntaxActionsResult {
+    func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) -> SwiftSyntaxActionsResult {
         // Extract patch data
-        let patchResults = try self.bindingDeclarations.deriveStitchActions()
+        let patchResults = self.bindingDeclarations.deriveStitchActions()
 
         // Extract layer data
-        let layerResults = try self.viewStack.deriveStitchActions(bindingDeclarations: bindingDeclarations)
+        let layerResults = self.viewStack.deriveStitchActions(bindingDeclarations: bindingDeclarations)
         let allLayerErrors = layerResults.caughtErrors
         
         return .init(graphData: .init(layer_data_list: layerResults.actions,
@@ -56,7 +62,7 @@ extension SwiftUIViewParserResult {
 }
 
 extension Dictionary where Key == String, Value == SwiftParserInitializerType {
-    func deriveStitchActions() throws -> SwiftSyntaxPatchActionsResult {
+    func deriveStitchActions() -> SwiftSyntaxPatchActionsResult {
         // MARK: data we use as tracking
         // Maps some variable name to a node ID string
         var varNameIdMap = [String : String]()
@@ -149,16 +155,22 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
         // Second pass: derive custom values and edges
         for (varName, initializerType) in self {
             // Recursively calls argument data
-            try initializerType
-                .parseStitchActions(varName: varName,
-                                    varNameIdMap: varNameIdMap,
-                                    varNameOutputPortMap: varNameOutputPortMap,
-                                    customPatchInputValues: &customPatchInputValues,
-                                    varNamePatchNodeRefMap: varNamePatchNodeRefMap,
-                                    patchConnections: &patchConnections,
-                                    viewStatePatchConnections: &viewStatePatchConnections,
-                                    preprocessedJSNodes: &preprocessedJSNodes,
-                                    varNameJsFnMap: &varNameJsFnMap)
+            do {
+                try initializerType
+                    .parseStitchActions(varName: varName,
+                                        varNameIdMap: varNameIdMap,
+                                        varNameOutputPortMap: varNameOutputPortMap,
+                                        customPatchInputValues: &customPatchInputValues,
+                                        varNamePatchNodeRefMap: varNamePatchNodeRefMap,
+                                        patchConnections: &patchConnections,
+                                        viewStatePatchConnections: &viewStatePatchConnections,
+                                        preprocessedJSNodes: &preprocessedJSNodes,
+                                        varNameJsFnMap: &varNameJsFnMap)
+            } catch let error as SwiftUISyntaxError {
+                caughtErrors.append(error)
+            } catch {
+                fatalErrorIfDebug(error.localizedDescription)
+            }
         }
         
         return .init(actions: AIGraphData_V0
@@ -173,28 +185,28 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
 }
 
 extension SyntaxView {
-    func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) throws -> SwiftSyntaxLayerActionsResult? {
+    func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) -> SwiftSyntaxLayerActionsResult? {
         // TODO: map references to specific layer IDs
         
         // Tracks all silent errors
         var silentErrors = [SwiftUISyntaxError]()
         
         // Recurse into children first (DFS), we might use this data for nested scenarios like ScrollView
-        var childResults = try self.children.deriveStitchActions(bindingDeclarations: bindingDeclarations)
+        var childResults = self.children.deriveStitchActions(bindingDeclarations: bindingDeclarations)
         
         guard let nameType = SyntaxNameType.from(self.name) else {
             // Check for custom view builder fn
             guard let initializer = bindingDeclarations.get(self.name),
                   let viewBuilderFn = initializer.viewBuilderScript else {
-//                throw SwiftUISyntaxError.unsupportedSyntaxViewName(self.name)
-                fatalErrorIfDebug()
+                silentErrors.append(SwiftUISyntaxError.unsupportedSyntaxViewName(self.name))
+//                fatalErrorIfDebug()
                 return nil
             }
             
             // Parse script
             let scriptResult = SwiftUIViewVisitor.parseSwiftUICode(viewBuilderFn,
                                                                    varNameIdMap: [:])
-            let result = try scriptResult.deriveStitchActions(bindingDeclarations: scriptResult.bindingDeclarations)
+            let result = scriptResult.deriveStitchActions(bindingDeclarations: scriptResult.bindingDeclarations)
             
             return .init(actions: result.graphData.layer_data_list,
                          caughtErrors: result.caughtErrors)
@@ -245,10 +257,12 @@ extension SyntaxView {
                     return .init(actions: childResults.actions,
                                  caughtErrors: silentErrors)
                 } else {
-                    throw error
+                    fatalErrorIfDebug(error.localizedDescription)
+                    return nil
                 }
             } catch {
-                throw error
+                fatalErrorIfDebug(error.localizedDescription)
+                return nil
             }
             
         case .value:
