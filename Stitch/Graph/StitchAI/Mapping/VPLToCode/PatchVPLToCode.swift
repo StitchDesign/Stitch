@@ -73,21 +73,25 @@ extension GraphState {
         }
             .joined(separator: "\n\n")
         
+        let innerStructContents = """
+        \(stateVarDeclarations)
+
+        var body: some View {
+        \(viewCode.indentLines(n: 2))
+        }
+
+        func updateLayerInputs() {
+        \(patchNodeDeclarations.joined(separator: "\n").indentLines())
+        }
+
+        \(jsNodesScript)
+        """
+        
         let script = """
-struct ContentView: some View {
-    \(stateVarDeclarations)
-
-    var body: some View {
-\(viewCode.indentLines(n: 2))
-    }
-
-    func updateLayerInputs() {
-\(patchNodeDeclarations.joined(separator: "\n").indentLines(n: 2))
-    }
-
-    \(jsNodesScript)
-}
-"""
+        struct ContentView: some View {
+        \(innerStructContents.indentLines())
+        }
+        """
         
         return script
     }
