@@ -60,6 +60,7 @@ enum SwiftUISyntaxError: Error, Sendable {
     case invalidJSONLiteral(String)
     case unsupportedSimpleLiteralDecoding(SyntaxViewSimpleData)
     case syntaxValueDecodingFailed(SyntaxArgumentKind)
+    case portValueDecodingError(StitchAIParsingError)
     
     // Mapping to Code
     case upstreamVarNameNotFound(NodeIOCoordinate)

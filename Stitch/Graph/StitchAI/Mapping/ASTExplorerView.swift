@@ -256,29 +256,26 @@ struct ASTExplorerView: View {
         
         // Parse code → Syntax
         firstSyntax = codeParserResult.viewStack
-        
-        silentlyCaughtErrors += codeParserResult.caughtErrors
 
-        do {
-            // Syntax → Actions
-            let stitchActionsResult = try codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
+        // Syntax → Actions
+        var stitchActionsResult = codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
+        
+        stitchActions = stitchActionsResult
+        silentlyCaughtErrors = stitchActionsResult.caughtErrors
+        
+        // Apply AI result to fake document
+        Task(priority: .high) {
+            await stitchActionsResult
+                .createAIGraph(document: fakeDoc)
             
-            stitchActions = stitchActionsResult
-            silentlyCaughtErrors += stitchActionsResult.caughtErrors
-            
-            // Apply AI result to fake document
-            Task(priority: .high) {
-                try await stitchActionsResult.graphData
-                    .createAIGraph(document: fakeDoc)
+            try await MainActor.run {
+                // Updates all errors
+                silentlyCaughtErrors = stitchActionsResult.caughtErrors
                 
-                try await MainActor.run {
-                    // Generate SwiftUI code with configurable script wrapper
-                    let newSwiftUICode = try fakeDoc.graph.createSwiftUICode(ignoreScript: ignoreScript, usePortValueDescription: usePortValueDescription)
-                    self.regeneratedCode = newSwiftUICode
-                }
+                // Generate SwiftUI code with configurable script wrapper
+                let newSwiftUICode = try fakeDoc.graph.createSwiftUICode(ignoreScript: ignoreScript, usePortValueDescription: usePortValueDescription)
+                self.regeneratedCode = newSwiftUICode
             }
-        } catch {
-            errorString = "\(error)"
         }
     }
 
