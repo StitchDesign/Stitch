@@ -137,47 +137,47 @@ extension StitchAIPortValue_V1.NodeType {
         switch self {
         case .string:
             guard let x = anyValue as? String else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .string(.init(x))
         case .bool:
             guard let x = anyValue as? Bool else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .bool(x)
         case .number:
             guard let x = anyValue as? Double else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .number(x)
         case .layerDimension:
             guard let x = anyValue as? StitchAISizeDimension_V1.StitchAISizeDimension else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .layerDimension(x.value)
         case .transform:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StitchTransform else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .transform(x)
         case .plane:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.Plane else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .plane(x)
         case .networkRequestType:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.NetworkRequestType else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .networkRequestType(x)
         case .color:
             guard let stitchAIColor = anyValue as? StitchAIColor_V1.StitchAIColor else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .color(stitchAIColor.value)
         case .size:
             guard let aiSize = anyValue as? StitchAISize_V1.StitchAISize else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             
             let size = StitchAIPortValue_V1
@@ -187,43 +187,43 @@ extension StitchAIPortValue_V1.NodeType {
             return .size(size)
         case .position:
             guard let x = anyValue as? StitchAIPosition_V1.StitchAIPosition else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             
             return .position(.init(x: x.x, y: x.y))
         case .point3D:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.Point3D else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .point3D(x)
         case .point4D:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.Point4D else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .point4D(x)
         case .pulse:
             guard let x = anyValue as? TimeInterval else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .pulse(x)
         case .media:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.AsyncMediaValue? else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .asyncMedia(x)
         case .json:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StitchJSON else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .json(x)
         case .anchoring:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.Anchoring else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .anchoring(x)
         case .cameraDirection:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.CameraDirection else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .cameraDirection(x)
         case .interactionId:
@@ -249,172 +249,172 @@ extension StitchAIPortValue_V1.NodeType {
             
         case .scrollMode:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.ScrollMode else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .scrollMode(x)
         case .textAlignment:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.LayerTextAlignment else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .textAlignment(x)
         case .textVerticalAlignment:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.LayerTextVerticalAlignment else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .textVerticalAlignment(x)
         case .fitStyle:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.VisualMediaFitStyle else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .fitStyle(x)
         case .animationCurve:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.ClassicAnimationCurve else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .animationCurve(x)
         case .lightType:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.LightType else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .lightType(x)
         case .layerStroke:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.LayerStroke else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .layerStroke(x)
         case .textTransform:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.TextTransform else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .textTransform(x)
         case .dateAndTimeFormat:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.DateAndTimeFormat else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .dateAndTimeFormat(x)
         case .shape:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.CustomShape? else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .shape(x)
         case .scrollJumpStyle:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.ScrollJumpStyle else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .scrollJumpStyle(x)
         case .scrollDecelerationRate:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.ScrollDecelerationRate else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .scrollDecelerationRate(x)
         case .delayStyle:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.DelayStyle else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .delayStyle(x)
         case .shapeCoordinates:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.ShapeCoordinates else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .shapeCoordinates(x)
         case .shapeCommandType:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.ShapeCommandType else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .shapeCommandType(x)
         case .shapeCommand:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.ShapeCommand else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .shapeCommand(x)
         case .orientation:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StitchOrientation else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .orientation(x)
         case .cameraOrientation:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StitchCameraOrientation else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .cameraOrientation(x)
         case .deviceOrientation:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StitchDeviceOrientation else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .deviceOrientation(x)
         case .vnImageCropOption:
             guard let x = anyValue as? VNImageCropAndScaleOption else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .vnImageCropOption(x)
         case .textDecoration:
             guard let x = anyValue as? StitchAIPortValue_V1.TextDecoration else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .textDecoration(x)
         case .textFont:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StitchFont else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .textFont(x)
         case .blendMode:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StitchBlendMode else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .blendMode(x)
         case .mapType:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StitchMapType else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .mapType(x)
         case .progressIndicatorStyle:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.ProgressIndicatorStyle else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .progressIndicatorStyle(x)
         case .mobileHapticStyle:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.MobileHapticStyle else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .mobileHapticStyle(x)
         case .strokeLineCap:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StrokeLineCap else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .strokeLineCap(x)
         case .strokeLineJoin:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StrokeLineJoin else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .strokeLineJoin(x)
         case .contentMode:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StitchContentMode else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .contentMode(x)
         case .spacing:
             guard let x = anyValue as? StitchAISpacing_V1.StitchAISpacing else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .spacing(x.value)
         case .padding:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StitchPadding else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .padding(x)
         case .sizingScenario:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.SizingScenario else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .sizingScenario(x)
         case .deviceAppearance:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.DeviceAppearance else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .deviceAppearance(x)
         case .materialThickness:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.MaterialThickness else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .materialThickness(x)
         case .anchorEntity:
@@ -433,12 +433,12 @@ extension StitchAIPortValue_V1.NodeType {
             return .anchorEntity(newId)
         case .pinToId:
             guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.PinToId else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .pinTo(x)
         case .keyboardType:
             guard let x = anyValue as? KeyboardType else {
-                throw StitchAIParsingError.typeCasting
+                throw SwiftUISyntaxError.portValueDecodingError(StitchAIParsingError.typeCasting)
             }
             return .keyboardType(x)
         case .none:

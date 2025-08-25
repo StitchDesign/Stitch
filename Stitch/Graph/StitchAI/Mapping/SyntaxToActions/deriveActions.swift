@@ -57,7 +57,7 @@ extension SwiftUIViewParserResult {
         return .init(graphData: .init(layer_data_list: layerResults.actions,
                                       patch_data: patchResults.actions,
                                       viewStatePatchConnections: patchResults.viewStatePatchConnections),
-                     caughtErrors: allLayerErrors + patchResults.caughtErrors)
+                     caughtErrors: self.caughtErrors + allLayerErrors + patchResults.caughtErrors)
     }
 }
 

@@ -382,13 +382,13 @@ extension AIGraphData_V0.PortValue {
 }
 
 extension Array where Element == AIGraphData_V0.LayerData {
-    func allNestedCustomInputValues(callback: @escaping (String, LayerPortDerivation) throws -> ()) throws {
+    func allNestedCustomInputValues(callback: (String, LayerPortDerivation) -> ()) {
         for layerData in self {
             for customInputValue in layerData.custom_layer_input_values {
-                try callback(layerData.node_id, customInputValue)
+                callback(layerData.node_id, customInputValue)
             }
             
-            try layerData.children?.allNestedCustomInputValues(callback: callback)
+            layerData.children?.allNestedCustomInputValues(callback: callback)
         }
     }
 }
@@ -396,7 +396,7 @@ extension Array where Element == AIGraphData_V0.LayerData {
 extension AIGraphData_V0.LayerData {
     func createSidebarLayerData(idMap: [String : UUID]) throws -> SidebarLayerData {
         guard let newId = idMap.get(self.node_id) else {
-            throw AIPatchBuilderRequestError.nodeIdNotFound
+            throw SwiftUISyntaxError.viewNodeNotFound
         }
         
         let children = try self.children?.map {

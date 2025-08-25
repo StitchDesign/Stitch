@@ -256,21 +256,22 @@ struct ASTExplorerView: View {
         
         // Parse code → Syntax
         firstSyntax = codeParserResult.viewStack
-        
-        silentlyCaughtErrors += codeParserResult.caughtErrors
 
         // Syntax → Actions
-        let stitchActionsResult = codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
+        var stitchActionsResult = codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
         
         stitchActions = stitchActionsResult
-        silentlyCaughtErrors += stitchActionsResult.caughtErrors
+        silentlyCaughtErrors = stitchActionsResult.caughtErrors
         
         // Apply AI result to fake document
         Task(priority: .high) {
-            try await stitchActionsResult.graphData
+            await stitchActionsResult
                 .createAIGraph(document: fakeDoc)
             
             try await MainActor.run {
+                // Updates all errors
+                silentlyCaughtErrors = stitchActionsResult.caughtErrors
+                
                 // Generate SwiftUI code with configurable script wrapper
                 let newSwiftUICode = try fakeDoc.graph.createSwiftUICode(ignoreScript: ignoreScript, usePortValueDescription: usePortValueDescription)
                 self.regeneratedCode = newSwiftUICode

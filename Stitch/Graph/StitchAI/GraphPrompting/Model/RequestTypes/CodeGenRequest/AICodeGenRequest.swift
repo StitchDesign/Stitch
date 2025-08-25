@@ -127,49 +127,29 @@ extension StitchAICodeCreator {
             }
             
             do {
-                let actionsResult = try await request
+                var actionsResult = try await request
                     .processRequest(userPrompt: userPrompt,
                                     document: document,
                                     aiManager: aiManager,
                                     dataGlossaryPrompt: dataGlossaryPrompt)
                 
-                let graphData = actionsResult.graphData
-                let allDiscoveredErrors = actionsResult.caughtErrors
-                
-                logToServerIfRelease("SUCCESS Patch Builder:\n\((try? graphData.encodeToPrintableString()) ?? "")")
+                logToServerIfRelease("SUCCESS Patch Builder:\n\((try? actionsResult.graphData.encodeToPrintableString()) ?? "")")
                 
                 DispatchQueue.main.async { [weak document] in
                     guard let document = document else { return }
                     
-                    do {
-                        Task(priority: .high) {
-                            try await graphData
-                                .applyAIGraph(to: document,
-                                              viewStatePatchConnections: actionsResult.graphData .viewStatePatchConnections,
-                                              requestType: Self.type)
-                        }
-                        
-#if STITCH_AI_TESTING || DEBUG || DEV_DEBUG
-                        // Display parsing warnings
-                        if !allDiscoveredErrors.isEmpty {
-                            let caughtErrorsString = allDiscoveredErrors.reduce(into: "") { stringBuilder, error in
-                                stringBuilder += "\n\(error)"
-                            }
-                            
-                            document.storeDelegate?.alertState.stitchFileError = .unknownError("Warnings for the following unknown concepts:\(caughtErrorsString)")
-                        }
-#endif
-                        
-                    } catch {
-                        logToServerIfRelease("Error applying AI graph: \(error.localizedDescription)")
-                        document.storeDelegate?.alertState.stitchFileError = .unknownError("\(error)")
+                    Task(priority: .high) {
+                        await actionsResult
+                            .applyAIGraph(to: document,
+                                          viewStatePatchConnections: actionsResult.graphData .viewStatePatchConnections,
+                                          requestType: Self.type)
                     }
                     
                     document.aiManager?.currentTaskTesting = nil
                     document.insertNodeMenuState.show = false
                 }
                 
-                return .success(graphData)
+                return .success(actionsResult.graphData)
             } catch {
                 return .failure(StitchStore.displayError(failure: error,
                                                          document: document))
