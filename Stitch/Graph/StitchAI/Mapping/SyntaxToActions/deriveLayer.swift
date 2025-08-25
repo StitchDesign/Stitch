@@ -1042,6 +1042,9 @@ extension SyntaxViewName {
             
         case .memberAccess:
             fatalError("Not supported here")
+        
+        case .closure:
+            fatalError("Not supported here")
         }
     }
     

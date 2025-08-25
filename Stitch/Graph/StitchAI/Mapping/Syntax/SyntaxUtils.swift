@@ -50,6 +50,9 @@ private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
     case .complex(let type):
         // TODO: better label for describe
         return type.typeName
+        
+    case .closure(let script):
+        return "closure(\(script))"
     }
 }
 

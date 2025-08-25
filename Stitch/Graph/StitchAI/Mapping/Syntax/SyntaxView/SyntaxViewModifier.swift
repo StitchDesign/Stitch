@@ -78,6 +78,8 @@ indirect enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable, Enc
     case memberAccess(SyntaxViewMemberAccess)
     
     case stateAccess(String)
+    
+    case closure(String)
 }
 
 // Non-recursive sub-enum of `SyntaxViewModifierArgumentType` for when we are working in contexts where we have already flattened the nested argument-types like `tuple` and `array`
@@ -86,6 +88,7 @@ enum SyntaxViewModifierArgumentFlatType: Equatable, Hashable, Sendable {
     case complex(SyntaxViewModifierComplexType)
     case stateAccess(String)
     case memberAccess(SyntaxViewMemberAccess)
+    case closure(String)
     
     var toSyntaxViewModifierArgumentType: SyntaxViewModifierArgumentType {
         switch self {
@@ -97,6 +100,8 @@ enum SyntaxViewModifierArgumentFlatType: Equatable, Hashable, Sendable {
             return .stateAccess(x)
         case .complex(let x):
             return .complex(x)
+        case .closure(let x):
+            return .closure(x)
         }
     }
 }
@@ -117,6 +122,8 @@ extension SyntaxViewModifierArgumentType {
             return xs.flatMap(\.value.toSyntaxViewModifierArgumentFlatType)
         case .array(let xs):
             return xs.flatMap(\.toSyntaxViewModifierArgumentFlatType)
+        case .closure(let code):
+            return [.closure(code)]
         }
     }
 }
@@ -146,6 +153,8 @@ extension SyntaxViewModifierArgumentType {
             return array.flatMap(\.allNestedSimpleValues)
         case .memberAccess(let memberExpr):
             return [memberExpr.property]
+        case .closure(let x):
+            return [x]
         }
     }
 
@@ -427,6 +436,9 @@ extension SyntaxViewModifierArgumentType {
             return AnyEncodable(memberData.property)
         
         case .stateAccess(let x):
+            return AnyEncodable(x)
+            
+        case .closure(let x):
             return AnyEncodable(x)
         }
     }

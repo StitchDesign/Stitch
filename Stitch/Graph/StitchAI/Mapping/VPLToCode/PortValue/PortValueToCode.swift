@@ -187,7 +187,11 @@ func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) 
         return "{\(dict)}"
     case .stateAccess(_):
         // State access should not use PortValueDescription according to system prompt
-        return "/* state access - should not be wrapped */"
+        fatalErrorIfDebug("/* state access - should not be wrapped */")
+        return ""
+    case .closure:
+        fatalErrorIfDebug()
+        return ""
     }
 }
 
@@ -268,6 +272,12 @@ func renderArgWithoutPortValueDescription(_ arg: SyntaxViewModifierArgumentType)
     case .stateAccess(let stateName):
         // Render state variables directly by name
         return stateName
+    case .closure(let code):
+        return """
+            {
+            \(code.indentLines())
+            }
+            """
     }
 }
 

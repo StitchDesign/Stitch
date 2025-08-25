@@ -46,7 +46,7 @@ extension GraphEntity {
             
             let patchDeclaration = """
                 let \(varName) = \(fnNameSpace)([
-                        \(args.joined(separator: ",\n\t\t"))
+                \(args.joined(separator: ",\n").indentLines(n: 2))
                     ])
                 """
             
