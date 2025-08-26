@@ -110,6 +110,7 @@
 		B53E0BEC2D35B5E00072FD43 /* BoxLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53E0BEB2D35B5DD0072FD43 /* BoxLayerNode.swift */; };
 		B53E0BEF2D36E1220072FD43 /* LayerInspectorSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53E0BEE2D36E1120072FD43 /* LayerInspectorSection.swift */; };
 		B53E47812894918500A3D060 /* Microphone Recorder.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B53E477F2894918500A3D060 /* Microphone Recorder.stitch */; };
+		B53ED3D72E5E212E00E46118 /* SyntaxViewEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53ED3D62E5E212A00E46118 /* SyntaxViewEvent.swift */; };
 		B541060028694AD7000688CA /* MediaUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B54105FF28694AD7000688CA /* MediaUtil.swift */; };
 		B5410608286D66F3000688CA /* NodeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5410607286D66F3000688CA /* NodeUtils.swift */; };
 		B5432D20276A57800052E59F /* ScrollAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5432D1F276A57800052E59F /* ScrollAnimation.swift */; };
@@ -1306,6 +1307,7 @@
 		B53E0BEB2D35B5DD0072FD43 /* BoxLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoxLayerNode.swift; sourceTree = "<group>"; };
 		B53E0BEE2D36E1120072FD43 /* LayerInspectorSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorSection.swift; sourceTree = "<group>"; };
 		B53E477F2894918500A3D060 /* Microphone Recorder.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Microphone Recorder.stitch"; sourceTree = "<group>"; };
+		B53ED3D62E5E212A00E46118 /* SyntaxViewEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxViewEvent.swift; sourceTree = "<group>"; };
 		B54105FF28694AD7000688CA /* MediaUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaUtil.swift; sourceTree = "<group>"; };
 		B5410607286D66F3000688CA /* NodeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeUtils.swift; sourceTree = "<group>"; };
 		B5432D1F276A57800052E59F /* ScrollAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollAnimation.swift; sourceTree = "<group>"; };
@@ -5435,6 +5437,7 @@
 				ECB238D92E0B8D2800D55A25 /* SyntaxViewConstructorArgument.swift */,
 				ECB238DE2E0B914100D55A25 /* SyntaxArgumentKind.swift */,
 				ECB238D52E0B8C3200D55A25 /* SyntaxViewModifier.swift */,
+				B53ED3D62E5E212A00E46118 /* SyntaxViewEvent.swift */,
 			);
 			path = SyntaxView;
 			sourceTree = "<group>";
@@ -5888,6 +5891,7 @@
 				ECB9A8692AEB4922006E65EE /* HueSliderView.swift in Sources */,
 				EC8044982944321A00DCFCF4 /* LayerLoopNodeCoordinate.swift in Sources */,
 				B5A2D11B286E358E002BFB97 /* MediaPickerView.swift in Sources */,
+				B53ED3D72E5E212E00E46118 /* SyntaxViewEvent.swift in Sources */,
 				B55500AF2C1B778F0081C3F1 /* NodeIOCoordinateUtils.swift in Sources */,
 				B59447212B97FA140039603D /* CommentBoxViewModel.swift in Sources */,
 				EC66D03D2E07123F00355ED8 /* CodeToStitchSyntax.swift in Sources */,

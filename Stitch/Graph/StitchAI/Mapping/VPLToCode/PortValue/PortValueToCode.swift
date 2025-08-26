@@ -192,6 +192,9 @@ func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) 
     case .closure:
         fatalErrorIfDebug()
         return ""
+    case .viewEvent(let x):
+        fatalErrorIfDebug()
+        return ""
     }
 }
 
@@ -274,9 +277,24 @@ func renderArgWithoutPortValueDescription(_ arg: SyntaxViewModifierArgumentType)
         return stateName
     case .closure(let code):
         return """
-            {
-            \(code.indentLines())
+            { (\(code.paramVars.joined(separator: ", "))) in
+            \(code.script.indentLines())
             }
+            """
+    case .viewEvent(let viewEvent):
+        let constructorArgsString = viewEvent.eventConstructorArgs
+            .map { renderArgWithoutPortValueDescription($0.value) }
+            .joined(separator: ", ")
+        
+        let viewEventClosuresString = viewEvent.eventModifiers.map { (modifierName, closureData) in
+            let closureString = renderArgWithoutPortValueDescription(.closure(closureData))
+            
+            return ".\(modifierName) \(closureString)".indentLines()
+        }
+        
+        return """
+            \(viewEvent.eventName)(\(constructorArgsString))
+            \(viewEventClosuresString)
             """
     }
 }

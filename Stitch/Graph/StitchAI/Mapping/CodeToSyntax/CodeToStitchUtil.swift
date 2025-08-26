@@ -27,7 +27,8 @@ extension SwiftUIViewVisitor {
             // Append closure arg if exists
             if let closureBlock = node.trailingClosure?.statements.first?.item.trimmedDescription {
                 arguments.append(.init(label: nil,
-                                       value: .closure(closureBlock)))
+                                       value: .closure(.init(paramVars: [],
+                                                             script: closureBlock))))
             }
             
             return .other(arguments)
@@ -49,18 +50,30 @@ extension SwiftUIViewVisitor {
                      value: value)
     }
     
-    func parseFnArgumentType(_ funcExpr: FunctionCallExprSyntax) -> SyntaxViewModifierComplexType {
+    func parseFnArgumentType(_ funcExpr: FunctionCallExprSyntax) -> SyntaxViewModifierArgumentType {
         // Recursively create argument data
         let complexTypeArgs = funcExpr.arguments
             .compactMap { expr in
                 self.parseArgument(expr)
             }
         
+        if let memberAccessExpr = funcExpr.calledExpression.as(MemberAccessExprSyntax.self),
+           let viewEventName = funcExpr.getViewEventName() {
+            
+            var modifierClosures = [String: SyntaxViewModifierClosureData]()
+            funcExpr.reduceModifierClosureData(memberAccessExpr: memberAccessExpr,
+                                               modifierClosures: &modifierClosures)
+            
+            return .viewEvent(.init(eventName: viewEventName,
+                                    eventConstructorArgs: complexTypeArgs,
+                                    eventModifiers: modifierClosures))
+        }
+        
         let complexType = SyntaxViewModifierComplexType(
             typeName: funcExpr.calledExpression.trimmedDescription,
             arguments: complexTypeArgs)
         
-        return complexType
+        return .complex(complexType)
     }
     
     /// Handles conditional logic for determining a type of syntax argument.
@@ -68,7 +81,7 @@ extension SwiftUIViewVisitor {
         // Handles compelx types, like PortValueDescription
         if let funcExpr = expression.as(FunctionCallExprSyntax.self) {
             let complexType = self.parseFnArgumentType(funcExpr)
-            return .complex(complexType)
+            return complexType
         }
         
         // Recursively handle arguments in tuple case
@@ -89,7 +102,6 @@ extension SwiftUIViewVisitor {
             return .memberAccess(SyntaxViewMemberAccess(
                 base: memberAccessExpr.base?.trimmedDescription,
                 property: memberAccessExpr.declName.baseName.trimmedDescription))
-            
         }
         
         else if let dictExpr = expression.as(DictionaryExprSyntax.self) {
@@ -116,8 +128,10 @@ extension SwiftUIViewVisitor {
         }
         
         // Closures
-        else if let closureExpr = expression.as(ClosureExprSyntax.self) {
-            return .closure(closureExpr.statements.first?.item.trimmedDescription ?? "")
+        else if let closureExpr = expression.as(ClosureExprSyntax.self),
+                let script = closureExpr.statements.first?.item.trimmedDescription {
+            return .closure(.init(paramVars: [],
+                                  script: script))
         }
         
         guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {
