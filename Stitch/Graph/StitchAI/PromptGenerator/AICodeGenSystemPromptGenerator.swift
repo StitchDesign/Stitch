@@ -97,9 +97,6 @@ Text("salut").foregroundColor([PortValueDescription(value: "#FFFF00FF", value_ty
 
 This means that for any value declared inside a view's constructor, a view modifier, or anywhere some value is declared, you must use a `[PortValueDescription]` object.
 
-
-
-
 ### Permitted Usage of State in View Modifiers
 
 **This includes invocation of state variables for view modifiers, which must be processed by the view modifier in its looped form**. For example:
@@ -275,10 +272,10 @@ Supported native Stitch patches can be invoked with the following syntax:
 ```js
 let native_patch_function = NATIVE_STITCH_PATCH_FUNCTIONS[node_kind]
 ```
-Where `node_kind` is the label used to reference the type of node. For example, a drag interaction patch function can be leveraged like: 
+Where `node_kind` is the label used to reference the type of node. For example, a loop interaction patch function can be leveraged like: 
 
 ```js
-let native_drag_interaction_patch_function = NATIVE_STITCH_PATCH_FUNCTIONS["dragInteraction || Patch"]
+let loopOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["loop || Patch"]
 ```
 You can view the list of inputs and outputs supported by each node by reference the node name's input and output definitions below in "Inputs and Outputs Definitions for Patches and Layers".
 
@@ -287,21 +284,6 @@ You can view the list of inputs and outputs supported by each node by reference 
 Support for native patch functions are listed below:
 
 Support for native patch functions are listed below:
-
-#### Gesture Patch Nodes
-Gesture patch nodes track specific events to some specified layer. The input value for a selected layer is specified as a `"Layer"` value type, with its underlying ID matching the layer ID of some layer.
-
-Sometimes, a specific layer is looped, meaning one of the layers inputs receives a loop of values, causing the layer itself to be repeated n times for an n-length size of values in a loop. Native Stitch patch functions for gestures automatically handle loops and will process each looped instance of a layer in its eval.
-
-##### Drag Interaction
-* **When to use:** when a view defines a drag gesture.
-* **Node name label:** `dragInteraction || patch`
-* When making a layer "draggable", the position output of a drag interaction node should be connected to the position input of the associated layer.
-* Special considerations: the "Max" input, if left with an empty position value of {x: 0, y: 0}, will be ignored by the eval and produce typical dragging eval behavior.
-
-##### Press Interaction
-* **When to use:** when a view defines a tap interaction.
-* **Node name label:** `pressInteraction || patch`
 
 #### Special Considerations for Native Nodes
 * For the `"rgbColor || Patch"` node, RGB values are processed on a decimal between 0 and 1 instead of 0 - 255. **Make sure any custom values for this node use input values between 0 and 1, rather than 0 to 255.**
@@ -347,9 +329,7 @@ View modifiers responding to events such as `simultaneousGesture`, `onAppear` et
 
 For each view modifier that's created, simply invoke `STITCH_VIEW_EVENTS[event_name]` where `event_name` is a string of the event name.
 
-Responding to these events is possible using native Stitch patch functions, which can be invoked in `updateLayerInputs`. The following view modifier events map to these native Stitch patch nodes:
-
-* `simultaneousGesture`: captured either by "dragInteraction || Patch" or "pressInteraction || Patch"
+Responding to these events is possible using native Stitch patch functions, which can be invoked in `updateLayerInputs`.
 
 #### Allowed View Modifiers
 You are ONLY permitted to use these view modifiers. Do not attempt to use view modifiers not included in the list below:
@@ -359,7 +339,6 @@ You are ONLY permitted to use these view modifiers. Do not attempt to use view m
 
 #### Disallowed View Modifiers
 
-**NEVER** use `.overlay` or `.background`; use a ZStack instead.
 **NEVER** use `.gesture`; only `simultaneousGesture` is allowed.
 **NEVER** use `.animation`: instead, use native animation patch nodes like "classicAnimation || Patch" or "springAnimation || Patch"
 
@@ -503,8 +482,6 @@ struct ContentView: View {
  #### Interaction Mapping Cheatsheet
  | User asks… | Use in `updateLayerInputs` |
  | --- | --- |
- | "tap to place" | `"pressInteraction || Patch"` + `"raycasting || Patch"` to convert screen tap to world position, then update position state. |
- | "drag in AR" | `"dragInteraction || Patch"` to adjust model offset. |
  | "reset AR scene" | `"restartPrototype || Patch"` or zero‑out transforms in state. |
 
  #### Fallback Behavior
