@@ -14,7 +14,7 @@ import SwiftParser
 
 
 // TODO: can we just the `FromSwiftUIViewToStitch` protocol instead? But tricky, since `FromSwiftUIViewToStitch` has an associated i.e. generic type, which would bubble up elsewhere.
-enum StrictViewConstructor: Equatable, Encodable {
+enum StrictViewConstructor: Encodable {
     case text(TextViewConstructor)
     case image(ImageViewConstructor)
     case hStack(HStackViewConstructor)
@@ -144,7 +144,7 @@ func createKnownViewConstructor(from node: FunctionCallExprSyntax,
 }
 
 
-enum TextViewConstructor: Equatable, FromSwiftUIViewToStitch {
+enum TextViewConstructor: FromSwiftUIViewToStitch {
     /// `Text("Hello")`
     case string(SyntaxViewModifierArgumentType)
     
@@ -219,7 +219,7 @@ extension TextViewConstructor {
 }
 
 
-enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
+enum ImageViewConstructor: FromSwiftUIViewToStitch {
     /// `Image("assetName", bundle: nil)`
     case asset(name: SyntaxViewModifierArgumentType)
     /// `Image(systemName: "gear")`
@@ -296,7 +296,7 @@ enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
 }
 
 
-enum SpacerViewConstructor: Equatable, FromSwiftUIViewToStitch {
+enum SpacerViewConstructor: FromSwiftUIViewToStitch {
     // TODO: support `Spacer(minLength: CGFloat? = nil)`
     case plain
     
@@ -314,7 +314,7 @@ enum SpacerViewConstructor: Equatable, FromSwiftUIViewToStitch {
 // MARK: - Reality-view primitives (no-arg)
 
 // 1) StitchRealityView ---------------------------------------------------
-enum StitchRealityViewConstructor: Equatable, FromSwiftUIViewToStitch {
+enum StitchRealityViewConstructor: FromSwiftUIViewToStitch {
     case plain                              // StitchRealityView()
     
     var layer: AIGraphData_V0.Layer { .realityView }
@@ -328,7 +328,7 @@ enum StitchRealityViewConstructor: Equatable, FromSwiftUIViewToStitch {
 }
 
 // 2) Box -----------------------------------------------------------------
-enum BoxViewConstructor: Equatable, FromSwiftUIViewToStitch {
+enum BoxViewConstructor: FromSwiftUIViewToStitch {
     case plain                              // Box()
     
     var layer: AIGraphData_V0.Layer { .box }
@@ -343,7 +343,7 @@ enum BoxViewConstructor: Equatable, FromSwiftUIViewToStitch {
 }
 
 // 3) Cone ----------------------------------------------------------------
-enum ConeViewConstructor: Equatable, FromSwiftUIViewToStitch {
+enum ConeViewConstructor: FromSwiftUIViewToStitch {
     case plain                              // Cone()
     
     var layer: AIGraphData_V0.Layer { .cone }
@@ -357,7 +357,7 @@ enum ConeViewConstructor: Equatable, FromSwiftUIViewToStitch {
 }
 
 // 4) Cylinder ------------------------------------------------------------
-enum CylinderViewConstructor: Equatable, FromSwiftUIViewToStitch {
+enum CylinderViewConstructor: FromSwiftUIViewToStitch {
     case plain                              // Cylinder()
     
     var layer: AIGraphData_V0.Layer { .cylinder }
@@ -371,7 +371,7 @@ enum CylinderViewConstructor: Equatable, FromSwiftUIViewToStitch {
 }
 
 // 5) Sphere --------------------------------------------------------------
-enum SphereViewConstructor: Equatable, FromSwiftUIViewToStitch {
+enum SphereViewConstructor: FromSwiftUIViewToStitch {
     case plain                              // Sphere()
     
     var layer: AIGraphData_V0.Layer { .sphere }
@@ -394,7 +394,7 @@ enum SphereViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //
 
 // TODO: could be a `struct`, since
-enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
+enum HStackViewConstructor: FromSwiftUIViewToStitch {
     /// SwiftUI actually exposes *one* public initializer:
     /// `init(alignment: VerticalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content)`
     /// We model that with a single enum case whose associated values carry whatever the
@@ -474,7 +474,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 
 
 // MARK: VStackViewConstructor (new-style)
-enum VStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
+enum VStackViewConstructor: FromSwiftUIViewToStitch {
     /// SwiftUI exposes one public initializer:
     /// `init(alignment: HorizontalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content)`
     /// We capture what the call-site provided; defaults are implied when omitted.
@@ -553,7 +553,7 @@ enum VStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //    }
 //}
 //
-//enum LazyHStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
+//enum LazyHStackViewConstructor: FromSwiftUIViewToStitch {
 //    case parameters(alignment: Parameter<VerticalAlignment> = .literal(.center),
 //                    spacing:   Parameter<CGFloat?>          = .literal(nil))
 //
@@ -575,7 +575,7 @@ enum VStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //    }
 //}
 //
-//enum LazyVStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
+//enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
 //    case parameters(alignment: Parameter<HorizontalAlignment> = .literal(.center),
 //                    spacing:   Parameter<CGFloat?>            = .literal(nil))
 //
@@ -600,7 +600,7 @@ enum VStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //
 //// MARK: - TextField --------------------------------------------------------
 //
-//enum TextFieldViewConstructor: Equatable, FromSwiftUIViewToStitch {
+//enum TextFieldViewConstructor: FromSwiftUIViewToStitch {
 //    /// Simplified model:
 //    /// `TextField(_ titleKey: LocalizedStringKey, text: Binding<String>)`
 //    /// or `TextField(_ title: String, text: Binding<String>)`
@@ -662,7 +662,7 @@ enum VStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //}
 //
 // MARK: - ZStackViewConstructor (new-style)
-enum ZStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
+enum ZStackViewConstructor: FromSwiftUIViewToStitch {
     /// SwiftUI: `init(alignment: Alignment = .center, content:)`
     case parameters(alignment: SyntaxViewModifierArgumentType?)
 
@@ -731,7 +731,7 @@ private extension SyntaxViewMemberAccess {
 //
 //// MARK: - Circle & Rectangle (no‑arg views) -------------------------------
 
-struct NoArgViewConstructor: Equatable, FromSwiftUIViewToStitch {
+struct NoArgViewConstructor: FromSwiftUIViewToStitch {
     var args: [SyntaxViewArgumentData]
     var layer: AIGraphData_V0.Layer
     
@@ -759,7 +759,7 @@ struct NoArgViewConstructor: Equatable, FromSwiftUIViewToStitch {
 
 
 // TODO: SwiftUI Circle can support `radius:` argument
-struct CircleViewConstructor: Equatable, FromSwiftUIViewToStitch {
+struct CircleViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .oval }
     
@@ -773,7 +773,7 @@ struct CircleViewConstructor: Equatable, FromSwiftUIViewToStitch {
     }
 }
 
-struct RectangleViewConstructor: Equatable, FromSwiftUIViewToStitch {
+struct RectangleViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .rectangle }
     
@@ -789,7 +789,7 @@ struct RectangleViewConstructor: Equatable, FromSwiftUIViewToStitch {
 
 //// MARK: - RoundedRectangle -------------------------------------------------
 //
-//enum RoundedRectangleViewConstructor: Equatable, FromSwiftUIViewToStitch {
+//enum RoundedRectangleViewConstructor: FromSwiftUIViewToStitch {
 //    /// RoundedRectangle(cornerRadius:style:)
 //    case cornerRadius(radius: Parameter<CGFloat>,
 //                      style:  Parameter<RoundedCornerStyle> = .literal(.continuous))
@@ -859,7 +859,7 @@ struct RectangleViewConstructor: Equatable, FromSwiftUIViewToStitch {
 
 
 // MARK: - ScrollView -------------------------------------------------------
-enum ScrollViewViewConstructor: Equatable, FromSwiftUIViewToStitch {
+enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
     
     /// ScrollView(axes:showIndicators:)
     //    case parameters(axes: Parameter<Axis.Set> = .literal(.vertical),
@@ -987,7 +987,7 @@ enum ScrollViewViewConstructor: Equatable, FromSwiftUIViewToStitch {
 
 //// MARK: - Gradients --------------------------------------------------------
 //
-//enum AngularGradientViewConstructor: Equatable, FromSwiftUIViewToStitch {
+//enum AngularGradientViewConstructor: FromSwiftUIViewToStitch {
 //    /// AngularGradient(colors:center:startAngle:endAngle:)
 //    case parameters(colors: Parameter<[Color]>,
 //                    center: Parameter<UnitPoint>,
@@ -1079,7 +1079,7 @@ enum ScrollViewViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //    }
 //}
 //
-//enum LinearGradientViewConstructor: Equatable, FromSwiftUIViewToStitch {
+//enum LinearGradientViewConstructor: FromSwiftUIViewToStitch {
 //    /// LinearGradient(colors:startPoint:endPoint:)
 //    case parameters(colors: Parameter<[Color]>,
 //                    startPoint: Parameter<UnitPoint>,
@@ -1154,7 +1154,7 @@ enum ScrollViewViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //    }
 //}
 //
-//enum RadialGradientViewConstructor: Equatable, FromSwiftUIViewToStitch {
+//enum RadialGradientViewConstructor: FromSwiftUIViewToStitch {
 //    /// RadialGradient(colors:center:startRadius:endRadius:)
 //    case parameters(colors: Parameter<[Color]>,
 //                    center: Parameter<UnitPoint>,
@@ -1249,7 +1249,7 @@ enum ScrollViewViewConstructor: Equatable, FromSwiftUIViewToStitch {
 
 // TODO: consolidate the code between LazyHStackViewConstructor and HStackViewConstructor, etc.
 // MARK: LazyHStackViewConstructor (new-style)
-enum LazyHStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
+enum LazyHStackViewConstructor: FromSwiftUIViewToStitch {
     /// SwiftUI: `init(alignment: VerticalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content)`
     case parameters(alignment: SyntaxViewModifierArgumentType?,
                     spacing:   SyntaxViewModifierArgumentType?)
@@ -1308,7 +1308,7 @@ enum LazyHStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 }
 
 // MARK: LazyVStackViewConstructor (new-style)
-enum LazyVStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
+enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
     /// SwiftUI: `init(alignment: HorizontalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content)`
     case parameters(alignment: SyntaxViewModifierArgumentType?,
                     spacing:   SyntaxViewModifierArgumentType?)
@@ -1438,7 +1438,7 @@ protocol FromSwiftUIViewModifierToStitch: Encodable {
 
 // MARK: - Opacity View Modifier
 
-struct OpacityViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct OpacityViewModifier: FromSwiftUIViewModifierToStitch {
     let value: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
@@ -1462,7 +1462,7 @@ struct OpacityViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
 }
 
 // MARK: - ScaleEffect View Modifier
-enum ScaleEffectViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+enum ScaleEffectViewModifier: FromSwiftUIViewModifierToStitch {
     // SwiftUI overloads we support
     // 1) .scaleEffect(2.0, anchor: .center)
     case uniform(scale: SyntaxViewModifierArgumentType,
@@ -1610,7 +1610,7 @@ extension SyntaxViewMemberAccess {
 
 // MARK: - Blur View Modifier
 
-struct BlurViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct BlurViewModifier: FromSwiftUIViewModifierToStitch {
     let radius: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
@@ -1638,7 +1638,7 @@ struct BlurViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
 
 // MARK: - ZIndex View Modifier
 
-struct ZIndexViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct ZIndexViewModifier: FromSwiftUIViewModifierToStitch {
     let value: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
@@ -1663,7 +1663,7 @@ struct ZIndexViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
 
 // MARK: - CornerRadius View Modifier
 
-struct CornerRadiusViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct CornerRadiusViewModifier: FromSwiftUIViewModifierToStitch {
     let radius: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
@@ -1697,7 +1697,7 @@ struct FrameViewModifier: PortValuesPackModifiable {
 
 // MARK: - Color View Modifiers
 
-struct ForegroundColorViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct ForegroundColorViewModifier: FromSwiftUIViewModifierToStitch {
     let color: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
@@ -1726,7 +1726,7 @@ struct ForegroundColorViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
-struct FillViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct FillViewModifier: FromSwiftUIViewModifierToStitch {
     let color: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
@@ -1757,7 +1757,7 @@ struct FillViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
 
 // MARK: - Layer Effects View Modifiers
 
-struct BrightnessViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct BrightnessViewModifier: FromSwiftUIViewModifierToStitch {
     let value: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
@@ -1777,7 +1777,7 @@ struct BrightnessViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
-struct ContrastViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct ContrastViewModifier: FromSwiftUIViewModifierToStitch {
     let value: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
@@ -1797,7 +1797,7 @@ struct ContrastViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
-struct SaturationViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct SaturationViewModifier: FromSwiftUIViewModifierToStitch {
     let value: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
@@ -1817,7 +1817,7 @@ struct SaturationViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
-struct HueRotationViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct HueRotationViewModifier: FromSwiftUIViewModifierToStitch {
     let angle: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
@@ -1837,7 +1837,7 @@ struct HueRotationViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
-struct ColorInvertViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct ColorInvertViewModifier: FromSwiftUIViewModifierToStitch {
     // colorInvert() takes no arguments
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
@@ -1871,7 +1871,7 @@ struct OffsetViewModifier: PortValuesPackModifiable {
 
 // MARK: - Layout View Modifiers
 
-struct PaddingViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct PaddingViewModifier: FromSwiftUIViewModifierToStitch {
     let edges: SyntaxViewModifierArgumentType?
     let length: SyntaxViewModifierArgumentType?
     
@@ -1932,7 +1932,7 @@ struct PaddingViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
-struct ClippedViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct ClippedViewModifier: FromSwiftUIViewModifierToStitch {
     // .clipped() takes no arguments
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
@@ -1950,7 +1950,7 @@ struct ClippedViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
 
 // MARK: - Font View Modifiers
 
-struct FontViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct FontViewModifier: FromSwiftUIViewModifierToStitch {
     let font: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
@@ -1969,7 +1969,7 @@ struct FontViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
-struct FontDesignViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct FontDesignViewModifier: FromSwiftUIViewModifierToStitch {
     let design: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
@@ -1988,7 +1988,7 @@ struct FontDesignViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
-struct FontWeightViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct FontWeightViewModifier: FromSwiftUIViewModifierToStitch {
     let weight: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
@@ -2007,7 +2007,7 @@ struct FontWeightViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
-struct RotationEffectViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct RotationEffectViewModifier: FromSwiftUIViewModifierToStitch {
     let angle: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
@@ -2027,7 +2027,7 @@ struct RotationEffectViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
-enum Rotation3DAxis: Equatable, Codable {
+enum Rotation3DAxis: Codable {
     case x  // axis: (x: 1, y: 0, z: 0)
     case y  // axis: (x: 0, y: 1, z: 0)
     case z  // axis: (x: 0, y: 0, z: 1)
@@ -2119,7 +2119,7 @@ enum Rotation3DAxis: Equatable, Codable {
     }
 }
 
-struct Rotation3DEffectViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct Rotation3DEffectViewModifier: FromSwiftUIViewModifierToStitch {
     let angle: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
@@ -2143,7 +2143,7 @@ struct Rotation3DEffectViewModifier: Equatable, FromSwiftUIViewModifierToStitch 
     }
 }
 
-struct LayerIdViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+struct LayerIdViewModifier: FromSwiftUIViewModifierToStitch {
     let layerId: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {

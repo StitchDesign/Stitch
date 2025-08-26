@@ -1039,10 +1039,7 @@ extension SyntaxViewName {
         case .stateAccess(let varName):
             return [.stateRef(varName)]
             
-        case .memberAccess:
-            fatalError("Not supported here")
-        
-        case .closure:
+        case .memberAccess, .closure, .viewEvent:
             fatalError("Not supported here")
         }
     }

@@ -52,12 +52,11 @@ extension SwiftUIViewParserResult {
 
         // Extract layer data
         let layerResults = self.viewStack.deriveStitchActions(bindingDeclarations: bindingDeclarations)
-        let allLayerErrors = layerResults.caughtErrors
         
         return .init(graphData: .init(layer_data_list: layerResults.actions,
                                       patch_data: patchResults.actions,
                                       viewStatePatchConnections: patchResults.viewStatePatchConnections),
-                     caughtErrors: self.caughtErrors + allLayerErrors + patchResults.caughtErrors)
+                     caughtErrors: self.caughtErrors + layerResults.caughtErrors + patchResults.caughtErrors)
     }
 }
 
