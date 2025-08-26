@@ -36,6 +36,43 @@ extension FunctionCallExprSyntax {
         
         return declExpr.baseName.text
     }
+    
+    func reduceModifierClosureData(memberAccessExpr: MemberAccessExprSyntax,
+                                   modifierClosures: inout [String: SyntaxViewModifierClosureData]) {
+        let modifierCall = memberAccessExpr.declName.trimmedDescription
+        
+        // Get closure data
+        if let closureExpr = self.trailingClosure {
+            let closureParams = closureExpr.signature?.parameterClause?.as(ClosureShorthandParameterListSyntax.self)?.map(\.trimmedDescription) ?? []
+            let script = closureExpr.statements.trimmedDescription
+            
+            modifierClosures.updateValue(.init(paramVars: closureParams,
+                                               script: script),
+                                         forKey: modifierCall)
+        }
+        
+        // Check for recursive data
+        if let fnBaseExpr = memberAccessExpr.base?.as(FunctionCallExprSyntax.self),
+           let childMemberAccessExpr = fnBaseExpr.calledExpression.as(MemberAccessExprSyntax.self) {
+            // Recursive calls for more closures
+            fnBaseExpr.reduceModifierClosureData(memberAccessExpr: childMemberAccessExpr,
+                                                 modifierClosures: &modifierClosures)
+        }
+    }
+    
+    // Recursively searches until name found
+    func getViewEventName() -> String? {
+        if let declExpr = self.calledExpression.as(DeclReferenceExprSyntax.self) {
+            return declExpr.trimmedDescription
+        }
+        
+        guard let memberAccessExpr = self.calledExpression.as(MemberAccessExprSyntax.self),
+              let childFn = memberAccessExpr.base?.as(FunctionCallExprSyntax.self) else {
+            return nil
+        }
+        
+        return childFn.getViewEventName()
+    }
 }
 
 extension SwiftUIViewVisitor {

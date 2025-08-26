@@ -10,7 +10,7 @@ import SwiftSyntax
 import SwiftParser
 
 
-struct SyntaxViewModifier: Equatable, Sendable, Encodable {
+struct SyntaxViewModifier: Sendable, Encodable {
 
     // representation of a SwiftUI view modifier name
     let name: SyntaxViewModifierName
@@ -101,20 +101,35 @@ extension Array where Element == SyntaxViewModifier {
  )
  ```
  */
-struct SyntaxViewArgumentData: Equatable, Hashable, Sendable, Encodable {
+struct SyntaxViewArgumentData: Sendable, Encodable {
     let label: String? //SyntaxViewModifierArgumentLabel
     let value: SyntaxViewModifierArgumentType
 }
 
-struct SyntaxViewSimpleData: Hashable, Sendable, Encodable {
+struct SyntaxViewSimpleData: Sendable, Encodable {
     let value: String
     let syntaxKind: SyntaxArgumentKind
 }
 
-struct SyntaxViewModifierComplexType: Equatable, Hashable, Sendable, Encodable {
+struct SyntaxViewModifierComplexType: Sendable, Encodable {
     let typeName: String
     
     let arguments: [SyntaxViewArgumentData]
+}
+
+struct SyntaxViewModifierViewEvent: Sendable, Encodable {
+    let eventName: String
+    
+    // args inside constructor
+    let eventConstructorArgs: [SyntaxViewArgumentData]
+    
+    // member access callbacks with possible closure data
+    let eventModifiers: [String: SyntaxViewModifierClosureData]
+}
+
+struct SyntaxViewModifierClosureData: Sendable, Encodable {
+    let paramVars: [String]
+    let script: String
 }
 
 /*
@@ -129,7 +144,7 @@ struct SyntaxViewModifierComplexType: Equatable, Hashable, Sendable, Encodable {
     )
  ```
  */
-indirect enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable, Encodable {
+indirect enum SyntaxViewModifierArgumentType: Sendable, Encodable {
     
     // e.g. .opacity(5.0)
     case simple(SyntaxViewSimpleData)
@@ -147,16 +162,19 @@ indirect enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable, Enc
     
     case stateAccess(String)
     
-    case closure(String)
+    case closure(SyntaxViewModifierClosureData)
+    
+    case viewEvent(SyntaxViewModifierViewEvent)
 }
 
 // Non-recursive sub-enum of `SyntaxViewModifierArgumentType` for when we are working in contexts where we have already flattened the nested argument-types like `tuple` and `array`
-enum SyntaxViewModifierArgumentFlatType: Equatable, Hashable, Sendable {
+enum SyntaxViewModifierArgumentFlatType: Sendable {
     case simple(SyntaxViewSimpleData)
     case complex(SyntaxViewModifierComplexType)
     case stateAccess(String)
     case memberAccess(SyntaxViewMemberAccess)
-    case closure(String)
+    case closure(SyntaxViewModifierClosureData)
+    case viewEvent(SyntaxViewModifierViewEvent)
     
     var toSyntaxViewModifierArgumentType: SyntaxViewModifierArgumentType {
         switch self {
@@ -170,6 +188,8 @@ enum SyntaxViewModifierArgumentFlatType: Equatable, Hashable, Sendable {
             return .complex(x)
         case .closure(let x):
             return .closure(x)
+        case .viewEvent(let x):
+            return .viewEvent(x)
         }
     }
 }
@@ -192,6 +212,8 @@ extension SyntaxViewModifierArgumentType {
             return xs.flatMap(\.toSyntaxViewModifierArgumentFlatType)
         case .closure(let code):
             return [.closure(code)]
+        case .viewEvent(let x):
+            return []
         }
     }
 }
@@ -205,26 +227,28 @@ struct SyntaxViewMemberAccess: Equatable, Hashable, Sendable, Encodable {
 
 
 extension SyntaxViewModifierArgumentType {
-    // For recursion
-    var allNestedSimpleValues: [String] {
-        switch self {
-        case .simple(let syntaxViewSimpleData):
-            return [syntaxViewSimpleData.value]
-        case .complex(let syntaxViewModifierComplexType):
-            return syntaxViewModifierComplexType.arguments
-                .flatMap(\.value.allNestedSimpleValues)
-        case .stateAccess(let x):
-            return [x]
-        case .tuple(let array):
-            return array.flatMap(\.value.allNestedSimpleValues)
-        case .array(let array):
-            return array.flatMap(\.allNestedSimpleValues)
-        case .memberAccess(let memberExpr):
-            return [memberExpr.property]
-        case .closure(let x):
-            return [x]
-        }
-    }
+//    // For recursion
+//    var allNestedSimpleValues: [String] {
+//        switch self {
+//        case .simple(let syntaxViewSimpleData):
+//            return [syntaxViewSimpleData.value]
+//        case .complex(let syntaxViewModifierComplexType):
+//            return syntaxViewModifierComplexType.arguments
+//                .flatMap(\.value.allNestedSimpleValues)
+//        case .stateAccess(let x):
+//            return [x]
+//        case .tuple(let array):
+//            return array.flatMap(\.value.allNestedSimpleValues)
+//        case .array(let array):
+//            return array.flatMap(\.allNestedSimpleValues)
+//        case .memberAccess(let memberExpr):
+//            return [memberExpr.property]
+//        case .closure(let x):
+//            return [x.script]
+//        case .viewEvent(let x):
+//            return [x.eventName]
+//        }
+//    }
 
     // For cases where we need more than just the `string`;
     // see `SyntaxViewModifierArgumentFlatType` for more details
@@ -256,7 +280,7 @@ extension SyntaxViewModifierArgumentType {
     var closureValue: String? {
         switch self {
         case .closure(let data):
-            return data
+            return data.script
             
         default:
             return nil
@@ -517,6 +541,9 @@ extension SyntaxViewModifierArgumentType {
             return AnyEncodable(x)
             
         case .closure(let x):
+            return AnyEncodable(x)
+        
+        case .viewEvent(let x):
             return AnyEncodable(x)
         }
     }

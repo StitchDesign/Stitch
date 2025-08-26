@@ -53,6 +53,9 @@ private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
         
     case .closure(let script):
         return "closure(\(script))"
+    
+    case .viewEvent(let viewEvent):
+        return (try? viewEvent.encodeToString()) ?? ""
     }
 }
 
