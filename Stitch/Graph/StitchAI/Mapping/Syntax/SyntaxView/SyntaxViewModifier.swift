@@ -19,6 +19,20 @@ struct SyntaxViewModifier: Equatable, Sendable, Encodable {
     var arguments: ViewConstructorType
 }
 
+extension Array where Element == SyntaxViewModifier {
+    func getClosureScripts(for modifierName: SyntaxViewModifierName) -> [String] {
+        self.compactMap { modifier in
+            guard modifier.name == modifierName,
+                  let args = modifier.arguments.defaultArgs else {
+                return nil
+            }
+            
+            return args
+                .compactMap { $0.value.closureValue }
+                .first
+        }
+    }
+}
 
 /*
  TODO: some arguments to SwiftUI View constructors are void callbacks (= patch logic?) or SwiftUI views (= another ViewNode)
@@ -178,6 +192,16 @@ extension SyntaxViewModifierArgumentType {
     var complexValue: SyntaxViewModifierComplexType? {
         switch self {
         case .complex(let data):
+            return data
+            
+        default:
+            return nil
+        }
+    }
+    
+    var closureValue: String? {
+        switch self {
+        case .closure(let data):
             return data
             
         default:

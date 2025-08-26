@@ -184,6 +184,24 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
     }
 }
 
+extension Array where Element == String {
+    /// Derives actions from an array of script strings.
+    func deriveStitchActions() -> SwiftSyntaxLayerActionsResult {
+        let actionsResults = self.flatMap { script in
+            let result = SwiftUIViewVisitor.parseSwiftUICode(script)
+            
+            let actionsResults = result.viewStack.compactMap { syntaxView in
+                syntaxView.deriveStitchActions(bindingDeclarations: result.bindingDeclarations)
+            }
+            
+            return actionsResults
+        }
+        
+        return .init(actions: actionsResults.flatMap(\.actions),
+                     caughtErrors: actionsResults.flatMap(\.caughtErrors))
+    }
+}
+
 extension SyntaxView {
     func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) -> SwiftSyntaxLayerActionsResult? {
         // TODO: map references to specific layer IDs
@@ -193,6 +211,16 @@ extension SyntaxView {
         
         // Recurse into children first (DFS), we might use this data for nested scenarios like ScrollView
         var childResults = self.children.deriveStitchActions(bindingDeclarations: bindingDeclarations)
+        
+        // Find any possible overlay or background modifiers
+        let backgroundModifierScripts = self.modifiers.getClosureScripts(for: .background)
+        let overlayModifierScripts = self.modifiers.getClosureScripts(for: .overlay)
+        
+        // Recursively get layer data for background and overlay modifiers
+        let backgroundLayerData = backgroundModifierScripts.deriveStitchActions()
+        let overlayLayerData = overlayModifierScripts.deriveStitchActions()
+        silentErrors += backgroundLayerData.caughtErrors
+        silentErrors += overlayLayerData.caughtErrors
         
         guard let nameType = SyntaxNameType.from(self.name) else {
             // Check for custom view builder fn
@@ -204,12 +232,13 @@ extension SyntaxView {
             }
             
             // Parse script
-            let scriptResult = SwiftUIViewVisitor.parseSwiftUICode(viewBuilderFn,
-                                                                   varNameIdMap: [:])
+            let scriptResult = SwiftUIViewVisitor.parseSwiftUICode(viewBuilderFn)
             let result = scriptResult.deriveStitchActions(bindingDeclarations: scriptResult.bindingDeclarations)
             
-            return .init(actions: result.graphData.layer_data_list,
-                         caughtErrors: result.caughtErrors)
+            let actions = overlayLayerData.actions + result.graphData.layer_data_list + backgroundLayerData.actions
+            
+            return .init(actions: actions,
+                         caughtErrors: result.caughtErrors + silentErrors)
         }
         
         switch nameType {
@@ -247,14 +276,14 @@ extension SyntaxView {
                     layerData.children = nil
                 }
         
-                return .init(actions: [layerData],
+                return .init(actions: overlayLayerData.actions + [layerData] + backgroundLayerData.actions,
                              caughtErrors: silentErrors)
             } catch let error as SwiftUISyntaxError {
                 if error.shouldFailSilently {
                     log("deriveStitchActions: silent failure for unsupported layer concept: \(error)")
                     // Silent error for unsupported layers
                     silentErrors.append(error)
-                    return .init(actions: childResults.actions,
+                    return .init(actions: overlayLayerData.actions + childResults.actions + backgroundLayerData.actions,
                                  caughtErrors: silentErrors)
                 } else {
                     fatalErrorIfDebug(error.localizedDescription)
