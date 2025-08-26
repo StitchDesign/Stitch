@@ -267,7 +267,6 @@ extension LayerNodeEntity {
         
         var swiftUICode = """
             \(constructorCode)
-            \t.layerId("\(self.id)")
             \(modifiersString.joined(separator: "\n").indentLines())
             """
         
