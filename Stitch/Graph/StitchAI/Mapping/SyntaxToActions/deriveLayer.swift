@@ -472,9 +472,8 @@ extension SyntaxViewName {
             silentErrors += customInputValuesFromViewConstructor.silentErrors
             
         case .other, .none:
-            // Legacy handling
             let args = args?.defaultArgs ?? []
-            
+
             // ── Base mapping from SyntaxViewName → Layer ────────────────────────
             (layerType, layerData) = try self
                 .deriveLayerAndCustomValuesFromName(id: id,
@@ -1041,6 +1040,9 @@ extension SyntaxViewName {
             return [.stateRef(varName)]
             
         case .memberAccess:
+            fatalError("Not supported here")
+        
+        case .closure:
             fatalError("Not supported here")
         }
     }

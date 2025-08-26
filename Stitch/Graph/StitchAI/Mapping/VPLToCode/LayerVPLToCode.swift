@@ -137,7 +137,7 @@ extension LayerNodeEntity {
             
             return """
                 ScrollView(\(axesArg)showsIndicators: nil) {
-                    \(childrenContents)
+                \(childrenContents.indentLines())
                 }
                 """
                 
@@ -156,20 +156,20 @@ extension LayerNodeEntity {
             case .horizontal:
                 return """
                     HStack(alignment: .\(stackAlignmentArg), spacing: \(spacingArgs)) {
-                        \(childrenContents)
+                    \(childrenContents.indentLines())
                     }
                     """
 
             case .vertical:
                 return """
                     VStack(alignment: .\(stackAlignmentArg), spacing: \(spacingArgs)) {
-                        \(childrenContents)
+                    \(childrenContents.indentLines())
                     }
                     """
             case .none:
                 return """
                     ZStack(alignment: .\(stackAlignmentArg)) {
-                        \(childrenContents)
+                    \(childrenContents.indentLines())
                     }
                     """
             case .grid:
@@ -202,7 +202,7 @@ extension LayerNodeEntity {
         
         return """
             LazyVGrid(columns: [\(columnsDefinition)], spacing: \(spacingArgs)) {
-                \(childrenContents)
+            \(childrenContents.indentLines())
             }
             """
     }
@@ -267,8 +267,8 @@ extension LayerNodeEntity {
         
         var swiftUICode = """
             \(constructorCode)
-                .layerId("\(self.id)")
-                \(modifiersString.joined(separator: "\n\t\t"))
+            \t.layerId("\(self.id)")
+            \(modifiersString.joined(separator: "\n").indentLines())
             """
         
         if isNotGroupButHasChildren {

@@ -14,7 +14,7 @@ extension SwiftUIViewVisitor {
     // Parse arguments from function call
     func parseArguments(from node: FunctionCallExprSyntax) -> ViewConstructorType {
         // Default handling for other modifiers
-        let arguments = node.arguments.compactMap { (argument) -> SyntaxViewArgumentData? in
+        var arguments = node.arguments.compactMap { (argument) -> SyntaxViewArgumentData? in
             self.parseArgument(argument)
         }
         
@@ -23,6 +23,13 @@ extension SwiftUIViewVisitor {
         guard let knownViewConstructor = createKnownViewConstructor(
             from: node,
             arguments: arguments) else {
+            
+            // Append closure arg if exists
+            if let closureBlock = node.trailingClosure?.statements.first?.item.trimmedDescription {
+                arguments.append(.init(label: nil,
+                                       value: .closure(closureBlock)))
+            }
+            
             return .other(arguments)
         }
         
@@ -106,6 +113,11 @@ extension SwiftUIViewVisitor {
         // Tracks references to state
         else if let declrRefExpr = expression.as(DeclReferenceExprSyntax.self) {
             return .stateAccess(declrRefExpr.trimmedDescription)
+        }
+        
+        // Closures
+        else if let closureExpr = expression.as(ClosureExprSyntax.self) {
+            return .closure(closureExpr.statements.first?.item.trimmedDescription ?? "")
         }
         
         guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {

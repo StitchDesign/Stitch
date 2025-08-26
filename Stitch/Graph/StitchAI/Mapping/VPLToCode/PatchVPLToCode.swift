@@ -22,7 +22,8 @@ extension GraphState {
         let stateVarDeclarations = aiGraph.viewStatePatchConnections.keys.map { stateVarName in
             "@State var \(stateVarName): [PortValueDescription] = []"
         }
-            .joined(separator: "\n\t")
+            .joined(separator: "\n")
+            .indentLines()
         
         // log("createSwiftUICode: stateVarDeclarations: \(stateVarDeclarations)")
         
@@ -66,27 +67,31 @@ extension GraphState {
         let jsNodesScript = patchData.jsNodeFns.map { jsNodeData in
             """
             static func fn_\(jsNodeData.key)(_ inputs: [[PortValueDescription]]) -> [[PortValueDescription]] {
-                \(jsNodeData.value)
+            \(jsNodeData.value.indentLines())
             }
             """
         }
             .joined(separator: "\n\n")
         
+        let innerStructContents = """
+        \(stateVarDeclarations)
+
+        var body: some View {
+        \(viewCode.indentLines(n: 2))
+        }
+
+        func updateLayerInputs() {
+        \(patchNodeDeclarations.joined(separator: "\n").indentLines())
+        }
+
+        \(jsNodesScript)
+        """
+        
         let script = """
-struct ContentView: some View {
-    \(stateVarDeclarations)
-
-    var body: some View {
-        \(viewCode)
-    }
-
-    func updateLayerInputs() {
-        \(patchNodeDeclarations.joined(separator: "\n\t\t"))
-    }
-
-    \(jsNodesScript)
-}
-"""
+        struct ContentView: some View {
+        \(innerStructContents.indentLines())
+        }
+        """
         
         return script
     }

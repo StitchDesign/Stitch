@@ -200,9 +200,10 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
 
 extension SwiftUIViewVisitor {
     /// Parses SwiftUI code into a ViewNode structure
-    static func parseSwiftUICode(_ swiftUICode: String,
-                                 varNameIdMap: [String : String]) -> SwiftUIViewParserResult {
+    static func parseSwiftUICode(_ swiftUICode: String) -> SwiftUIViewParserResult {
 //        log("\n==== PARSING CODE ====\n\(swiftUICode)\n=====================\n")
+        
+        var varNameIdMap = [String : String]()
         
         // Preprocess the code to ensure single root view in var body
         let preprocessedCode = preprocessSwiftUICode(swiftUICode)

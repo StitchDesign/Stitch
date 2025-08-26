@@ -178,8 +178,7 @@ extension StitchAICodeCreator {
 //        logToServerIfRelease("parsedVarBody:\n\(parsedVarBody)")
         
 
-        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode,
-                                                                   varNameIdMap: [:])
+        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
         
         logToServerIfRelease("StitchAICodeCreator codeParserResult:\n\(codeParserResult)")
         

@@ -251,8 +251,7 @@ struct ASTExplorerView: View {
         errorString = nil
         silentlyCaughtErrors = []
 
-        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(currentCode,
-                                                                   varNameIdMap: [:])
+        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(currentCode)
         
         // Parse code → Syntax
         firstSyntax = codeParserResult.viewStack
