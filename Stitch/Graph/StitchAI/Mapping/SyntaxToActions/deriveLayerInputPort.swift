@@ -228,7 +228,7 @@ extension SyntaxViewModifierName {
         case .disabled:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case .background:
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+            return nil
         case .font:
             return .simple(.textFont)
         case .multilineTextAlignment:
@@ -430,7 +430,7 @@ extension SyntaxViewModifierName {
         case .onSubmit:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case .overlay:
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+            return nil
         case .preferredColorScheme:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case .presentationCornerRadius:
