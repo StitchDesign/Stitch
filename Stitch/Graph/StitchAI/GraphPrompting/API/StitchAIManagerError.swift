@@ -119,6 +119,7 @@ enum StitchAIParsingError: Error {
     case portTypeDecodingError(String)
     case stepActionDecoding(String)
     case nodeNameParsing(String)
+    case unknown(String)
 }
 
 extension StitchAIParsingError: CustomStringConvertible {
@@ -140,6 +141,8 @@ extension StitchAIParsingError: CustomStringConvertible {
             return "Unable to parse action step type from: \(string)"
         case .nodeNameParsing(let string):
             return "Could not parse node name: \(string)"
+        case .unknown(let string):
+            return "Unknown decoding error: \(string)"
         }
         
     }

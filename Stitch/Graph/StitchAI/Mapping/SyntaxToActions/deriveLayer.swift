@@ -499,6 +499,10 @@ extension SyntaxViewName {
             } catch let error as SwiftUISyntaxError {
                 silentErrors.append(error)
                 return nil
+            } catch let error as DecodingError {
+                log("SyntaxViewName.deriveLayerData unkonwn decoding error: \(error)")
+                silentErrors.append(.portValueDecodingError(.unknown(error.localizedDescription)))
+                return nil
             } catch {
                 throw error
             }
