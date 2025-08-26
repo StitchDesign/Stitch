@@ -9,6 +9,8 @@ import StitchSchemaKit
 import SwiftUI
 
 enum AIGraphData_V0 {
+    typealias NodeKind = NodeKind_V33.NodeKind
+    
     struct GraphData: Codable {
         let layer_data_list: [LayerData]
         let patch_data: PatchData

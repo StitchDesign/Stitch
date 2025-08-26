@@ -58,7 +58,7 @@ enum AIGraphCreationResponseFormat_V1 {
                                     description: "Array of node UUIDs",
                                     items: OpenAIGeneric(types: [OpenAISchema(type: .string)]))
         
-        let NodeName = OpenAISchemaEnum(values: CurrentStep.NodeKind.getAiNodeDescriptions().map(\.nodeKind))
+        let NodeName = OpenAISchemaEnum(values: AIGraphData_V0.NodeKind.getAiNodeDescriptions().map(\.nodeKind))
         
         let ValueType = OpenAISchemaEnum(values:
                                             StitchAINodeType.allCases

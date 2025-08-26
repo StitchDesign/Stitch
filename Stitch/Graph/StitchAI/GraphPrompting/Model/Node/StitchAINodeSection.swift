@@ -41,11 +41,14 @@ public enum NodeSection: String, CaseIterable, CustomStringConvertible {
 extension NodeSection {
     // TODO: should we really be passing in a specific GraphState here? aren't these node descriptions independent of any given graph ? None of the defined nodes have connections etc., right?
     @MainActor
-    static func getAllAIDescriptions(graph: GraphState) throws -> [StitchAINodeSectionDescription] {
+    static func getAllAIDescriptions(graph: GraphState,
+                                     excludedPatches: Set<Patch> = .init()) throws -> [StitchAINodeSectionDescription] {
         try Self.allCases
             .filter { $0 != .ignoredNodes }
             .map {
-            try StitchAINodeSectionDescription.init($0, graph: graph)
+            try StitchAINodeSectionDescription.init($0,
+                                                    graph: graph,
+                                                    excludedPatches: excludedPatches)
         }
     }
     
@@ -53,24 +56,24 @@ extension NodeSection {
         return self.rawValue
     }
     
-    func getNodesForSection() -> Set<CurrentStep.PatchOrLayer> {
-        let matchingPatches = CurrentStep.Patch.allCases
+    func getNodesForSection() -> Set<AIGraphData_V0.PatchOrLayer> {
+        let matchingPatches = AIGraphData_V0.Patch.allCases
             .filter {
                 $0.section == self
             }
-            .map(CurrentStep.PatchOrLayer.patch)
+            .map(AIGraphData_V0.PatchOrLayer.patch)
         
-        let matchingLayers = CurrentStep.Layer.allCases
+        let matchingLayers = AIGraphData_V0.Layer.allCases
             .filter {
                 $0.section == self
             }
-            .map(CurrentStep.PatchOrLayer.layer)
+            .map(AIGraphData_V0.PatchOrLayer.layer)
         
         return Set(matchingPatches + matchingLayers)
     }
 }
 
-extension CurrentStep.NodeKind {
+extension AIGraphData_V0.NodeKind {
     var section: NodeSection {
         switch self {
         case .patch(let patch):
@@ -83,7 +86,7 @@ extension CurrentStep.NodeKind {
     }
 }
 
-extension CurrentStep.Patch {
+extension AIGraphData_V0.Patch {
     var section: NodeSection {
         switch self {
             // MARK: General Nodes
@@ -203,13 +206,16 @@ extension CurrentStep.Patch {
                 .valueAtPath:
             return .arrayOperation
             
+        case .javascript:
+            return .jsAINode
+            
         case .scrollInteraction:
             return .ignoredNodes
         }
     }
 }
 
-extension CurrentStep.Layer {
+extension AIGraphData_V0.Layer {
     /// Returns the section header that this Layer case belongs to.
     var section: NodeSection {
         switch self {
@@ -234,7 +240,7 @@ extension CurrentStep.Layer {
             return .ar3D
             
             // Additional effects or fill layers
-        case .colorFill:
+        case .colorFill, .spacer:
             return .utility
             
             // For interactive layers
