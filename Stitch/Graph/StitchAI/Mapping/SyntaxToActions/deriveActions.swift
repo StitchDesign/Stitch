@@ -196,6 +196,7 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                                         varNameOutputPortMap: varNameOutputPortMap,
                                         customPatchInputValues: &customPatchInputValues,
                                         varNamePatchNodeRefMap: varNamePatchNodeRefMap,
+                                        stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
                                         patchConnections: &patchConnections,
                                         viewStatePatchConnections: &viewStatePatchConnections,
                                         preprocessedJSNodes: &preprocessedJSNodes,
