@@ -223,6 +223,16 @@ extension SyntaxViewModifierArgumentType {
         }
     }
     
+    var closureData: SyntaxViewModifierClosureData? {
+        switch self {
+        case .closure(let data):
+            return data
+            
+        default:
+            return nil
+        }
+    }
+    
     var viewEvent: SyntaxViewModifierViewEvent? {
         switch self {
         case .viewEvent(let x):
