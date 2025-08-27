@@ -145,7 +145,7 @@ extension StitchAICodeCreator {
                                           requestType: Self.type)
                     }
                     
-                    document.aiManager?.currentTaskTesting = nil
+                    document.aiManager?.currentTask = nil
                     document.insertNodeMenuState.show = false
                 }
                 
@@ -196,7 +196,7 @@ extension StitchStore {
                              document: StitchDocumentViewModel) -> any Error {
         log("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)", .logToServer)
         print(failure.localizedDescription)
-        document.aiManager?.currentTaskTesting = nil
+        document.aiManager?.currentTask = nil
         document.insertNodeMenuState.show = false
         
         // Display error

@@ -177,7 +177,6 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
             return .noChange
         }
         
-
         do {
             let swiftUICodeOfGraph = try document.visibleGraph.createSwiftUICode()
                         
@@ -194,7 +193,7 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
                 swiftUICodeOfGraph: swiftUICodeOfGraph,
                 base64Image: base64ImageData)
             
-            aiManager.currentTaskTesting = try requestTask
+            aiManager.currentTask = try requestTask
                 .getRequestTask(userPrompt: prompt,
                                 document: document)
         } catch {

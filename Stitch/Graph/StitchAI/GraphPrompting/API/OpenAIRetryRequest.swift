@@ -95,8 +95,12 @@ extension StitchAIManager {
         
         let aiManager = self
         
+        // Immediately cancel the LEGACY current task
+        aiManager.currentTaskLEGACY?.task.cancel()
+        aiManager.currentTaskLEGACY = nil
+        
         // Immediately cancel the current task
-        aiManager.currentTask?.task.cancel()
+        aiManager.currentTask?.cancel()
         aiManager.currentTask = nil
         
         // Before starting a new task, remove the effects of the existing actions
@@ -125,10 +129,12 @@ extension StitchAIManager {
             document: document,
             canShareAIRetries: canShareAIRetries)
         
-        aiManager.currentTask = .init(
+        aiManager.currentTaskLEGACY = .init(
             task: task,
             // Will be populated as each chunk is processed
             nodeIdMap: .init())
+        
+        // TODO: support retries with the new-style of AI ? See `SubmitUserPromptToOpenAI`
         
         document.llmRecording.currentlyInARetryDelay = false
         
@@ -153,7 +159,10 @@ extension StitchDocumentViewModel {
         self.insertNodeMenuState = InsertNodeMenuState()
         
         // TODO: should also wipe the currentTask ?
-        self.aiManager?.currentTask?.task.cancel()
+        self.aiManager?.currentTaskLEGACY?.task.cancel()
+        self.aiManager?.currentTaskLEGACY = nil
+        
+        self.aiManager?.currentTask?.cancel()
         self.aiManager?.currentTask = nil
         
         self.storeDelegate?.alertState.stitchFileError = .unknownError("\(error)")

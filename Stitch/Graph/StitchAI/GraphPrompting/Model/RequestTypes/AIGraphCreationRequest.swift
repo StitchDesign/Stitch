@@ -71,7 +71,7 @@ struct AIGraphCreationRequest: StitchAIRequestable {
                 canShareData: StitchStore.canShareAIData,
                 userPromptTableName: aiManager.graphGenerationUserPromptTableName)
             
-            aiManager.currentTask = .init(task: aiManager.getOpenAITask(
+            aiManager.currentTaskLEGACY = .init(task: aiManager.getOpenAITask(
                 request: request,
                 attempt: 0,
                 document: document,
@@ -143,7 +143,7 @@ extension StitchAIManager {
         
         // Make sure current task is completely wiped
         self.cancelCurrentRequest()
-        self.currentTask = nil
+        self.currentTaskLEGACY = nil
         
         // Clear previous streamed steps
         document.llmRecording.streamedSteps = .init()
