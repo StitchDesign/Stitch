@@ -35,10 +35,10 @@ extension Array where Element == SyntaxViewModifier {
     
     /// Extracts SyntaxViews from overlay modifier arguments (for function call form like .overlay(View))
     func getOverlayArgumentViews(for modifierName: SyntaxViewModifierName) -> [SyntaxView] {
-        return self.compactMap { modifier in
+        return self.flatMap { modifier in
             guard modifier.name == modifierName,
                   let args = modifier.arguments.defaultArgs else {
-                return nil
+                return [SyntaxView]()
             }
             
             // Extract complex type arguments that represent views
@@ -57,7 +57,7 @@ extension Array where Element == SyntaxViewModifier {
                     return nil
                 }
             }
-        }.flatMap { $0 }
+        }
     }
 }
 
