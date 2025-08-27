@@ -73,11 +73,15 @@ extension Array where Element == PortValue {
         }
         
         let valueDesc = PrintablePortValueDescription(firstValue)
-        let string = try valueDesc.jsonWithoutQuotedKeys()
         
-        // gets rid of brackets
-        let trimmedStr = string.dropFirst().dropLast()
-        return "[PortValueDescription(\(trimmedStr))]"
+        // Manually construct the PortValueDescription with proper square bracket formatting
+        let valueJson = try JSONEncoder().encode(valueDesc.value)
+        let valueString = String(data: valueJson, encoding: .utf8) ?? "\"\""
+        
+        // Replace curly braces with square brackets for dictionary values
+        let correctedValueString = valueString.replacingOccurrences(of: "{", with: "[").replacingOccurrences(of: "}", with: "]")
+        
+        return "[PortValueDescription(value: \(correctedValueString), value_type: \"\(valueDesc.value_type.value)\")]"
     }
 }
 
@@ -169,7 +173,7 @@ func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) 
         if c.typeName == "CGSize" {
             // Extract width and height for size type
             let dict = (try? c.arguments.createValuesDict()) ?? [:]
-            return "{\(dict.map { "\"\($0.key)\": \"\($0.value)\"" }.joined(separator: ", "))}"
+            return "[\(dict.map { "\"\($0.key)\": \"\($0.value)\"" }.joined(separator: ", "))]"
         }
         return "\"\(c.typeName)(...)\""
         
@@ -184,7 +188,7 @@ func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) 
             let value = extractValueForPortValueDescription(field.value)
             return "\"\(label)\": \(value)"
         }.joined(separator: ", ")
-        return "{\(dict)}"
+        return "[\(dict)]"
     case .stateAccess(_):
         // State access should not use PortValueDescription according to system prompt
         fatalErrorIfDebug("/* state access - should not be wrapped */")
