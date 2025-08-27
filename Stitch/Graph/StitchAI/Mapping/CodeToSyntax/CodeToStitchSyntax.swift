@@ -20,11 +20,11 @@ enum ParseContext {
 
 /// SwiftSyntax visitor that extracts ViewNode structure from SwiftUI code
 final class SwiftUIViewVisitor: SyntaxVisitor {
-    // Maps known patch nodes to a variable name
-    let varNameIdMap: [String : String]
+    // Bypasses view parsing logic, used by some parsing helpers for gestures
+    let willParseView: Bool
     
-    init(varNameIdMap: [String : String]) {
-        self.varNameIdMap = varNameIdMap
+    init(willParseView: Bool) {
+        self.willParseView = willParseView
         super.init(viewMode: .sourceAccurate)
     }
 
@@ -92,6 +92,9 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     // Visit function call expressions (which represent view initializations and modifiers)
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
         // log("Visiting function call: \(node.description)")
+        guard willParseView else {
+            return .visitChildren
+        }
         
         if let view = self.visitLayerData(node: node) {
             self.viewStack.append(view)
@@ -122,31 +125,34 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         }
         
         let assinmentElem = elements[2]
+        let refName = refExpr.baseName.trimmedDescription
         
         if let subscriptExpr = assinmentElem.as(SubscriptCallExprSyntax.self) {
             let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptExpr)
             self.bindingDeclarations
                 .updateValue(.stateMutation(subscriptRef),
-                             forKey: refExpr.baseName.trimmedDescription)
+                             forKey: refName)
+            return .skipChildren
         }
         
         else if let declRefExpr = assinmentElem.as(DeclReferenceExprSyntax.self) {
             let declLabel = declRefExpr.baseName.trimmedDescription
             self.bindingDeclarations
                 .updateValue(.stateMutation(.declrRef(declLabel)),
-                             forKey: refExpr.baseName.trimmedDescription)
-            
+                             forKey: refName)
+            return .skipChildren
+        }
+        
+        // Captures arrays of PortValueDescription
+        else if let arrayExpr = assinmentElem.as(ArrayExprSyntax.self) {
+            self.bindingDeclarations
+                .updateValue(.stateMutation(.arraySyntax(arrayExpr)),
+                             forKey: refName)
+            return .skipChildren
         }
         
         return .visitChildren
     }
-
-    
-    /// Parse for JS nodes.
-
-    // TODO: we can probably remove this in favor of a FunctionDeclSyntax override?
-    
-    
     
     override func visit(_ node: MemberBlockItemSyntax) -> SyntaxVisitorContinueKind {
         // Checks for state variables
@@ -207,10 +213,10 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
 
 extension SwiftUIViewVisitor {
     /// Parses SwiftUI code into a ViewNode structure
-    static func parseSwiftUICode(_ swiftUICode: String, context: ParseContext = .topLevel) -> SwiftUIViewParserResult {
+    static func parseSwiftUICode(_ swiftUICode: String,
+                                 context: ParseContext = .topLevel
+                                 willParseView: Bool = true) -> SwiftUIViewParserResult {
 //        log("\n==== PARSING CODE ====\n\(swiftUICode)\n=====================\n")
-        
-        var varNameIdMap = [String : String]()
         
         // Preprocess the code to ensure single root view in var body
         let preprocessedCode = preprocessSwiftUICode(swiftUICode, context: context)
@@ -229,7 +235,7 @@ extension SwiftUIViewVisitor {
 //#endif
         
         // Create a visitor that will extract the view structure
-        let visitor = SwiftUIViewVisitor(varNameIdMap: varNameIdMap)
+        let visitor = SwiftUIViewVisitor(willParseView: willParseView)
         visitor.walk(sourceFile)
                 
         return .init(viewStack: visitor.viewStack,

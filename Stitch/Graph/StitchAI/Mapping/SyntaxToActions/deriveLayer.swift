@@ -8,6 +8,9 @@
 import Foundation
 import StitchSchemaKit
 import SwiftUI
+import SwiftSyntax
+import SwiftParser
+import SwiftSyntaxBuilder
 
 struct LayerDerivationResult {
     let layerData: CurrentAIGraphData.LayerData
@@ -457,7 +460,8 @@ extension SyntaxViewName {
     func deriveLayerData(id: UUID,
                          args: ViewConstructorType?,
                          modifiers: [SyntaxViewModifier],
-                         childrenLayers: [CurrentAIGraphData.LayerData]) throws -> LayerDerivationResult {
+                         childrenLayers: [CurrentAIGraphData.LayerData],
+                         bindingDeclarations: [String : SwiftParserInitializerType]) throws -> LayerDerivationResult {
         var silentErrors = [SwiftUISyntaxError]()
         var layerData: CurrentAIGraphData.LayerData
         let layerType: CurrentAIGraphData.Layer
@@ -533,16 +537,57 @@ extension SyntaxViewName {
             let viewEvents: [SyntaxViewModifierViewEvent] = defaultArgs
                 .compactMap { $0.value.viewEvent }
             
-            let interactions: [AIGraphData_V0.LayerDataViewEvent] = viewEvents.flatMap { viewEvent -> [AIGraphData_V0.LayerDataViewEvent] in
+            let interactions: [AIGraphData_V0.LayerDataViewEvent] = viewEvents.compactMap { viewEvent -> AIGraphData_V0.LayerDataViewEvent? in
                 // Check for onChange handlers
-                guard let onChangeHandler = viewEvent.eventModifiers.get("onChanged") else {
-                    return []
+                guard let onChangeHandler = viewEvent.eventModifiers.get("onChanged"),
+                      let gestureParamName = onChangeHandler.paramVars.first else {
+                    return nil
                 }
                 
                 // Parse script for determining what populates state
-                let parsedData = SwiftUIViewVisitor.parseSwiftUICode(onChangeHandler.script)
                 
-                fatalError("seeing what happens")
+                // TODO: need to specifically parse closure data
+                // TODO: constructor arg to visitor that disables view parsing?
+                
+                let parsedData = SwiftUIViewVisitor.parseSwiftUICode(onChangeHandler.script,
+                                                                     willParseView: false)
+                
+                let stateToViewEventMap = parsedData.bindingDeclarations.reduce(into: [String: String]()) { result, keyValue in
+                    let (refName, assignmentValue) = keyValue
+                    
+                    switch assignmentValue {
+                    case .stateMutation(let stateMutationAssignment):
+                        switch stateMutationAssignment {
+                        case .arraySyntax(let arraySyntax):
+                            // Find what we're parsing
+                            
+                            // TODO: make sure we read for "g"
+                            
+                            guard let funcExpr = arraySyntax.elements.first?.expression.as(FunctionCallExprSyntax.self) else {
+                                return
+                            }
+                            
+                            do {
+                                let args = try SwiftUIViewVisitor.parseArguments(from: funcExpr)
+                                fatalError()
+                            } catch let error as SwiftUISyntaxError {
+                                silentErrors.append(error)
+                            } catch {
+                                fatalErrorIfDebug(error.localizedDescription)
+                            }
+                            
+                        default:
+                            return
+                        }
+                        
+                    default:
+                        return
+                    }
+                }
+                
+                return AIGraphData_V0.LayerDataViewEvent(
+                    interactionPatch: .dragInteraction,
+                    stateToViewEventMap: stateToViewEventMap)
             }
             
             return interactions

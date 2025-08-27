@@ -13,7 +13,17 @@ import SwiftUI
 extension SwiftUIViewVisitor {
     func visitLayerData(node: FunctionCallExprSyntax,
                         modifiers: [SyntaxViewModifier] = []) -> SyntaxView? {
-        let args = self.parseArguments(from: node)
+        let args: ViewConstructorType
+        
+        do {
+            args = try Self.parseArguments(from: node)
+        } catch let error as SwiftUISyntaxError {
+            self.caughtErrors.append(error)
+            args = .other([])
+        } catch {
+            fatalErrorIfDebug()
+            args = .other([])
+        }
         
         // Check for views with view modifier data
         if let memberExpr = node.calledExpression.as(MemberAccessExprSyntax.self) {
