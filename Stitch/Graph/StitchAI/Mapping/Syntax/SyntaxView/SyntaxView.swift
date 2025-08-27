@@ -40,6 +40,47 @@ struct SyntaxView: Equatable, Sendable {
     var id: UUID  // Unique identifier for the node
 }
 
+extension SyntaxView {
+    /// Removes all modifiers of the specified type from this view
+    func removingModifiers(ofType modifierType: SyntaxViewModifierName) -> SyntaxView {
+        var updated = self
+        updated.modifiers = self.modifiers.filter { $0.name != modifierType }
+        return updated
+    }
+    
+    /// Creates a new ZStack containing this view and the specified overlay children
+    func wrappedInZStack(withOverlayChildren overlayChildren: [SyntaxView]) -> SyntaxView {
+        // If no overlay children, return this view unchanged
+        guard !overlayChildren.isEmpty else { return self }
+        
+        var zStackChildren = [self] // Base view first
+        
+        // Add overlay children
+        if overlayChildren.count == 1 {
+            // Single overlay child - add directly
+            zStackChildren.append(overlayChildren[0])
+        } else {
+            // Multiple overlay children - wrap them in their own ZStack
+            let innerZStack = SyntaxView(
+                name: "ZStack",
+                constructorArguments: nil,
+                modifiers: [],
+                children: overlayChildren,
+                id: UUID()
+            )
+            zStackChildren.append(innerZStack)
+        }
+        
+        return SyntaxView(
+            name: "ZStack",
+            constructorArguments: nil,
+            modifiers: [],
+            children: zStackChildren,
+            id: UUID()
+        )
+    }
+}
+
 enum ViewConstructorType: Equatable, Sendable, Encodable {
     case trackedConstructor(StrictViewConstructor)
     case other([SyntaxViewArgumentData])

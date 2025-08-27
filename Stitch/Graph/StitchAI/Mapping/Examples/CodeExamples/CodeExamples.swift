@@ -115,6 +115,14 @@ extension MappingExamples {
         PreprocessingCodeExamples.phoneKeypadExample,
         PreprocessingCodeExamples.complexNestedExample,
         
+        // Overlay examples - testing overlay to ZStack transformation
+        OverlayCodeExamples.simpleOverlayFunctionCall,
+        OverlayCodeExamples.simpleOverlayClosure,
+        OverlayCodeExamples.multipleChildrenOverlay,
+        OverlayCodeExamples.vstackOverlay,
+        OverlayCodeExamples.complexOverlayWithModifiers,
+        OverlayCodeExamples.nestedOverlay,
+        
         //        // // NOT YET SUPPORTED:
         //        RotationModifierCodeExamples.rotationEffectAnchor,
         //        RotationModifierCodeExamples.rotationEffectRadians,

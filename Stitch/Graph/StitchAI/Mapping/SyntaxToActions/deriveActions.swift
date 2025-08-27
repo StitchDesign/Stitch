@@ -200,6 +200,14 @@ extension Array where Element == String {
         return .init(actions: actionsResults.flatMap(\.actions),
                      caughtErrors: actionsResults.flatMap(\.caughtErrors))
     }
+    
+    /// Extracts SyntaxView objects from overlay script strings
+    func extractOverlaySyntaxViews() -> [SyntaxView] {
+        return self.flatMap { script in
+            let result = SwiftUIViewVisitor.parseSwiftUICode(script)
+            return result.viewStack
+        }
+    }
 }
 
 extension SyntaxView {
@@ -216,11 +224,28 @@ extension SyntaxView {
         let backgroundModifierScripts = self.modifiers.getClosureScripts(for: .background)
         let overlayModifierScripts = self.modifiers.getClosureScripts(for: .overlay)
         
-        // Recursively get layer data for background and overlay modifiers
+        // Transform view structure if overlay modifiers are present
+        let transformedView: SyntaxView
+        if !overlayModifierScripts.isEmpty {
+            // Extract overlay content as SyntaxView objects
+            let overlayChildren = overlayModifierScripts.extractOverlaySyntaxViews()
+            
+            // Create ZStack with base view (without overlay modifiers) and overlay children
+            let baseViewWithoutOverlay = self.removingModifiers(ofType: .overlay)
+            transformedView = baseViewWithoutOverlay.wrappedInZStack(withOverlayChildren: overlayChildren)
+        } else {
+            transformedView = self
+        }
+        
+        // If we transformed the view, recursively process the ZStack
+        if transformedView.name == "ZStack" && !overlayModifierScripts.isEmpty {
+            return transformedView.deriveStitchActions(bindingDeclarations: bindingDeclarations)
+        }
+        
+        // Continue with original processing for non-overlay cases
+        // Recursively get layer data for background modifiers (overlays are now handled above)
         let backgroundLayerData = backgroundModifierScripts.deriveStitchActions()
-        let overlayLayerData = overlayModifierScripts.deriveStitchActions()
         silentErrors += backgroundLayerData.caughtErrors
-        silentErrors += overlayLayerData.caughtErrors
         
         guard let nameType = SyntaxNameType.from(self.name) else {
             // Check for custom view builder fn
@@ -235,7 +260,7 @@ extension SyntaxView {
             let scriptResult = SwiftUIViewVisitor.parseSwiftUICode(viewBuilderFn)
             let result = scriptResult.deriveStitchActions(bindingDeclarations: scriptResult.bindingDeclarations)
             
-            let actions = overlayLayerData.actions + result.graphData.layer_data_list + backgroundLayerData.actions
+            let actions = result.graphData.layer_data_list + backgroundLayerData.actions
             
             return .init(actions: actions,
                          caughtErrors: result.caughtErrors + silentErrors)
@@ -276,14 +301,14 @@ extension SyntaxView {
                     layerData.children = nil
                 }
         
-                return .init(actions: overlayLayerData.actions + [layerData] + backgroundLayerData.actions,
+                return .init(actions: [layerData] + backgroundLayerData.actions,
                              caughtErrors: silentErrors)
             } catch let error as SwiftUISyntaxError {
                 if error.shouldFailSilently {
                     log("deriveStitchActions: silent failure for unsupported layer concept: \(error)")
                     // Silent error for unsupported layers
                     silentErrors.append(error)
-                    return .init(actions: overlayLayerData.actions + childResults.actions + backgroundLayerData.actions,
+                    return .init(actions: childResults.actions + backgroundLayerData.actions,
                                  caughtErrors: silentErrors)
                 } else {
                     fatalErrorIfDebug(error.localizedDescription)

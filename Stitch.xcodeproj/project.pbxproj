@@ -679,6 +679,7 @@
 		EC5F51E42BFFBB3300D3DAD7 /* PreviewGridData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F51E32BFFBB3300D3DAD7 /* PreviewGridData.swift */; };
 		EC5F642D2C29E68500A9E52F /* LayerInspectorPortView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */; };
 		EC5F642F2C29E6A900A9E52F /* LayerInspectorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */; };
+		EC5FB3542E5F8F8200E9D3AC /* OverlayExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5FB3532E5F8F8200E9D3AC /* OverlayExamples.swift */; };
 		EC609DB429352FB800BF60A5 /* NumberExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB329352FB800BF60A5 /* NumberExtensionUtils.swift */; };
 		EC609DB629352FE200BF60A5 /* URLExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB529352FE200BF60A5 /* URLExtensionUtils.swift */; };
 		EC609DBA2935303600BF60A5 /* URLSessionExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB92935303600BF60A5 /* URLSessionExtensionUtils.swift */; };
@@ -1856,6 +1857,7 @@
 		EC5F51E32BFFBB3300D3DAD7 /* PreviewGridData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewGridData.swift; sourceTree = "<group>"; };
 		EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorPortView.swift; sourceTree = "<group>"; };
 		EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorState.swift; sourceTree = "<group>"; };
+		EC5FB3532E5F8F8200E9D3AC /* OverlayExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayExamples.swift; sourceTree = "<group>"; };
 		EC609DB329352FB800BF60A5 /* NumberExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberExtensionUtils.swift; sourceTree = "<group>"; };
 		EC609DB529352FE200BF60A5 /* URLExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLExtensionUtils.swift; sourceTree = "<group>"; };
 		EC609DB92935303600BF60A5 /* URLSessionExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionExtensionUtils.swift; sourceTree = "<group>"; };
@@ -5164,6 +5166,7 @@
 			isa = PBXGroup;
 			children = (
 				ECC734732E0DE95A00AC266C /* CodeExamples.swift */,
+				EC5FB3532E5F8F8200E9D3AC /* OverlayExamples.swift */,
 				ECD4C3BA2E4C23A0001F4C7A /* GridCodeExamples.swift */,
 				EC7062B22E14BFC50017A9F0 /* ScrollViewCodeExamples.swift */,
 				EC34B7FE2E44419F00649A3F /* PreprocessingExamples.swift */,
@@ -6725,6 +6728,7 @@
 				E419F3F72D40337400C169D4 /* EditBeforeSubmitModalView.swift in Sources */,
 				EC2942452BA13E6100D14CD1 /* SidebarItemSelectionActions.swift in Sources */,
 				EC1213D528873BF10012234C /* AnimationEvaluationHelpers.swift in Sources */,
+				EC5FB3542E5F8F8200E9D3AC /* OverlayExamples.swift in Sources */,
 				ECC2BCCF2B9B72E900D5F942 /* SidebarListItemSwipeView.swift in Sources */,
 				EC6914E02DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift in Sources */,
 				ECDAFFF72E200F4400AF71E9 /* DeclarativeUtils.swift in Sources */,
