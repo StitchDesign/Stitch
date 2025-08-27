@@ -47,11 +47,11 @@ extension Array where Element == SyntaxView {
 
 extension SwiftUIViewParserResult {
     func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) -> SwiftSyntaxActionsResult {
-        // Extract patch data
-        let patchResults = self.bindingDeclarations.deriveStitchActions()
-
         // Extract layer data
         let layerResults = self.viewStack.deriveStitchActions(bindingDeclarations: bindingDeclarations)
+
+        // Extract patch data
+        let patchResults = self.bindingDeclarations.deriveStitchActions()
         
         return .init(graphData: .init(layer_data_list: layerResults.actions,
                                       patch_data: patchResults.actions,
@@ -219,8 +219,6 @@ extension Array where Element == String {
 
 extension SyntaxView {
     func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) -> SwiftSyntaxLayerActionsResult? {
-        // TODO: map references to specific layer IDs
-        
         // Tracks all silent errors
         var silentErrors = [SwiftUISyntaxError]()
         
