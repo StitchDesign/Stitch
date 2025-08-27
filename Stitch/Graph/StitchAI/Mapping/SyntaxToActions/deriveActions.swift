@@ -138,16 +138,9 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                     break
                 }
             
-            case .jsNodeScript:
+            case .jsNodeScript, .declrRef, .arraySyntax, .viewBuilder:
                 // Skipping here
                 break
-                
-            case .declrRef:
-                break
-                
-            case .viewBuilder:
-                break
-                
             }
         }
         
@@ -257,7 +250,8 @@ extension SyntaxView {
                     id: self.id,
                     args: self.constructorArguments,
                     modifiers: self.modifiers,
-                    childrenLayers: childResults.actions)
+                    childrenLayers: childResults.actions,
+                    bindingDeclarations: bindingDeclarations)
                 
                 silentErrors += layerDataResult.silentErrors
                 var layerData = layerDataResult.layerData
