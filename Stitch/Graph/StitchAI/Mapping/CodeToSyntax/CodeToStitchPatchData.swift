@@ -264,6 +264,7 @@ extension SwiftParserInitializerType {
                             varNameOutputPortMap: [String : SwiftParserSubscript],
     customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue],
                             varNamePatchNodeRefMap: [String : String],
+                            stateVarToInteractionOutputsMap: [String: CurrentAIGraphData.NodeIndexedCoordinate],
                             patchConnections: inout [CurrentAIGraphData.PatchConnection],
                             viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate],
                             preprocessedJSNodes: inout [CurrentAIGraphData.PreprocessedJSPatchNode],
@@ -276,19 +277,28 @@ extension SwiftParserInitializerType {
                 case .binding(let declRefSyntax):
                     // Get edge data
                     let refName = declRefSyntax.baseName.text
-                                            
-                    guard let upstreamRefData = varNameOutputPortMap.get(refName) else {
-                        // TODO: this may happen as a result of bad code from ChatGPT
-//                        fatalError()
+                    let upstreamCoordinate: AIGraphData_V0.NodeIndexedCoordinate
+                    
+                    // First check for some other patch's outputs
+                    if let upstreamRefData = varNameOutputPortMap.get(refName) {
+                        upstreamCoordinate = SwiftParserPatchData
+                            .derivePatchUpstreamCoordinate(upstreamRefData: upstreamRefData,
+                                                           varNameIdMap: varNameIdMap)
+                    }
+                    
+                    // Second, check if we're reading state for some interaction
+                    else if let upstreamInteractionData = stateVarToInteractionOutputsMap
+                            .get(refName) {
+                        upstreamCoordinate = .init(node_id: upstreamInteractionData.node_id,
+                                                   port_index: upstreamInteractionData.port_index)
+                    }
+                    
+                    else {
                         continue
                     }
                     
-                    let usptreamCoordinate = SwiftParserPatchData
-                        .derivePatchUpstreamCoordinate(upstreamRefData: upstreamRefData,
-                                                       varNameIdMap: varNameIdMap)
-                    
                     patchConnections.append(
-                        .init(src_port: usptreamCoordinate,
+                        .init(src_port: upstreamCoordinate,
                               dest_port: .init(node_id: patchNodeData.id,
                                                port_index: portIndex))
                     )
@@ -315,6 +325,7 @@ extension SwiftParserInitializerType {
                                                         varNameIdMap: varNameIdMap,
                                                         varNameOutputPortMap: varNameOutputPortMap,
                                                         customPatchInputValues: &customPatchInputValues, varNamePatchNodeRefMap: varNamePatchNodeRefMap,
+                                                        stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
                                                         patchConnections: &patchConnections,
                                                         viewStatePatchConnections: &viewStatePatchConnections,
                                                         preprocessedJSNodes: &preprocessedJSNodes,
@@ -336,6 +347,7 @@ extension SwiftParserInitializerType {
                                             varNameOutputPortMap: varNameOutputPortMap,
                                             customPatchInputValues: &customPatchInputValues,
                                             varNamePatchNodeRefMap: varNamePatchNodeRefMap,
+                                            stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
                                             patchConnections: &patchConnections,
                                             viewStatePatchConnections: &viewStatePatchConnections,
                                             preprocessedJSNodes: &preprocessedJSNodes,
@@ -388,6 +400,7 @@ extension SwiftParserInitializerType {
                                         varNameOutputPortMap: varNameOutputPortMap,
                                         customPatchInputValues: &customPatchInputValues,
                                         varNamePatchNodeRefMap: varNamePatchNodeRefMap,
+                                        stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
                                         patchConnections: &patchConnections,
                                         viewStatePatchConnections: &viewStatePatchConnections,
                                         preprocessedJSNodes: &preprocessedJSNodes,
