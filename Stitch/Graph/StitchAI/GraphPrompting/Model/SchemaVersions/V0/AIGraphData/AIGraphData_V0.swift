@@ -50,10 +50,11 @@ enum AIGraphData_V0 {
     struct LayerDataViewEvent {
         let interactionPatch: Patch
         
-        // Tracks state assignments given view event data
-        // Key: state variable name
-        // Value: the property passed along from view event data
-        let stateToViewEventMap: [String: String]
+        // Tracks which output port should be used from patch, i.e. usage of "translation" for a drag would entail the 0th port
+        let outputPortIndex: Int
+        
+        // Tracks which state variable is mutated
+        let mutatedStateVar: String
     }
     
     struct PreprocessedJSPatchNode: Codable {
