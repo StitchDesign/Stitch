@@ -64,7 +64,8 @@ extension Array where Element == AIGraphData_V0.LayerData {
     /// Roles:
     /// 1. Determines interaction patch nodes to make based on view events attached to view modifiers.
     /// 2. Returns dictionary of a state var name to a newly created patch node's output coordinate.
-    func createStateVarToInteractionNodeMap(nativePatchNodes: inout [CurrentAIGraphData.PatchNode]) -> [String: CurrentAIGraphData.NodeIndexedCoordinate] {
+    func createStateVarToInteractionNodeMap(nativePatchNodes: inout [CurrentAIGraphData.PatchNode],
+                                            customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue]) -> [String: CurrentAIGraphData.NodeIndexedCoordinate] {
         self.reduce(into: [String: CurrentAIGraphData.NodeIndexedCoordinate]()) { result, layerData in
             var createdPatchesAtThisNode = [Patch: CurrentAIGraphData
                 .PatchNode]()
@@ -78,6 +79,14 @@ extension Array where Element == AIGraphData_V0.LayerData {
                 if existingPatchNode == nil {
                     // New node case
                     nativePatchNodes.append(patchNode)
+    
+                    // Update layer assignment for node
+                    customPatchInputValues.append(
+                        .init(patch_input_coordinate: .init(node_id: patchNode.node_id,
+                                                            port_index: viewEvent.outputPortIndex),
+                              value: layerData.node_id,
+                              value_type: .init(value: .interactionId))
+                    )
                 }
                 
                 // Update (possibly new) patch
@@ -90,7 +99,9 @@ extension Array where Element == AIGraphData_V0.LayerData {
             }
             
             // Recursively explore children
-            if let childrenDict = layerData.children?.createStateVarToInteractionNodeMap(nativePatchNodes: &nativePatchNodes) {
+            if let childrenDict = layerData.children?
+                .createStateVarToInteractionNodeMap(nativePatchNodes: &nativePatchNodes,
+                                                    customPatchInputValues: &customPatchInputValues) {
                 result.merge(childrenDict, uniquingKeysWith: { $1 })
             }
         }
@@ -128,7 +139,8 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
         
         // Create interaction patch nodes from layer data
         let stateVarToInteractionOutputsMap = layers.createStateVarToInteractionNodeMap(
-            nativePatchNodes: &nativePatchNodes
+            nativePatchNodes: &nativePatchNodes,
+            customPatchInputValues: &customPatchInputValues
         )
         
         // First pass:
