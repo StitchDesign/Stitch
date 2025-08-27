@@ -51,7 +51,7 @@ extension SwiftUIViewParserResult {
         let layerResults = self.viewStack.deriveStitchActions(bindingDeclarations: bindingDeclarations)
 
         // Extract patch data
-        let patchResults = self.bindingDeclarations.deriveStitchActions()
+        let patchResults = self.bindingDeclarations.deriveStitchActions(layers: layerResults.actions)
         
         return .init(graphData: .init(layer_data_list: layerResults.actions,
                                       patch_data: patchResults.actions,
@@ -60,8 +60,45 @@ extension SwiftUIViewParserResult {
     }
 }
 
+extension Array where Element == AIGraphData_V0.LayerData {
+    /// Roles:
+    /// 1. Determines interaction patch nodes to make based on view events attached to view modifiers.
+    /// 2. Returns dictionary of a state var name to a newly created patch node's output coordinate.
+    func createStateVarToInteractionNodeMap(nativePatchNodes: inout [CurrentAIGraphData.PatchNode]) -> [String: CurrentAIGraphData.NodeIndexedCoordinate] {
+        self.reduce(into: [String: CurrentAIGraphData.NodeIndexedCoordinate]()) { result, layerData in
+            var createdPatchesAtThisNode = [Patch: CurrentAIGraphData
+                .PatchNode]()
+            
+            layerData.view_events.forEach { viewEvent in
+                let patch = viewEvent.interactionPatch
+                let existingPatchNode = createdPatchesAtThisNode.get(patch)
+                let patchNode = existingPatchNode ?? .init(node_id: UUID().uuidString,
+                                                           node_name: .init(value: .patch(patch)))
+                
+                if existingPatchNode == nil {
+                    // New node case
+                    nativePatchNodes.append(patchNode)
+                }
+                
+                // Update (possibly new) patch
+                createdPatchesAtThisNode.updateValue(patchNode, forKey: patch)
+                
+                // Output coordinates to return
+                result.updateValue(.init(node_id: patchNode.node_id,
+                                         port_index: viewEvent.outputPortIndex),
+                                   forKey: viewEvent.mutatedStateVar)
+            }
+            
+            // Recursively explore children
+            if let childrenDict = layerData.children?.createStateVarToInteractionNodeMap(nativePatchNodes: &nativePatchNodes) {
+                result.merge(childrenDict, uniquingKeysWith: { $1 })
+            }
+        }
+    }
+}
+
 extension Dictionary where Key == String, Value == SwiftParserInitializerType {
-    func deriveStitchActions() -> SwiftSyntaxPatchActionsResult {
+    func deriveStitchActions(layers: [AIGraphData_V0.LayerData]) -> SwiftSyntaxPatchActionsResult {
         // MARK: data we use as tracking
         // Maps some variable name to a node ID string
         var varNameIdMap = [String : String]()
@@ -88,6 +125,11 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
         
         // Because patch data is decoded before layer data, we don't yet know the destination ports for layer edges, therefore, we just track the source patch to some state variable
         var viewStatePatchConnections = [String : AIGraphData_V0.NodeIndexedCoordinate]()
+        
+        // Create interaction patch nodes from layer data
+        let stateVarToInteractionOutputsMap = layers.createStateVarToInteractionNodeMap(
+            nativePatchNodes: &nativePatchNodes
+        )
         
         // First pass:
         // 1. Create patch nodes
