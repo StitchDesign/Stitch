@@ -204,7 +204,7 @@ extension Array where Element == String {
     /// Extracts SyntaxView objects from overlay script strings
     func extractOverlaySyntaxViews() -> [SyntaxView] {
         return self.flatMap { script in
-            let result = SwiftUIViewVisitor.parseSwiftUICode(script)
+            let result = SwiftUIViewVisitor.parseSwiftUICode(script, context: .overlayContent)
             return result.viewStack
         }
     }

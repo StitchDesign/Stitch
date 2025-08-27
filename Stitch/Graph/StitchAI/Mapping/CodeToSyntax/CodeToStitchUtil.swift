@@ -23,11 +23,21 @@ extension SwiftUIViewVisitor {
         guard let knownViewConstructor = createKnownViewConstructor(
             from: node,
             arguments: arguments) else {
-            
+        
             // Append closure arg if exists
-            if let closureBlock = node.trailingClosure?.statements.first?.item.trimmedDescription {
+            if let trailingClosure = node.trailingClosure {
+                let statements = trailingClosure.statements.map { $0.item.trimmedDescription }
+                let joinedStatements = statements.joined(separator: "\n")
+                
+                // Debug logging
+                log("DEBUG: Parsing trailing closure with \(statements.count) statements:")
+                for (index, statement) in statements.enumerated() {
+                    log("  Statement \(index): \(statement)")
+                }
+                log("DEBUG: Final joined trailing closure: \(joinedStatements)")
+                
                 arguments.append(.init(label: nil,
-                                       value: .closure(closureBlock)))
+                                       value: .closure(joinedStatements)))
             }
             
             return .other(arguments)
@@ -65,7 +75,7 @@ extension SwiftUIViewVisitor {
     
     /// Handles conditional logic for determining a type of syntax argument.
     func parseArgumentType(from expression: SwiftSyntax.ExprSyntax) -> SyntaxViewModifierArgumentType? {
-        // Handles compelx types, like PortValueDescription
+        // Handles complex types, like PortValueDescription
         if let funcExpr = expression.as(FunctionCallExprSyntax.self) {
             let complexType = self.parseFnArgumentType(funcExpr)
             return .complex(complexType)
@@ -117,7 +127,9 @@ extension SwiftUIViewVisitor {
         
         // Closures
         else if let closureExpr = expression.as(ClosureExprSyntax.self) {
-            return .closure(closureExpr.statements.first?.item.trimmedDescription ?? "")
+            let statements = closureExpr.statements.map { $0.item.trimmedDescription }
+            let joinedStatements = statements.joined(separator: "\n")
+            return .closure(joinedStatements)
         }
         
         guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {
