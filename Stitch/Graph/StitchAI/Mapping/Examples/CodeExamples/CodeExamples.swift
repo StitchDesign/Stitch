@@ -30,6 +30,14 @@ extension MappingExamples {
     // TODO: break into separate pieces
     static let codeExamples: [MappingCodeExample] = [
         
+        // Background examples - testing background to ZStack transformation
+        BackgroundCodeExamples.simpleBackgroundFunctionCall,
+        BackgroundCodeExamples.simpleBackgroundClosure,
+        BackgroundCodeExamples.multipleChildrenBackground,
+        BackgroundCodeExamples.vstackBackground,
+        BackgroundCodeExamples.complexBackgroundWithModifiers,
+        BackgroundCodeExamples.nestedBackground,
+        
         // Overlay examples - testing overlay to ZStack transformation
         OverlayCodeExamples.simpleOverlayFunctionCall,
         OverlayCodeExamples.simpleOverlayClosure,
@@ -37,7 +45,7 @@ extension MappingExamples {
         OverlayCodeExamples.vstackOverlay,
         OverlayCodeExamples.complexOverlayWithModifiers,
         OverlayCodeExamples.nestedOverlay,
-        
+                
         // OLDER
         ViewModifierCodeExamples.colorInitInFillModifier,
         ViewModifierCodeExamples.paddingNoArgsModifier,

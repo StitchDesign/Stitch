@@ -208,6 +208,14 @@ extension Array where Element == String {
             return result.viewStack
         }
     }
+    
+    /// Extracts SyntaxView objects from background script strings
+    func extractBackgroundSyntaxViews() -> [SyntaxView] {
+        return self.flatMap { script in
+            let result = SwiftUIViewVisitor.parseSwiftUICode(script, context: .overlayContent)
+            return result.viewStack
+        }
+    }
 }
 
 extension SyntaxView {
@@ -224,11 +232,15 @@ extension SyntaxView {
         let backgroundModifierScripts = self.modifiers.getClosureScripts(for: .background)
         let overlayModifierScripts = self.modifiers.getClosureScripts(for: .overlay)
         
-        // Transform view structure if overlay modifiers are present
+        // Transform view structure if overlay or background modifiers are present
         let transformedView: SyntaxView
         let hasOverlayClosures = !overlayModifierScripts.isEmpty
         let overlayArgumentViews = self.modifiers.getOverlayArgumentViews(for: .overlay)
         let hasOverlayArguments = !overlayArgumentViews.isEmpty
+        
+        let hasBackgroundClosures = !backgroundModifierScripts.isEmpty
+        let backgroundArgumentViews = self.modifiers.getBackgroundArgumentViews(for: .background)
+        let hasBackgroundArguments = !backgroundArgumentViews.isEmpty
         
         if hasOverlayClosures || hasOverlayArguments {
             // Extract overlay content as SyntaxView objects from both sources
@@ -247,18 +259,43 @@ extension SyntaxView {
             // Create ZStack with base view (without overlay modifiers) and overlay children
             let baseViewWithoutOverlay = self.removingModifiers(ofType: .overlay)
             transformedView = baseViewWithoutOverlay.wrappedInZStack(withOverlayChildren: overlayChildren)
+        } else if hasBackgroundClosures || hasBackgroundArguments {
+            // Extract background content as SyntaxView objects from both sources
+            var backgroundChildren: [SyntaxView] = []
+            
+            // Add children from closure scripts (background { ... } form)
+            if hasBackgroundClosures {
+                backgroundChildren += backgroundModifierScripts.extractBackgroundSyntaxViews()
+            }
+            
+            // Add children from function arguments (background(View) form)
+            if hasBackgroundArguments {
+                backgroundChildren += backgroundArgumentViews
+            }
+            
+            // Create ZStack with background children first, then base view (without background modifiers)
+            let baseViewWithoutBackground = self.removingModifiers(ofType: .background)
+            transformedView = baseViewWithoutBackground.wrappedInZStack(withBackgroundChildren: backgroundChildren)
         } else {
             transformedView = self
         }
         
         // If we transformed the view, recursively process the ZStack
-        if transformedView.name == "ZStack" && (hasOverlayClosures || hasOverlayArguments) {
+        if transformedView.name == "ZStack" && (hasOverlayClosures || hasOverlayArguments || hasBackgroundClosures || hasBackgroundArguments) {
             return transformedView.deriveStitchActions(bindingDeclarations: bindingDeclarations)
         }
         
-        // Continue with original processing for non-overlay cases
-        // Recursively get layer data for background modifiers (overlays are now handled above)
-        let backgroundLayerData = backgroundModifierScripts.deriveStitchActions()
+        // Continue with original processing for non-overlay/background cases
+        // Both overlays and backgrounds are now handled in the transformation above
+        // Only process background modifiers if they weren't already transformed
+        let backgroundLayerData: SwiftSyntaxLayerActionsResult
+        if hasBackgroundClosures || hasBackgroundArguments {
+            // Backgrounds were already transformed, no additional processing needed
+            backgroundLayerData = .init(actions: [], caughtErrors: [])
+        } else {
+            // Old background processing for backwards compatibility
+            backgroundLayerData = backgroundModifierScripts.deriveStitchActions()
+        }
         silentErrors += backgroundLayerData.caughtErrors
         
         guard let nameType = SyntaxNameType.from(self.name) else {

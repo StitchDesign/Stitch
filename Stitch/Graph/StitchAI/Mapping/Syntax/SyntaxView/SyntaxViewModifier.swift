@@ -59,6 +59,33 @@ extension Array where Element == SyntaxViewModifier {
             }
         }
     }
+    
+    /// Extracts SyntaxViews from background modifier arguments (for function call form like .background(View))
+    func getBackgroundArgumentViews(for modifierName: SyntaxViewModifierName) -> [SyntaxView] {
+        return self.flatMap { modifier in
+            guard modifier.name == modifierName,
+                  let args = modifier.arguments.defaultArgs else {
+                return [SyntaxView]()
+            }
+            
+            // Extract complex type arguments that represent views
+            return args.compactMap { arg -> SyntaxView? in
+                switch arg.value {
+                case .complex(let complexType):
+                    // Convert complex type argument to SyntaxView
+                    return SyntaxView(
+                        name: complexType.typeName,
+                        constructorArguments: complexType.arguments.isEmpty ? nil : .other(complexType.arguments),
+                        modifiers: [],
+                        children: [],
+                        id: UUID()
+                    )
+                default:
+                    return nil
+                }
+            }
+        }
+    }
 }
 
 /*

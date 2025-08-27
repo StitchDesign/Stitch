@@ -79,6 +79,41 @@ extension SyntaxView {
             id: UUID()
         )
     }
+    
+    /// Creates a new ZStack containing the specified background children and this view
+    func wrappedInZStack(withBackgroundChildren backgroundChildren: [SyntaxView]) -> SyntaxView {
+        // If no background children, return this view unchanged
+        guard !backgroundChildren.isEmpty else { return self }
+        
+        var zStackChildren: [SyntaxView] = []
+        
+        // Add background children first (they appear behind)
+        if backgroundChildren.count == 1 {
+            // Single background child - add directly
+            zStackChildren.append(backgroundChildren[0])
+        } else {
+            // Multiple background children - wrap them in their own ZStack
+            let innerZStack = SyntaxView(
+                name: "ZStack",
+                constructorArguments: nil,
+                modifiers: [],
+                children: backgroundChildren,
+                id: UUID()
+            )
+            zStackChildren.append(innerZStack)
+        }
+        
+        // Add base view last (it appears in front)
+        zStackChildren.append(self)
+        
+        return SyntaxView(
+            name: "ZStack",
+            constructorArguments: nil,
+            modifiers: [],
+            children: zStackChildren,
+            id: UUID()
+        )
+    }
 }
 
 enum ViewConstructorType: Equatable, Sendable, Encodable {
