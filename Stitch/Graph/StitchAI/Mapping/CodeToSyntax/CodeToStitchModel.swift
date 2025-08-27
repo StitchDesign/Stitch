@@ -53,7 +53,7 @@ struct SwiftParserSubscript: Sendable, Encodable {
     var portIndex: Int
 }
 
-indirect enum SwiftParserInitializerType: Sendable, Encodable {
+indirect enum SwiftParserInitializerType: Sendable {
     // creates some patch node from a declared function
     case patchNode(SwiftParserPatchData)
     
@@ -73,6 +73,8 @@ indirect enum SwiftParserInitializerType: Sendable, Encodable {
     
     // view builder functions (script in value)
     case viewBuilder(String)
+    
+    case arraySyntax(ArrayExprSyntax)
 }
 
 // Subscripts can be used on references or nodes themselves

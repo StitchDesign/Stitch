@@ -105,11 +105,12 @@ extension SwiftUIViewVisitor {
             if let arrayElem = arg.expression.as(ArrayExprSyntax.self),
                let innerFirstElem = arrayElem.elements.first?.expression {
                 
-                guard let argData = self.parseArgumentType(from: innerFirstElem) else {
-                    fatalError()
+                do {
+                    let argData = try Self.parseArgumentType(from: innerFirstElem)
+                    return .value(argData)
+                } catch {
+                    fatalError(error.localizedDescription)
                 }
-                
-                return .value(argData)
             }
             
             else if let declrRefSyntax = arg.expression.as(DeclReferenceExprSyntax.self) {
@@ -127,14 +128,7 @@ extension SwiftUIViewVisitor {
             }
         }
         
-        let id: String
-        
-        if let varName = varName,
-           let _id = self.varNameIdMap.get(varName) {
-            id = _id
-        } else {
-            id = UUID().uuidString
-        }
+        let id = UUID().uuidString
         
         return .init(id: id,
                      patchType: patchNode,
@@ -412,14 +406,6 @@ extension SwiftParserInitializerType {
                           dest_port: destCoordinate)
                 )
             }
-            
-        case .patchNodeRef:
-            // Ignore here
-            return
-            
-        case .declrRef:
-            // Ignore here
-            return
         
         case .jsNodeScript(let script):
             // Must reuse ID
@@ -436,7 +422,7 @@ extension SwiftParserInitializerType {
                                          sourceCode: script)
             preprocessedJSNodes.append(newJSNode)
             
-        case .viewBuilder:
+        case .viewBuilder, .patchNodeRef, .declrRef, .arraySyntax:
             return
         }
     }
