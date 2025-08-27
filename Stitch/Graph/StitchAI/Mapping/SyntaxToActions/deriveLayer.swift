@@ -569,6 +569,25 @@ extension SyntaxViewName {
                             
                             do {
                                 let args = try SwiftUIViewVisitor.parseArguments(from: funcExpr)
+                                
+                                guard let defaultArgs = args.defaultArgs else {
+                                    return
+                                }
+                                
+                                // Find the property that's read from the gesture param
+                                let gestureArg = defaultArgs.compactMap { arg -> String? in
+                                    guard let memberBase = arg.value.memberBaseVariable,
+                                          memberBase.base?.stateAccess == gestureParamName else {
+                                        return nil
+                                    }
+                                    
+                                    return memberBase.property
+                                }.first
+                                
+                                guard let gestureArg = gestureArg else {
+                                    return
+                                }
+                                
                                 fatalError()
                             } catch let error as SwiftUISyntaxError {
                                 silentErrors.append(error)
@@ -1121,7 +1140,7 @@ extension SyntaxViewName {
             return [.stateRef(varName)]
             
         case .memberAccess, .closure, .viewEvent:
-            fatalError("Not supported here")
+            throw SwiftUISyntaxError.portValueDecodingError(.portValueDecodingError((try? argument.encodeToPrintableString()) ?? "Unknown"))
         }
     }
     

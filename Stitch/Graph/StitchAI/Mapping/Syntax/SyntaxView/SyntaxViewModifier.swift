@@ -220,8 +220,8 @@ extension SyntaxViewModifierArgumentType {
 
 // Note: easier to debug: looks better in debugger and print statements than `MemberAccessExprSyntax`, which contains other data and types we don't need
 // for e.g. "Color.yellow" or ".yellow"
-struct SyntaxViewMemberAccess: Equatable, Hashable, Sendable, Encodable {
-    let base: String? // e.g. "Color" in "Color.yellow"; or nil in ".yellow"
+struct SyntaxViewMemberAccess: Sendable, Encodable {
+    let base: SyntaxViewModifierArgumentType? // e.g. "Color" in "Color.yellow"; or nil in ".yellow"
     let property: String // e.g. "yellow" in "Color.yellow" or ".yellow"
 }
 
