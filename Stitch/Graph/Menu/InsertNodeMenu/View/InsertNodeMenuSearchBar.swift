@@ -40,6 +40,7 @@ struct InsertNodeMenuSearchBar: View {
                     HStack {
                         Button {
                             document.aiManager?.cancelCurrentRequest()
+                            document.insertNodeMenuState.show = false
                         } label: {
                             Text("Cancel")
                                 .font(.headline)

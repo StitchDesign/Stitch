@@ -10,6 +10,8 @@ import JsonStream
 import SwiftyJSON
 
 
+// MARK: NO LONGER RELEVANT AFTER NEW-STYLE AI REQUESTS ?
+
 struct ChunkProcessed: StitchStoreEvent {
     let newStep: Step
     let request: AIGraphCreationRequest
@@ -40,7 +42,7 @@ struct ChunkProcessed: StitchStoreEvent {
         Task(priority: .high) { [weak aiManager] in
             
             guard let aiManager = aiManager,
-                  let nodeIdMap = aiManager.currentTask?.nodeIdMap else {
+                  let nodeIdMap = aiManager.currentTaskLEGACY?.nodeIdMap else {
                 log("ChunkProcessed: Did not have AI manager and/or current task")
                 return
             }
@@ -67,7 +69,7 @@ struct ChunkProcessed: StitchStoreEvent {
                                                                              parsedStep,
                                                                              nodeIdMap: nodeIdMap)
                 parsedStep = updatedParsedStep
-                aiManager.currentTask?.nodeIdMap = updatedNodeIdMap
+                aiManager.currentTaskLEGACY?.nodeIdMap = updatedNodeIdMap
                 
                 
                 if let validationError = state.onNewStepReceived(originalSteps: state.llmRecording.actions,

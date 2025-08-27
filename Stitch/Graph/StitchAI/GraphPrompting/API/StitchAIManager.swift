@@ -27,10 +27,10 @@ final actor StitchAIManager {
 
     let postgrest: PostgrestClient
       
-    @MainActor var currentTask: CurrentAITask?
+    @MainActor var currentTaskLEGACY: CurrentAITask?
     
     // Tracks task for new AI strat
-    @MainActor var currentTaskTesting: Task<Result<AIGraphData_V0.GraphData, any Error>, Never>?
+    @MainActor var currentTask: Task<Result<AIGraphData_V0.GraphData, any Error>, Never>?
 
     init?() throws {
         guard let secrets = try Secrets() else {
@@ -83,13 +83,15 @@ extension StitchAIManager {
     
     @MainActor
     func cancelCurrentRequest() {
-        guard let currentTask = self.currentTask else {
-            return
-        }
+//        guard let currentTask = self.currentTaskLEGACY else {
+//            return
+//        }
         
-        currentTask.task.cancel()
+        currentTaskLEGACY?.task.cancel()
+        self.currentTaskLEGACY = nil
+        
+        self.currentTask?.cancel()
         self.currentTask = nil
-        self.currentTaskTesting = nil
     }
 }
 
