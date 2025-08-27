@@ -226,9 +226,23 @@ extension SyntaxView {
         
         // Transform view structure if overlay modifiers are present
         let transformedView: SyntaxView
-        if !overlayModifierScripts.isEmpty {
-            // Extract overlay content as SyntaxView objects
-            let overlayChildren = overlayModifierScripts.extractOverlaySyntaxViews()
+        let hasOverlayClosures = !overlayModifierScripts.isEmpty
+        let overlayArgumentViews = self.modifiers.getOverlayArgumentViews(for: .overlay)
+        let hasOverlayArguments = !overlayArgumentViews.isEmpty
+        
+        if hasOverlayClosures || hasOverlayArguments {
+            // Extract overlay content as SyntaxView objects from both sources
+            var overlayChildren: [SyntaxView] = []
+            
+            // Add children from closure scripts (overlay { ... } form)
+            if hasOverlayClosures {
+                overlayChildren += overlayModifierScripts.extractOverlaySyntaxViews()
+            }
+            
+            // Add children from function arguments (overlay(View) form)
+            if hasOverlayArguments {
+                overlayChildren += overlayArgumentViews
+            }
             
             // Create ZStack with base view (without overlay modifiers) and overlay children
             let baseViewWithoutOverlay = self.removingModifiers(ofType: .overlay)
@@ -238,7 +252,7 @@ extension SyntaxView {
         }
         
         // If we transformed the view, recursively process the ZStack
-        if transformedView.name == "ZStack" && !overlayModifierScripts.isEmpty {
+        if transformedView.name == "ZStack" && (hasOverlayClosures || hasOverlayArguments) {
             return transformedView.deriveStitchActions(bindingDeclarations: bindingDeclarations)
         }
         
