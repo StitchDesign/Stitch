@@ -94,6 +94,70 @@ extension PortValue {
     }
 }
 
+extension SyntaxViewModifier {
+    func deriveViewModifierEvents() throws -> [AIGraphData_V0.LayerDataViewEvent] {
+        guard self.name.isGestureModifier,
+              let defaultArgs = self.arguments.defaultArgs else {
+            return []
+        }
+        
+        // A few cases where we extrapolate a view event:
+        // 1. The view modifier itself has the closure, like .tapGesture
+        // 2. The closure is nested in something like .simultaneousGesture which needs to instantiate a gesture object first
+        
+        // Nested case
+        if self.name.isGestureWithNestedClosure {
+            let viewEvents = defaultArgs
+                .compactMap { $0.value.viewEvent }
+            
+            let interactions: [AIGraphData_V0.LayerDataViewEvent] = try viewEvents.flatMap { viewEvent -> [AIGraphData_V0.LayerDataViewEvent] in
+                return try viewEvent.deriveViewEventData()
+            }
+            
+            return interactions
+        }
+        
+        // Non-nested case
+        else {
+            // Get first closure
+            let closureData = defaultArgs
+                .compactMap { $0.value.closureData }
+                .first
+            
+            guard let closureData = closureData,
+                  let viewEvent = self.name.viewEvent,
+                  let outputPortIndex = viewEvent.determinePatchNodeOutputPort(property: nil) else {
+                return []
+            }
+            
+            // Parse script, grab first element with state mutation
+            let parsedCode = SwiftUIViewVisitor.parseSwiftUICode(closureData.script,
+                                                                 willParseView: false)
+            
+            // Find first line of code with state mutation
+            let mutatedStateVar = parsedCode.bindingDeclarations
+                .compactMap {
+                    switch $0.value {
+                    case .stateMutation:
+                        return $0.key
+                    default:
+                        return nil
+                    }
+                }.first
+            
+            guard let mutatedStateVar = mutatedStateVar else {
+                return []
+            }
+            
+            let layerData = AIGraphData_V0
+                .LayerDataViewEvent(interactionPatch: viewEvent.patch,
+                                    outputPortIndex: outputPortIndex,
+                                    mutatedStateVar: mutatedStateVar)
+            return [layerData]
+        }
+    }
+}
+
 extension SyntaxViewModifierName {
     // Some modifiers have view events that can be extrapolated from.
     var viewEvent: SyntaxViewEvent? {
@@ -271,53 +335,15 @@ extension SyntaxViewName {
         
         // Handle view events like drag gestures
         let interactionEvents = modifiers.flatMap { modifier -> [AIGraphData_V0.LayerDataViewEvent] in
-            guard modifier.name.isGestureModifier,
-                  let defaultArgs = modifier.arguments.defaultArgs else {
-                return []
+            do {
+                return try modifier.deriveViewModifierEvents()
+            } catch let error as SwiftUISyntaxError {
+                silentErrors.append(error)
+            } catch {
+                fatalErrorIfDebug(error.localizedDescription)
             }
             
-            // A few cases where we extrapolate a view event:
-            // 1. The view modifier itself has the closure, like .tapGesture
-            // 2. The closure is nested in something like .simultaneousGesture which needs to instantiate a gesture object first
-            
-            // Nested case
-            if modifier.name.isGestureWithNestedClosure {
-                let viewEvents = defaultArgs
-                    .compactMap { $0.value.viewEvent }
-
-                let interactions: [AIGraphData_V0.LayerDataViewEvent] = viewEvents.flatMap { viewEvent -> [AIGraphData_V0.LayerDataViewEvent] in
-                    do {
-                        return try viewEvent.deriveViewEventData()
-                    } catch let error as SwiftUISyntaxError {
-                        silentErrors.append(error)
-                    } catch {
-                        fatalErrorIfDebug(error.localizedDescription)
-                    }
-                    
-                    return []
-                }
-                
-                return interactions
-            }
-            
-            // Non-nested case
-            else {
-                // Get first closure
-                let closureData = defaultArgs
-                    .compactMap { $0.value.closureData }
-                    .first
-                
-                guard let closureData = closureData,
-                      let viewEvent = modifier.name.viewEvent else {
-                    return []
-                }
-                
-                // Parse script, grab first element with state mutation
-                let parsedCode = SwiftUIViewVisitor.parseSwiftUICode(closureData.script,
-                                                                     willParseView: false)
-                
-                fatalError()
-            }
+            return []
         }
         
         layerData.view_events = interactionEvents
