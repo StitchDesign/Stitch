@@ -290,7 +290,8 @@ extension SyntaxView {
                     return nil
                 }
             } catch {
-                fatalErrorIfDebug(error.localizedDescription)
+                // fatalErrorIfDebug(error.localizedDescription)
+                log(error.localizedDescription)
                 return nil
             }
             
