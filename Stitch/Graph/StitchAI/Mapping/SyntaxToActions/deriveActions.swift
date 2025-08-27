@@ -30,6 +30,20 @@ struct SwiftSyntaxActionsResult: Encodable {
     var caughtErrors: [SwiftUISyntaxError]
 }
 
+extension SwiftSyntaxActionsResult {
+    static var empty: Self {
+        return SwiftSyntaxActionsResult.init(
+            graphData: CurrentAIGraphData.GraphData.init(layer_data_list: [],
+                                                         patch_data: .init(javascript_patches: [],
+                                                                           native_patches: [],
+                                                                           native_patch_value_type_settings: [],
+                                                                           patch_connections: [],
+                                                                           custom_patch_input_values: []),
+                                                         viewStatePatchConnections: [:]),
+            caughtErrors: [])
+    }
+}
+
 extension Array where Element == SyntaxView {
     func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) -> SwiftSyntaxLayerActionsResult {
         var result = SwiftSyntaxLayerActionsResult(actions: [],
