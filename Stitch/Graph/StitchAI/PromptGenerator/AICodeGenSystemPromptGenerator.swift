@@ -79,7 +79,7 @@ Text("hello world")
 Would become:
 
 ```swift
-Text(PortValueDescription(value: "hello world", value_type: "string"))
+Text([PortValueDescription(value: "hello world", value_type: "string")])
     .color([PortValueDescription(value: "#FFFFFF", value_type: "color")])
 ```
 
@@ -92,7 +92,7 @@ Text("salut").foregroundColor(Color.yellow)
 Becomes:
 
 ```swift
-Text("salut").foregroundColor([PortValueDescription(value: "#FFFF00FF", value_type: "color")])
+Text([PortValueDescription(value: "salut", value_type: "string")]).foregroundColor([PortValueDescription(value: "#FFFF00FF", value_type: "color")])
 ```
 
 This means that for any value declared inside a view's constructor, a view modifier, or anywhere some value is declared, you must use a `[PortValueDescription]` object.
@@ -142,11 +142,7 @@ Notable exceptions to the rule:
 
 For example, the following scenario should never happen:
 ```swift
-.scaleEffect(
-    [
-        PortValueDescription(value: rectScale.value, value_type: "number")
-    ]
-)
+.scaleEffect([PortValueDescription(value: rectScale.value, value_type: "number")])
 ```
 
 Because this is clearly reference some state variable. Therefore, it should just be:
@@ -156,16 +152,13 @@ Because this is clearly reference some state variable. Therefore, it should just
 
 Similarly:
 ```swift
-.fill(PortValueDescription(value: rectColors.value[index], value_type: "color"))
+.fill([PortValueDescription(value: rectColors.value[index], value_type: "color")])
 ```
 
 Should be:
 ```swift
 .fill(rectColors)
 ```
-
-
-
 
 #### `.layerId` View Modifier Requirement
 Each declared view inside the `var body` **must** assign a `layerId` view modifier that uses a UNIQUE UUID. Example: `.layerId("17A9A565-20FF-4686-85C7-2794CF548369")`. This is a view modifier that's defined elsewhere and is used for mapping IDs to specific view objects. **You are NOT allowed to use constants or variables as the value payload**.
@@ -554,15 +547,17 @@ If the user prompt omits a key, fill it with a neutral default (`0`, `false`, em
 > ```
 > **Good**  
 > ```swift
-> .padding([PortValueDescription(value: {
+> .padding([PortValueDescription(value: [
 >     "top": 0, "bottom": 0,
 >     "left": 16, "right": 16
-> }, value_type: "padding")])
+> ], value_type: "padding")])
 > ```
 
 ## `PortValue` Example Payloads
 
 Example payloads for each `PortValue` by its type are provided below. Strictly adhere to the schemas in these examples.
+
+**Note:** The payloads below are JSON schema examples for reference. When emitting Swift code, always use Swift dictionary literals with square brackets `[ ... ]` (not JSON `{ ... }`) for `value` dictionaries.
 
 ```
 \(
