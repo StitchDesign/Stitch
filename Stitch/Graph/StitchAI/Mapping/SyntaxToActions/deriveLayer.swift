@@ -95,6 +95,15 @@ extension PortValue {
 }
 
 extension SyntaxViewModifierName {
+    var isGestureModifier: Bool {
+        switch self {
+        case .onTapGesture, .onLongPressGesture, .simultaneousGesture, .gesture, .exclusiveGesture, .highPriorityGesture:
+            return true
+        default:
+            return false
+        }
+    }
+    
     // May or may not correspond to SwiftUI view modifier's own default argument,
     // e.g. `.clipped`'s default argument is for antialiasing, not whether the view is clipped or not (which is what Stitch's clipped layer-input is about).
     func deriveDefaultPortValueForArgumentlessViewModifier(
@@ -504,7 +513,7 @@ extension SyntaxViewName {
             }
         }
         
-        // Parse view modifier events
+        // Parse view modifiers
         for modifierEvent in customInputValuesFromViewModifiers {
             switch modifierEvent {
             case .layerInputValues(let valuesList):
@@ -513,6 +522,33 @@ extension SyntaxViewName {
                 layerData.node_id = string
             }
         }
+        
+        // Handle view events like drag gestures
+        let interactionEvents = modifiers.flatMap { modifier -> [AIGraphData_V0.LayerDataViewEvent] in
+            guard modifier.name.isGestureModifier,
+                  let defaultArgs = modifier.arguments.defaultArgs else {
+                return []
+            }
+            
+            let viewEvents: [SyntaxViewModifierViewEvent] = defaultArgs
+                .compactMap { $0.value.viewEvent }
+            
+            let interactions: [AIGraphData_V0.LayerDataViewEvent] = viewEvents.flatMap { viewEvent -> [AIGraphData_V0.LayerDataViewEvent] in
+                // Check for onChange handlers
+                guard let onChangeHandler = viewEvent.eventModifiers.get("onChanged") else {
+                    return []
+                }
+                
+                // Parse script for determining what populates state
+                let parsedData = SwiftUIViewVisitor.parseSwiftUICode(onChangeHandler.script)
+                
+                fatalError("seeing what happens")
+            }
+            
+            return interactions
+        }
+        
+        layerData.view_events = interactionEvents
         
         return .init(layerData: layerData,
                      silentErrors: silentErrors)

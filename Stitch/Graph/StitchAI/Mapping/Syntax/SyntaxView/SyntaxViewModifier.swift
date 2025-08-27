@@ -286,6 +286,16 @@ extension SyntaxViewModifierArgumentType {
             return nil
         }
     }
+    
+    var viewEvent: SyntaxViewModifierViewEvent? {
+        switch self {
+        case .viewEvent(let x):
+            return x
+            
+        default:
+            return nil
+        }
+    }
 }
 
 extension MemberAccessExprSyntax {

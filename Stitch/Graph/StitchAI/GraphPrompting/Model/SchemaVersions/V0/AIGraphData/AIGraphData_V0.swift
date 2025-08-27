@@ -48,8 +48,12 @@ enum AIGraphData_V0 {
     }
     
     struct LayerDataViewEvent {
-        let viewModifier: SyntaxViewModifier
-        let attachedState: [String]
+        let interactionPatch: Patch
+        
+        // Tracks state assignments given view event data
+        // Key: state variable name
+        // Value: the property passed along from view event data
+        let stateToViewEventMap: [String: String]
     }
     
     struct PreprocessedJSPatchNode: Codable {
