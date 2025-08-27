@@ -362,7 +362,6 @@ You are ONLY permitted to use these view modifiers. Do not attempt to use view m
 
 #### Disallowed View Modifiers
 
-**NEVER** use `.overlay` or `.background`; use a ZStack instead.
 **NEVER** use `.gesture`; only `simultaneousGesture` is allowed.
 **NEVER** use `.animation`: instead, use native animation patch nodes like "classicAnimation || Patch" or "springAnimation || Patch"
 
