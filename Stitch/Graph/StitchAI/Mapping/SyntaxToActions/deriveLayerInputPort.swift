@@ -426,11 +426,13 @@ extension SyntaxViewModifierName {
         case .onDrop:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
 
-            
         case .onSubmit:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        
+        // TODO: We actually "support" `.overlay`, or allow the LLM to send us code containing `.overlay`
         case .overlay:
             return nil
+            
         case .preferredColorScheme:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case .presentationCornerRadius:

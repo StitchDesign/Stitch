@@ -11,6 +11,13 @@ import SwiftSyntax
 import SwiftParser
 import SwiftSyntaxBuilder
 
+/// Context for SwiftUI code parsing to control preprocessing behavior
+enum ParseContext {
+    case topLevel        // Normal parsing (apply VStack wrapping for multiple views)
+    case overlayContent  // Overlay closure content (skip VStack wrapping)
+    case scrollContent   // ScrollView or other container content
+}
+
 /// SwiftSyntax visitor that extracts ViewNode structure from SwiftUI code
 final class SwiftUIViewVisitor: SyntaxVisitor {
     // Maps known patch nodes to a variable name
@@ -200,16 +207,16 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
 
 extension SwiftUIViewVisitor {
     /// Parses SwiftUI code into a ViewNode structure
-    static func parseSwiftUICode(_ swiftUICode: String) -> SwiftUIViewParserResult {
+    static func parseSwiftUICode(_ swiftUICode: String, context: ParseContext = .topLevel) -> SwiftUIViewParserResult {
 //        log("\n==== PARSING CODE ====\n\(swiftUICode)\n=====================\n")
         
         var varNameIdMap = [String : String]()
         
         // Preprocess the code to ensure single root view in var body
-        let preprocessedCode = preprocessSwiftUICode(swiftUICode)
+        let preprocessedCode = preprocessSwiftUICode(swiftUICode, context: context)
         
-//        log("DEBUG: swiftUICode: \n\(swiftUICode)")
-//        log("DEBUG: preprocessedCode: \n\(preprocessedCode)")
+        log("DEBUG: swiftUICode: \n\(swiftUICode)")
+        log("DEBUG: preprocessedCode: \n\(preprocessedCode)")
         
         // Fall back to the original visitor-based approach for now
         // but add our own post-processing for modifiers
@@ -231,7 +238,12 @@ extension SwiftUIViewVisitor {
     }
     
     /// Preprocesses SwiftUI code to wrap multiple top-level views in var body with VStack
-    private static func preprocessSwiftUICode(_ code: String) -> String {
+    private static func preprocessSwiftUICode(_ code: String, context: ParseContext) -> String {
+        // Only apply VStack wrapping for top-level parsing context
+        guard context == .topLevel else {
+            return code
+        }
+        
         // Simple approach: if the code doesn't have var body, it's just raw views - wrap them
         if !code.contains("var body") {
             // Count top-level SwiftUI view declarations
