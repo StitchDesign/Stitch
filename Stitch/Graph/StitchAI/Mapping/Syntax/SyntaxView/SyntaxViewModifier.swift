@@ -117,16 +117,6 @@ struct SyntaxViewModifierComplexType: Sendable, Encodable {
     let arguments: [SyntaxViewArgumentData]
 }
 
-struct SyntaxViewModifierViewEvent: Sendable, Encodable {
-    let eventName: String
-    
-    // args inside constructor
-    let eventConstructorArgs: [SyntaxViewArgumentData]
-    
-    // member access callbacks with possible closure data
-    let eventModifiers: [String: SyntaxViewModifierClosureData]
-}
-
 struct SyntaxViewModifierClosureData: Sendable, Encodable {
     let paramVars: [String]
     let script: String
