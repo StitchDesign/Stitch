@@ -132,7 +132,7 @@ func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) 
         }
     case .memberAccess(let m):
         // Handle member access like .green, .blue etc.
-        if let base = m.base, base == "Color" {
+        if let base = m.base, base.simpleValue == "Color" {
             // Convert Color.green to hex format
             return "\"#\(colorToHex(m.property))\""
         } else if m.base == nil && m.property.count > 0 {
