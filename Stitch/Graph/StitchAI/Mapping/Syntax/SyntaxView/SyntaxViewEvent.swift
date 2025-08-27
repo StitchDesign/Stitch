@@ -36,7 +36,7 @@ extension SyntaxViewEvent {
     }
     
     /// Given some view event name and property used for state mutation, determine which output port index is used in Stitch.
-    func determinePatchNodeOutputPort(property: String) -> Int? {        
+    func determinePatchNodeOutputPort(property: String?) -> Int? {        
         switch self {
         case .dragGesture:
             if property == "translation" {
