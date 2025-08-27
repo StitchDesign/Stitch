@@ -12,6 +12,7 @@ import SwiftSyntaxBuilder
 
 enum SyntaxViewEvent: String, Sendable, Encodable {
     case dragGesture = "DragGesture"
+    case tapGesture = "TapGesture"
 }
 
 struct SyntaxViewModifierViewEvent: Sendable, Encodable {
@@ -29,6 +30,8 @@ extension SyntaxViewEvent {
         switch self {
         case .dragGesture:
             return .dragInteraction
+        case .tapGesture:
+            return .pressInteraction
         }
     }
     
@@ -39,6 +42,10 @@ extension SyntaxViewEvent {
             if property == "translation" {
                 return 0
             }
+            
+        case .tapGesture:
+            // Assume 0 until we handle cases with position
+            return 0
         }
         
         return nil
