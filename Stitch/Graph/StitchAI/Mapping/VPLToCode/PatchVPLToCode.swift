@@ -88,7 +88,7 @@ extension GraphState {
         """
         
         let script = """
-        struct ContentView: some View {
+        struct ContentView: View {
         \(innerStructContents.indentLines())
         }
         """
