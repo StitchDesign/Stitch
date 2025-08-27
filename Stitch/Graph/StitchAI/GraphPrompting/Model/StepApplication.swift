@@ -313,9 +313,13 @@ func positionAIGeneratedNodesDuringApply(
 
     let (depthMap, hasCycle) = calculateAINodesAdjacency(nodes: nodes) // patchData.calculateAINodesAdjacency()
 
-    guard let depthMap = depthMap,
-          !hasCycle else {
-        fatalErrorIfDebug("Did not have a cycle but was not able create depth-map")
+    guard let depthMap = depthMap else {
+        log("DID NOT HAVE A depthMap")
+        return
+    }
+    
+    guard !hasCycle else {
+        log("HAD A CYCLE for depthMap \(depthMap)")
         return
     }
 
