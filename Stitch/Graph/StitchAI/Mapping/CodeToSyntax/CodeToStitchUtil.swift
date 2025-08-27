@@ -107,8 +107,14 @@ extension SwiftUIViewVisitor {
         }
         
         else if let memberAccessExpr = expression.as(MemberAccessExprSyntax.self) {
+            var base: SyntaxViewModifierArgumentType?
+            
+            if let baseExpr = memberAccessExpr.base {
+                base = try Self.parseArgumentType(from: baseExpr)
+            }
+            
             return .memberAccess(SyntaxViewMemberAccess(
-                base: memberAccessExpr.base?.trimmedDescription,
+                base: base,
                 property: memberAccessExpr.declName.baseName.trimmedDescription))
         }
         
