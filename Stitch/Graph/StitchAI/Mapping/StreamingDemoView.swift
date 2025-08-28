@@ -13,7 +13,7 @@ import Foundation
 struct StreamingDemoView: View {
     
     @State private var apiKey: String = ""
-    @State private var prompt: String = "In SwiftUI, create 100 rectangles that are all different colors."
+    @State private var prompt: String = "In SwiftUI, make 100 rectangles, different colors."
     @State private var streamingResponse: String = ""
     @State private var reasoningStepsList: [String] = []
     @State private var isStreaming: Bool = false
@@ -27,20 +27,50 @@ struct StreamingDemoView: View {
     private let selectedModel: String = "o4-mini"
     
     private var searchBar: some View {
-        VStack(spacing: .zero) {
-            TextField("Enter AI prompt...", text: $prompt)
-                .focused($isFocused)
-                .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
-                .frame(width: INSERT_NODE_MENU_WIDTH)
-                .padding(.leading, 16)
-                .padding(.trailing, 60)
-                .overlay(alignment: .center) {
-                    HStack {
-                        Spacer()
-                        if isStreaming {
+        ZStack(alignment: .leading) {
+            if isStreaming {
+                // Show Text view when streaming for content transitions
+                Text(prompt)
+                    .contentTransition(.numericText())
+                    .animation(.default, value: self.prompt)
+                    .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
+                    .frame(width: INSERT_NODE_MENU_WIDTH)
+                    .padding(.leading, 16)
+                    .padding(.trailing, 60)
+                    .font(.system(size: 24))
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(1)
+                    .foregroundColor(.primary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .overlay(alignment: .center) {
+                        HStack {
+                            Spacer()
                             ProgressView()
                                 .scaleEffect(1.5)
-                        } else {
+                        }
+                        .padding(.trailing, 20)
+                    }
+            } else {
+                // Show TextField when not streaming for input
+                TextField("Enter AI prompt...", text: $prompt)
+                    .focused($isFocused)
+                    .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
+                    .frame(width: INSERT_NODE_MENU_WIDTH)
+                    .padding(.leading, 16)
+                    .padding(.trailing, 60)
+                    .font(.system(size: 24))
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(1)
+                    .disableAutocorrection(true)
+                    .onSubmit {
+                        startStreaming()
+                    }
+                    .onAppear {
+                        self.isFocused = true
+                    }
+                    .overlay(alignment: .center) {
+                        HStack {
+                            Spacer()
                             Button(action: startStreaming) {
                                 Image(systemName: "play.fill")
                             }
@@ -48,20 +78,14 @@ struct StreamingDemoView: View {
                             .buttonStyle(.borderless)
                             .disabled(apiKey.isEmpty)
                         }
+                        .padding(.trailing, 20)
                     }
-                    .padding(.trailing, 20)
-                }
-                .font(.system(size: 24))
-                .disableAutocorrection(true)
-                .onSubmit {
-                    startStreaming()
-                }
-                .onAppear {
-                    self.isFocused = true
-                }
+            }
         }
         .background(Color.gray.opacity(0.1))
         .cornerRadius(12)
+        .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
+        .frame(width: INSERT_NODE_MENU_WIDTH)
     }
     
     private var reasoningSection: some View {
@@ -164,7 +188,9 @@ struct StreamingDemoView: View {
             "effort": "medium"
         ]
         
-        prompt = "Thinking..."
+        withAnimation {
+            prompt = "Thinking..."
+        }
         
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
@@ -211,16 +237,19 @@ struct StreamingDemoView: View {
                                     case "response.reasoning_summary_text.delta":
                                         if let delta = json["delta"] as? String {
                                             print("🧠 REASONING_DELTA: '\(delta)'")
+                                            let cleanedDelta = delta.replacingOccurrences(of: "\n", with: " ")
                                             await MainActor.run {
                                                 // Accumulate reasoning deltas in real-time
                                                 if reasoningStepsList.isEmpty {
-                                                    reasoningStepsList.append(delta)
+                                                    reasoningStepsList.append(cleanedDelta)
                                                 } else {
-                                                    reasoningStepsList[reasoningStepsList.count - 1] += delta
+                                                    reasoningStepsList[reasoningStepsList.count - 1] += cleanedDelta
                                                 }
                                                 // Update prompt to show reasoning steps
                                                 if !reasoningSteps.isEmpty {
-                                                    prompt = reasoningSteps
+                                                    withAnimation {
+                                                        prompt = reasoningSteps
+                                                    }
                                                 }
                                             }
                                         }
@@ -230,14 +259,17 @@ struct StreamingDemoView: View {
                                         if let part = json["part"] as? [String: Any],
                                            let text = part["text"] as? String {
                                             print("🧠 Reasoning part text: \(text)")
+                                            let cleanedText = text.replacingOccurrences(of: "\n", with: " ")
                                             await MainActor.run {
-                                                if reasoningStepsList.last != text {
-                                                    reasoningStepsList.append(text)
+                                                if reasoningStepsList.last != cleanedText {
+                                                    reasoningStepsList.append(cleanedText)
                                                     print("🧠 Added reasoning step, total count: \(reasoningStepsList.count)")
                                                 }
                                                 // Update prompt to show reasoning steps
                                                 if !reasoningSteps.isEmpty {
-                                                    prompt = reasoningSteps
+                                                    withAnimation {
+                                                        prompt = reasoningSteps
+                                                    }
                                                 }
                                             }
                                         }
@@ -246,14 +278,17 @@ struct StreamingDemoView: View {
                                         print("🧠 Received reasoning summary text")
                                         if let text = json["text"] as? String {
                                             print("🧠 Reasoning text: \(text)")
+                                            let cleanedText = text.replacingOccurrences(of: "\n", with: " ")
                                             await MainActor.run {
-                                                if reasoningStepsList.last != text {
-                                                    reasoningStepsList.append(text)
+                                                if reasoningStepsList.last != cleanedText {
+                                                    reasoningStepsList.append(cleanedText)
                                                     print("🧠 Added reasoning step, total count: \(reasoningStepsList.count)")
                                                 }
                                                 // Update prompt to show reasoning steps
                                                 if !reasoningSteps.isEmpty {
-                                                    prompt = reasoningSteps
+                                                    withAnimation {
+                                                        prompt = reasoningSteps
+                                                    }
                                                 }
                                             }
                                         }
@@ -286,9 +321,10 @@ struct StreamingDemoView: View {
                                             }
                                             if !summaryText.isEmpty {
                                                 print("🧠 Output item reasoning: \(summaryText)")
+                                                let cleanedSummary = summaryText.replacingOccurrences(of: "\n", with: " ")
                                                 await MainActor.run {
-                                                    if reasoningStepsList.last != summaryText {
-                                                        reasoningStepsList.append(summaryText)
+                                                    if reasoningStepsList.last != cleanedSummary {
+                                                        reasoningStepsList.append(cleanedSummary)
                                                         print("🧠 Added reasoning step from output item, total count: \(reasoningStepsList.count)")
                                                     }
                                                     // Update prompt to show reasoning steps
