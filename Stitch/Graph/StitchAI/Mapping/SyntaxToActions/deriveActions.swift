@@ -78,7 +78,7 @@ extension Array where Element == AIGraphData_V0.LayerData {
                 let patchNode = existingPatchNode ?? .init(node_id: UUID().uuidString,
                                                            node_name: .init(value: .patch(patch)))
                 
-                guard let upstreamStateCoordinate = viewEvent
+                guard let (outputPortIndex, upstreamStateCoordinate) = viewEvent
                     .createConnectedPatchData(interactionPatchNodeId: patchNode.node_id,
                                               createdPatchesAtThisNode: &createdPatchesAtThisNode,
                                               patchConnections: &patchConnections) else {
@@ -88,7 +88,7 @@ extension Array where Element == AIGraphData_V0.LayerData {
                 // Update layer assignment for node
                 customPatchInputValues.append(
                     .init(patch_input_coordinate: .init(node_id: patchNode.node_id,
-                                                        port_index: 0),
+                                                        port_index: outputPortIndex),
                           value: layerData.node_id,
                           value_type: .init(value: .interactionId))
                 )
