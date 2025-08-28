@@ -38,47 +38,63 @@ extension SyntaxViewEvent {
 
 extension AIGraphData_V0.LayerDataViewEvent {
     /// Determines the connections and intermediary patch nodes to be created between an interaction patch node and some state.
+    /// First return value: output port ID of interaction node
+    /// Second return value: output coordinate of most downstream node (which might be the interaction node still)
     func createConnectedPatchData(interactionPatchNodeId: String,
                                   createdPatchesAtThisNode: inout [Patch: CurrentAIGraphData
         .PatchNode],
-                                  patchConnections: inout [CurrentAIGraphData.PatchConnection]) -> AIGraphData_V0.NodeIndexedCoordinate? {        
+                                  patchConnections: inout [CurrentAIGraphData.PatchConnection]) -> (Int, AIGraphData_V0.NodeIndexedCoordinate)? {
         switch self.viewEvent {
         case .dragGesture:
             // Packed case: arg == "translation" or "position"
             if self.gestureArg == "translation" || self.gestureArg == "position" {
-                return AIGraphData_V0.NodeIndexedCoordinate(
-                    node_id: interactionPatchNodeId,
-                    port_index: 0)
+                // position = 0th port, translation = 2nd port
+                let outputPortIndex = self.gestureArg == "position" ? 0 : 2
+                
+                return (outputPortIndex,
+                        AIGraphData_V0.NodeIndexedCoordinate(
+                            node_id: interactionPatchNodeId,
+                            port_index: outputPortIndex))
             }
             
             // Unpacked case: need to see the suffix value (i.e. x or y)
-            guard let suffixValue = self.gestureArg?.split(separator: ".")[safe: 1] else {
+            guard let split = self.gestureArg?.split(separator: "."),
+                  let prefixValue = split[safe: 0],
+                  let suffixValue = split[safe: 1] else {
                 return nil
             }
             
+            let outputPortIndex = prefixValue == "position" ? 0 : 2
+            
             if suffixValue == "x" || suffixValue == "width" {
-                return Self._positionUnpackCase(outputPortIndex: 0,
-                                                interactionPatchNodeId: interactionPatchNodeId,
-                                                createdPatchesAtThisNode: &createdPatchesAtThisNode,
-                                                patchConnections: &patchConnections)
+                return (outputPortIndex,
+                        Self._positionUnpackCase(outputInteractionPortIndex: outputPortIndex,
+                                                 outputUnpackPortIndex: 0,
+                                                 interactionPatchNodeId: interactionPatchNodeId,
+                                                 createdPatchesAtThisNode: &createdPatchesAtThisNode,
+                                                 patchConnections: &patchConnections))
             } else if suffixValue == "y" || suffixValue == "height" {
-                return Self._positionUnpackCase(outputPortIndex: 1,
-                                                interactionPatchNodeId: interactionPatchNodeId,
-                                                createdPatchesAtThisNode: &createdPatchesAtThisNode,
-                                                patchConnections: &patchConnections)
+                return (outputPortIndex,
+                        Self._positionUnpackCase(outputInteractionPortIndex: outputPortIndex,
+                                                 outputUnpackPortIndex: 1,
+                                                 interactionPatchNodeId: interactionPatchNodeId,
+                                                 createdPatchesAtThisNode: &createdPatchesAtThisNode,
+                                                 patchConnections: &patchConnections))
             }
             
             return nil
             
         case .tapGesture:
             // Assume 0 until we handle cases with position
-            return AIGraphData_V0.NodeIndexedCoordinate(
-                node_id: interactionPatchNodeId,
-                port_index: 0)
+            return (0,
+                    AIGraphData_V0.NodeIndexedCoordinate(
+                        node_id: interactionPatchNodeId,
+                        port_index: 0))
         }
     }
     
-    private static func _positionUnpackCase(outputPortIndex: Int,
+    private static func _positionUnpackCase(outputInteractionPortIndex: Int,
+                                            outputUnpackPortIndex: Int,
                                             interactionPatchNodeId: String,
                                             createdPatchesAtThisNode: inout [Patch: CurrentAIGraphData
                                                 .PatchNode],
@@ -92,13 +108,13 @@ extension AIGraphData_V0.LayerDataViewEvent {
         // Connect drag node to unpack node
         patchConnections.append(.init(
             src_port: .init(node_id: interactionPatchNodeId,
-                            port_index: 0),
+                            port_index: outputInteractionPortIndex),
             dest_port: .init(node_id: unpackPositionNode.node_id,
                              port_index: 0)))
         
         // Return output port index of unpack node
         return .init(node_id: unpackPositionNode.node_id,
-                     port_index: outputPortIndex)
+                     port_index: outputUnpackPortIndex)
     }
 }
 
@@ -135,6 +151,7 @@ extension SyntaxViewModifierViewEvent {
                     
                     // A little hacky--if PortValueDescription of position type, return a packed variable
                     if (defaultArgs[safe: 1]?.value.simpleValue?.contains("position") ?? false) {
+                        // TODO: see if position or translation
                         gestureArg = "position"
                     }
                     
