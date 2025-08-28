@@ -214,7 +214,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
 extension SwiftUIViewVisitor {
     /// Parses SwiftUI code into a ViewNode structure
     static func parseSwiftUICode(_ swiftUICode: String,
-                                 context: ParseContext = .topLevel
+                                 context: ParseContext = .topLevel,
                                  willParseView: Bool = true) -> SwiftUIViewParserResult {
 //        log("\n==== PARSING CODE ====\n\(swiftUICode)\n=====================\n")
         
