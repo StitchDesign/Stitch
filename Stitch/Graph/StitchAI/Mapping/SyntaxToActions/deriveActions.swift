@@ -65,13 +65,14 @@ extension Array where Element == AIGraphData_V0.LayerData {
     /// 1. Determines interaction patch nodes to make based on view events attached to view modifiers.
     /// 2. Returns dictionary of a state var name to a newly created patch node's output coordinate.
     func createStateVarToInteractionNodeMap(nativePatchNodes: inout [CurrentAIGraphData.PatchNode],
-                                            customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue]) -> [String: CurrentAIGraphData.NodeIndexedCoordinate] {
+                                            customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue],
+                                            viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate]) -> [String: CurrentAIGraphData.NodeIndexedCoordinate] {
         self.reduce(into: [String: CurrentAIGraphData.NodeIndexedCoordinate]()) { result, layerData in
             var createdPatchesAtThisNode = [Patch: CurrentAIGraphData
                 .PatchNode]()
             
             layerData.view_events.forEach { viewEvent in
-                guard let outputPortIndex = viewEvent.viewEvent.determinePatchNodeOutputPort(property: viewEvent.gestureArg) else {
+                guard let outputPortIndex = viewEvent.patchNodeOutputPort else {
                     return
                 }
                 
@@ -81,17 +82,24 @@ extension Array where Element == AIGraphData_V0.LayerData {
                                                            node_name: .init(value: .patch(patch)))
                 
                 if existingPatchNode == nil,
-                   let outputPortIndex = viewEvent.viewEvent.determinePatchNodeOutputPort(property: viewEvent.gestureArg) {
+                   let outputPortIndex = viewEvent.patchNodeOutputPort {
                     // New node case
                     nativePatchNodes.append(patchNode)
     
+                    let outputPatchCoordinate = AIGraphData_V0.NodeIndexedCoordinate(
+                        node_id: patchNode.node_id,
+                        port_index: outputPortIndex)
+                    
                     // Update layer assignment for node
                     customPatchInputValues.append(
-                        .init(patch_input_coordinate: .init(node_id: patchNode.node_id,
-                                                            port_index: outputPortIndex),
+                        .init(patch_input_coordinate: outputPatchCoordinate,
                               value: layerData.node_id,
                               value_type: .init(value: .interactionId))
                     )
+                    
+                    // Update view state connections
+                    viewStatePatchConnections.updateValue(outputPatchCoordinate,
+                                                          forKey: viewEvent.mutatedStateVar)
                 }
                 
                 // Update (possibly new) patch
@@ -106,7 +114,8 @@ extension Array where Element == AIGraphData_V0.LayerData {
             // Recursively explore children
             if let childrenDict = layerData.children?
                 .createStateVarToInteractionNodeMap(nativePatchNodes: &nativePatchNodes,
-                                                    customPatchInputValues: &customPatchInputValues) {
+                                                    customPatchInputValues: &customPatchInputValues,
+                                                    viewStatePatchConnections: &viewStatePatchConnections) {
                 result.merge(childrenDict, uniquingKeysWith: { $1 })
             }
         }
@@ -145,7 +154,8 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
         // Create interaction patch nodes from layer data
         let stateVarToInteractionOutputsMap = layers.createStateVarToInteractionNodeMap(
             nativePatchNodes: &nativePatchNodes,
-            customPatchInputValues: &customPatchInputValues
+            customPatchInputValues: &customPatchInputValues,
+            viewStatePatchConnections: &viewStatePatchConnections
         )
         
         // First pass:
