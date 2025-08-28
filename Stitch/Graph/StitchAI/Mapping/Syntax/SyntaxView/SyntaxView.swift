@@ -40,12 +40,21 @@ struct SyntaxView: Sendable {
     var id: UUID  // Unique identifier for the node
 }
 
-enum ViewConstructorType: Sendable, Encodable {
+enum ViewConstructorType: Sendable {
     case trackedConstructor(StrictViewConstructor)
     case other([SyntaxViewArgumentData])
 }
 
 extension ViewConstructorType {
+    var description: String {
+        switch self {
+        case .trackedConstructor(let constructor):
+            return "\(constructor)"
+        case .other(let args):
+            return args.description
+        }
+    }
+    
     var defaultArgs: [SyntaxViewArgumentData]? {
         switch self {
         case .trackedConstructor:

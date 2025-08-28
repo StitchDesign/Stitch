@@ -14,7 +14,7 @@ import SwiftParser
 
 
 // TODO: can we just the `FromSwiftUIViewToStitch` protocol instead? But tricky, since `FromSwiftUIViewToStitch` has an associated i.e. generic type, which would bubble up elsewhere.
-enum StrictViewConstructor: Encodable {
+enum StrictViewConstructor {
     case text(TextViewConstructor)
     case image(ImageViewConstructor)
     case hStack(HStackViewConstructor)
@@ -709,7 +709,7 @@ enum ZStackViewConstructor: FromSwiftUIViewToStitch {
     }
 }
 // Helper: map SwiftUI `Alignment` member access (e.g. `.topLeading`) to Stitch `Anchoring`
-private extension SyntaxViewMemberAccess {
+private extension MemberAccessExprSyntax {
     /// Returns a concrete `Anchoring` when this member access clearly denotes a SwiftUI `Alignment` literal.
     /// Examples: `.center`, `.top`, `.bottom`, `.leading`, `.trailing`, `.topLeading`, `.topTrailing`, `.bottomLeading`, `.bottomTrailing`.
     var alignmentAnchoring: Anchoring? {
@@ -1371,7 +1371,7 @@ enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
 /// Mirrors how `ViewConstructor` wraps typed view constructors.
 /// Each case carries the specific typed modifier struct/enum and exposes a unified
 /// `value` that conforms to `FromSwiftUIViewModifierToStitch`.
-enum StrictViewModifier: Encodable {
+enum StrictViewModifier {
     case opacity(OpacityViewModifier)
     case scaleEffect(ScaleEffectViewModifier)
     case blur(BlurViewModifier)
@@ -1427,7 +1427,7 @@ enum StrictViewModifier: Encodable {
     }
 }
 
-protocol FromSwiftUIViewModifierToStitch: Encodable {
+protocol FromSwiftUIViewModifierToStitch {
     associatedtype T
     
     static func from(_ args: [SyntaxViewArgumentData],
@@ -1591,7 +1591,7 @@ enum ScaleEffectViewModifier: FromSwiftUIViewModifierToStitch {
 }
 
 // Helper: map UnitPoint-like member access (e.g. `.center`) to Anchoring
-extension SyntaxViewMemberAccess {
+extension MemberAccessExprSyntax {
     var unitPointAnchoring: Anchoring? {
         switch self.property {
         case "center":         return .centerCenter

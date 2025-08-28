@@ -48,10 +48,11 @@ enum AIGraphData_V0 {
     }
     
     struct LayerDataViewEvent {
-        let interactionPatch: Patch
+        let viewEvent: SyntaxViewEvent
         
-        // Tracks which output port should be used from patch, i.e. usage of "translation" for a drag would entail the 0th port
-        let outputPortIndex: Int
+        // If relevant, the argument data that's read from the view event's closure.
+        // i.e. `translation.width`
+        let gestureArg: String?
         
         // Tracks which state variable is mutated
         let mutatedStateVar: String

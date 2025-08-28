@@ -150,8 +150,8 @@ extension SyntaxViewModifier {
             }
             
             let layerData = AIGraphData_V0
-                .LayerDataViewEvent(interactionPatch: viewEvent.patch,
-                                    outputPortIndex: outputPortIndex,
+                .LayerDataViewEvent(viewEvent: viewEvent,
+                                    gestureArg: nil,
                                     mutatedStateVar: mutatedStateVar)
             return [layerData]
         }
@@ -874,7 +874,7 @@ extension SyntaxViewName {
             return [.stateRef(varName)]
             
         case .memberAccess, .closure, .viewEvent:
-            throw SwiftUISyntaxError.portValueDecodingError(.portValueDecodingError((try? argument.encodeToPrintableString()) ?? "Unknown"))
+            throw SwiftUISyntaxError.portValueDecodingError(.portValueDecodingError(describe(argument)))
         }
     }
     

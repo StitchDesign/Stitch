@@ -330,23 +330,7 @@ Specific rules and allowances of view modifers in SwiftUI views are listed here.
 #### Responding to View Events
 View modifiers responding to events such as `simultaneousGesture`, `onAppear` etc. are only allowed to update view state variables. No other functionality is allowed inside the view event's callback closure.
 
-**It's important that state mutations in these closures are kept to as few state mutations as possible**. Here's an example of too many state mutations:
-
-```swift
-.simultaneousGesture(DragGesture().onChanged { g in
-    rectDragX = [PortValueDescription(value: g.translation.width, value_type: "number")]
-    rectDragY = [PortValueDescription(value: g.translation.height, value_type: "number")]
-}
-```
-
-Instead, do:
-```swift
-.simultaneousGesture(DragGesture().onChanged { g in
-    rectDragTranslation = [PortValueDescription(value: g.translation, value_type: "size")]
-}
-```
-
-Furthermore, **do not try to add custom logic**. Custom logic is reserved for `updateLayerInputs`. Here's an example of functionality to avoid:
+**It's important that state mutations in these closures are kept to as few state mutations as possible. Do not try to add custom logic**. Custom logic is reserved for `updateLayerInputs`. Here's an example of functionality to avoid:
 ```swift
 .onTapGesture {
     let current = rectColor.first?.value as? String ?? "#FF0000FF"

@@ -15,7 +15,7 @@ enum SyntaxViewEvent: String, Sendable, Encodable {
     case tapGesture = "TapGesture"
 }
 
-struct SyntaxViewModifierViewEvent: Sendable, Encodable {
+struct SyntaxViewModifierViewEvent: Sendable {
     let eventName: String
     
     // args inside constructor
@@ -85,21 +85,26 @@ extension SyntaxViewModifierViewEvent {
                     
                     // Find the property that's read from the gesture param
                     let gestureArg = defaultArgs.compactMap { arg -> String? in
-                        guard let memberBase = arg.value.memberBaseVariable,
-                              memberBase.base?.stateAccess == gestureParamName else {
+                        guard let memberSyntax = arg.value.memberAccess else {
                             return nil
                         }
                         
-                        return memberBase.property
+                        var propertyString = memberSyntax.trimmedDescription
+                        let prefixStr = "\(gestureParamName)."
+                        
+                        if propertyString.hasPrefix(prefixStr) {
+                            propertyString = String(propertyString.dropFirst(prefixStr.count))
+                        }
+                        
+                        return propertyString
                     }.first
                     
-                    guard let gestureArg = gestureArg,
-                          let outputPortIndex = viewName.determinePatchNodeOutputPort(property: gestureArg) else {
+                    guard let gestureArg = gestureArg else {
                         return nil
                     }
                     
-                    return .init(interactionPatch: viewName.patch,
-                                 outputPortIndex: outputPortIndex,
+                    return .init(viewEvent: viewName,
+                                 gestureArg: gestureArg,
                                  mutatedStateVar: refName)
                 default:
                     return nil

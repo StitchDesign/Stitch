@@ -22,21 +22,21 @@ enum SwiftParserPatternBindingArg {
     case subscriptRef(SwiftParserSubscript)
 }
 
-extension SwiftParserPatternBindingArg: Encodable {
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch self {
-        case .value(let value):
-            try container.encode(value)
-        case .binding(let value):
-            try container.encode(value.trimmedDescription)
-        case .subscriptRef(let value):
-            try container.encode(value)
-        }
-    }
-}
+//extension SwiftParserPatternBindingArg: Encodable {
+//    func encode(to encoder: Encoder) throws {
+//        var container = encoder.singleValueContainer()
+//        switch self {
+//        case .value(let value):
+//            try container.encode(value)
+//        case .binding(let value):
+//            try container.encode(value.trimmedDescription)
+//        case .subscriptRef(let value):
+//            try container.encode(value)
+//        }
+//    }
+//}
 
-struct SwiftParserPatchData: Encodable {
+struct SwiftParserPatchData {
     let id: String
     var patchType: SwiftParserPatchType
     var args: [SwiftParserPatternBindingArg]
@@ -47,7 +47,7 @@ enum SwiftParserPatchType: Encodable {
     case js(String)
 }
 
-struct SwiftParserSubscript: Sendable, Encodable {
+struct SwiftParserSubscript: Sendable {
     // The name of the variable
     var subscriptType: SwiftParserSubscriptType
     var portIndex: Int
@@ -78,7 +78,7 @@ indirect enum SwiftParserInitializerType: Sendable {
 }
 
 // Subscripts can be used on references or nodes themselves
-enum SwiftParserSubscriptType: Encodable {
+enum SwiftParserSubscriptType {
     case ref(String)
     case patchNode(SwiftParserPatchData)
 }

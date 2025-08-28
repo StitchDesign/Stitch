@@ -23,14 +23,26 @@ private func describe(_ kind: SyntaxArgumentKind) -> String {
     }
 }
 
+extension SyntaxViewArgumentData {
+    var description: String {
+        describe(self)
+    }
+}
+
+extension SyntaxViewModifierArgumentType {
+    var description: String {
+        describe(self)
+    }
+}
+
 /// Nicely formats a `SyntaxViewModifierArgumentType` so that we don't dump the
 /// full struct/enum hierarchy when printing.
 /// Formats the `(value, syntaxKind)` pair in a compact way
-private func describe(_ data: SyntaxViewArgumentData) -> String {
+func describe(_ data: SyntaxViewArgumentData) -> String {
     "\(data.value))" //, \(describe(data.syntaxKind))"
 }
 
-private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
+func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
     switch argType {
     case .simple(let data):
         return "simple(\(data))"
@@ -55,7 +67,7 @@ private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
         return "closure(\(script))"
     
     case .viewEvent(let viewEvent):
-        return (try? viewEvent.encodeToString()) ?? ""
+        return viewEvent.eventName
     }
 }
 
@@ -64,8 +76,8 @@ func formatSyntaxView(_ node: SyntaxView, indent: String = "") -> String {
     var result = "\(indent)SyntaxView("
     result += "\n\(indent)    name: \"\(node.name)\","
     
-    let argsString = (try? node.constructorArguments.encodeToPrintableString()) ?? ""
-    let modifiersString = (try? node.modifiers.encodeToPrintableString()) ?? ""
+    let argsString = node.constructorArguments?.description ?? ""
+    let modifiersString = "\(node.modifiers)"
     
     // Format arguments
     result += "\n\(indent)    constructorArguments: \n\(argsString)"
