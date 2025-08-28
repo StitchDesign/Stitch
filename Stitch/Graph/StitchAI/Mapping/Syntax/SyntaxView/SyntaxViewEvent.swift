@@ -134,11 +134,12 @@ extension SyntaxViewModifierViewEvent {
                     
                     // Find the property that's read from the gesture param
                     let gestureArg = defaultArgs.compactMap { arg -> String? in
-                        guard let paramVarName = onChangeHandler.paramVars.first else {
+                        guard let paramVarName = onChangeHandler.paramVars.first,
+                              let memberAccess = arg.value.memberAccess ?? arg.value.complexValue?.arguments.first?.value.memberAccess else {
                             return nil
                         }
                         
-                        var propertyString = arg.value.description                        
+                        var propertyString = memberAccess.trimmedDescription
                         let prefixStr = "\(paramVarName)."
                         
                         if propertyString.hasPrefix(prefixStr) {
