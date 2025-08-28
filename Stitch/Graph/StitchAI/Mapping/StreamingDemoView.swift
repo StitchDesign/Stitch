@@ -16,6 +16,8 @@ struct StreamingDemoView: View {
     @State private var prompt: String = "In SwiftUI, make 100 rectangles, different colors."
     @State private var streamingResponse: String = ""
     @State private var reasoningStepsList: [String] = []
+    @State private var accumulatedReasoning: String = ""
+    @State private var extractedHeadersCount: Int = 0
     @State private var isStreaming: Bool = false
     @FocusState private var isFocused: Bool
     @FocusState private var apiKeyFocused: Bool
@@ -155,6 +157,8 @@ struct StreamingDemoView: View {
         isStreaming = true
         streamingResponse = ""
         reasoningStepsList = []
+        accumulatedReasoning = ""
+        extractedHeadersCount = 0
         isFocused = false
         apiKeyFocused = false
         
@@ -241,17 +245,30 @@ struct StreamingDemoView: View {
                                     case "response.reasoning_summary_text.delta":
                                         if let delta = json["delta"] as? String {
                                             print("🧠 REASONING_DELTA: '\(delta)'")
-                                            let cleanedDelta = delta
-                                                .replacingOccurrences(of: "\n", with: " ")
-                                                .replacingOccurrences(of: "**", with: "")
-                                                .replacingOccurrences(of: "*", with: "")
-                                                .replacingOccurrences(of: "#", with: "")
+                                            
                                             await MainActor.run {
-                                                // Add each delta as a new reasoning step immediately
-                                                reasoningStepsList.append(cleanedDelta)
-                                                // Update prompt to show reasoning steps
-                                                withAnimation {
-                                                    prompt = reasoningSteps
+                                                // Accumulate deltas unchanged
+                                                accumulatedReasoning += delta
+                                                
+                                                // Extract just the first header (text between first ** markers)
+                                                let boldPattern = #"\*\*(.*?)\*\*"#
+                                                let regex = try? NSRegularExpression(pattern: boldPattern, options: [])
+                                                let range = NSRange(location: 0, length: accumulatedReasoning.utf16.count)
+                                                
+                                                if let matches = regex?.matches(in: accumulatedReasoning, options: [], range: range),
+                                                   let firstMatch = matches.first,
+                                                   let headerRange = Range(firstMatch.range(at: 1), in: accumulatedReasoning) {
+                                                    let headerText = String(accumulatedReasoning[headerRange])
+                                                    print("🧠 EXTRACTED_HEADER: '\(headerText)'")
+                                                    
+                                                    withAnimation {
+                                                        prompt = headerText
+                                                    }
+                                                } else {
+                                                    // No complete header found yet, show accumulated reasoning
+                                                    withAnimation {
+                                                        prompt = accumulatedReasoning
+                                                    }
                                                 }
                                             }
                                         }
