@@ -21,7 +21,10 @@ struct StreamingDemoView: View {
     @FocusState private var apiKeyFocused: Bool
     
     private var reasoningSteps: String {
-        reasoningStepsList.joined(separator: "\n")
+        let k = reasoningStepsList.joined() //.joined(separator: "\n")
+        print("reasoningSteps: \(k)")
+        return k
+        
     }
     
     private let selectedModel: String = "o4-mini"
@@ -238,61 +241,26 @@ struct StreamingDemoView: View {
                                     case "response.reasoning_summary_text.delta":
                                         if let delta = json["delta"] as? String {
                                             print("🧠 REASONING_DELTA: '\(delta)'")
-                                            let cleanedDelta = delta.replacingOccurrences(of: "\n", with: " ")
+                                            let cleanedDelta = delta
+                                                .replacingOccurrences(of: "\n", with: " ")
+                                                .replacingOccurrences(of: "**", with: "")
+                                                .replacingOccurrences(of: "*", with: "")
+                                                .replacingOccurrences(of: "#", with: "")
                                             await MainActor.run {
-                                                // Accumulate reasoning deltas in real-time
-                                                if reasoningStepsList.isEmpty {
-                                                    reasoningStepsList.append(cleanedDelta)
-                                                } else {
-                                                    reasoningStepsList[reasoningStepsList.count - 1] += cleanedDelta
-                                                }
+                                                // Add each delta as a new reasoning step immediately
+                                                reasoningStepsList.append(cleanedDelta)
                                                 // Update prompt to show reasoning steps
-                                                if !reasoningSteps.isEmpty {
-                                                    withAnimation {
-                                                        prompt = reasoningSteps
-                                                    }
+                                                withAnimation {
+                                                    prompt = reasoningSteps
                                                 }
                                             }
                                         }
                                     
                                     case "response.reasoning_summary_part.done":
-                                        print("🧠 Received reasoning summary part")
-                                        if let part = json["part"] as? [String: Any],
-                                           let text = part["text"] as? String {
-                                            print("🧠 Reasoning part text: \(text)")
-                                            let cleanedText = text.replacingOccurrences(of: "\n", with: " ")
-                                            await MainActor.run {
-                                                if reasoningStepsList.last != cleanedText {
-                                                    reasoningStepsList.append(cleanedText)
-                                                    print("🧠 Added reasoning step, total count: \(reasoningStepsList.count)")
-                                                }
-                                                // Update prompt to show reasoning steps
-                                                if !reasoningSteps.isEmpty {
-                                                    withAnimation {
-                                                        prompt = reasoningSteps
-                                                    }
-                                                }
-                                            }
-                                        }
+                                        print("🧠 Received reasoning summary part done")
                                     
                                     case "response.reasoning_summary_text.done":
-                                        print("🧠 Received reasoning summary text")
-                                        if let text = json["text"] as? String {
-                                            print("🧠 Reasoning text: \(text)")
-                                            let cleanedText = text.replacingOccurrences(of: "\n", with: " ")
-                                            await MainActor.run {
-                                                if reasoningStepsList.last != cleanedText {
-                                                    reasoningStepsList.append(cleanedText)
-                                                    print("🧠 Added reasoning step, total count: \(reasoningStepsList.count)")
-                                                }
-                                                // Update prompt to show reasoning steps
-                                                if !reasoningSteps.isEmpty {
-                                                    withAnimation {
-                                                        prompt = reasoningSteps
-                                                    }
-                                                }
-                                            }
-                                        }
+                                        print("🧠 Received reasoning summary text done")
                                     
                                     case "response.completed":
                                         await MainActor.run {
@@ -308,33 +276,6 @@ struct StreamingDemoView: View {
                                         }
                                     case "response.output_item.done":
                                         print("🧠 Received output item done")
-                                        // Extract reasoning summary from completed item
-                                        if let outputItem = json["output_item"] as? [String: Any],
-                                           let outputType = outputItem["type"] as? String,
-                                           outputType == "reasoning",
-                                           let summary = outputItem["summary"] as? [[String: Any]] {
-                                            print("🧠 Found reasoning output item")
-                                            var summaryText = ""
-                                            for summaryPart in summary {
-                                                if let text = summaryPart["text"] as? String {
-                                                    summaryText += text
-                                                }
-                                            }
-                                            if !summaryText.isEmpty {
-                                                print("🧠 Output item reasoning: \(summaryText)")
-                                                let cleanedSummary = summaryText.replacingOccurrences(of: "\n", with: " ")
-                                                await MainActor.run {
-                                                    if reasoningStepsList.last != cleanedSummary {
-                                                        reasoningStepsList.append(cleanedSummary)
-                                                        print("🧠 Added reasoning step from output item, total count: \(reasoningStepsList.count)")
-                                                    }
-                                                    // Update prompt to show reasoning steps
-                                                    if !reasoningSteps.isEmpty {
-                                                        prompt = reasoningSteps
-                                                    }
-                                                }
-                                            }
-                                        }
                                     
                                     default:
                                         // Log any reasoning-related events we might be missing
