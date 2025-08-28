@@ -81,11 +81,13 @@ extension Array where Element == AIGraphData_V0.LayerData {
                 let patchNode = existingPatchNode ?? .init(node_id: UUID().uuidString,
                                                            node_name: .init(value: .patch(patch)))
                 
-                if existingPatchNode == nil,
-                   let outputPortIndex = viewEvent.patchNodeOutputPort {
+                if existingPatchNode == nil {
                     // New node case
                     nativePatchNodes.append(patchNode)
-    
+                }
+                
+                // Create connections
+                if let outputPortIndex = viewEvent.patchNodeOutputPort {
                     let outputPatchCoordinate = AIGraphData_V0.NodeIndexedCoordinate(
                         node_id: patchNode.node_id,
                         port_index: outputPortIndex)
