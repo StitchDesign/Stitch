@@ -90,25 +90,21 @@ extension SyntaxViewModifierViewEvent {
                     
                     // Find the property that's read from the gesture param
                     let gestureArg = defaultArgs.compactMap { arg -> String? in
-                        return ""
-                        // TODO: the below code is for examples where x and y are saved separately. We are ignoring this for now
-//                        guard let memberSyntax = arg.value.memberAccess else {
-//                            return nil
-//                        }
-//                        
-//                        var propertyString = memberSyntax.trimmedDescription
-//                        let prefixStr = "\(gestureParamName)."
-//                        
-//                        if propertyString.hasPrefix(prefixStr) {
-//                            propertyString = String(propertyString.dropFirst(prefixStr.count))
-//                        }
-//                        
-//                        return propertyString
+                        guard let paramVarName = onChangeHandler.paramVars.first,
+                              let memberSyntax = arg.value.memberAccess else {
+                            return nil
+                        }
+                        
+                        var propertyString = memberSyntax.trimmedDescription
+                        
+                        let prefixStr = "\(paramVarName)."
+                        
+                        if propertyString.hasPrefix(prefixStr) {
+                            propertyString = String(propertyString.dropFirst(prefixStr.count))
+                        }
+                        
+                        return propertyString
                     }.first
-                    
-                    guard let gestureArg = gestureArg else {
-                        return nil
-                    }
                     
                     return .init(viewEvent: viewName,
                                  gestureArg: gestureArg,
