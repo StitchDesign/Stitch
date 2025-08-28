@@ -256,6 +256,30 @@ extension SyntaxViewModifierArgumentType {
         }
     }
     
+    /// Finds first `MemberAccessExprSyntax`, which may be nested.
+    var firstMemberAccess: MemberAccessExprSyntax? {
+        switch self {
+        case .simple:
+            return nil
+        case .complex(let syntaxViewModifierComplexType):
+            return syntaxViewModifierComplexType.arguments.compactMap {
+                $0.value.firstMemberAccess
+            }.first
+        case .tuple(let array):
+            return array.compactMap { $0.value.firstMemberAccess }.first
+        case .array(let array):
+            return array.compactMap { $0.firstMemberAccess }.first
+        case .memberAccess(let memberAccessExprSyntax):
+            return memberAccessExprSyntax
+        case .stateAccess:
+            return nil
+        case .closure:
+            return nil
+        case .viewEvent(let syntaxViewModifierViewEvent):
+            return syntaxViewModifierViewEvent.eventConstructorArgs.compactMap { $0.value.firstMemberAccess }.first
+        }
+    }
+    
     var stateAccess: String? {
         switch self {
         case .stateAccess(let member):
