@@ -34,12 +34,16 @@ extension SyntaxViewEvent {
             return .pressInteraction
         }
     }
-    
+}
+
+extension AIGraphData_V0.LayerDataViewEvent {
     /// Given some view event name and property used for state mutation, determine which output port index is used in Stitch.
-    func determinePatchNodeOutputPort(property: String?) -> Int? {        
-        switch self {
+    var patchNodeOutputPort: Int? {
+        let property = self.gestureArg
+        
+        switch self.viewEvent {
         case .dragGesture:
-            if property == "translation" {
+            if property?.contains("translation") ?? false {
                 return 0
             }
             
