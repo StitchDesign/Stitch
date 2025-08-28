@@ -719,6 +719,20 @@ static func randomColors(_ inputs: [[PortValueDescription]]) -> [[PortValueDescr
 ```
 
 This example is bad because this custom patch function uses redundant logic from native patch nodes. The first example correctly used Random and RGB Color patch nodes, all while supporting a loop of 100 rectangles.
+
+
+## Example of different font sizes
+
+```
+VStack {
+    Text("(123) 456 7890")
+        .font([PortValueDescription(value_type: "layerDimension", value: "36")])
+
+    Text("Add Number")
+        .font([PortValueDescription(value_type: "layerDimension", value: "18")])
+}
+```
+
 """
     }
 }
