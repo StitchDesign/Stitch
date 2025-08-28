@@ -71,19 +71,24 @@ extension Array where Element == AIGraphData_V0.LayerData {
                 .PatchNode]()
             
             layerData.view_events.forEach { viewEvent in
-                let patch = viewEvent.interactionPatch
+                guard let outputPortIndex = viewEvent.viewEvent.determinePatchNodeOutputPort(property: viewEvent.gestureArg) else {
+                    return
+                }
+                
+                let patch = viewEvent.viewEvent.patch
                 let existingPatchNode = createdPatchesAtThisNode.get(patch)
                 let patchNode = existingPatchNode ?? .init(node_id: UUID().uuidString,
                                                            node_name: .init(value: .patch(patch)))
                 
-                if existingPatchNode == nil {
+                if existingPatchNode == nil,
+                   let outputPortIndex = viewEvent.viewEvent.determinePatchNodeOutputPort(property: viewEvent.gestureArg) {
                     // New node case
                     nativePatchNodes.append(patchNode)
     
                     // Update layer assignment for node
                     customPatchInputValues.append(
                         .init(patch_input_coordinate: .init(node_id: patchNode.node_id,
-                                                            port_index: viewEvent.outputPortIndex),
+                                                            port_index: outputPortIndex),
                               value: layerData.node_id,
                               value_type: .init(value: .interactionId))
                     )
@@ -94,7 +99,7 @@ extension Array where Element == AIGraphData_V0.LayerData {
                 
                 // Output coordinates to return
                 result.updateValue(.init(node_id: patchNode.node_id,
-                                         port_index: viewEvent.outputPortIndex),
+                                         port_index: outputPortIndex),
                                    forKey: viewEvent.mutatedStateVar)
             }
             

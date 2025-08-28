@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-protocol FromSwiftUIViewToStitch: Encodable {
+protocol FromSwiftUIViewToStitch {
     associatedtype T
     
     // nil if ViewConstructor could not be turned into Stitch concepts

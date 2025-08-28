@@ -215,7 +215,7 @@ extension SyntaxViewModifierArgumentType {
     var alignmentLiteral: Alignment? {
         switch self {
         case .memberAccess(let member):
-            guard let member = member.base?.simpleValue else { return nil }
+            guard let member = member.base?.trimmedDescription else { return nil }
             switch member {
             case "topLeading":     return .topLeading
             case "top":            return .top
@@ -247,7 +247,7 @@ extension SyntaxViewModifierArgumentType {
         }
     }
     
-    var memberAccess: SyntaxViewMemberAccess? {
+    var memberAccess: MemberAccessExprSyntax? {
         switch self {
         case .memberAccess(let member):
             return member
@@ -266,25 +266,29 @@ extension SyntaxViewModifierArgumentType {
     }
     
     /// Recursively finds the base variable for some member access (i.e. returns `g.translation` for `g.translation.translation`)
-    var memberBaseVariable: SyntaxViewMemberAccess? {
-        guard let member = self.memberAccess else {
-            return nil
-        }
-        
-        switch member.base {
-        case .memberAccess:
-            return member.base?.memberBaseVariable
-            
-        case .stateAccess:
-            return member
-            
-        default:
-            return nil
-        }
-    }
+//    var memberBaseVariable: SyntaxViewMemberAccess? {
+//        guard let member = self.memberAccess else {
+//            return nil
+//        }
+//        
+//        switch member.base {
+//        case .memberAccess:
+//            return member.base?.memberBaseVariable
+//            
+//        case .stateAccess:
+//            return member
+//            
+//        default:
+//            return nil
+//        }
+//    }
 }
 
-extension SyntaxViewMemberAccess {
+extension MemberAccessExprSyntax {
+    var property: String {
+        self.declName.baseName.trimmedDescription
+    }
+    
     // New helper: horizontal alignment literal
     var horizAlignLiteral: HorizontalAlignment? {
         let ident = self.property
