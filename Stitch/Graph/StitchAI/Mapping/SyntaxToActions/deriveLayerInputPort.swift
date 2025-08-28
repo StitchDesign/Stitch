@@ -230,7 +230,8 @@ extension SyntaxViewModifierName {
         case .background:
             return nil
         case .font:
-            return .simple(.textFont)
+            // return .simple(.textFont)
+            return .simple(.fontSize)
         case .multilineTextAlignment:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
             
