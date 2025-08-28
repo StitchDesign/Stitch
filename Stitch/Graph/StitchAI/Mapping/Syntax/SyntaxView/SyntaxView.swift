@@ -42,7 +42,7 @@ struct SyntaxView: Sendable {
 
 extension SyntaxView {
     /// Removes all modifiers of the specified type from this view
-    func removingModifiers(ofType modifierType: SyntaxViewModifi  erName) -> SyntaxView {
+    func removingModifiers(ofType modifierType: SyntaxViewModifierName) -> SyntaxView {
         var updated = self
         updated.modifiers = self.modifiers.filter { $0.name != modifierType }
         return updated
