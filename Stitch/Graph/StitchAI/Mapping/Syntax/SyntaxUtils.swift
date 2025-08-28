@@ -31,7 +31,31 @@ extension SyntaxViewArgumentData {
 
 extension SyntaxViewModifierArgumentType {
     var description: String {
-        describe(self)
+        switch self {
+        case .simple(let data):
+            return "\(data)"
+            
+        case .memberAccess(let data):
+            return data.trimmedDescription
+            
+        case .stateAccess(let x):
+            return x
+            
+        case .tuple(let args):
+            return args.map(\.description).joined(separator: ", ")
+            
+        case .array(let args):
+            return args.map(\.description).joined(separator: ", ")
+        
+        case .complex(let type):
+            return "\(type)"
+            
+        case .closure(let script):
+            return "\(script)"
+        
+        case .viewEvent(let viewEvent):
+            return "\(viewEvent)"
+        }
     }
 }
 
