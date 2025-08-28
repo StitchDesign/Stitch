@@ -37,17 +37,31 @@ extension FunctionCallExprSyntax {
         return declExpr.baseName.text
     }
     
-    func reduceModifierClosureData(memberAccessExpr: MemberAccessExprSyntax,
-                                   modifierClosures: inout [String: SyntaxViewModifierClosureData]) {
+    func reduceModifierClosureData(funcExpr: FunctionCallExprSyntax,
+                                   memberAccessExpr: MemberAccessExprSyntax,
+                                   modifierClosures: inout [String: SyntaxViewModifierClosureData]) throws {
+
+        // Recursively create argument data
+        let args = try funcExpr.arguments
+            .map { expr in
+                try SwiftUIViewVisitor.parseArgument(expr)
+            }
+        
         let modifierCall = memberAccessExpr.declName.trimmedDescription
+        
+        // Look for closure data in args
+        modifierClosures = args.reduce(into: modifierClosures) { result, arg in
+            if let closure = arg.value.closureData {
+                result.updateValue(closure,
+                                   forKey: modifierCall)
+            }
+        }
         
         // Get closure data
         if let closureExpr = self.trailingClosure {
-            let closureParams = closureExpr.signature?.parameterClause?.as(ClosureShorthandParameterListSyntax.self)?.map(\.trimmedDescription) ?? []
-            let script = closureExpr.statements.trimmedDescription
-            
-            modifierClosures.updateValue(.init(paramVars: closureParams,
-                                               script: script),
+            let closureData = closureExpr.getClosureData()
+
+            modifierClosures.updateValue(closureData,
                                          forKey: modifierCall)
         }
         
@@ -55,8 +69,9 @@ extension FunctionCallExprSyntax {
         if let fnBaseExpr = memberAccessExpr.base?.as(FunctionCallExprSyntax.self),
            let childMemberAccessExpr = fnBaseExpr.calledExpression.as(MemberAccessExprSyntax.self) {
             // Recursive calls for more closures
-            fnBaseExpr.reduceModifierClosureData(memberAccessExpr: childMemberAccessExpr,
-                                                 modifierClosures: &modifierClosures)
+            try fnBaseExpr.reduceModifierClosureData(funcExpr: fnBaseExpr,
+                                                     memberAccessExpr: childMemberAccessExpr,
+                                                     modifierClosures: &modifierClosures)
         }
     }
     
@@ -72,6 +87,15 @@ extension FunctionCallExprSyntax {
         }
         
         return childFn.getViewEventName()
+    }
+}
+
+extension ClosureExprSyntax {
+    func getClosureData() -> SyntaxViewModifierClosureData {
+        let closureParams = self.signature?.parameterClause?.as(ClosureShorthandParameterListSyntax.self)?.map(\.trimmedDescription) ?? []
+        let script = self.statements.trimmedDescription
+        return .init(paramVars: closureParams,
+                     script: script)
     }
 }
 

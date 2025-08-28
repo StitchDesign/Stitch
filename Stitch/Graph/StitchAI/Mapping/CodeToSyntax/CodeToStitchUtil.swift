@@ -25,10 +25,9 @@ extension SwiftUIViewVisitor {
             arguments: arguments) else {
             
             // Append closure arg if exists
-            if let closureBlock = node.trailingClosure?.statements.first?.item.trimmedDescription {
+            if let closureBlock = node.trailingClosure {
                 arguments.append(.init(label: nil,
-                                       value: .closure(.init(paramVars: [],
-                                                             script: closureBlock))))
+                                       value: .closure(closureBlock.getClosureData())))
             }
             
             return .other(arguments)
@@ -59,8 +58,9 @@ extension SwiftUIViewVisitor {
            let viewEventName = funcExpr.getViewEventName() {
             
             var modifierClosures = [String: SyntaxViewModifierClosureData]()
-            funcExpr.reduceModifierClosureData(memberAccessExpr: memberAccessExpr,
-                                               modifierClosures: &modifierClosures)
+            try funcExpr.reduceModifierClosureData(funcExpr: funcExpr,
+                                                   memberAccessExpr: memberAccessExpr,
+                                                   modifierClosures: &modifierClosures)
             
             return .viewEvent(.init(eventName: viewEventName,
                                     eventConstructorArgs: complexTypeArgs,
@@ -125,10 +125,8 @@ extension SwiftUIViewVisitor {
         }
         
         // Closures
-        else if let closureExpr = expression.as(ClosureExprSyntax.self),
-                let script = closureExpr.statements.first?.item.trimmedDescription {
-            return .closure(.init(paramVars: [],
-                                  script: script))
+        else if let closureExpr = expression.as(ClosureExprSyntax.self) {
+            return .closure(closureExpr.getClosureData())
         }
         
         guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {
