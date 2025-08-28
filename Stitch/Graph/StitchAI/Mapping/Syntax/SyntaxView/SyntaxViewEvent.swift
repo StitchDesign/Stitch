@@ -38,12 +38,10 @@ extension SyntaxViewEvent {
 
 extension AIGraphData_V0.LayerDataViewEvent {
     /// Determines the connections and intermediary patch nodes to be created between an interaction patch node and some state.
-    /// First return value: output port ID of interaction node
-    /// Second return value: output coordinate of most downstream node (which might be the interaction node still)
     func createConnectedPatchData(interactionPatchNodeId: String,
                                   createdPatchesAtThisNode: inout [Patch: CurrentAIGraphData
         .PatchNode],
-                                  patchConnections: inout [CurrentAIGraphData.PatchConnection]) -> (Int, AIGraphData_V0.NodeIndexedCoordinate)? {
+                                  patchConnections: inout [CurrentAIGraphData.PatchConnection]) -> AIGraphData_V0.NodeIndexedCoordinate? {
         switch self.viewEvent {
         case .dragGesture:
             // Packed case: arg == "translation" or "position"
@@ -51,10 +49,9 @@ extension AIGraphData_V0.LayerDataViewEvent {
                 // position = 0th port, translation = 2nd port
                 let outputPortIndex = self.gestureArg == "position" ? 0 : 2
                 
-                return (outputPortIndex,
-                        AIGraphData_V0.NodeIndexedCoordinate(
+                return AIGraphData_V0.NodeIndexedCoordinate(
                             node_id: interactionPatchNodeId,
-                            port_index: outputPortIndex))
+                            port_index: outputPortIndex)
             }
             
             // Unpacked case: need to see the suffix value (i.e. x or y)
@@ -67,29 +64,26 @@ extension AIGraphData_V0.LayerDataViewEvent {
             let outputPortIndex = prefixValue == "position" ? 0 : 2
             
             if suffixValue == "x" || suffixValue == "width" {
-                return (outputPortIndex,
-                        Self._positionUnpackCase(outputInteractionPortIndex: outputPortIndex,
+                return Self._positionUnpackCase(outputInteractionPortIndex: outputPortIndex,
                                                  outputUnpackPortIndex: 0,
                                                  interactionPatchNodeId: interactionPatchNodeId,
                                                  createdPatchesAtThisNode: &createdPatchesAtThisNode,
-                                                 patchConnections: &patchConnections))
+                                                 patchConnections: &patchConnections)
             } else if suffixValue == "y" || suffixValue == "height" {
-                return (outputPortIndex,
-                        Self._positionUnpackCase(outputInteractionPortIndex: outputPortIndex,
+                return Self._positionUnpackCase(outputInteractionPortIndex: outputPortIndex,
                                                  outputUnpackPortIndex: 1,
                                                  interactionPatchNodeId: interactionPatchNodeId,
                                                  createdPatchesAtThisNode: &createdPatchesAtThisNode,
-                                                 patchConnections: &patchConnections))
+                                                 patchConnections: &patchConnections)
             }
             
             return nil
             
         case .tapGesture:
             // Assume 0 until we handle cases with position
-            return (0,
-                    AIGraphData_V0.NodeIndexedCoordinate(
-                        node_id: interactionPatchNodeId,
-                        port_index: 0))
+            return AIGraphData_V0.NodeIndexedCoordinate(
+                node_id: interactionPatchNodeId,
+                port_index: 0)
         }
     }
     
