@@ -25,20 +25,9 @@ extension SwiftUIViewVisitor {
             arguments: arguments) else {
         
             // Append closure arg if exists
-            if let trailingClosure = node.trailingClosure {
-                let statements = trailingClosure.statements.map { $0.item.trimmedDescription }
-                let joinedStatements = statements.joined(separator: "\n")
-                
-                // Debug logging
-                log("DEBUG: Parsing trailing closure with \(statements.count) statements:")
-                for (index, statement) in statements.enumerated() {
-                    log("  Statement \(index): \(statement)")
-                }
-                log("DEBUG: Final joined trailing closure: \(joinedStatements)")
-                
+            if let closureBlock = node.trailingClosure {
                 arguments.append(.init(label: nil,
-                                       value: .closure(.init(paramVars: [],
-                                                             script: closureBlock))))
+                                       value: .closure(closureBlock.getClosureData())))
             }
             
             return .other(arguments)
@@ -69,8 +58,9 @@ extension SwiftUIViewVisitor {
            let viewEventName = funcExpr.getViewEventName() {
             
             var modifierClosures = [String: SyntaxViewModifierClosureData]()
-            funcExpr.reduceModifierClosureData(memberAccessExpr: memberAccessExpr,
-                                               modifierClosures: &modifierClosures)
+            try funcExpr.reduceModifierClosureData(funcExpr: funcExpr,
+                                                   memberAccessExpr: memberAccessExpr,
+                                                   modifierClosures: &modifierClosures)
             
             return .viewEvent(.init(eventName: viewEventName,
                                     eventConstructorArgs: complexTypeArgs,
@@ -135,10 +125,8 @@ extension SwiftUIViewVisitor {
         }
         
         // Closures
-        else if let closureExpr = expression.as(ClosureExprSyntax.self),
-                let script = closureExpr.statements.first?.item.trimmedDescription {
-            return .closure(.init(paramVars: [],
-                                  script: script))
+        else if let closureExpr = expression.as(ClosureExprSyntax.self) {
+            return .closure(closureExpr.getClosureData())
         }
         
         guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {
