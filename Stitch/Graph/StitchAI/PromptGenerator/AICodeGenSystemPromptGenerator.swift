@@ -13,7 +13,7 @@ extension StitchAIManager {
             .map(\.rawValue)
         
         return """
-# \(requestType.systemPromptTitle)
+# "SwiftUI Code Builder from Stitch Graph Data"
 
 You are producing SwiftUI code. Strictly and exactly follow every instruction in this prompt. **Do not include any elements or logic that are not explicitly allowed or described.** Pay careful attention to all must/only/never rules, and handle each requirement precisely as written.
 

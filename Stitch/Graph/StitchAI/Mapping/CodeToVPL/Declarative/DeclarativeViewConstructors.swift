@@ -2215,6 +2215,24 @@ func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [A
         }
     }
     
+    // Handle arrays with PortValueDescription or other values
+    // Use derivePortValues to extract the actual values from PortValueDescription
+    if case .array(_) = fontArg {
+        let portValues = try fontArg.derivePortValues()
+        
+        // Check if we got a numeric value from PortValueDescription
+        if let firstValue = portValues.first,
+           case .value(let portValueDescription) = firstValue,
+           let fontSize = portValueDescription.value as? Double {
+            // Create font events with extracted font size and default font
+            let defaultFont = StitchFont(fontChoice: .sf, fontWeight: .SF_regular)
+            return [
+                ASTCustomInputValue(input: .textFont, value: .textFont(defaultFont)),
+                ASTCustomInputValue(input: .fontSize, value: .number(fontSize))
+            ]
+        }
+    }
+    
     // Fallback: treat as generic font and use default mapping
     let defaultFont = StitchFont(fontChoice: .sf, fontWeight: .SF_regular)
     return [ASTCustomInputValue(input: .textFont, value: .textFont(defaultFont))]

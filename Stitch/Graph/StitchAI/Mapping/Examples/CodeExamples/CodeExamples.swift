@@ -71,6 +71,7 @@ extension MappingExamples {
         FontCodeExamples.fontWithColorAndWeight,
         FontCodeExamples.stackWithDifferentFonts,
         FontCodeExamples.fontInScrollView,
+        FontCodeExamples.fontWithPortValueDescription,
         
         // ScrollView
         ScrollViewCodeExamples.scrollViewVStack,
@@ -117,6 +118,7 @@ extension MappingExamples {
         PortValueDescriptionCodeExamples.textWithOpacityPVD,
         PortValueDescriptionCodeExamples.rectangleWithBlurPVD,
         PortValueDescriptionCodeExamples.stackWithPortValueDescriptions,
+        PortValueDescriptionCodeExamples.textWithFontSizePVD,
         
         // Rotation with PortValueDescription examples
         RotationModifierCodeExamples.rotationEffectPortValueDescription,
