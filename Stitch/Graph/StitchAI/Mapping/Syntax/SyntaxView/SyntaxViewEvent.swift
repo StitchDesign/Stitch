@@ -127,27 +127,35 @@ extension SyntaxViewModifierViewEvent {
                     }
                     
                     let args = try SwiftUIViewVisitor.parseArguments(from: funcExpr)
+                    var gestureArg: String?
                     
                     guard let defaultArgs = args.defaultArgs else {
                         return nil
                     }
                     
-                    // Find the property that's read from the gesture param
-                    let gestureArg = defaultArgs.compactMap { arg -> String? in
-                        guard let paramVarName = onChangeHandler.paramVars.first,
-                              let memberAccess = arg.value.firstMemberAccess else {
-                            return nil
-                        }
-                        
-                        var propertyString = memberAccess.trimmedDescription
-                        let prefixStr = "\(paramVarName)."
-                        
-                        if propertyString.hasPrefix(prefixStr) {
-                            propertyString = String(propertyString.dropFirst(prefixStr.count))
-                        }
-                        
-                        return propertyString
-                    }.first
+                    // A little hacky--if PortValueDescription of position type, return a packed variable
+                    if (defaultArgs[safe: 1]?.value.simpleValue?.contains("position") ?? false) {
+                        gestureArg = "position"
+                    }
+                    
+                    else {
+                        // Find the property that's read from the gesture param
+                        gestureArg = defaultArgs.compactMap { arg -> String? in
+                            guard let paramVarName = onChangeHandler.paramVars.first,
+                                  let memberAccess = arg.value.firstMemberAccess else {
+                                return nil
+                            }
+                            
+                            var propertyString = memberAccess.trimmedDescription
+                            let prefixStr = "\(paramVarName)."
+                            
+                            if propertyString.hasPrefix(prefixStr) {
+                                propertyString = String(propertyString.dropFirst(prefixStr.count))
+                            }
+                            
+                            return propertyString
+                        }.first
+                    }
                     
                     return .init(viewEvent: viewName,
                                  gestureArg: gestureArg,
