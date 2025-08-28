@@ -95,10 +95,10 @@ extension PortValue {
 }
 
 extension SyntaxViewModifier {
-    func deriveViewModifierEvents() throws -> [AIGraphData_V0.LayerDataViewEvent] {
+    func deriveViewModifierEvents() throws -> LayerDataViewEventsResult {
         guard self.name.isGestureModifier,
               let defaultArgs = self.arguments.defaultArgs else {
-            return []
+            return .init()
         }
         
         // A few cases where we extrapolate a view event:
@@ -110,11 +110,13 @@ extension SyntaxViewModifier {
             let viewEvents = defaultArgs
                 .compactMap { $0.value.viewEvent }
             
-            let interactions: [AIGraphData_V0.LayerDataViewEvent] = try viewEvents.flatMap { viewEvent -> [AIGraphData_V0.LayerDataViewEvent] in
-                return try viewEvent.deriveViewEventData()
+            let interactionsResult: LayerDataViewEventsResult = try viewEvents.reduce(into: .init()) { result, viewEvent in
+                let eventsResult = try viewEvent.deriveViewEventData()
+                result.events += eventsResult.events
+                result.caughtErrors += eventsResult.caughtErrors
             }
             
-            return interactions
+            return interactionsResult
         }
         
         // Non-nested case
@@ -126,7 +128,7 @@ extension SyntaxViewModifier {
             
             guard let closureData = closureData,
                   let viewEvent = self.name.viewEvent else {
-                return []
+                return .init()
             }
             
             // Parse script, grab first element with state mutation
@@ -145,14 +147,15 @@ extension SyntaxViewModifier {
                 }.first
             
             guard let mutatedStateVar = mutatedStateVar else {
-                return []
+                return .init(events: [],
+                             caughtErrors: parsedCode.caughtErrors)
             }
             
-            let layerData = AIGraphData_V0
-                .LayerDataViewEvent(viewEvent: viewEvent,
-                                    gestureArg: nil,
-                                    mutatedStateVar: mutatedStateVar)
-            return [layerData]
+            let layerData = LayerDataViewEvent(viewEvent: viewEvent,
+                                               gestureArg: nil,
+                                               mutatedStateVar: mutatedStateVar)
+            return .init(events: [layerData],
+                         caughtErrors: parsedCode.caughtErrors)
         }
     }
 }
@@ -281,14 +284,12 @@ extension SyntaxViewName {
             layerType = constructor.value.layer
             layerData = .init(node_id: id.description,
                               node_name: .init(value: .layer(constructor.value.layer)),
-                              custom_layer_input_values: customInputValuesFromViewConstructor.inputValues)
+                              custom_layer_input_values: customInputValuesFromViewConstructor)
             
             if !childrenLayers.isEmpty {
                 layerData.children = childrenLayers
             }
-            
-            silentErrors += customInputValuesFromViewConstructor.silentErrors
-            
+                        
         case .other, .none:
             let args = args?.defaultArgs ?? []
 
@@ -333,9 +334,11 @@ extension SyntaxViewName {
         }
         
         // Handle view events like drag gestures
-        let interactionEvents = modifiers.flatMap { modifier -> [AIGraphData_V0.LayerDataViewEvent] in
+        let interactionEvents = modifiers.flatMap { modifier -> [LayerDataViewEvent] in
             do {
-                return try modifier.deriveViewModifierEvents()
+                let result = try modifier.deriveViewModifierEvents()
+                silentErrors += result.caughtErrors
+                return result.events
             } catch let error as SwiftUISyntaxError {
                 silentErrors.append(error)
             } catch {
@@ -352,17 +355,13 @@ extension SyntaxViewName {
     }
     
     func deriveInputValuesData(viewConstructor: StrictViewConstructor,
-                               id: UUID) throws -> LayerInputValuesDerivationResult {
-        var silentErrors = [SwiftUISyntaxError]()
-        let layerType = viewConstructor.value.layer
-        
+                               id: UUID) throws -> [LayerPortDerivation] {
         // Handle constructor-arguments
         // Try to access the SyntaxView.ViewConstructor, if we have one
         let customInputValues = try viewConstructor.value
             .createCustomValueEvents()
         
-        return .init(inputValues: customInputValues,
-                     silentErrors: silentErrors)
+        return customInputValues
     }
     
     func deriveInputValuesData(args: [SyntaxViewArgumentData],
@@ -461,34 +460,34 @@ extension SyntaxViewName {
         case .hStack, .lazyHStack:
             layerType = .group
             customValues.append(
-                try .init(id: id,
-                          input: .orientation,
-                          value: .orientation(.horizontal))
+                .init(id: id,
+                      input: .orientation,
+                      value: .orientation(.horizontal))
             )
             
         case .vStack, .lazyVStack:
             layerType = .group
             customValues.append(
-                try .init(id: id,
-                          input: .orientation,
-                          value: .orientation(.vertical))
+                .init(id: id,
+                      input: .orientation,
+                      value: .orientation(.vertical))
             )
             
         case .zStack:
             layerType = .group
             customValues.append(
-                try .init(id: id,
-                          input: .orientation,
-                          value: .orientation(.none))
+                .init(id: id,
+                      input: .orientation,
+                      value: .orientation(.none))
             )
             
             // TODO: JULY 3: technically, we don't support `LazyHGrid` and `Grid`?
         case .lazyVGrid, .lazyHGrid, .grid:
             layerType = .group
             customValues.append(
-                try .init(id: id,
-                          input: .orientation,
-                          value: .orientation(.grid))
+                .init(id: id,
+                      input: .orientation,
+                      value: .orientation(.grid))
             )
             
             
