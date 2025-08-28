@@ -43,9 +43,11 @@ extension AIGraphData_V0.LayerDataViewEvent {
         
         switch self.viewEvent {
         case .dragGesture:
-            if property?.contains("translation") ?? false {
-                return 0
-            }
+            // TODO: disabling specific property tracking for now
+//            if property?.contains("translation") ?? false {
+//                return 0
+//            }
+            return 0
             
         case .tapGesture:
             // Assume 0 until we handle cases with position
@@ -89,18 +91,20 @@ extension SyntaxViewModifierViewEvent {
                     
                     // Find the property that's read from the gesture param
                     let gestureArg = defaultArgs.compactMap { arg -> String? in
-                        guard let memberSyntax = arg.value.memberAccess else {
-                            return nil
-                        }
-                        
-                        var propertyString = memberSyntax.trimmedDescription
-                        let prefixStr = "\(gestureParamName)."
-                        
-                        if propertyString.hasPrefix(prefixStr) {
-                            propertyString = String(propertyString.dropFirst(prefixStr.count))
-                        }
-                        
-                        return propertyString
+                        return ""
+                        // TODO: the below code is for examples where x and y are saved separately. We are ignoring this for now
+//                        guard let memberSyntax = arg.value.memberAccess else {
+//                            return nil
+//                        }
+//                        
+//                        var propertyString = memberSyntax.trimmedDescription
+//                        let prefixStr = "\(gestureParamName)."
+//                        
+//                        if propertyString.hasPrefix(prefixStr) {
+//                            propertyString = String(propertyString.dropFirst(prefixStr.count))
+//                        }
+//                        
+//                        return propertyString
                     }.first
                     
                     guard let gestureArg = gestureArg else {
