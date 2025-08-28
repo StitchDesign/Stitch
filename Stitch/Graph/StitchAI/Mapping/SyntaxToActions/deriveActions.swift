@@ -66,58 +66,56 @@ extension Array where Element == AIGraphData_V0.LayerData {
     /// 2. Returns dictionary of a state var name to a newly created patch node's output coordinate.
     func createStateVarToInteractionNodeMap(nativePatchNodes: inout [CurrentAIGraphData.PatchNode],
                                             customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue],
-                                            viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate]) -> [String: CurrentAIGraphData.NodeIndexedCoordinate] {
+                                            viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate],
+                                            patchConnections: inout [CurrentAIGraphData.PatchConnection]) -> [String: CurrentAIGraphData.NodeIndexedCoordinate] {
         self.reduce(into: [String: CurrentAIGraphData.NodeIndexedCoordinate]()) { result, layerData in
             var createdPatchesAtThisNode = [Patch: CurrentAIGraphData
                 .PatchNode]()
             
             layerData.view_events.forEach { viewEvent in
-                guard let outputPortIndex = viewEvent.patchNodeOutputPort else {
-                    return
-                }
-                
                 let patch = viewEvent.viewEvent.patch
                 let existingPatchNode = createdPatchesAtThisNode.get(patch)
                 let patchNode = existingPatchNode ?? .init(node_id: UUID().uuidString,
                                                            node_name: .init(value: .patch(patch)))
                 
-                if existingPatchNode == nil {
-                    // New node case
-                    nativePatchNodes.append(patchNode)
+                guard let upstreamStateCoordinate = viewEvent
+                    .createConnectedPatchData(interactionPatchNodeId: patchNode.node_id,
+                                              createdPatchesAtThisNode: &createdPatchesAtThisNode,
+                                              patchConnections: &patchConnections) else {
+                    return
                 }
                 
-                // Create connections
-                if let outputPortIndex = viewEvent.patchNodeOutputPort {
-                    let outputPatchCoordinate = AIGraphData_V0.NodeIndexedCoordinate(
-                        node_id: patchNode.node_id,
-                        port_index: outputPortIndex)
-                    
-                    // Update layer assignment for node
-                    customPatchInputValues.append(
-                        .init(patch_input_coordinate: outputPatchCoordinate,
-                              value: layerData.node_id,
-                              value_type: .init(value: .interactionId))
-                    )
-                    
-                    // Update view state connections
-                    viewStatePatchConnections.updateValue(outputPatchCoordinate,
-                                                          forKey: viewEvent.mutatedStateVar)
-                }
+                // Update layer assignment for node
+                customPatchInputValues.append(
+                    .init(patch_input_coordinate: .init(node_id: patchNode.node_id,
+                                                        port_index: 0),
+                          value: layerData.node_id,
+                          value_type: .init(value: .interactionId))
+                )
+                
+                // Update view state connections
+                viewStatePatchConnections.updateValue(upstreamStateCoordinate,
+                                                      forKey: viewEvent.mutatedStateVar)
                 
                 // Update (possibly new) patch
                 createdPatchesAtThisNode.updateValue(patchNode, forKey: patch)
                 
                 // Output coordinates to return
-                result.updateValue(.init(node_id: patchNode.node_id,
-                                         port_index: outputPortIndex),
+                result.updateValue(upstreamStateCoordinate,
                                    forKey: viewEvent.mutatedStateVar)
+            }
+            
+            // Add any created patch nodes to the native nodes list
+            createdPatchesAtThisNode.values.forEach { patchNode in
+                nativePatchNodes.append(patchNode)
             }
             
             // Recursively explore children
             if let childrenDict = layerData.children?
                 .createStateVarToInteractionNodeMap(nativePatchNodes: &nativePatchNodes,
                                                     customPatchInputValues: &customPatchInputValues,
-                                                    viewStatePatchConnections: &viewStatePatchConnections) {
+                                                    viewStatePatchConnections: &viewStatePatchConnections,
+                                                    patchConnections: &patchConnections) {
                 result.merge(childrenDict, uniquingKeysWith: { $1 })
             }
         }
@@ -157,7 +155,8 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
         let stateVarToInteractionOutputsMap = layers.createStateVarToInteractionNodeMap(
             nativePatchNodes: &nativePatchNodes,
             customPatchInputValues: &customPatchInputValues,
-            viewStatePatchConnections: &viewStatePatchConnections
+            viewStatePatchConnections: &viewStatePatchConnections,
+            patchConnections: &patchConnections
         )
         
         // First pass:

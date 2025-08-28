@@ -37,24 +37,68 @@ extension SyntaxViewEvent {
 }
 
 extension AIGraphData_V0.LayerDataViewEvent {
-    /// Given some view event name and property used for state mutation, determine which output port index is used in Stitch.
-    var patchNodeOutputPort: Int? {
-        let property = self.gestureArg
-        
+    /// Determines the connections and intermediary patch nodes to be created between an interaction patch node and some state.
+    func createConnectedPatchData(interactionPatchNodeId: String,
+                                  createdPatchesAtThisNode: inout [Patch: CurrentAIGraphData
+        .PatchNode],
+                                  patchConnections: inout [CurrentAIGraphData.PatchConnection]) -> AIGraphData_V0.NodeIndexedCoordinate? {        
         switch self.viewEvent {
         case .dragGesture:
-            // TODO: disabling specific property tracking for now
-//            if property?.contains("translation") ?? false {
-//                return 0
-//            }
-            return 0
+            // Packed case: arg == "translation" or "position"
+            if self.gestureArg == "translation" || self.gestureArg == "position" {
+                return AIGraphData_V0.NodeIndexedCoordinate(
+                    node_id: interactionPatchNodeId,
+                    port_index: 0)
+            }
+            
+            // Unpacked case: need to see the suffix value (i.e. x or y)
+            guard let suffixValue = self.gestureArg?.split(separator: ".")[safe: 1] else {
+                return nil
+            }
+            
+            if suffixValue == "x" || suffixValue == "width" {
+                return Self._positionUnpackCase(outputPortIndex: 0,
+                                                interactionPatchNodeId: interactionPatchNodeId,
+                                                createdPatchesAtThisNode: &createdPatchesAtThisNode,
+                                                patchConnections: &patchConnections)
+            } else if suffixValue == "y" || suffixValue == "height" {
+                return Self._positionUnpackCase(outputPortIndex: 1,
+                                                interactionPatchNodeId: interactionPatchNodeId,
+                                                createdPatchesAtThisNode: &createdPatchesAtThisNode,
+                                                patchConnections: &patchConnections)
+            }
+            
+            return nil
             
         case .tapGesture:
             // Assume 0 until we handle cases with position
-            return 0
+            return AIGraphData_V0.NodeIndexedCoordinate(
+                node_id: interactionPatchNodeId,
+                port_index: 0)
         }
+    }
+    
+    private static func _positionUnpackCase(outputPortIndex: Int,
+                                            interactionPatchNodeId: String,
+                                            createdPatchesAtThisNode: inout [Patch: CurrentAIGraphData
+                                                .PatchNode],
+                                            patchConnections: inout [CurrentAIGraphData.PatchConnection]) -> AIGraphData_V0.NodeIndexedCoordinate {
+        // Create unpack position node if not already made
+        let unpackPositionNode = createdPatchesAtThisNode.get(.positionUnpack) ?? .init(
+            node_id: UUID().uuidString,
+            node_name: .init(value: .patch(.positionUnpack)))
+        createdPatchesAtThisNode.updateValue(unpackPositionNode, forKey: .positionUnpack)
         
-        return nil
+        // Connect drag node to unpack node
+        patchConnections.append(.init(
+            src_port: .init(node_id: interactionPatchNodeId,
+                            port_index: 0),
+            dest_port: .init(node_id: unpackPositionNode.node_id,
+                             port_index: 0)))
+        
+        // Return output port index of unpack node
+        return .init(node_id: unpackPositionNode.node_id,
+                     port_index: outputPortIndex)
     }
 }
 
