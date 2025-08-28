@@ -10,7 +10,7 @@ import SwiftSyntax
 import SwiftParser
 
 
-struct SyntaxViewModifier: Sendable, Encodable {
+struct SyntaxViewModifier: Sendable {
 
     // representation of a SwiftUI view modifier name
     let name: SyntaxViewModifierName
@@ -101,7 +101,7 @@ extension Array where Element == SyntaxViewModifier {
  )
  ```
  */
-struct SyntaxViewArgumentData: Sendable, Encodable {
+struct SyntaxViewArgumentData: Sendable {
     let label: String? //SyntaxViewModifierArgumentLabel
     let value: SyntaxViewModifierArgumentType
 }
@@ -111,7 +111,7 @@ struct SyntaxViewSimpleData: Sendable, Encodable {
     let syntaxKind: SyntaxArgumentKind
 }
 
-struct SyntaxViewModifierComplexType: Sendable, Encodable {
+struct SyntaxViewModifierComplexType: Sendable {
     let typeName: String
     
     let arguments: [SyntaxViewArgumentData]
@@ -134,7 +134,7 @@ struct SyntaxViewModifierClosureData: Sendable, Encodable {
     )
  ```
  */
-indirect enum SyntaxViewModifierArgumentType: Sendable, Encodable {
+indirect enum SyntaxViewModifierArgumentType: Sendable {
     
     // e.g. .opacity(5.0)
     case simple(SyntaxViewSimpleData)
@@ -148,7 +148,7 @@ indirect enum SyntaxViewModifierArgumentType: Sendable, Encodable {
     case array([SyntaxViewModifierArgumentType])
     
     // e.g. `.fill(.yellow)` or `Color.yellow`; `ScrollView(.horizontal)`
-    case memberAccess(SyntaxViewMemberAccess)
+    case memberAccess(MemberAccessExprSyntax)
     
     case stateAccess(String)
     
@@ -162,7 +162,7 @@ enum SyntaxViewModifierArgumentFlatType: Sendable {
     case simple(SyntaxViewSimpleData)
     case complex(SyntaxViewModifierComplexType)
     case stateAccess(String)
-    case memberAccess(SyntaxViewMemberAccess)
+    case memberAccess(MemberAccessExprSyntax)
     case closure(SyntaxViewModifierClosureData)
     case viewEvent(SyntaxViewModifierViewEvent)
     
@@ -207,14 +207,6 @@ extension SyntaxViewModifierArgumentType {
         }
     }
 }
-
-// Note: easier to debug: looks better in debugger and print statements than `MemberAccessExprSyntax`, which contains other data and types we don't need
-// for e.g. "Color.yellow" or ".yellow"
-struct SyntaxViewMemberAccess: Sendable, Encodable {
-    let base: SyntaxViewModifierArgumentType? // e.g. "Color" in "Color.yellow"; or nil in ".yellow"
-    let property: String // e.g. "yellow" in "Color.yellow" or ".yellow"
-}
-
 
 extension SyntaxViewModifierArgumentType {
 //    // For recursion
@@ -545,7 +537,7 @@ extension SyntaxViewModifierArgumentType {
             return AnyEncodable(encodedElements)
         
         case .memberAccess(let memberData):
-            return AnyEncodable(memberData.property)
+            return AnyEncodable(memberData.trimmedDescription)
         
         case .stateAccess(let x):
             return AnyEncodable(x)
@@ -553,8 +545,9 @@ extension SyntaxViewModifierArgumentType {
         case .closure(let x):
             return AnyEncodable(x)
         
-        case .viewEvent(let x):
-            return AnyEncodable(x)
+        case .viewEvent:
+            fatalError()
+//            return AnyEncodable(x)
         }
     }
 }
