@@ -125,8 +125,7 @@ extension SyntaxViewModifier {
                 .first
             
             guard let closureData = closureData,
-                  let viewEvent = self.name.viewEvent,
-                  let outputPortIndex = viewEvent.determinePatchNodeOutputPort(property: nil) else {
+                  let viewEvent = self.name.viewEvent else {
                 return []
             }
             
