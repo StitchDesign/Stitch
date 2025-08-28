@@ -2174,7 +2174,7 @@ func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [A
         
         return [
             ASTCustomInputValue(input: .textFont, value: .textFont(stitchFont)),
-            ASTCustomInputValue(input: .fontSize, value: .number(fontSize))
+            ASTCustomInputValue(input: .fontSize, value: .layerDimension(.number(fontSize)))
         ]
     }
     
@@ -2210,8 +2210,77 @@ func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [A
             let stitchFont = StitchFont(fontChoice: fontChoice, fontWeight: fontWeight)
             return [
                 ASTCustomInputValue(input: .textFont, value: .textFont(stitchFont)),
-                ASTCustomInputValue(input: .fontSize, value: .number(fontSize))
+                ASTCustomInputValue(input: .fontSize, value: .layerDimension(.number(fontSize)))
             ]
+        }
+    }
+    
+    // Handle arrays with PortValueDescription or other values
+    // Use derivePortValues to extract the actual values from PortValueDescription
+    if case .array(_) = fontArg {
+        let portValues = try fontArg.derivePortValues()
+        
+        // Check if we got a numeric value from PortValueDescription
+        // Handle both value_type: "number" and value_type: "layerDimension"
+        if let firstValue = portValues.first,
+           case .value(let portValueDescription) = firstValue {
+            
+            var fontSize: Double?
+            var isLayerDimensionType = false
+                        
+            // Extract fontSize from different PortValueDescription formats
+            if let directNumber = portValueDescription.value as? Double {
+                // value_type: "number", value: 36.0
+                log("DEBUG: Extracted as Double: \(directNumber)")
+                fontSize = directNumber
+                isLayerDimensionType = false
+            } else if let numberString = portValueDescription.value as? String,
+                      let parsedNumber = Double(numberString) {
+                // value_type: "layerDimension", value: "36"
+                log("DEBUG: Extracted from String: \(parsedNumber)")
+                fontSize = parsedNumber
+                isLayerDimensionType = true
+            }
+            
+            // TODO: a smarter way to parse the `portValueDescription.value` as a StitchAISizeDimension ? Or parse as a string or number instead of type-casting ?
+            else if let sizeDimension = (portValueDescription.value as? StitchAISizeDimension_V0.StitchAISizeDimension) {
+                // value_type: "layerDimension", value: StitchAISizeDimension with nested number
+                log("DEBUG: Extracted as StitchAISizeDimension_V0")
+                switch sizeDimension.value {
+                case .number(let number):
+                    fontSize = number
+                    isLayerDimensionType = true
+                default:
+                    break // Handle other StitchAISizeDimension cases if needed
+                }
+            }
+            
+            else if let sizeDimension = portValueDescription.value as? StitchAISizeDimension_V1.StitchAISizeDimension {
+                // value_type: "layerDimension", value: StitchAISizeDimension with nested number
+                log("DEBUG: Extracted as StitchAISizeDimension_V1")
+                switch sizeDimension.value {
+                case .number(let number):
+                    fontSize = number
+                    isLayerDimensionType = true
+                default:
+                    break // Handle other StitchAISizeDimension cases if needed
+                }
+            }
+            
+            if let fontSize = fontSize {
+                // Create font events with extracted font size and default font
+                let defaultFont = StitchFont(fontChoice: .sf, fontWeight: .SF_regular)
+                
+                // Create fontSize value with correct type based on PortValueDescription
+                let fontSizeValue: CurrentAIGraphData.PortValue = isLayerDimensionType 
+                    ? .layerDimension(.number(fontSize))
+                    : .number(fontSize)
+                
+                return [
+                    ASTCustomInputValue(input: .textFont, value: .textFont(defaultFont)),
+                    ASTCustomInputValue(input: .fontSize, value: fontSizeValue)
+                ]
+            }
         }
     }
     

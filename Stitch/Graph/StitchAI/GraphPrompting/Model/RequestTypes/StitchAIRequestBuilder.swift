@@ -92,23 +92,7 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestType {
 //            \(index + 1). `\(fn.rawValue)`: \(fn.functionDescription)
 //            """
 //        }.joined(separator: "\n")
-//    }
-    
-    var systemPromptTitle: String {
-        switch self {
-        case .userPrompt:
-            return "SwiftUI Code Builder from Stitch Graph Data"
-        }
-    }
-    
-    var inputTypeDescription: String {
-        switch self {
-        case .userPrompt:
-            return "existing graph data"
-//        case .imagePrompt:
-//            return "image upload"
-        }
-    }
+//    }    
 }
 
 //extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
