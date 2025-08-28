@@ -34,14 +34,14 @@ struct StreamingDemoView: View {
                     .contentTransition(.numericText())
                     .animation(.default, value: self.prompt)
                     .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
-                    .frame(width: INSERT_NODE_MENU_WIDTH)
+                    .frame(width: INSERT_NODE_MENU_WIDTH, alignment: .leading)
                     .padding(.leading, 16)
                     .padding(.trailing, 60)
                     .font(.system(size: 24))
                     .multilineTextAlignment(.leading)
                     .lineLimit(1)
                     .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+//                    .frame(maxWidth: .infinity, alignment: .leading)
                     .overlay(alignment: .center) {
                         HStack {
                             Spacer()
@@ -55,7 +55,8 @@ struct StreamingDemoView: View {
                 TextField("Enter AI prompt...", text: $prompt)
                     .focused($isFocused)
                     .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
-                    .frame(width: INSERT_NODE_MENU_WIDTH)
+//                    .frame(width: INSERT_NODE_MENU_WIDTH)
+                    .frame(width: INSERT_NODE_MENU_WIDTH, alignment: .leading)
                     .padding(.leading, 16)
                     .padding(.trailing, 60)
                     .font(.system(size: 24))
@@ -85,7 +86,7 @@ struct StreamingDemoView: View {
         .background(Color.gray.opacity(0.1))
         .cornerRadius(12)
         .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
-        .frame(width: INSERT_NODE_MENU_WIDTH)
+        .frame(width: INSERT_NODE_MENU_WIDTH, alignment: .leading)
     }
     
     private var reasoningSection: some View {
