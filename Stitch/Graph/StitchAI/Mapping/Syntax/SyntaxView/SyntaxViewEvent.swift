@@ -25,6 +25,30 @@ struct SyntaxViewModifierViewEvent: Sendable {
     let eventModifiers: [String: SyntaxViewModifierClosureData]
 }
 
+struct LayerDataViewEvent {
+    let viewEvent: SyntaxViewEvent
+    
+    // If relevant, the argument data that's read from the view event's closure.
+    // i.e. `translation.width`
+    let gestureArg: String?
+    
+    // Tracks which state variable is mutated
+    let mutatedStateVar: String
+    
+}
+
+struct LayerDataViewEventsResult {
+    var events: [LayerDataViewEvent]
+    var caughtErrors: [SwiftUISyntaxError]
+}
+
+extension LayerDataViewEventsResult {
+    init() {
+        self.events = []
+        self.caughtErrors = []
+    }
+}
+
 extension SyntaxViewEvent {
     var patch: Patch {
         switch self {
@@ -36,7 +60,7 @@ extension SyntaxViewEvent {
     }
 }
 
-extension AIGraphData_V0.LayerDataViewEvent {
+extension LayerDataViewEvent {
     /// Determines the connections and intermediary patch nodes to be created between an interaction patch node and some state.
     func createConnectedPatchData(interactionPatchNodeId: String,
                                   createdPatchesAtThisNode: inout [Patch: CurrentAIGraphData
@@ -113,18 +137,20 @@ extension AIGraphData_V0.LayerDataViewEvent {
 }
 
 extension SyntaxViewModifierViewEvent {
-    func deriveViewEventData() throws -> [AIGraphData_V0.LayerDataViewEvent] {
+    func deriveViewEventData() throws -> LayerDataViewEventsResult {
+        var caughtErrors = [SwiftUISyntaxError]()
+        
         // Check for onChange handlers
         guard let viewName = SyntaxViewEvent(rawValue: self.eventName),
               let onChangeHandler = self.eventModifiers.get("onChanged") else {
-            return []
+            return .init()
         }
         
         // Parse script for determining what populates state
         let parsedData = SwiftUIViewVisitor.parseSwiftUICode(onChangeHandler.script,
                                                              willParseView: false)
         
-        return try parsedData.bindingDeclarations.compactMap { keyValue -> AIGraphData_V0.LayerDataViewEvent? in
+        let events = try parsedData.bindingDeclarations.compactMap { keyValue -> LayerDataViewEvent? in
             let (refName, assignmentValue) = keyValue
             
             switch assignmentValue {
@@ -136,7 +162,16 @@ extension SyntaxViewModifierViewEvent {
                         return nil
                     }
                     
-                    let args = try SwiftUIViewVisitor.parseArguments(from: funcExpr)
+                    let args: ViewConstructorType
+                    do {
+                        args = try SwiftUIViewVisitor.parseArguments(from: funcExpr)
+                    } catch let error as SwiftUISyntaxError {
+                        caughtErrors.append(error)
+                        return nil
+                    } catch {
+                        throw error
+                    }
+                    
                     var gestureArg: String?
                     
                     guard let defaultArgs = args.defaultArgs else {
@@ -179,5 +214,8 @@ extension SyntaxViewModifierViewEvent {
                 return nil
             }
         }
+        
+        return .init(events: events,
+                     caughtErrors: caughtErrors)
     }
 }

@@ -47,17 +47,6 @@ enum AIGraphData_V0 {
         var view_events: [LayerDataViewEvent] = []
     }
     
-    struct LayerDataViewEvent {
-        let viewEvent: SyntaxViewEvent
-        
-        // If relevant, the argument data that's read from the view event's closure.
-        // i.e. `translation.width`
-        let gestureArg: String?
-        
-        // Tracks which state variable is mutated
-        let mutatedStateVar: String
-    }
-    
     struct PreprocessedJSPatchNode: Codable {
         let node_id: String
         let funcName: String
