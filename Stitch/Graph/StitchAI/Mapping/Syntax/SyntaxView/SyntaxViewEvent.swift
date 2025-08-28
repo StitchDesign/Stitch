@@ -62,8 +62,7 @@ extension SyntaxViewModifierViewEvent {
     func deriveViewEventData() throws -> [AIGraphData_V0.LayerDataViewEvent] {
         // Check for onChange handlers
         guard let viewName = SyntaxViewEvent(rawValue: self.eventName),
-              let onChangeHandler = self.eventModifiers.get("onChanged"),
-              let gestureParamName = onChangeHandler.paramVars.first else {
+              let onChangeHandler = self.eventModifiers.get("onChanged") else {
             return []
         }
         
