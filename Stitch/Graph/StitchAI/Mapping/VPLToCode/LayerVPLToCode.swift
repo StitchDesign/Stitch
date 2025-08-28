@@ -484,9 +484,9 @@ extension LayerInputPort {
             return .font
             
         case .fontSize:
-            // FontSize should not create a separate font modifier when textFont exists
-            // The textFont case handles both font family/weight and size together
-            return nil
+            // FontSize should create a font modifier when it contains PortValueDescription
+            // This handles the case where fontSize comes from PortValueDescription
+            return .font
         case .rotationX:
             // For now, treat rotationX as unsupported
             return nil
