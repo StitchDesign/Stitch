@@ -77,6 +77,7 @@ struct GeneratedCodeInspectionView: View {
     @StateObject private var loader = StitchAIExamplesLoader()
     @Bindable var document: StitchDocumentViewModel
     @State private var customCodeInput: String = ""
+    @State private var deletedPrompts: [String] = []
     
     private var isExpanded: Bool {
         document.showAIExamples
@@ -125,6 +126,36 @@ struct GeneratedCodeInspectionView: View {
                     } else {
                         ScrollView {
                             LazyVStack(alignment: .leading, spacing: 12) {
+                                // Deleted prompts section
+                                if !deletedPrompts.isEmpty {
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        HStack {
+                                            Text("Deleted Prompts:")
+                                                .font(.subheadline)
+                                                .fontWeight(.medium)
+                                            Spacer()
+                                            Button("Clear All") {
+                                                deletedPrompts.removeAll()
+                                            }
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        }
+                                        
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            ForEach(deletedPrompts, id: \.self) { prompt in
+                                                Text(prompt)
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                                    .textSelection(.enabled)
+                                            }
+                                        }
+                                    }
+                                    .padding(.horizontal, 20)
+                                    
+                                    Divider()
+                                        .padding(.horizontal, 20)
+                                }
+                                
                                 // Custom code input section
                                 VStack(alignment: .leading, spacing: 8) {
                                     Text("Paste Custom Code:")
@@ -163,6 +194,9 @@ struct GeneratedCodeInspectionView: View {
                                         example: example,
                                         onTap: { 
                                             applyExample(example)
+                                        },
+                                        onDelete: {
+                                            deleteExample(example)
                                         }
                                     )
                                     .padding(.horizontal, 20)
@@ -199,6 +233,16 @@ struct GeneratedCodeInspectionView: View {
         
         log("Applying custom pasted code")
         applyGeneratedCode(code, userPrompt: "Custom pasted code")
+    }
+    
+    private func deleteExample(_ example: StitchAIGraphExample) {
+        log("Deleting AI graph example: \(example.userPrompt)")
+        
+        // Add prompt to deleted list
+        deletedPrompts.append(example.userPrompt)
+        
+        // Remove from examples list
+        loader.examples.removeAll { $0.id == example.id }
     }
     
     private func applyGeneratedCode(_ generatedCode: String, userPrompt: String) {
@@ -250,27 +294,41 @@ struct GeneratedCodeInspectionView: View {
 struct StitchAIExampleRowView: View {
     let example: StitchAIGraphExample
     let onTap: () -> Void
+    let onDelete: () -> Void
     @State private var isHovering = false
     
     var body: some View {
-        Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(example.userPrompt)
-                    .font(.body)
-                    .foregroundColor(.primary)
-                    .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                
-                Text("Tap to apply")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+        HStack(spacing: 8) {
+            Button(action: onTap) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(example.userPrompt)
+                        .font(.body)
+                        .foregroundColor(.primary)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Text("Tap to apply")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding(12)
+                .background(isHovering ? Color.accentColor.opacity(0.1) : Color(.systemBackground))
+                .cornerRadius(8)
+                .frame(maxWidth: .infinity)
             }
-            .padding(12)
-//            .background(isHovering ? Color(NSColor.controlAccentColor).opacity(0.1) : Color(NSColor.controlBackgroundColor))
-            .background(isHovering ? Color.accentColor.opacity(0.1) : Color(.systemBackground))
-            .cornerRadius(8)
+            .buttonStyle(.plain)
+            
+            Button(action: onDelete) {
+                Image(systemName: "trash")
+                    .font(.caption)
+                    .foregroundColor(.red)
+                    .padding(8)
+                    .background(Color(.systemBackground))
+                    .cornerRadius(6)
+            }
+            .buttonStyle(.plain)
+            .opacity(isHovering ? 1.0 : 0.3)
         }
-        .buttonStyle(.plain)
         .onHover { hovering in
             isHovering = hovering
         }
