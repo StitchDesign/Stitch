@@ -323,6 +323,8 @@ Specific rules and allowances of view modifers in SwiftUI views are listed here.
 #### Responding to View Events
 View modifiers responding to events such as `simultaneousGesture`, `onAppear` etc. are only allowed to update view state variables. No other functionality is allowed inside the view event's callback closure.
 
+The `updateLayerInputs` function will be automatically triggered whenever state is updated. Use native patch nodes inside `updateLayerInputs` to respond to these events.
+
 **It's important that state mutations in these closures are kept to as few state mutations as possible. Do not try to add custom logic**. Custom logic is reserved for `updateLayerInputs`. Here's an example of functionality to avoid:
 ```swift
 .onTapGesture {
@@ -346,7 +348,55 @@ For event handling like this, instead update a state variable that uses a pulse.
 }
 ```
 
-The `updateLayerInputs` function will be automatically triggered whenever state is updated. Use native patch nodes inside `updateLayerInputs` to respond to these events.
+**Gesture callbacks are subject to the same rules as `updateLayerInputs`, which means no custom logic other than patch function invocations and view state mutations. Some examples to avoid:
+
+Never use custom logic inside a `PortValueDescription`:
+```swift
+cardRotation = [PortValueDescription(value: value.translation.width / 20.0, value_type: "number")]
+```
+
+Instead, invoke the divide native patch node function and then set view state:
+```swift
+let divideOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["divide || Patch"]([
+    [PortValueDescription(value: value.translation.width, value_type: "number")]    
+    [PortValueDescription(value: 20.0, value_type: "number")]
+])
+
+cardRotation = divideOutputs
+```
+
+Option pickers are needed for handling if else logic, rather than something like this:
+
+```swift
+let threshold: Double = 120
+if abs(value.translation.width) > threshold {
+    cardOpacity = [PortValueDescription(value: 0, value_type: "number")]
+} else {
+    cardOpacity = [PortValueDescription(value: 1, value_type: "number")]
+}
+```
+
+There are a few issues with that code:
+1. Using Swift's native `abs` method instead of Stitch's native patch function
+2. Using comparision operators instead of Stitch's native patch function
+3. Using if/else logic instead of Stitch's native option picker function
+
+Instead should look like:
+```swift
+let absoluteValueOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["absoluteValue || Patch"]([
+    [PortValueDescription(value: value.translation.width, value_type: "number")]
+])
+let greaterThanOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["greaterThan || Patch"]([
+    absoluteValueOutputs[0],
+    [PortValueDescription(value: 120, value_type: "number")]
+])
+let optionPickerOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["optionPicker || Patch"]([
+    greaterThanOutputs[0],
+    [PortValueDescription(value: 0, value_type: "number")],
+    [PortValueDescription(value: 1, value_type: "number")]
+])
+cardOpacity = optionPickerOutputs
+```
 
 #### Allowed View Modifiers
 You are ONLY permitted to use these view modifiers. Do not attempt to use view modifiers not included in the list below:
