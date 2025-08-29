@@ -92,7 +92,7 @@ struct GeneratedCodeInspectionView: View {
                     HStack {
                         Text("AI Examples")
                             .font(.headline)
-                            .padding(.leadingTHanks)
+                            .padding(.leading)
                         Spacer()
                         Button("×") {
                             withAnimation(.easeInOut(duration: 0.3)) {
