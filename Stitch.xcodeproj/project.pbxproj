@@ -602,6 +602,7 @@
 		EC4121912BAD53F200B24000 /* PatchNodeDefinitionKinds.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4121902BAD53F200B24000 /* PatchNodeDefinitionKinds.swift */; };
 		EC418939294BBF9D0098D0B6 /* KeyboardNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC418938294BBF9D0098D0B6 /* KeyboardNode.swift */; };
 		EC41FFC32943A74E00BF8671 /* CGPointUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC41FFC22943A74E00BF8671 /* CGPointUtils.swift */; };
+		EC4213A32E62302400C6DE64 /* GeneratedCodeInspectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4213A22E62302300C6DE64 /* GeneratedCodeInspectionView.swift */; };
 		EC4281182B76A4F300767AAF /* ReframeResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4281172B76A4F300767AAF /* ReframeResponse.swift */; };
 		EC4379F32BA4FAF60077493E /* PortValueEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4379F22BA4FAF60077493E /* PortValueEnum.swift */; };
 		EC46AC0926CEE3820062CB26 /* DeviceMotionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46AC0826CEE3820062CB26 /* DeviceMotionHelpers.swift */; };
@@ -1783,6 +1784,7 @@
 		EC4121902BAD53F200B24000 /* PatchNodeDefinitionKinds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchNodeDefinitionKinds.swift; sourceTree = "<group>"; };
 		EC418938294BBF9D0098D0B6 /* KeyboardNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardNode.swift; sourceTree = "<group>"; };
 		EC41FFC22943A74E00BF8671 /* CGPointUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGPointUtils.swift; sourceTree = "<group>"; };
+		EC4213A22E62302300C6DE64 /* GeneratedCodeInspectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneratedCodeInspectionView.swift; sourceTree = "<group>"; };
 		EC4281172B76A4F300767AAF /* ReframeResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReframeResponse.swift; sourceTree = "<group>"; };
 		EC4379F22BA4FAF60077493E /* PortValueEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueEnum.swift; sourceTree = "<group>"; };
 		EC46AC0826CEE3820062CB26 /* DeviceMotionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceMotionHelpers.swift; sourceTree = "<group>"; };
@@ -4640,6 +4642,7 @@
 				B521A1002DE19D5400662B13 /* View */,
 				E4D0D2D52CE6AE3500E482E4 /* DatasetRecording */,
 				E4D0D2D42CE6ADF400E482E4 /* GraphPrompting */,
+				EC4213A22E62302300C6DE64 /* GeneratedCodeInspectionView.swift */,
 			);
 			path = StitchAI;
 			sourceTree = "<group>";
@@ -6498,6 +6501,7 @@
 				EC98130F2AB247C700828A20 /* DrawnEdge.swift in Sources */,
 				ECC2BCCD2B9B72B700D5F942 /* SidebarFooterView.swift in Sources */,
 				EC1318C92B8806E200F74E93 /* NodeRowLegacyDefinitions.swift in Sources */,
+				EC4213A32E62302400C6DE64 /* GeneratedCodeInspectionView.swift in Sources */,
 				ECC1758A2A43D9440017815D /* LayerDescription.swift in Sources */,
 				ECABB55F269C9E5A00AC9931 /* NetworkRequest.swift in Sources */,
 				ECF109192889C4C6002B039B /* SplitterTypeUtils.swift in Sources */,

@@ -157,10 +157,10 @@ extension StitchAICodeCreator {
         }
     }
 
-    private func processRequest(userPrompt: String,
-                                document: StitchDocumentViewModel,
-                                aiManager: StitchAIManager,
-                                dataGlossaryPrompt: String) async throws -> SwiftSyntaxActionsResult {
+    func processRequest(userPrompt: String,
+                        document: StitchDocumentViewModel,
+                        aiManager: StitchAIManager,
+                        dataGlossaryPrompt: String) async throws -> SwiftSyntaxActionsResult {
         logToServerIfRelease("SUCCESS: userPrompt: \(userPrompt)")
         
         let swiftUICode = try await self
