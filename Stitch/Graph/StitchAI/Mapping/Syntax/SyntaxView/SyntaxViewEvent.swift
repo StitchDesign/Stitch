@@ -60,6 +60,18 @@ extension SyntaxViewEvent {
     }
 }
 
+extension Patch {
+    var syntaxViewEvent: SyntaxViewEvent? {
+        switch self {
+        case .dragInteraction:
+            return .dragGesture
+        case .pressInteraction:
+            return .tapGesture
+        default: return nil
+        }
+    }
+}
+
 extension LayerDataViewEvent {
     /// Determines the connections and intermediary patch nodes to be created between an interaction patch node and some state.
     func createConnectedPatchData(interactionPatchNodeId: String,

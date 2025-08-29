@@ -326,26 +326,18 @@ extension AIGraphData_V0.LayerData {
 
             switch nodesDict.get(interactionId)?.kind {
             case .patch(let patch):
-                switch patch {
-                case .dragInteraction:
-                    return outputPortIdsUsedFromInteraction.map { outputPortId in
-                        let gestureProperty = outputPortId == 0 ? "position" : "translation"
-                        
-                        return .init(viewEvent: .dragGesture,
-                                     gestureArg: "g.\(gestureProperty)",
-                                     mutatedStateVar: "\(layerVarName)_\(layerData.id.uuidString)_\(gestureProperty)")
-                    }
+                return outputPortIdsUsedFromInteraction.map { outputPortId in
+                    let _viewEventName = patch.syntaxViewEvent
+                    assertInDebug(_viewEventName != nil)
+                    let viewEventName = _viewEventName ?? .dragGesture
                     
-                case .pressInteraction:
-                    return [
-                        .init(viewEvent: .tapGesture,
-                              gestureArg: nil,
-                              mutatedStateVar: "\(layerVarName)_\(layerData.id.uuidString)_pulse")
-                    ]
+                    let gestureProperty = patch.getGestureName(for: outputPortId)
+                    let stateVarName = patch.createInteractionStateVarName(layerId: layerData.id,
+                                                                           outputPortIndex: outputPortId)
                     
-                default:
-                    fatalErrorIfDebug()
-                    return []
+                    return .init(viewEvent: viewEventName,
+                                 gestureArg: "g.\(gestureProperty)",
+                                 mutatedStateVar: stateVarName)
                 }
             
             default:
