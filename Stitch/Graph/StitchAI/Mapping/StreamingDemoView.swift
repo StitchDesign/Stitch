@@ -7,90 +7,15 @@
 
 import SwiftUI
 import Foundation
+import Shimmer
 
 // MARK: Relevant OpenAI docs, the response.reasoning_* objects for the Responses endpoint: https://platform.openai.com/docs/api-reference/responses_streaming/response/reasoning_text
 
-// MARK: - Shimmer Effect
 
-// Shimmer Config
-struct ShimmerConfig {
-    var tint: Color
-    var highlight: Color
-    var blur: CGFloat = 0
-    var highlightOpacity: CGFloat = 1
-    var speed: CGFloat = 2
-}
 
-struct ShimmerEffectHelper: ViewModifier {
-    // Shimmer Config
-    var config: ShimmerConfig
-    // Animation Properties
-    @State private var moveTo: CGFloat = -0.7
-    
-    func body(content: Content) -> some View {
-        content
-        // Adding Shimmer Animation with the help of Masking Modifier
-            .overlay {
-                // Changing Tint Color
-                Rectangle()
-                    .fill(config.tint)
-                    .mask {
-                        content
-                    }
-                    .overlay {
-                        // Shimmer
-                        GeometryReader {
-                            let size = $0.size
-                            let extraOffset = size.height / 2.5
-                            
-                            Rectangle()
-                                .fill(config.highlight)
-                                .mask {
-                                    Rectangle()
-                                    // Gradient For Glowing at the Center
-                                        .fill(
-                                            .linearGradient(colors: [
-                                                .white.opacity(0),
-                                                config.highlight.opacity(config
-                                                    .highlightOpacity),
-                                                .white.opacity(0)
-                                            ], startPoint: .top, endPoint: .bottom)
-                                        )
-                                }
-                            // Adding Blur
-                                .blur(radius: config.blur)
-                            // Rotating (Degree: Your Choice of Wish)
-                                .rotationEffect(.init(degrees: -70))
-                            // Moving to the Start
-                                .offset(x: moveTo > 0 ? extraOffset : -extraOffset)
-                                .offset(x: size.width * moveTo)
-                        }
-                    }
-                    .mask {
-                        content
-                    }
-            }
-        // Animating Movement
-            .onAppear {
-                DispatchQueue.main.async {
-                    moveTo = 0.7
-                }
-            }
-            .animation(.linear(duration: config.speed).repeatForever(autoreverses: false), value: moveTo)
-    }
-}
-
-extension View {
-    @ViewBuilder
-    func shimmer(_ config: ShimmerConfig) -> some View {
-        self
-            .modifier(ShimmerEffectHelper(config: config))
-    }
-}
 
 struct StreamingDemoView: View {
     
-    @State private var apiKey: String = ""
     @State private var prompt: String = "In SwiftUI, make 100 rectangles, different colors."
     @State private var streamingResponse: String = ""
     @State private var reasoningStepsList: [String] = []
@@ -99,6 +24,7 @@ struct StreamingDemoView: View {
     @State private var isStreaming: Bool = false
     @FocusState private var isFocused: Bool
     @FocusState private var apiKeyFocused: Bool
+    @Environment(\.colorScheme) private var colorScheme
     
     private var reasoningSteps: String {
         let k = reasoningStepsList.joined() //.joined(separator: "\n")
@@ -124,11 +50,7 @@ struct StreamingDemoView: View {
                     .multilineTextAlignment(.leading)
                     .lineLimit(1)
                     .foregroundColor(.primary)
-                    .shimmer(
-                        .init(tint: .white.opacity(0.15), 
-                              highlight: .white, 
-                              blur: 5)
-                    )
+                    .shimmering()
                     .overlay(alignment: .center) {
                         HStack {
                             Spacer()

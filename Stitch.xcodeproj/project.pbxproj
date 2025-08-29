@@ -801,6 +801,7 @@
 		EC89F7E127602C0700C4447A /* ExpansionBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC89F7E027602C0700C4447A /* ExpansionBox.swift */; };
 		EC8A48ED2710EB2F001BB4FC /* GraphStepState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8A48EC2710EB2F001BB4FC /* GraphStepState.swift */; };
 		EC8A48F22710EC39001BB4FC /* NodeTypeChangedActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8A48F12710EC39001BB4FC /* NodeTypeChangedActions.swift */; };
+		EC8A71E02E62509200FEE8FD /* Shimmer in Frameworks */ = {isa = PBXBuildFile; productRef = EC8A71DF2E62509200FEE8FD /* Shimmer */; };
 		EC8AEED82DB1B5EA00A1F6B6 /* LayerNodeReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8AEED72DB1B5EA00A1F6B6 /* LayerNodeReader.swift */; };
 		EC8BA54526A62D14002E345C /* DeviceMotionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BA54426A62D14002E345C /* DeviceMotionNode.swift */; };
 		EC8BA54726A6383F002E345C /* SmoothValueNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BA54626A6383F002E345C /* SmoothValueNode.swift */; };
@@ -2364,6 +2365,7 @@
 				B51D8A022CD13D420016CCDA /* StitchEngine in Frameworks */,
 				B5BC7E212E411AF700750E0E /* StitchEngine in Frameworks */,
 				E42AAE4C2D4844EE002D187D /* Sentry in Frameworks */,
+				EC8A71E02E62509200FEE8FD /* Shimmer in Frameworks */,
 				EC8826CD2DCD04AD003529BA /* JsonStream in Frameworks */,
 				B50BC9E42D77881900311551 /* StitchEngine in Frameworks */,
 				ECA76BA82DFD13E90018D16C /* Storage in Frameworks */,
@@ -5706,6 +5708,7 @@
 				B5BC7E202E411AF700750E0E /* StitchEngine */,
 				EC9D45E92E4679C50033E8B3 /* StitchSchemaKit */,
 				ECC2CBDF2E46B31A008A4EF0 /* StitchSchemaKit */,
+				EC8A71DF2E62509200FEE8FD /* Shimmer */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -5796,6 +5799,7 @@
 				ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */,
 				B5BC7E1F2E411AF700750E0E /* XCRemoteSwiftPackageReference "StitchEngine" */,
 				ECC2CBDE2E46B31A008A4EF0 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
+				EC8A71DE2E62509200FEE8FD /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -8226,6 +8230,14 @@
 				minimumVersion = 1.0.3;
 			};
 		};
+		EC8A71DE2E62509200FEE8FD /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/markiv/SwiftUI-Shimmer.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.1;
+			};
+		};
 		EC91034829109DF3007C548E /* XCRemoteSwiftPackageReference "SoulverCore" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soulverteam/SoulverCore.git";
@@ -8417,6 +8429,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = EC8826CB2DCD04AD003529BA /* XCRemoteSwiftPackageReference "json-stream" */;
 			productName = JsonStream;
+		};
+		EC8A71DF2E62509200FEE8FD /* Shimmer */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EC8A71DE2E62509200FEE8FD /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */;
+			productName = Shimmer;
 		};
 		EC91034929109DF3007C548E /* SoulverCore */ = {
 			isa = XCSwiftPackageProductDependency;
