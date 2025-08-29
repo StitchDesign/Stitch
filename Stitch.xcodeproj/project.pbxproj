@@ -642,6 +642,7 @@
 		EC4D95A626B4911700AD5AB4 /* MediaActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4D95A526B4911700AD5AB4 /* MediaActions.swift */; };
 		EC4D9BC92829EBCD0066DFC8 /* GestureUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4D9BC82829EBCD0066DFC8 /* GestureUtils.swift */; };
 		EC4F0F98280B657100AF4884 /* FontConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4F0F97280B657100AF4884 /* FontConstants.swift */; };
+		EC4F764F2E54E71D009C47F4 /* StreamingDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4F764E2E54E71C009C47F4 /* StreamingDemoView.swift */; };
 		EC5043A32874C8E000590D07 /* RGBANode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5043A22874C8E000590D07 /* RGBANode.swift */; };
 		EC5043A52874CDDB00590D07 /* RGBA.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5043A42874CDDB00590D07 /* RGBA.swift */; };
 		EC519E372BACC0ED005C6131 /* MathExpressionSubmenuButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC519E362BACC0ED005C6131 /* MathExpressionSubmenuButtonView.swift */; };
@@ -1825,6 +1826,7 @@
 		EC4D95A526B4911700AD5AB4 /* MediaActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaActions.swift; sourceTree = "<group>"; };
 		EC4D9BC82829EBCD0066DFC8 /* GestureUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureUtils.swift; sourceTree = "<group>"; };
 		EC4F0F97280B657100AF4884 /* FontConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontConstants.swift; sourceTree = "<group>"; };
+		EC4F764E2E54E71C009C47F4 /* StreamingDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingDemoView.swift; sourceTree = "<group>"; };
 		EC5043A22874C8E000590D07 /* RGBANode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RGBANode.swift; sourceTree = "<group>"; };
 		EC5043A42874CDDB00590D07 /* RGBA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RGBA.swift; sourceTree = "<group>"; };
 		EC519E362BACC0ED005C6131 /* MathExpressionSubmenuButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MathExpressionSubmenuButtonView.swift; sourceTree = "<group>"; };
@@ -5526,6 +5528,7 @@
 			isa = PBXGroup;
 			children = (
 				ECE963A92E0C5710003420C5 /* ASTExplorerView.swift */,
+				EC4F764E2E54E71C009C47F4 /* StreamingDemoView.swift */,
 				EC035BEB2E385E0C0002E109 /* VPLToCode */,
 				EC035BE82E385DE70002E109 /* CodeToVPL */,
 				ECC734722E0DE92F00AC266C /* Examples */,
@@ -6747,6 +6750,7 @@
 				EC5FB3542E5F8F8200E9D3AC /* OverlayExamples.swift in Sources */,
 				ECC2BCCF2B9B72E900D5F942 /* SidebarListItemSwipeView.swift in Sources */,
 				EC6914E02DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift in Sources */,
+				EC4F764F2E54E71D009C47F4 /* StreamingDemoView.swift in Sources */,
 				ECDAFFF72E200F4400AF71E9 /* DeclarativeUtils.swift in Sources */,
 				EC9AB1372BD4299500F22730 /* PreviewWindowDeviceUtils.swift in Sources */,
 				B56FFB362C18F06900623CC7 /* BouncyConverter.swift in Sources */,
