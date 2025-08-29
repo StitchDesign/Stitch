@@ -10,6 +10,70 @@ import Foundation
 
 // MARK: Relevant OpenAI docs, the response.reasoning_* objects for the Responses endpoint: https://platform.openai.com/docs/api-reference/responses_streaming/response/reasoning_text
 
+// MARK: - Shimmer Modifier
+
+struct Shimmer: ViewModifier {
+    var speed: Double = 1.4         // seconds for one sweep
+    var angle: Double = 20          // degrees of tilt
+    var bandSize: CGFloat = 0.25    // width of bright band as a fraction of width
+    var baseOpacity: Double = 0.25  // dim base tint under the sweep
+    var highlightOpacity: Double = 0.9
+    
+    @State private var phase: CGFloat = -1.5
+    
+    func body(content: Content) -> some View {
+        content
+        // A faint base tint helps the shimmer read on light backgrounds
+            .overlay(content.opacity(baseOpacity))
+            .overlay {
+                GeometryReader { geo in
+                    let w = geo.size.width
+                    let h = geo.size.height
+                    let sweepWidth = max(w, h) * (1.0 + bandSize) // ensure it spans when rotated
+                    
+                    LinearGradient(
+                        colors: [
+                            .white.opacity(0.0),
+                            .white.opacity(highlightOpacity),
+                            .white.opacity(0.0)
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: sweepWidth)
+                    .rotationEffect(.degrees(angle))
+                    .offset(x: phase * sweepWidth)
+                    .onAppear {
+                        withAnimation(.linear(duration: speed).repeatForever(autoreverses: false)) {
+                            phase = 1.5
+                        }
+                    }
+                }
+            }
+        // Conform the gradient to the original view's shape
+            .mask(content)
+    }
+}
+
+extension View {
+    /// Apply a shimmering loading effect.
+    func shimmering(
+        speed: Double = 1.4,
+        angle: Double = 20,
+        bandSize: CGFloat = 0.25,
+        baseOpacity: Double = 0.25,
+        highlightOpacity: Double = 0.9
+    ) -> some View {
+        modifier(Shimmer(
+            speed: speed,
+            angle: angle,
+            bandSize: bandSize,
+            baseOpacity: baseOpacity,
+            highlightOpacity: highlightOpacity
+        ))
+    }
+}
+
 struct StreamingDemoView: View {
     
     @State private var apiKey: String = ""
@@ -46,6 +110,7 @@ struct StreamingDemoView: View {
                     .multilineTextAlignment(.leading)
                     .lineLimit(1)
                     .foregroundColor(.primary)
+                    .shimmering(speed: 2.0, baseOpacity: 0.1, highlightOpacity: 0.6)
                     .overlay(alignment: .center) {
                         HStack {
                             Spacer()
