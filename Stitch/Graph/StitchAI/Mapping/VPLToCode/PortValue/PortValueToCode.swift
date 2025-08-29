@@ -36,7 +36,14 @@ extension NodeConnectionType {
                 throw SwiftUISyntaxError.upstreamVarNameNotFound(upstream)
             }
             
-            let upstreamVarName = upstreamPatchNode.patch.rawValue.createUniqueVarName(nodeId: upstream.nodeId)
+            // Edge case behavior for interactions, which save data to state variables
+            if upstreamPatchNode.patch.isInteractionPatchNode,
+               let interactionId = upstreamPatchNode.inputs.first?.portData.values?.first?.getInteractionId?.id {
+                return upstreamPatchNode.patch.createInteractionStateVarName(layerId: interactionId,
+                                                                             outputPortIndex: portIndex)
+            }
+            
+            let upstreamVarName = upstreamPatchNode.patch.createUniqueVarName(nodeId: upstream.nodeId)
             
             // Port indices used just for patches
             return "\(upstreamVarName)[\(portIndex)]"
