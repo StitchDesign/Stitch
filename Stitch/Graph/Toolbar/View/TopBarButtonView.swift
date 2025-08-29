@@ -155,8 +155,10 @@ struct iPadGraphTopBarButtons: View {
                 }
             }
             
-            // OpenAI Configuration Picker
+            // OpenAI Configuration Picker - only show in debug builds
+            #if DEBUG || DEV_DEBUG || STITCH_AI_TESTING
             OpenAIConfigurationPicker(document: document)
+            #endif
             
             iPadNavBarButton(action: { dispatch(ToggleInsertNodeMenu()) },
                              iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME))

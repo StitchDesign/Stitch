@@ -80,9 +80,11 @@ struct CatalystTopBarGraphButtons: View {
                 }
             }
             
-            // OpenAI Configuration Picker
+            // OpenAI Configuration Picker - only show in debug builds
+            #if DEBUG || DEV_DEBUG || STITCH_AI_TESTING
             OpenAIConfigurationPicker(document: document)
                 .modifier(CatalystTopBarButtonStyle())
+            #endif
             
             CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME,
                                  toolTip: "Add Node") {
