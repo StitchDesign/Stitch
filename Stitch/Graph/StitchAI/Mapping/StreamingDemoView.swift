@@ -46,7 +46,6 @@ struct StreamingDemoView: View {
                     .multilineTextAlignment(.leading)
                     .lineLimit(1)
                     .foregroundColor(.primary)
-//                    .frame(maxWidth: .infinity, alignment: .leading)
                     .overlay(alignment: .center) {
                         HStack {
                             Spacer()
@@ -60,7 +59,6 @@ struct StreamingDemoView: View {
                 TextField("Enter AI prompt...", text: $prompt)
                     .focused($isFocused)
                     .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
-//                    .frame(width: INSERT_NODE_MENU_WIDTH)
                     .frame(width: INSERT_NODE_MENU_WIDTH, alignment: .leading)
                     .padding(.leading, 16)
                     .padding(.trailing, 60)
@@ -263,11 +261,6 @@ struct StreamingDemoView: View {
                                                     
                                                     withAnimation {
                                                         prompt = headerText
-                                                    }
-                                                } else {
-                                                    // No complete header found yet, show accumulated reasoning
-                                                    withAnimation {
-                                                        prompt = accumulatedReasoning
                                                     }
                                                 }
                                             }
