@@ -31,6 +31,64 @@ DO NOT use these SwiftUI view modifiers:
 * `.task`
 
 DO NOT USE Swift tuples or custom structs or custom views or custom view modifiers.
+
+### Permitted Value Type Declarations in the View
+
+**You are only permitted to use an array of `PortValueDescription` for any declared value.** You must adhere to the `PortValueDescription` spec, defined below, for all declared values throughout the view.
+
+Assume that for every view and view modifier that exists, Stitch contains an exact replica definition of that view or view modifier, but made to process `[PortValueDescription]`. For example:
+
+```swift
+Text("hello world")
+    .color(Color.white)
+```
+
+Would become:
+
+```swift
+Text(PortValueDescription(value: "hello world", value_type: "string"))
+    .color([PortValueDescription(value: "#FFFFFF", value_type: "color")])
+```
+
+Another example:
+
+```swift
+Text("salut").foregroundColor(Color.yellow)
+```
+
+Becomes:
+
+```swift
+Text("salut").foregroundColor([PortValueDescription(value: "#FFFF00FF", value_type: "color")])
+```
+
+## When to Not Use `PortValueDescription`
+
+Notable exceptions to the rule:
+
+For example, the following scenario should never happen:
+```swift
+.scaleEffect(
+    [
+        PortValueDescription(value: rectScale.value, value_type: "number")
+    ]
+)
+```
+
+Because this is clearly reference some state variable. Therefore, it should just be:
+```swift
+.scaleEffect(rectScale.value)
+```
+
+Similarly:
+```swift
+.fill(PortValueDescription(value: rectColors.value[index], value_type: "color"))
+```
+
+Should be:
+```swift
+.fill(rectColors)
+```
 """
     }
 }
