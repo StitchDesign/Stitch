@@ -76,7 +76,10 @@ struct StitchAIExampleCodeCreator: StitchAICodeCreator {
 struct GeneratedCodeInspectionView: View {
     @StateObject private var loader = StitchAIExamplesLoader()
     @Bindable var document: StitchDocumentViewModel
-    @State private var isExpanded = false
+    
+    private var isExpanded: Bool {
+        document.showAIExamples
+    }
     
     private let panelWidth: CGFloat = 320
     
@@ -89,16 +92,17 @@ struct GeneratedCodeInspectionView: View {
                     HStack {
                         Text("AI Examples")
                             .font(.headline)
+                            .padding(.leadingTHanks)
                         Spacer()
                         Button("×") {
                             withAnimation(.easeInOut(duration: 0.3)) {
-                                isExpanded = false
+                                document.showAIExamples = false
                             }
                         }
                         .font(.title2)
                     }
                     .padding()
-                    .background(Color.secondary)
+                    .background(Color(.systemBackground))
                     
                     // Content
                     if loader.isLoading {
@@ -133,30 +137,15 @@ struct GeneratedCodeInspectionView: View {
                     }
                 }
                 .frame(width: panelWidth)
-                .background(Color.secondary)
+                .background(Color(.systemBackground))
                 .transition(.move(edge: .leading))
             }
             
             Spacer()
         }
         .overlay(alignment: .leading) {
-            // Toggle button
-            if !isExpanded {
-                Button(action: {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        isExpanded = true
-                    }
-                }) {
-                    Image(systemName: "list.bullet.rectangle")
-                        .font(.title2)
-                        .foregroundColor(.primary)
-                        .padding(8)
-                        .background(Color.secondary)
-                        .cornerRadius(8)
-                }
-                .padding(.leading, 16)
-                .padding(.top, 60) // Below toolbar
-            }
+            // Toggle button (will be handled by topbar buttons instead)
+            EmptyView()
         }
         .onAppear {
             loader.loadExamples()
@@ -197,7 +186,7 @@ struct GeneratedCodeInspectionView: View {
                 // Close panel after successful application
                 await MainActor.run {
                     withAnimation(.easeInOut(duration: 0.3)) {
-                        isExpanded = false
+                        document.showAIExamples = false
                     }
                 }
                 
@@ -231,7 +220,7 @@ struct StitchAIExampleRowView: View {
             }
             .padding(12)
 //            .background(isHovering ? Color(NSColor.controlAccentColor).opacity(0.1) : Color(NSColor.controlBackgroundColor))
-            .background(isHovering ? Color.accentColor.opacity(0.1) : Color.secondary)
+            .background(isHovering ? Color.accentColor.opacity(0.1) : Color(.systemBackground))
             .cornerRadius(8)
         }
         .buttonStyle(.plain)

@@ -142,6 +142,9 @@ final class StitchDocumentViewModel: Sendable {
     
     @MainActor var stitchAITrainingTip = StitchAITrainingTip()
     
+    // AI Examples overlay panel state
+    @MainActor var showAIExamples = false
+    
 #if !targetEnvironment(macCatalyst)
     @MainActor var selectedTab = ProjectTab.patch
 #endif

@@ -81,8 +81,18 @@ struct CatalystTopBarGraphButtons: View {
             }
             
             // OpenAI Configuration Picker
+            #if DEBUG || DEV_DEBUG || STITCH_AI_TESTING
             OpenAIConfigurationPicker(document: document)
                 .modifier(CatalystTopBarButtonStyle())
+            
+            // AI Examples button
+            CatalystNavBarButton("list.bullet.rectangle",
+                                 toolTip: "AI Examples") {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    document.showAIExamples.toggle()
+                }
+            }
+            #endif
             
             CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME,
                                  toolTip: "Add Node") {
