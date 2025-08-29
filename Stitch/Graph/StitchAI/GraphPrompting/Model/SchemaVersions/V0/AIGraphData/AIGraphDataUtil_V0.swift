@@ -206,7 +206,7 @@ extension AIGraphData_V0.LayerData {
             throw AICodeGenError.nodeDataNotFound
         }
         
-        let knownInteractionPatchIds = patchToLayerAssignmentMap.keys
+//        let knownInteractionPatchIds = patchToLayerAssignmentMap.keys
         let layerVarName = node.kind.getDisplayTitle().toCamelCase()
         
         // Recursively create children
@@ -365,7 +365,7 @@ extension AIGraphData_V0.LayerData {
 extension AIGraphData_V0.PatchOrLayer {
     var patch: Patch? {
         switch self {
-        case .layer(let layer):
+        case .layer:
             return nil
         case .patch(let patch):
             return patch
