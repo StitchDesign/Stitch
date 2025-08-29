@@ -407,14 +407,26 @@ extension SwiftSyntaxActionsResult {
 extension Array where Element == SwiftUISyntaxError {
     @MainActor
     func displayErrors(document: StitchDocumentViewModel) {
+        // Filter out silent errors - only show errors that should interrupt the user
+        let nonSilentErrors = self.filter { !$0.shouldFailSilently }
+        
 #if STITCH_AI_TESTING || DEBUG || DEV_DEBUG
-        // Display parsing warnings
+        // In debug builds, show all errors (including silent ones) for development
         if !self.isEmpty {
             let caughtErrorsString = self.reduce(into: "") { stringBuilder, error in
                 stringBuilder += "\n\(error)"
             }
             
             document.storeDelegate?.alertState.stitchFileError = .unknownError("Warnings for the following unknown concepts:\(caughtErrorsString)")
+        }
+#else
+        // In production builds, only show non-silent errors to users
+        if !nonSilentErrors.isEmpty {
+            let nonSilentErrorsString = nonSilentErrors.reduce(into: "") { stringBuilder, error in
+                stringBuilder += "\n\(error)"
+            }
+            
+            document.storeDelegate?.alertState.stitchFileError = .unknownError("Warnings for the following unknown concepts:\(nonSilentErrorsString)")
         }
 #endif
     }
