@@ -18,13 +18,21 @@ extension GraphState {
                                        viewStatePatchConnections: aiGraph.viewStatePatchConnections)
         
         let patchNodeDeclarations = patchData.patchNodeDeclarations
+        let layerViewEvents = aiGraph.layer_data_list.getAllViewEvents()
         
-        let stateVarDeclarations = aiGraph.viewStatePatchConnections.keys.map { stateVarName in
+        // Patches that connect to layers
+        let patchStateVars = Array(aiGraph.viewStatePatchConnections.keys)
+        
+        // Interaction data updated from gesture callbacks
+        let interactionStateVars = layerViewEvents.map { $0.mutatedStateVar }
+        
+        let allStateVarNames = patchStateVars + interactionStateVars
+        let stateVarDeclarations = allStateVarNames.map { stateVarName in
             "@State var \(stateVarName): [PortValueDescription] = []"
         }
             .joined(separator: "\n")
             .indentLines()
-        
+
         // log("createSwiftUICode: stateVarDeclarations: \(stateVarDeclarations)")
         
         let allLayerEntities = graphEntity.nodes

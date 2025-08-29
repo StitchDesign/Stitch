@@ -120,6 +120,13 @@ extension Array where Element == AIGraphData_V0.LayerData {
             }
         }
     }
+    
+    /// Recursively gathers all view event data
+    func getAllViewEvents() -> [LayerDataViewEvent] {
+        self.flatMap { layerData in
+            layerData.view_events + (layerData.children?.getAllViewEvents() ?? [])
+        }
+    }
 }
 
 extension Dictionary where Key == String, Value == SwiftParserInitializerType {
