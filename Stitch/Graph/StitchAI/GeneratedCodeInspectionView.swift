@@ -30,7 +30,7 @@ class StitchAIExamplesLoader: ObservableObject {
     
     func loadExamples() {
         guard let url = Bundle.main.url(forResource: "stitch_examples_with_generated_code", withExtension: "json") else {
-            error = "Could not find examples JSON file"
+            error = "Could not find examples JSON file in app bundle"
             return
         }
         
@@ -98,7 +98,7 @@ struct GeneratedCodeInspectionView: View {
                         .font(.title2)
                     }
                     .padding()
-                    .background(Color(NSColor.controlBackgroundColor))
+                    .background(Color.secondary)
                     
                     // Content
                     if loader.isLoading {
@@ -133,7 +133,7 @@ struct GeneratedCodeInspectionView: View {
                     }
                 }
                 .frame(width: panelWidth)
-                .background(Color(NSColor.windowBackgroundColor))
+                .background(Color.secondary)
                 .transition(.move(edge: .leading))
             }
             
@@ -151,7 +151,7 @@ struct GeneratedCodeInspectionView: View {
                         .font(.title2)
                         .foregroundColor(.primary)
                         .padding(8)
-                        .background(Color(NSColor.controlBackgroundColor))
+                        .background(Color.secondary)
                         .cornerRadius(8)
                 }
                 .padding(.leading, 16)
@@ -230,7 +230,8 @@ struct StitchAIExampleRowView: View {
                     .foregroundColor(.secondary)
             }
             .padding(12)
-            .background(isHovering ? Color(NSColor.controlAccentColor).opacity(0.1) : Color(NSColor.controlBackgroundColor))
+//            .background(isHovering ? Color(NSColor.controlAccentColor).opacity(0.1) : Color(NSColor.controlBackgroundColor))
+            .background(isHovering ? Color.accentColor.opacity(0.1) : Color.secondary)
             .cornerRadius(8)
         }
         .buttonStyle(.plain)
