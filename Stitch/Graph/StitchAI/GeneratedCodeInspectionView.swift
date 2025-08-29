@@ -76,12 +76,13 @@ struct StitchAIExampleCodeCreator: StitchAICodeCreator {
 struct GeneratedCodeInspectionView: View {
     @StateObject private var loader = StitchAIExamplesLoader()
     @Bindable var document: StitchDocumentViewModel
+    @State private var customCodeInput: String = ""
     
     private var isExpanded: Bool {
         document.showAIExamples
     }
     
-    private let panelWidth: CGFloat = 320
+    private let panelWidth: CGFloat = 400
     
     var body: some View {
         HStack(spacing: 0) {
@@ -101,7 +102,8 @@ struct GeneratedCodeInspectionView: View {
                         }
                         .font(.title2)
                     }
-                    .padding()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                     .background(Color(.systemBackground))
                     
                     // Content
@@ -122,7 +124,40 @@ struct GeneratedCodeInspectionView: View {
                         .padding()
                     } else {
                         ScrollView {
-                            LazyVStack(alignment: .leading, spacing: 8) {
+                            LazyVStack(alignment: .leading, spacing: 12) {
+                                // Custom code input section
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("Paste Custom Code:")
+                                        .font(.subheadline)
+                                        .fontWeight(.medium)
+                                    
+                                    TextEditor(text: $customCodeInput)
+                                        .font(.system(.caption, design: .monospaced))
+                                        .frame(height: 100)
+                                        .background(Color(.systemBackground))
+                                        .cornerRadius(6)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .stroke(Color(.separator), lineWidth: 1)
+                                        )
+                                    
+                                    Button("Apply Custom Code") {
+                                        applyCustomCode()
+                                    }
+                                    .disabled(customCodeInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                                    .buttonStyle(.borderedProminent)
+                                    .controlSize(.small)
+                                }
+                                .padding(.horizontal, 20)
+                                
+                                Divider()
+                                    .padding(.horizontal, 20)
+                                
+                                Text("Examples:")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                    .padding(.horizontal, 20)
+                                
                                 ForEach(loader.examples) { example in
                                     StitchAIExampleRowView(
                                         example: example,
@@ -130,9 +165,10 @@ struct GeneratedCodeInspectionView: View {
                                             applyExample(example)
                                         }
                                     )
+                                    .padding(.horizontal, 20)
                                 }
                             }
-                            .padding()
+                            .padding(.vertical)
                         }
                     }
                 }
@@ -154,7 +190,18 @@ struct GeneratedCodeInspectionView: View {
     
     private func applyExample(_ example: StitchAIGraphExample) {
         log("Applying AI graph example: \(example.userPrompt)")
+        applyGeneratedCode(example.generatedCode, userPrompt: example.userPrompt)
+    }
+    
+    private func applyCustomCode() {
+        let code = customCodeInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !code.isEmpty else { return }
         
+        log("Applying custom pasted code")
+        applyGeneratedCode(code, userPrompt: "Custom pasted code")
+    }
+    
+    private func applyGeneratedCode(_ generatedCode: String, userPrompt: String) {
         Task {
             do {
                 guard let aiManager = document.aiManager else {
@@ -162,14 +209,14 @@ struct GeneratedCodeInspectionView: View {
                     return
                 }
                 
-                let codeCreator = StitchAIExampleCodeCreator(generatedCode: example.generatedCode)
+                let codeCreator = StitchAIExampleCodeCreator(generatedCode: generatedCode)
                 
                 // Reuse existing processRequest flow
                 let dataGlossaryPrompt = try StitchAIManager
                     .stitchAIDataGlossarySystemPrompt(graph: document.visibleGraph)
                 
                 var actionsResult = try await codeCreator
-                    .processRequest(userPrompt: example.userPrompt,
+                    .processRequest(userPrompt: userPrompt,
                                     document: document,
                                     aiManager: aiManager,
                                     dataGlossaryPrompt: dataGlossaryPrompt)
@@ -183,17 +230,17 @@ struct GeneratedCodeInspectionView: View {
                     }
                 }
                 
-                // Close panel after successful application
+                // Clear custom code input after successful application
                 await MainActor.run {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        document.showAIExamples = false
+                    if userPrompt == "Custom pasted code" {
+                        customCodeInput = ""
                     }
                 }
                 
-                log("Successfully applied AI graph example")
+                log("Successfully applied generated code")
                 
             } catch {
-                log("Error applying AI graph example: \(error)")
+                log("Error applying generated code: \(error)")
                 // TODO: Could show error to user here
             }
         }
