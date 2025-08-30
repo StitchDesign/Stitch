@@ -78,10 +78,24 @@ struct OpenAIResponsesRequest {
             "effort": "medium"
         ]
         
-        // Use simple message format like StreamingDemoView (just user message)
-        // TODO: Add system prompt back gradually after confirming this works
-        let userContent: Any
+        // Build messages array with system message
+        var messages: [[String: Any]] = []
         
+        // Create system message with size validation
+        let systemContent = createOptimizedSystemMessage(
+            dataGlossary: dataGlossaryPrompt,
+            assistant: assistantPrompt,
+            textInputSize: textInput.count,
+            imageSize: base64Image?.count ?? 0
+        )
+        
+        messages.append([
+            "role": "system",
+            "content": systemContent
+        ])
+        
+        // User message
+        let userContent: Any
         if let imageData = base64Image {
             // For image requests, use multimodal content
             userContent = [
@@ -101,25 +115,19 @@ struct OpenAIResponsesRequest {
             userContent = textInput
         }
         
-        requestBody["input"] = [
-            [
-                "role": "user",
-                "content": userContent
-            ]
-        ]
+        messages.append([
+            "role": "user",
+            "content": userContent
+        ])
         
-        // Debug: Log request size components
-        print("🐛 DEBUG: Request size analysis")
-        print("🐛 dataGlossaryPrompt length: \(dataGlossaryPrompt.count) characters")
-        print("🐛 assistantPrompt length: \(assistantPrompt.count) characters")
-        print("🐛 textInput length: \(textInput.count) characters")
-        if let imageData = base64Image {
-            print("🐛 base64Image length: \(imageData.count) characters")
-        }
-        if let jsonData = try? JSONSerialization.data(withJSONObject: requestBody),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
-            print("🐛 Total request body length: \(jsonData.count) bytes")
-            print("🐛 Request body preview (first 500 chars): \(String(jsonString.prefix(500)))")
+        requestBody["input"] = messages
+        
+        // Log total request size
+        if let jsonData = try? JSONSerialization.data(withJSONObject: requestBody) {
+            print("🔍 Total request body: \(jsonData.count) bytes (\(jsonData.count/1024)KB)")
+            if jsonData.count > 100000 { // > 100KB
+                print("⚠️ Request size over 100KB - may cause HTTP 400")
+            }
         }
         
         // Set initial streaming state
@@ -236,6 +244,34 @@ struct OpenAIResponsesRequest {
                 print("🧠 Unhandled reasoning event: \(eventType)")
             }
         }
+    }
+    
+    /// Creates system message with size logging
+    private func createOptimizedSystemMessage(dataGlossary: String,
+                                            assistant: String, 
+                                            textInputSize: Int,
+                                            imageSize: Int) -> String {
+        
+        // Calculate estimated total request size
+        let baseRequestSize = 1000 // Rough estimate for JSON structure, model, etc.
+        let fullSystemSize = dataGlossary.count + assistant.count + 10 // +10 for newlines
+        let totalEstimatedSize = baseRequestSize + fullSystemSize + textInputSize + imageSize
+        
+        print("🔍 System message size analysis:")
+        print("🔍 dataGlossaryPrompt: \(dataGlossary.count) characters")
+        print("🔍 assistantPrompt: \(assistant.count) characters") 
+        print("🔍 textInput: \(textInputSize) characters")
+        if imageSize > 0 {
+            print("🔍 base64Image: \(imageSize) characters")
+        }
+        print("🔍 estimated total request: \(totalEstimatedSize) bytes (\(totalEstimatedSize/1024)KB)")
+        
+        // Always use full system prompts - no truncation
+        return """
+        \(dataGlossary)
+        
+        \(assistant)
+        """
     }
 }
 
