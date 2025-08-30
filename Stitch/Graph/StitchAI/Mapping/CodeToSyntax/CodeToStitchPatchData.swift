@@ -139,7 +139,7 @@ extension SwiftUIViewVisitor {
             
             else if let declrRefSyntax = arg.expression.as(DeclReferenceExprSyntax.self) {
                 print("Input param that points to some reference: \(declrRefSyntax)")
-                return .binding(declrRefSyntax)
+                return .binding(declrRefSyntax.trimmedDescription)
             }
             
             else if let subscriptCallExpr = arg.expression.as(SubscriptCallExprSyntax.self),
@@ -147,8 +147,13 @@ extension SwiftUIViewVisitor {
                 return .subscriptRef(subscriptData)
             }
             
+            else if let sequenceExpr = arg.expression.as(SequenceExprSyntax.self) {
+                return .binding(sequenceExpr.trimmedDescription)
+            }
+            
             else {
-                fatalError()
+                fatalErrorIfDebug()
+                return nil
             }
         }
         
@@ -298,9 +303,8 @@ extension SwiftParserInitializerType {
         case .patchNode(let patchNodeData):
             for (portIndex, arg) in patchNodeData.args.enumerated() {
                 switch arg {
-                case .binding(let declRefSyntax):
+                case .binding(let refName):
                     // Get edge data
-                    let refName = declRefSyntax.baseName.text
                     let upstreamCoordinate: AIGraphData_V0.NodeIndexedCoordinate
                     
                     // First check for some other patch's outputs
