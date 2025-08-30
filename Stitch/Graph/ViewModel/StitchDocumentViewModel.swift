@@ -25,6 +25,11 @@ struct GraphUpdaterId: Equatable, Hashable, Sendable, Codable {
 
 @Observable
 final class StitchDocumentViewModel: Sendable {
+    
+    // Streaming state for OpenAI Responses endpoint
+    @MainActor var isStreamingResponses: Bool = false
+    @MainActor var streamingReasoningText: String = ""
+    
     // TODO: what kind of id is this? Per data flow, it's from StitchDocumentViewModel.id which is from document.graphId i.e. it's the id for the document's root graph
     let rootId: UUID // Previously was just `UUID`, taken from StitchDocument.id which was from
     
@@ -478,9 +483,9 @@ extension StitchDocumentViewModel {
             graph.scheduleForNextGraphStep(keyboardNodes)
         }
     }
-    
+        
     @MainActor var isLoadingAI: Bool {
-        self.aiManager?.currentTaskLEGACY != nil || self.aiManager?.currentTask != nil
+        self.aiManager?.currentTask != nil || self.isStreamingResponses
     }
 }
 

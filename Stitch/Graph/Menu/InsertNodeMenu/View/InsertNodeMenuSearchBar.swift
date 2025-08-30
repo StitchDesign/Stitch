@@ -9,8 +9,108 @@ import SwiftUI
 import Combine
 import UIKit
 import GameController
+import Shimmer
 
 let INSERT_NODE_MENU_SEARCH_BAR_HEIGHT: CGFloat = 68
+
+// MARK: - Custom Shimmer Effect (for Light Mode)
+
+// Shimmer Config
+struct CustomShimmerConfig {
+    var tint: Color
+    var highlight: Color
+    var blur: CGFloat = 0
+    var highlightOpacity: CGFloat = 1
+    var speed: CGFloat = 2
+}
+
+struct CustomShimmerEffectHelper: ViewModifier {
+    // Shimmer Config
+    var config: CustomShimmerConfig
+    // Animation Properties
+    @State private var moveTo: CGFloat = -0.7
+    
+    func body(content: Content) -> some View {
+        content
+        // Adding Shimmer Animation with the help of Masking Modifier
+            .overlay {
+                // Changing Tint Color
+                Rectangle()
+                    .fill(config.tint)
+                    .mask {
+                        content
+                    }
+                    .overlay {
+                        // Shimmer
+                        GeometryReader {
+                            let size = $0.size
+                            let extraOffset = size.height / 2.5
+                            
+                            Rectangle()
+                                .fill(config.highlight)
+                                .mask {
+                                    Rectangle()
+                                    // Gradient For Glowing at the Center
+                                        .fill(
+                                            .linearGradient(colors: [
+                                                .white.opacity(0),
+                                                config.highlight.opacity(config
+                                                    .highlightOpacity),
+                                                .white.opacity(0)
+                                            ], startPoint: .top, endPoint: .bottom)
+                                        )
+                                }
+                            // Adding Blur
+                                .blur(radius: config.blur)
+                            // Rotating (Degree: Your Choice of Wish)
+                                .rotationEffect(.init(degrees: -70))
+                            // Moving to the Start
+                                .offset(x: moveTo > 0 ? extraOffset : -extraOffset)
+                                .offset(x: size.width * moveTo)
+                        }
+                    }
+                    .mask {
+                        content
+                    }
+            }
+        // Animating Movement
+            .onAppear {
+                DispatchQueue.main.async {
+                    moveTo = 0.7
+                }
+            }
+            .animation(.linear(duration: config.speed).repeatForever(autoreverses: false), value: moveTo)
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func customShimmer(_ config: CustomShimmerConfig) -> some View {
+        self
+            .modifier(CustomShimmerEffectHelper(config: config))
+    }
+}
+
+// MARK: - Hybrid Shimmer Modifier
+
+struct HybridShimmerModifier: ViewModifier {
+    let colorScheme: ColorScheme
+    let lightModeConfig: CustomShimmerConfig
+    
+    func body(content: Content) -> some View {
+        switch colorScheme {
+        case .dark:
+            // Use SwiftUI-Shimmer package for dark mode with matching duration
+            content.shimmering(duration: lightModeConfig.speed)
+        case .light:
+            // Use custom shimmer for light mode
+            content.customShimmer(lightModeConfig)
+        @unknown default:
+            // Fallback to light mode behavior
+            content.customShimmer(lightModeConfig)
+        }
+    }
+}
 
 struct InsertNodeMenuSearchBar: View {
     /*
@@ -23,6 +123,7 @@ struct InsertNodeMenuSearchBar: View {
     
     @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = .defaultTheme
     @FocusState private var isFocused: Bool
+    @Environment(\.colorScheme) private var colorScheme
     
     @Bindable var document: StitchDocumentViewModel
     let launchTip: StitchAILaunchTip
@@ -31,6 +132,21 @@ struct InsertNodeMenuSearchBar: View {
 
     var isLoadingAIResult: Bool {
         document.isLoadingAI
+    }
+    
+    private var lightModeShimmerConfig: CustomShimmerConfig {
+        CustomShimmerConfig(
+            tint: .white.opacity(0.15),
+            highlight: .white,
+            blur: 5
+        )
+    }
+    
+    private var displayText: String {
+        if document.isStreamingResponses {
+            return document.streamingReasoningText.isEmpty ? "Thinking..." : document.streamingReasoningText
+        }
+        return queryString
     }
     
     var rightSideButton: some View {
@@ -77,32 +193,51 @@ struct InsertNodeMenuSearchBar: View {
     
     var body: some View {
         let searchInput = VStack(spacing: .zero) {
-            TextField("Search or enter AI prompt...", text: $queryString)
-                .focused($isFocused)
-                .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
-                .padding(.leading, 16)
-                .padding(.trailing, 60)
-                .overlay(alignment: .center) {
-                    rightSideButton
-                }
-                .font(.system(size: 24))
-                .disableAutocorrection(true)
-                .onSubmit {
-                    self.userSubmitted()
-                }
-                .onAppear {
-                     // log("InsertNodeMenuSearchBar: onAppear: inner")
-                    self.queryString = ""
-                    self.isFocused = true
+            ZStack(alignment: .leading) {
+                if document.isStreamingResponses {
+                    // Show Text view when streaming for content transitions
+                    Text(displayText)
+                        .contentTransition(.numericText())
+                        .animation(.default, value: displayText)
+                        .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.leading, 16)
+                        .padding(.trailing, 60)
+                        .font(.system(size: 24))
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(1)
+                        .foregroundColor(.primary)
+                        .modifier(HybridShimmerModifier(colorScheme: colorScheme, lightModeConfig: lightModeShimmerConfig))
+                } else {
+                    // Show TextField when not streaming for input
+                    TextField("Search or enter AI prompt...", text: $queryString)
+                        .focused($isFocused)
+                        .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
+                        .padding(.leading, 16)
+                        .padding(.trailing, 60)
+                        .font(.system(size: 24))
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(1)
+                        .disableAutocorrection(true)
+                        .onSubmit {
+                            self.userSubmitted()
+                        }
+                        .onAppear {
+                             // log("InsertNodeMenuSearchBar: onAppear: inner")
+                            self.queryString = ""
+                            self.isFocused = true
 
-                    // Hack: additional focus-setting after a slight delay; it seems that StitchHostingController contributes to the field being sometimes defocused after .onAppear
-                    //                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-                        // log("InsertNodeMenuSearchBar: onAppear: inner: callback")
-                        self.isFocused = true
-                    }
+                            // Hack: additional focus-setting after a slight delay; it seems that StitchHostingController contributes to the field being sometimes defocused after .onAppear
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                                // log("InsertNodeMenuSearchBar: onAppear: inner: callback")
+                                self.isFocused = true
+                            }
+                        }
                 }
+            }
+            .overlay(alignment: .center) {
+                rightSideButton
+            }
         }
         // We apparently need both `.onAppear`'s to set .isFocused = true ?
         // Note: do not wipe queryString in .onChange(of: self.isFocused), otherwise we lose the user's string when user switches back to the Stitch window in Catalyst.

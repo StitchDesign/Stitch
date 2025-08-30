@@ -71,11 +71,8 @@ struct AIGraphCreationRequest: StitchAIRequestable {
                 canShareData: StitchStore.canShareAIData,
                 userPromptTableName: aiManager.graphGenerationUserPromptTableName)
             
-            aiManager.currentTaskLEGACY = .init(task: aiManager.getOpenAITask(
-                request: request,
-                attempt: 0,
-                document: document,
-                canShareAIRetries: StitchStore.canShareAIData))
+            // TODO: Remove - legacy streaming code no longer needed with Responses endpoint
+            fatalError("Legacy streaming code should not be called - use Responses endpoint instead")
             
         } catch {
             fatalErrorIfDebug("Unable to generate Stitch AI prompt with error: \(error.localizedDescription)")
@@ -99,11 +96,8 @@ struct AIGraphCreationRequest: StitchAIRequestable {
     @MainActor
     func onSuccessfulDecodingChunk(result: Step,
                                    currentAttempt: Int) {
-        dispatch(ChunkProcessed(
-            newStep: result,
-            request: self,
-            currentAttempt: currentAttempt
-        ))
+        // TODO: Remove - legacy streaming code no longer needed with Responses endpoint
+        fatalError("Legacy streaming code should not be called - use Responses endpoint instead")
     }
     
     static func buildResponse(from streamingChunks: [Step]) throws -> AIGraphCreationContentJSON {
@@ -143,7 +137,6 @@ extension StitchAIManager {
         
         // Make sure current task is completely wiped
         self.cancelCurrentRequest()
-        self.currentTaskLEGACY = nil
         
         // Clear previous streamed steps
         document.llmRecording.streamedSteps = .init()

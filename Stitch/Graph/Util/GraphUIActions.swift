@@ -362,23 +362,23 @@ struct ActiveIndexChangedAction: StitchDocumentEvent {
     }
 }
 
-struct InsertNodeQuery_REPL: View {
-
-    let query: String = "a"
-
-    var results: [InsertNodeMenuOption] {
-        searchForNodes(by: query,
-                       searchOptions: .ALL_NODE_SEARCH_OPTIONS)
-    }
-
-    var body: some View {
-        ForEach(results, id: \.id) {
-            Text($0.displayTitle)
-        }
-    }
-}
-
-#Preview {
-    InsertNodeQuery_REPL()
-        .scaleEffect(4)
-}
+//struct InsertNodeQuery_REPL: View {
+//
+//    let query: String = "a"
+//
+//    var results: [InsertNodeMenuOption] {
+//        searchForNodes(by: query,
+//                       searchOptions: .ALL_NODE_SEARCH_OPTIONS)
+//    }
+//
+//    var body: some View {
+//        ForEach(results, id: \.id) {
+//            Text($0.displayTitle)
+//        }
+//    }
+//}
+//
+//#Preview {
+//    InsertNodeQuery_REPL()
+//        .scaleEffect(4)
+//}
