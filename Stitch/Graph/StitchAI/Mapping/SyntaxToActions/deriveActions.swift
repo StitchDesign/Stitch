@@ -122,9 +122,19 @@ extension Array where Element == AIGraphData_V0.LayerData {
     }
     
     /// Recursively gathers all view event data
-    func getAllViewEvents() -> [LayerDataViewEvent] {
-        self.flatMap { layerData in
-            layerData.view_events + (layerData.children?.getAllViewEvents() ?? [])
+    /// * key = layer id
+    /// * value = view event data
+    func getAllViewEventsMap(into dict: [UUID: LayerDataViewEvent]? = nil) -> [UUID: LayerDataViewEvent] {
+        self.reduce(into: dict ?? .init()) { result, layerData in
+            layerData.view_events.forEach { viewEvent in
+                if let id = UUID(layerData.node_id) {
+                    result.updateValue(viewEvent, forKey: id)
+                }
+            }
+            
+            if let appendedChildrenResult = layerData.children?.getAllViewEventsMap(into: result) {
+                result = appendedChildrenResult
+            }
         }
     }
 }
