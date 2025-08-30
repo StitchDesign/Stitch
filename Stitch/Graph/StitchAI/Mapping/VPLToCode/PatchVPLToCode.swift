@@ -18,7 +18,17 @@ extension GraphState {
                                        viewStatePatchConnections: aiGraph.viewStatePatchConnections)
         
         let patchNodeDeclarations = patchData.patchNodeDeclarations
+        
+        let flattenedLayerData = aiGraph.layer_data_list.allFlattenedItems
         let layerViewEvents = aiGraph.layer_data_list.getAllViewEvents()
+        
+        // Organizes view event data by layer id
+        let layerViewEventMap = flattenedLayerData.reduce(into: [String: LayerDataViewEvent]()) { result, layerData in
+            layerData.view_events.forEach{ viewEvent in
+                result.updateValue(viewEvent,
+                                   forKey: layerData.node_id)
+            }
+        }
         
         // Patches that connect to layers
         let patchStateVars = Array(aiGraph.viewStatePatchConnections.keys)
@@ -65,7 +75,8 @@ extension GraphState {
         
         let viewCode = try topLevelLayerEntities
             .createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
-                               varIdNameMap: varNameIdMap)
+                               varIdNameMap: varNameIdMap,
+                               layerViewEventMap: layerViewEventMap)
         
         if ignoreScript {
             return viewCode

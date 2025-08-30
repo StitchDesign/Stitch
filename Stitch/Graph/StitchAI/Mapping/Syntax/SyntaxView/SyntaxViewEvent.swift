@@ -34,7 +34,6 @@ struct LayerDataViewEvent {
     
     // Tracks which state variable is mutated
     let mutatedStateVar: String
-    
 }
 
 struct LayerDataViewEventsResult {
