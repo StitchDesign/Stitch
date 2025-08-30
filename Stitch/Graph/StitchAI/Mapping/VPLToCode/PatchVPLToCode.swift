@@ -23,9 +23,12 @@ extension GraphState {
         let layerViewEvents = aiGraph.layer_data_list.getAllViewEvents()
         
         // Organizes view event data by layer id
-        let layerViewEventMap = flattenedLayerData.reduce(into: [String: LayerDataViewEvent]()) { result, layerData in
+        let layerViewEventMap = flattenedLayerData.reduce(into: [String: [LayerDataViewEvent]]()) { result, layerData in
             layerData.view_events.forEach{ viewEvent in
-                result.updateValue(viewEvent,
+                var viewEventsList = result.get(layerData.node_id) ?? []
+                viewEventsList.append(viewEvent)
+                
+                result.updateValue(viewEventsList,
                                    forKey: layerData.node_id)
             }
         }
