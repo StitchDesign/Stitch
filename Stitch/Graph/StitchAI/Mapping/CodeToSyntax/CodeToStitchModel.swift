@@ -18,7 +18,7 @@ struct SwiftUIViewParserResult {
 
 enum SwiftParserPatternBindingArg {
     case value(SyntaxViewModifierArgumentType)
-    case binding(DeclReferenceExprSyntax)
+    case binding(String)
     case subscriptRef(SwiftParserSubscript)
 }
 
