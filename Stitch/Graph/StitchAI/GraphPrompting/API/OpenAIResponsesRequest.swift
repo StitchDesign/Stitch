@@ -66,60 +66,61 @@ struct OpenAIResponsesRequest {
         request.setValue("Bearer \(secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        // Build request body based on whether we have an image
+        // Build request body using StreamingDemoView format for compatibility
         var requestBody: [String: Any] = [
-            "model": model.asOpenAIModel,
+            "model": "o4-mini", // Use working model from StreamingDemoView
             "stream": true
         ]
         
-        // Add reasoning parameters for reasoning-capable models
-//        if model.supportsReasoning {
-            requestBody["reasoning"] = [
-                "summary": verbosity.toReasoningSummary(),
-                "effort": reasoningEffort.toReasoningEffort()
-            ]
-//        }
+        // Add reasoning parameters matching StreamingDemoView
+        requestBody["reasoning"] = [
+            "summary": "auto",
+            "effort": "medium"
+        ]
         
-        // Build messages array
-        var messages: [[String: Any]] = []
+        // Use simple message format like StreamingDemoView (just user message)
+        // TODO: Add system prompt back gradually after confirming this works
+        let userContent: Any
         
-        // System message
-        let systemContent = """
-        \(dataGlossaryPrompt)
-        
-        \(assistantPrompt)
-        """
-        
-        messages.append([
-            "role": "system",
-            "content": systemContent
-        ])
-        
-        // User message - handle text + image or text only
         if let imageData = base64Image {
-            messages.append([
-                "role": "user",
-                "content": [
-                    [
-                        "type": "text",
-                        "text": textInput
-                    ],
-                    [
-                        "type": "image_url",
-                        "image_url": [
-                            "url": "data:image/jpeg;base64,\(imageData)"
-                        ]
+            // For image requests, use multimodal content
+            userContent = [
+                [
+                    "type": "text",
+                    "text": textInput
+                ],
+                [
+                    "type": "image_url",
+                    "image_url": [
+                        "url": "data:image/jpeg;base64,\(imageData)"
                     ]
                 ]
-            ])
+            ]
         } else {
-            messages.append([
-                "role": "user",
-                "content": textInput
-            ])
+            // For text-only requests, use simple string content
+            userContent = textInput
         }
         
-        requestBody["input"] = messages
+        requestBody["input"] = [
+            [
+                "role": "user",
+                "content": userContent
+            ]
+        ]
+        
+        // Debug: Log request size components
+        print("🐛 DEBUG: Request size analysis")
+        print("🐛 dataGlossaryPrompt length: \(dataGlossaryPrompt.count) characters")
+        print("🐛 assistantPrompt length: \(assistantPrompt.count) characters")
+        print("🐛 textInput length: \(textInput.count) characters")
+        if let imageData = base64Image {
+            print("🐛 base64Image length: \(imageData.count) characters")
+        }
+        if let jsonData = try? JSONSerialization.data(withJSONObject: requestBody),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            print("🐛 Total request body length: \(jsonData.count) bytes")
+            print("🐛 Request body preview (first 500 chars): \(String(jsonString.prefix(500)))")
+        }
         
         // Set initial streaming state
         document.isStreamingResponses = true
