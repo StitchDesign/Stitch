@@ -73,12 +73,12 @@ struct OpenAIResponsesRequest {
         ]
         
         // Add reasoning parameters for reasoning-capable models
-        if model.supportsReasoning {
+//        if model.supportsReasoning {
             requestBody["reasoning"] = [
                 "summary": verbosity.toReasoningSummary(),
                 "effort": reasoningEffort.toReasoningEffort()
             ]
-        }
+//        }
         
         // Build messages array
         var messages: [[String: Any]] = []
