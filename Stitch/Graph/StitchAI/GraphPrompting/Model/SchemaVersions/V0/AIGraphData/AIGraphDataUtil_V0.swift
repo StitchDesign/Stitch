@@ -205,10 +205,7 @@ extension AIGraphData_V0.LayerData {
               let layerData = node.layerNodeEntity else {
             throw AICodeGenError.nodeDataNotFound
         }
-        
-//        let knownInteractionPatchIds = patchToLayerAssignmentMap.keys
-        let layerVarName = node.kind.getDisplayTitle().toCamelCase()
-        
+                
         // Recursively create children
         let children = try sidebarData.children?.createAIData(nodesDict: nodesDict,
                                                               patchToLayerAssignmentMap: patchToLayerAssignmentMap,
@@ -249,7 +246,9 @@ extension AIGraphData_V0.LayerData {
 //                                               downstreamKeyPathType: .packed)
                     
                     // Upstream connections require @State variable, so we'll make one here
-                    let stateVarName = port.asLLMStepPort.createUniqueVarName(nodeId: layerData.id)
+                    let stateVarName = port.asLLMStepPort
+                        .toCamelCase()
+                        .createUniqueVarName(nodeId: layerData.id)
                     
                     customInputValues.append(
                         .init(input: port,
@@ -291,7 +290,7 @@ extension AIGraphData_V0.LayerData {
 //                        }
                         
                         // Upstream connections require @State variable, so we'll make one here
-                        let prefixName = "\(port.asLLMStepPort)_\(portIndex)"
+                        let prefixName = "\(port.asLLMStepPort.toCamelCase())_\(portIndex)"
                         let stateVarName = prefixName.createUniqueVarName(nodeId: layerData.id)
                         
                         customInputValues.append(
