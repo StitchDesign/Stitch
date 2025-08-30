@@ -34,7 +34,6 @@ struct LayerDataViewEvent {
     
     // Tracks which state variable is mutated
     let mutatedStateVar: String
-    
 }
 
 struct LayerDataViewEventsResult {
@@ -56,6 +55,18 @@ extension SyntaxViewEvent {
             return .dragInteraction
         case .tapGesture:
             return .pressInteraction
+        }
+    }
+}
+
+extension Patch {
+    var syntaxViewEvent: SyntaxViewEvent? {
+        switch self {
+        case .dragInteraction:
+            return .dragGesture
+        case .pressInteraction:
+            return .tapGesture
+        default: return nil
         }
     }
 }
