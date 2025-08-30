@@ -141,7 +141,7 @@ extension AIGraphData_V0.GraphData {
         let aiLayerData: [AIGraphData_V0.LayerData] = try graphEntity.orderedSidebarLayers
             .createAIData(nodesDict: nodesDict,
                           patchToLayerAssignmentMap: patchToLayerAssignmentMap,
-                          upstreamConnectionToInteraction: upstreamConnectionToInteraction,
+                          upstreamConnectionToInteraction: &upstreamConnectionToInteraction,
                           viewStatePatchConnections: &viewStatePatchConnections)
         
         self = .init(layer_data_list: aiLayerData,
@@ -175,13 +175,13 @@ extension JavaScriptPortDefinitionAI_V1.JavaScriptPortDefinitionAI {
 extension Array where Element == AIGraphData_V0.SidebarLayerData {
     func createAIData(nodesDict: [UUID : AIGraphData_V0.NodeEntity],
                       patchToLayerAssignmentMap: [UUID : UUID],
-                      upstreamConnectionToInteraction: [NodeIOCoordinate : NodeIOCoordinate],
+                      upstreamConnectionToInteraction: inout [NodeIOCoordinate : NodeIOCoordinate],
                       viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate]) throws -> [AIGraphData_V0.LayerData] {
         try self.map { sidebarData in
             try .init(from: sidebarData,
                       nodesDict: nodesDict,
                       patchToLayerAssignmentMap: patchToLayerAssignmentMap,
-                      upstreamConnectionToInteraction: upstreamConnectionToInteraction,
+                      upstreamConnectionToInteraction: &upstreamConnectionToInteraction,
                       viewStatePatchConnections: &viewStatePatchConnections)
         }
     }
@@ -199,7 +199,7 @@ extension AIGraphData_V0.LayerData {
     init(from sidebarData: AIGraphData_V0.SidebarLayerData,
          nodesDict: [UUID : AIGraphData_V0.NodeEntity],
          patchToLayerAssignmentMap: [UUID : UUID],
-         upstreamConnectionToInteraction: [NodeIOCoordinate : NodeIOCoordinate],
+         upstreamConnectionToInteraction: inout [NodeIOCoordinate : NodeIOCoordinate],
          viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate]) throws {
         guard let node = nodesDict.get(sidebarData.id),
               let layerData = node.layerNodeEntity else {
@@ -209,8 +209,12 @@ extension AIGraphData_V0.LayerData {
         // Recursively create children
         let children = try sidebarData.children?.createAIData(nodesDict: nodesDict,
                                                               patchToLayerAssignmentMap: patchToLayerAssignmentMap,
-                                                              upstreamConnectionToInteraction: upstreamConnectionToInteraction,
+                                                              upstreamConnectionToInteraction: &upstreamConnectionToInteraction,
                                                               viewStatePatchConnections: &viewStatePatchConnections)
+        
+        // Track if this layer has any inputs which connect directly to an interaction output so we can avoid conflicting state variable names
+        // key = this layer's port, value = node id of interaction
+//        var upstreamInteractionToPort = [LayerInputType: UUID]()
         
         var customInputValues = [LayerPortDerivation]()
         for port in LayerInputPort.allCases {
@@ -244,6 +248,7 @@ extension AIGraphData_V0.LayerData {
 //                                               downstreamNodeId: layerData.id,
 //                                               downstreamPort: port,
 //                                               downstreamKeyPathType: .packed)
+                    let isInteractionUpstream = patchToLayerAssignmentMap.keys.contains(upstream.nodeId)
                     
                     // Upstream connections require @State variable, so we'll make one here
                     let stateVarName = port.asLLMStepPort
@@ -258,8 +263,18 @@ extension AIGraphData_V0.LayerData {
                     // Update state dict
                     viewStatePatchConnections
                         .updateValue(.init(node_id: upstream.nodeId.uuidString,
-                                                   port_index: upstream.portId!),
+                                           port_index: upstream.portId!),
                                      forKey: stateVarName)
+                    
+                    // Track interaction data
+                    if isInteractionUpstream {
+                        upstreamConnectionToInteraction.updateValue(
+                            upstream,
+                            forKey: .init(portType: .keyPath(.init(layerInput: port,
+                                                                   portType: .packed)),
+                                          nodeId: node.id)
+                        )
+                    }
                 }
                 
             case .unpacked:
@@ -310,22 +325,27 @@ extension AIGraphData_V0.LayerData {
         
         // Determine view events
         let viewEvents: [LayerDataViewEvent] = patchToLayerAssignmentMap.flatMap { interactionToLayer -> [LayerDataViewEvent] in
-            let (interactionId, layerId) = interactionToLayer
+            let (patchInteractionId, layerId) = interactionToLayer
             
+            // Ensure that interactions are only for this layer
             guard layerId == sidebarData.id else { return [] }
             
             let outputPortIdsUsedFromInteraction = upstreamConnectionToInteraction.values
                 .compactMap { upstreamInteractionCoordinate -> Int? in
-                    guard upstreamInteractionCoordinate.nodeId == interactionId else {
+                    guard upstreamInteractionCoordinate.nodeId == patchInteractionId else {
                         return nil
                     }
                     
                     return upstreamInteractionCoordinate.portId
                 }
 
-            switch nodesDict.get(interactionId)?.kind {
+            switch nodesDict.get(patchInteractionId)?.kind {
             case .patch(let patch):
                 return outputPortIdsUsedFromInteraction.map { outputPortId in
+                    let interactionOutputCoordinate = AIGraphData_V0.NodeIndexedCoordinate(
+                        node_id: patchInteractionId.uuidString,
+                        port_index: outputPortId)
+
                     let _viewEventName = patch.syntaxViewEvent
                     assertInDebug(_viewEventName != nil)
                     let viewEventName = _viewEventName ?? .dragGesture
@@ -333,6 +353,17 @@ extension AIGraphData_V0.LayerData {
                     let gestureProperty = patch.getGestureName(for: outputPortId)
                     let stateVarName = patch.createInteractionStateVarName(layerId: layerData.id,
                                                                            outputPortIndex: outputPortId)
+                    
+                    // Check for state var names to override if redundant state vars were made for connected layer inputs
+                    viewStatePatchConnections = viewStatePatchConnections.reduce(into: viewStatePatchConnections) { result, connectionData in
+                        let (oldKey, viewStateUpstreamCoordinate) = connectionData
+                        if viewStateUpstreamCoordinate == interactionOutputCoordinate {
+                            // Update key
+                            result.removeValue(forKey: oldKey)
+                            result.updateValue(viewStateUpstreamCoordinate,
+                                               forKey: stateVarName)
+                        }
+                    }
                     
                     return .init(viewEvent: viewEventName,
                                  gestureArg: "g.\(gestureProperty)",

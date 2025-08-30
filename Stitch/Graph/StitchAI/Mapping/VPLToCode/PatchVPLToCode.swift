@@ -20,7 +20,8 @@ extension GraphState {
         let patchNodeDeclarations = patchData.patchNodeDeclarations
         
         let flattenedLayerData = aiGraph.layer_data_list.allFlattenedItems
-        let layerViewEvents = aiGraph.layer_data_list.getAllViewEvents()
+        let layerViewEventsMap = aiGraph.layer_data_list.getAllViewEventsMap()
+        let layerViewEvents = layerViewEventsMap.values
         
         // Organizes view event data by layer id
         let layerViewEventMap = flattenedLayerData.reduce(into: [String: [LayerDataViewEvent]]()) { result, layerData in
@@ -39,7 +40,7 @@ extension GraphState {
         // Interaction data updated from gesture callbacks
         let interactionStateVars = layerViewEvents.map { $0.mutatedStateVar }
         
-        let allStateVarNames = patchStateVars + interactionStateVars
+        let allStateVarNames = Set(patchStateVars + interactionStateVars)
         let stateVarDeclarations = allStateVarNames.map { stateVarName in
             "@State var \(stateVarName): [PortValueDescription] = []"
         }
@@ -73,6 +74,12 @@ extension GraphState {
             
             result.updateValue(variableName, forKey: nodeId)
         }
+        
+        // Append interactions to var name map
+//        varNameIdMap = layerViewEventsMap.reduce(into: varNameIdMap) { result, data in
+//            let (id, viewEvent) = data
+//            result.updateValue(viewEvent.mutatedStateVar, forKey: id)
+//        }
         
         // log("createSwiftUICode: varNameIdMap: \(varNameIdMap)")
         
