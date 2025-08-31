@@ -13,6 +13,8 @@ import Shimmer
 
 // Shimmer helpers defined in `InsertNodeMenuSearchbar.swift`
 
+let apiKey = ""
+
 struct StreamingDemoView: View {
     
     @State private var prompt: String = "In SwiftUI, make 100 rectangles, different colors."
