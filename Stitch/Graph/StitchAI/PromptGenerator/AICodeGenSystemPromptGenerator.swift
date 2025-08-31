@@ -401,6 +401,10 @@ cardOpacity = optionPickerOutputs
 ##### Drag Gesture Considerations
 A drag gesture should almost always default to using the `position` property instead of `translation` property when a drag interaction is requested by the user. Only use `translation` for requests where drag functionality is not expected to persist based on the user's request. **When in doubt, use position, not translation.** 
 
+##### Allowed and Disallowed Gestures
+
+**Only tap and drag gestures are supported. Do not create any other gestures like long press or pinch.**
+
 #### Allowed View Modifiers
 You are ONLY permitted to use these view modifiers. Do not attempt to use view modifiers not included in the list below:
 ```
