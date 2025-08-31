@@ -464,7 +464,7 @@ extension LayerNodeEntity {
                         return ""
                     }
                     
-                    return "\(viewEvent.mutatedStateVar) = \(gestureProp)"
+                    return "\(viewEvent.mutatedStateVar) = [PortValueDescription(value: \(gestureProp), value_type: \"position\")]"
                 }
                     .joined(separator: "\n")
                 
