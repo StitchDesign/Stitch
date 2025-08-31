@@ -17,7 +17,7 @@ extension LayerNodeEntity {
     @MainActor
     func createSwiftUIViewBuilderCode(children: [LayerNodeEntity],
                                       orderedLayerEntities: [LayerNodeEntity],
-                                      varIdNameMap: [UUID: String],
+                                      varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String],
                                       layerViewEventMap: [String: [LayerDataViewEvent]]) throws -> String? {
         switch self.layer {
             
@@ -110,7 +110,7 @@ extension LayerNodeEntity {
     @MainActor
     func createNestedGroupSwiftUICode(children: [LayerNodeEntity],
                                       orderedLayerEntities: [LayerNodeEntity],
-                                      varIdNameMap: [UUID: String],
+                                      varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String],
                                       layerViewEventMap: [String: [LayerDataViewEvent]]) throws -> String? {
         assertInDebug(self.layer == .group)
         
@@ -189,7 +189,7 @@ extension LayerNodeEntity {
     @MainActor
     func createLazyVGridCode(children: [LayerNodeEntity],
                              orderedLayerEntities: [LayerNodeEntity],
-                             varIdNameMap: [UUID: String],
+                             varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String],
                              layerViewEventMap: [String: [LayerDataViewEvent]]) throws -> String? {
         assertInDebug(self.layer == .group)
         
@@ -237,7 +237,7 @@ extension LayerNodeEntity {
     /// Converts layer data from graph to SwiftUI code
     @MainActor
     func createSwiftUICode(orderedLayerEntities: [LayerNodeEntity],
-                           varIdNameMap: [UUID: String],
+                           varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String],
                            layerViewEventMap: [String: [LayerDataViewEvent]]) throws -> String? {
         let childrenLayerEntities = orderedLayerEntities.filter {
             $0.layerGroupId == self.id
@@ -302,7 +302,7 @@ extension LayerNodeEntity {
 extension Array where Element == LayerNodeEntity {
     @MainActor
     func createSwiftUICode(orderedLayerEntities: [LayerNodeEntity],
-                           varIdNameMap: [UUID: String],
+                           varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String],
                            layerViewEventMap: [String: [LayerDataViewEvent]]) throws -> String {
         var droppedLayers: [LayerNodeEntity] = []
         
@@ -406,7 +406,7 @@ func createAlignmentArg(anchoring: Anchoring,
 extension LayerNodeEntity {
     /// Creates StrictViewModifier array from LayerData custom input values
     @MainActor
-    func getSwiftUIViewModifierStrings(varIdNameMap: [UUID: String]) throws -> [String] {
+    func getSwiftUIViewModifierStrings(varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String]) throws -> [String] {
         let ports = self.layer.inputDefinitions
         
         return try ports.compactMap { port -> String? in
@@ -459,6 +459,8 @@ extension LayerNodeEntity {
             switch viewEventName {
             case .dragGesture:
                 let dragBindings = viewEvents.map { viewEvent in
+                    // TODO: unpack support
+                    
                     guard let gestureProp = viewEvent.gestureArg else {
                         fatalErrorIfDebug()
                         return ""

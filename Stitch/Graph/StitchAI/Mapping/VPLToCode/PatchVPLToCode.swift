@@ -63,20 +63,14 @@ extension GraphState {
         
         // log("createSwiftUICode: topLevelLayerEntities: \(topLevelLayerEntities)")
         
-        // Maps upstream patch node ID to a variable name
-        let varNameIdMap = aiGraph.viewStatePatchConnections.reduce(into: [UUID: String]()) { result, data in
+        // Maps upstream patch node's output port to a view state's var
+        let varIdNameMap = aiGraph.viewStatePatchConnections.reduce(into: [AIGraphData_V0.NodeIndexedCoordinate: String]()) { result, data in
             let (variableName, nodeIndexCoordiante) = data
-            
-            guard let nodeId = UUID(nodeIndexCoordiante.node_id) else {
-                fatalErrorIfDebug()
-                return
-            }
-            
-            result.updateValue(variableName, forKey: nodeId)
+            result.updateValue(variableName, forKey: nodeIndexCoordiante)
         }
         
         // Append interactions to var name map
-//        varNameIdMap = layerViewEventsMap.reduce(into: varNameIdMap) { result, data in
+//        varIdNameMap = layerViewEventsMap.reduce(into: varNameIdMap) { result, data in
 //            let (id, viewEvent) = data
 //            result.updateValue(viewEvent.mutatedStateVar, forKey: id)
 //        }
@@ -85,7 +79,7 @@ extension GraphState {
         
         let viewCode = try topLevelLayerEntities
             .createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
-                               varIdNameMap: varNameIdMap,
+                               varIdNameMap: varIdNameMap,
                                layerViewEventMap: layerViewEventMap)
         
         if ignoreScript {
