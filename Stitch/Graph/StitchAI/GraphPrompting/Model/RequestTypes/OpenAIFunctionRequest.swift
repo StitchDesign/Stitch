@@ -44,6 +44,10 @@ struct OpenAIChatCompletionRequest: StitchAIChatCompletionRequestable {
          model: String = "gpt-5-2025-08-07",
          verbosity: String? = nil,
          reasoningEffort: String? = nil) throws {
+        
+        let verbosity = "medium"
+        let model = "ft:o4-mini-2025-04-16:ve::CAMpma9g"
+        
         let messages: [OpenAIMessage] = [
             .init(role: .system,
                   content: assistantPrompt),
@@ -88,6 +92,9 @@ struct OpenAIVisionChatCompletionRequest: StitchAIChatCompletionRequestable {
          verbosity: String? = nil,
          reasoningEffort: String? = nil,
          willStream: Bool = false) throws {
+        
+        let verbosity = "medium"
+        let model = "ft:o4-mini-2025-04-16:ve::CAMpma9g"
         
         var userContentArray: [OpenAIUserContentItem] = []
         
