@@ -291,7 +291,7 @@ extension SwiftParserInitializerType {
     func parseStitchActions(varName: String,
                             varNameIdMap: [String : String],
                             varNameOutputPortMap: [String : SwiftParserSubscript],
-                            customPatchInputValues: inout [String: CurrentAIGraphData.CustomPatchInputValue],
+    customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue],
                             varNamePatchNodeRefMap: [String : String],
                             stateVarToInteractionOutputsMap: [String: CurrentAIGraphData.NodeIndexedCoordinate],
                             patchConnections: inout [CurrentAIGraphData.PatchConnection],
@@ -337,13 +337,12 @@ extension SwiftParserInitializerType {
                     for portData in portDataList {
                         switch portData {
                         case .value(let portValue):
-                            customPatchInputValues.updateValue(
+                            customPatchInputValues.append(
                                 .init(patch_input_coordinate: .init(
                                     node_id: patchNodeData.id,
                                     port_index: portIndex),
                                       value: portValue.value,
-                                      value_type: portValue.value_type),
-                                forKey: patchNodeData.id
+                                      value_type: portValue.value_type)
                             )
                             
                         case .stateRef(let ref):
