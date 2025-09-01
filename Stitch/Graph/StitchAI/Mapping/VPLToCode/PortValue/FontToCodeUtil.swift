@@ -24,7 +24,8 @@ func decomposeFontToModifiers(_ stitchFont: StitchFont) -> StrictViewModifier? {
     // Try to map to a standard SwiftUI system font first
     if let systemFont = mapStitchFontToSwiftUISystemFont(fontChoice, fontWeight) {
         let fontArg = SyntaxViewModifierArgumentType.memberAccess(
-            SyntaxViewMemberAccess(base: nil, property: String(systemFont.dropFirst())) // Remove leading dot
+            // Remove leading dot
+            .init(name: .init(stringLiteral: String(systemFont.dropFirst())))
         )
         return .font(FontViewModifier(font: fontArg))
     }

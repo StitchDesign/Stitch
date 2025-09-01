@@ -12,10 +12,10 @@ import SwiftUI
 
 extension SwiftUIViewVisitor {
     // Parse arguments from function call
-    func parseArguments(from node: FunctionCallExprSyntax) -> ViewConstructorType {
+    static func parseArguments(from node: FunctionCallExprSyntax) throws -> ViewConstructorType {
         // Default handling for other modifiers
-        var arguments = node.arguments.compactMap { (argument) -> SyntaxViewArgumentData? in
-            self.parseArgument(argument)
+        var arguments = try node.arguments.map { (argument) -> SyntaxViewArgumentData in
+            try Self.parseArgument(argument)
         }
         
         // log("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
@@ -25,19 +25,9 @@ extension SwiftUIViewVisitor {
             arguments: arguments) else {
         
             // Append closure arg if exists
-            if let trailingClosure = node.trailingClosure {
-                let statements = trailingClosure.statements.map { $0.item.trimmedDescription }
-                let joinedStatements = statements.joined(separator: "\n")
-                
-                // Debug logging
-                log("DEBUG: Parsing trailing closure with \(statements.count) statements:")
-                for (index, statement) in statements.enumerated() {
-                    log("  Statement \(index): \(statement)")
-                }
-                log("DEBUG: Final joined trailing closure: \(joinedStatements)")
-                
+            if let closureBlock = node.trailingClosure {
                 arguments.append(.init(label: nil,
-                                       value: .closure(joinedStatements)))
+                                       value: .closure(closureBlock.getClosureData())))
             }
             
             return .other(arguments)
@@ -46,71 +36,80 @@ extension SwiftUIViewVisitor {
         return .trackedConstructor(knownViewConstructor)
     }
     
-    func parseArgument(_ argument: LabeledExprSyntax) -> SyntaxViewArgumentData? {
+    static func parseArgument(_ argument: LabeledExprSyntax) throws -> SyntaxViewArgumentData {
         let label = argument.label?.text
         
         let expression = argument.expression
         
-        guard let value = self.parseArgumentType(from: expression) else {
-            return nil
-        }
+        let value = try Self.parseArgumentType(from: expression)
         
         return .init(label: label,
                      value: value)
     }
     
-    func parseFnArgumentType(_ funcExpr: FunctionCallExprSyntax) -> SyntaxViewModifierComplexType {
+    static func parseFnArgumentType(_ funcExpr: FunctionCallExprSyntax) throws -> SyntaxViewModifierArgumentType {
         // Recursively create argument data
-        let complexTypeArgs = funcExpr.arguments
-            .compactMap { expr in
-                self.parseArgument(expr)
+        let complexTypeArgs = try funcExpr.arguments
+            .map { expr in
+                try Self.parseArgument(expr)
             }
+        
+        if let memberAccessExpr = funcExpr.calledExpression.as(MemberAccessExprSyntax.self),
+           let viewEventName = funcExpr.getViewEventName() {
+            
+            var modifierClosures = [String: SyntaxViewModifierClosureData]()
+            try funcExpr.reduceModifierClosureData(funcExpr: funcExpr,
+                                                   memberAccessExpr: memberAccessExpr,
+                                                   modifierClosures: &modifierClosures)
+            
+            return .viewEvent(.init(eventName: viewEventName,
+                                    eventConstructorArgs: complexTypeArgs,
+                                    eventModifiers: modifierClosures))
+        }
         
         let complexType = SyntaxViewModifierComplexType(
             typeName: funcExpr.calledExpression.trimmedDescription,
             arguments: complexTypeArgs)
         
-        return complexType
+        return .complex(complexType)
     }
     
     /// Handles conditional logic for determining a type of syntax argument.
-    func parseArgumentType(from expression: SwiftSyntax.ExprSyntax) -> SyntaxViewModifierArgumentType? {
-        // Handles complex types, like PortValueDescription
+    static func parseArgumentType(from expression: SwiftSyntax.ExprSyntax) throws -> SyntaxViewModifierArgumentType {
+        // Handles compelx types, like PortValueDescription
         if let funcExpr = expression.as(FunctionCallExprSyntax.self) {
-            let complexType = self.parseFnArgumentType(funcExpr)
-            return .complex(complexType)
+            let complexType = try Self.parseFnArgumentType(funcExpr)
+            return complexType
         }
         
         // Recursively handle arguments in tuple case
         else if let tupleExpr = expression.as(TupleExprSyntax.self) {
-            let tupleArgs = tupleExpr.elements.compactMap(self.parseArgument(_:))
+            let tupleArgs = try tupleExpr.elements.map(self.parseArgument(_:))
             return .tuple(tupleArgs)
         }
         
         // Recursively handle arguments in array case
         else if let arrayExpr = expression.as(ArrayExprSyntax.self) {
-            let arrayArgs = arrayExpr.elements.compactMap {
-                self.parseArgumentType(from: $0.expression)
+            let arrayArgs = try arrayExpr.elements.compactMap {
+                try Self.parseArgumentType(from: $0.expression)
             }
             return .array(arrayArgs)
         }
         
         else if let memberAccessExpr = expression.as(MemberAccessExprSyntax.self) {
-            return .memberAccess(SyntaxViewMemberAccess(
-                base: memberAccessExpr.base?.trimmedDescription,
-                property: memberAccessExpr.declName.baseName.trimmedDescription))
-            
+            return .memberAccess(memberAccessExpr)
         }
         
         else if let dictExpr = expression.as(DictionaryExprSyntax.self) {
             // Break down children
             let dictChildren = dictExpr.content.children(viewMode: .sourceAccurate)
-            let recursedChildren = dictChildren.compactMap { dictElem -> SyntaxViewArgumentData? in
-                guard let dictElem = dictElem.as(DictionaryElementSyntax.self),
-                      // get value data recursively
-                      let value = self.parseArgumentType(from: dictElem.value) else {
-                    return nil
+            let recursedChildren = try dictChildren.compactMap { dictElem -> SyntaxViewArgumentData? in
+                guard let dictElem = dictElem.as(DictionaryElementSyntax.self) else {
+                    throw SwiftUISyntaxError.unsupportedSyntaxArgument(dictElem.trimmedDescription)
                 }
+                
+                // get value data recursively
+                let value = try Self.parseArgumentType(from: dictElem.value)
                 
                 let label = dictElem.key.trimmedDescription
                 return SyntaxViewArgumentData(label: label, value: value)
@@ -127,14 +126,11 @@ extension SwiftUIViewVisitor {
         
         // Closures
         else if let closureExpr = expression.as(ClosureExprSyntax.self) {
-            let statements = closureExpr.statements.map { $0.item.trimmedDescription }
-            let joinedStatements = statements.joined(separator: "\n")
-            return .closure(joinedStatements)
+            return .closure(closureExpr.getClosureData())
         }
         
         guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {
-            self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expression.trimmedDescription))
-            return nil
+            throw SwiftUISyntaxError.unsupportedSyntaxArgumentKind(expression.trimmedDescription)
         }
 
         let data = SyntaxViewSimpleData(

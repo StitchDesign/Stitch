@@ -36,6 +36,67 @@ extension FunctionCallExprSyntax {
         
         return declExpr.baseName.text
     }
+    
+    func reduceModifierClosureData(funcExpr: FunctionCallExprSyntax,
+                                   memberAccessExpr: MemberAccessExprSyntax,
+                                   modifierClosures: inout [String: SyntaxViewModifierClosureData]) throws {
+
+        // Recursively create argument data
+        let args = try funcExpr.arguments
+            .map { expr in
+                try SwiftUIViewVisitor.parseArgument(expr)
+            }
+        
+        let modifierCall = memberAccessExpr.declName.trimmedDescription
+        
+        // Look for closure data in args
+        modifierClosures = args.reduce(into: modifierClosures) { result, arg in
+            if let closure = arg.value.closureData {
+                result.updateValue(closure,
+                                   forKey: modifierCall)
+            }
+        }
+        
+        // Get closure data
+        if let closureExpr = self.trailingClosure {
+            let closureData = closureExpr.getClosureData()
+
+            modifierClosures.updateValue(closureData,
+                                         forKey: modifierCall)
+        }
+        
+        // Check for recursive data
+        if let fnBaseExpr = memberAccessExpr.base?.as(FunctionCallExprSyntax.self),
+           let childMemberAccessExpr = fnBaseExpr.calledExpression.as(MemberAccessExprSyntax.self) {
+            // Recursive calls for more closures
+            try fnBaseExpr.reduceModifierClosureData(funcExpr: fnBaseExpr,
+                                                     memberAccessExpr: childMemberAccessExpr,
+                                                     modifierClosures: &modifierClosures)
+        }
+    }
+    
+    // Recursively searches until name found
+    func getViewEventName() -> String? {
+        if let declExpr = self.calledExpression.as(DeclReferenceExprSyntax.self) {
+            return declExpr.trimmedDescription
+        }
+        
+        guard let memberAccessExpr = self.calledExpression.as(MemberAccessExprSyntax.self),
+              let childFn = memberAccessExpr.base?.as(FunctionCallExprSyntax.self) else {
+            return nil
+        }
+        
+        return childFn.getViewEventName()
+    }
+}
+
+extension ClosureExprSyntax {
+    func getClosureData() -> SyntaxViewModifierClosureData {
+        let closureParams = self.signature?.parameterClause?.as(ClosureShorthandParameterListSyntax.self)?.map(\.trimmedDescription) ?? []
+        let script = self.statements.trimmedDescription
+        return .init(paramVars: closureParams,
+                     script: script)
+    }
 }
 
 extension SwiftUIViewVisitor {
@@ -68,16 +129,17 @@ extension SwiftUIViewVisitor {
             if let arrayElem = arg.expression.as(ArrayExprSyntax.self),
                let innerFirstElem = arrayElem.elements.first?.expression {
                 
-                guard let argData = self.parseArgumentType(from: innerFirstElem) else {
-                    fatalError()
+                do {
+                    let argData = try Self.parseArgumentType(from: innerFirstElem)
+                    return .value(argData)
+                } catch {
+                    fatalError(error.localizedDescription)
                 }
-                
-                return .value(argData)
             }
             
             else if let declrRefSyntax = arg.expression.as(DeclReferenceExprSyntax.self) {
                 print("Input param that points to some reference: \(declrRefSyntax)")
-                return .binding(declrRefSyntax)
+                return .binding(declrRefSyntax.trimmedDescription)
             }
             
             else if let subscriptCallExpr = arg.expression.as(SubscriptCallExprSyntax.self),
@@ -85,19 +147,17 @@ extension SwiftUIViewVisitor {
                 return .subscriptRef(subscriptData)
             }
             
+            else if let sequenceExpr = arg.expression.as(SequenceExprSyntax.self) {
+                return .binding(sequenceExpr.trimmedDescription)
+            }
+            
             else {
-                fatalError()
+                fatalErrorIfDebug()
+                return nil
             }
         }
         
-        let id: String
-        
-        if let varName = varName,
-           let _id = self.varNameIdMap.get(varName) {
-            id = _id
-        } else {
-            id = UUID().uuidString
-        }
+        let id = UUID().uuidString
         
         return .init(id: id,
                      patchType: patchNode,
@@ -233,6 +293,7 @@ extension SwiftParserInitializerType {
                             varNameOutputPortMap: [String : SwiftParserSubscript],
     customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue],
                             varNamePatchNodeRefMap: [String : String],
+                            stateVarToInteractionOutputsMap: [String: CurrentAIGraphData.NodeIndexedCoordinate],
                             patchConnections: inout [CurrentAIGraphData.PatchConnection],
                             viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate],
                             preprocessedJSNodes: inout [CurrentAIGraphData.PreprocessedJSPatchNode],
@@ -242,22 +303,30 @@ extension SwiftParserInitializerType {
         case .patchNode(let patchNodeData):
             for (portIndex, arg) in patchNodeData.args.enumerated() {
                 switch arg {
-                case .binding(let declRefSyntax):
+                case .binding(let refName):
                     // Get edge data
-                    let refName = declRefSyntax.baseName.text
-                                            
-                    guard let upstreamRefData = varNameOutputPortMap.get(refName) else {
-                        // TODO: this may happen as a result of bad code from ChatGPT
-//                        fatalError()
+                    let upstreamCoordinate: AIGraphData_V0.NodeIndexedCoordinate
+                    
+                    // First check for some other patch's outputs
+                    if let upstreamRefData = varNameOutputPortMap.get(refName) {
+                        upstreamCoordinate = SwiftParserPatchData
+                            .derivePatchUpstreamCoordinate(upstreamRefData: upstreamRefData,
+                                                           varNameIdMap: varNameIdMap)
+                    }
+                    
+                    // Second, check if we're reading state for some interaction
+                    else if let upstreamInteractionData = stateVarToInteractionOutputsMap
+                            .get(refName) {
+                        upstreamCoordinate = .init(node_id: upstreamInteractionData.node_id,
+                                                   port_index: upstreamInteractionData.port_index)
+                    }
+                    
+                    else {
                         continue
                     }
                     
-                    let usptreamCoordinate = SwiftParserPatchData
-                        .derivePatchUpstreamCoordinate(upstreamRefData: upstreamRefData,
-                                                       varNameIdMap: varNameIdMap)
-                    
                     patchConnections.append(
-                        .init(src_port: usptreamCoordinate,
+                        .init(src_port: upstreamCoordinate,
                               dest_port: .init(node_id: patchNodeData.id,
                                                port_index: portIndex))
                     )
@@ -284,6 +353,7 @@ extension SwiftParserInitializerType {
                                                         varNameIdMap: varNameIdMap,
                                                         varNameOutputPortMap: varNameOutputPortMap,
                                                         customPatchInputValues: &customPatchInputValues, varNamePatchNodeRefMap: varNamePatchNodeRefMap,
+                                                        stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
                                                         patchConnections: &patchConnections,
                                                         viewStatePatchConnections: &viewStatePatchConnections,
                                                         preprocessedJSNodes: &preprocessedJSNodes,
@@ -305,6 +375,7 @@ extension SwiftParserInitializerType {
                                             varNameOutputPortMap: varNameOutputPortMap,
                                             customPatchInputValues: &customPatchInputValues,
                                             varNamePatchNodeRefMap: varNamePatchNodeRefMap,
+                                            stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
                                             patchConnections: &patchConnections,
                                             viewStatePatchConnections: &viewStatePatchConnections,
                                             preprocessedJSNodes: &preprocessedJSNodes,
@@ -357,6 +428,7 @@ extension SwiftParserInitializerType {
                                         varNameOutputPortMap: varNameOutputPortMap,
                                         customPatchInputValues: &customPatchInputValues,
                                         varNamePatchNodeRefMap: varNamePatchNodeRefMap,
+                                        stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
                                         patchConnections: &patchConnections,
                                         viewStatePatchConnections: &viewStatePatchConnections,
                                         preprocessedJSNodes: &preprocessedJSNodes,
@@ -375,14 +447,6 @@ extension SwiftParserInitializerType {
                           dest_port: destCoordinate)
                 )
             }
-            
-        case .patchNodeRef:
-            // Ignore here
-            return
-            
-        case .declrRef:
-            // Ignore here
-            return
         
         case .jsNodeScript(let script):
             // Must reuse ID
@@ -399,7 +463,7 @@ extension SwiftParserInitializerType {
                                          sourceCode: script)
             preprocessedJSNodes.append(newJSNode)
             
-        case .viewBuilder:
+        case .viewBuilder, .patchNodeRef, .declrRef, .arraySyntax:
             return
         }
     }

@@ -19,12 +19,34 @@ extension GraphState {
         
         let patchNodeDeclarations = patchData.patchNodeDeclarations
         
-        let stateVarDeclarations = aiGraph.viewStatePatchConnections.keys.map { stateVarName in
+        let flattenedLayerData = aiGraph.layer_data_list.allFlattenedItems
+        let layerViewEventsMap = aiGraph.layer_data_list.getAllViewEventsMap()
+        let layerViewEvents = layerViewEventsMap.values
+        
+        // Organizes view event data by layer id
+        let layerViewEventMap = flattenedLayerData.reduce(into: [String: [LayerDataViewEvent]]()) { result, layerData in
+            layerData.view_events.forEach{ viewEvent in
+                var viewEventsList = result.get(layerData.node_id) ?? []
+                viewEventsList.append(viewEvent)
+                
+                result.updateValue(viewEventsList,
+                                   forKey: layerData.node_id)
+            }
+        }
+        
+        // Patches that connect to layers
+        let patchStateVars = Array(aiGraph.viewStatePatchConnections.keys)
+        
+        // Interaction data updated from gesture callbacks
+        let interactionStateVars = layerViewEvents.map { $0.mutatedStateVar }
+        
+        let allStateVarNames = Set(patchStateVars + interactionStateVars)
+        let stateVarDeclarations = allStateVarNames.map { stateVarName in
             "@State var \(stateVarName): [PortValueDescription] = []"
         }
             .joined(separator: "\n")
             .indentLines()
-        
+
         // log("createSwiftUICode: stateVarDeclarations: \(stateVarDeclarations)")
         
         let allLayerEntities = graphEntity.nodes
@@ -41,23 +63,24 @@ extension GraphState {
         
         // log("createSwiftUICode: topLevelLayerEntities: \(topLevelLayerEntities)")
         
-        // Maps upstream patch node ID to a variable name
-        let varNameIdMap = aiGraph.viewStatePatchConnections.reduce(into: [UUID: String]()) { result, data in
+        // Maps upstream patch node's output port to a view state's var
+        let varIdNameMap = aiGraph.viewStatePatchConnections.reduce(into: [AIGraphData_V0.NodeIndexedCoordinate: String]()) { result, data in
             let (variableName, nodeIndexCoordiante) = data
-            
-            guard let nodeId = UUID(nodeIndexCoordiante.node_id) else {
-                fatalErrorIfDebug()
-                return
-            }
-            
-            result.updateValue(variableName, forKey: nodeId)
+            result.updateValue(variableName, forKey: nodeIndexCoordiante)
         }
+        
+        // Append interactions to var name map
+//        varIdNameMap = layerViewEventsMap.reduce(into: varNameIdMap) { result, data in
+//            let (id, viewEvent) = data
+//            result.updateValue(viewEvent.mutatedStateVar, forKey: id)
+//        }
         
         // log("createSwiftUICode: varNameIdMap: \(varNameIdMap)")
         
         let viewCode = try topLevelLayerEntities
             .createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
-                               varIdNameMap: varNameIdMap)
+                               varIdNameMap: varIdNameMap,
+                               layerViewEventMap: layerViewEventMap)
         
         if ignoreScript {
             return viewCode

@@ -63,7 +63,8 @@ extension SyntaxViewName {
         (try? self.deriveLayerData(id: .init(),
                                    args: nil,
                                    modifiers: [],
-                                   childrenLayers: [])) != nil
+                                   childrenLayers: [],
+                                   bindingDeclarations: [:])) != nil
     }
 }
 

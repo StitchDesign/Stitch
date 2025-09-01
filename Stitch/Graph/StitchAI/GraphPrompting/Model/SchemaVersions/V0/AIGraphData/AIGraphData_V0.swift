@@ -9,6 +9,8 @@ import StitchSchemaKit
 import SwiftUI
 
 enum AIGraphData_V0 {
+    typealias NodeKind = NodeKind_V33.NodeKind
+    
     struct GraphData: Codable {
         let layer_data_list: [LayerData]
         let patch_data: PatchData
@@ -42,6 +44,7 @@ enum AIGraphData_V0 {
         let node_name: StitchAIPatchOrLayer
         var children: [LayerData]?
         var custom_layer_input_values: [LayerPortDerivation] = []
+        var view_events: [LayerDataViewEvent] = []
     }
     
     struct PreprocessedJSPatchNode: Codable {

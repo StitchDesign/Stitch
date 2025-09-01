@@ -47,22 +47,100 @@ extension Array where Element == SyntaxView {
 
 extension SwiftUIViewParserResult {
     func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) -> SwiftSyntaxActionsResult {
-        // Extract patch data
-        let patchResults = self.bindingDeclarations.deriveStitchActions()
-
         // Extract layer data
         let layerResults = self.viewStack.deriveStitchActions(bindingDeclarations: bindingDeclarations)
-        let allLayerErrors = layerResults.caughtErrors
+
+        // Extract patch data
+        let patchResults = self.bindingDeclarations.deriveStitchActions(layers: layerResults.actions)
         
         return .init(graphData: .init(layer_data_list: layerResults.actions,
                                       patch_data: patchResults.actions,
                                       viewStatePatchConnections: patchResults.viewStatePatchConnections),
-                     caughtErrors: self.caughtErrors + allLayerErrors + patchResults.caughtErrors)
+                     caughtErrors: self.caughtErrors + layerResults.caughtErrors + patchResults.caughtErrors)
+    }
+}
+
+extension Array where Element == AIGraphData_V0.LayerData {
+    /// Roles:
+    /// 1. Determines interaction patch nodes to make based on view events attached to view modifiers.
+    /// 2. Returns dictionary of a state var name to a newly created patch node's output coordinate.
+    func createStateVarToInteractionNodeMap(nativePatchNodes: inout [CurrentAIGraphData.PatchNode],
+                                            customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue],
+                                            viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate],
+                                            patchConnections: inout [CurrentAIGraphData.PatchConnection]) -> [String: CurrentAIGraphData.NodeIndexedCoordinate] {
+        self.reduce(into: [String: CurrentAIGraphData.NodeIndexedCoordinate]()) { result, layerData in
+            var createdPatchesAtThisNode = [Patch: CurrentAIGraphData
+                .PatchNode]()
+            
+            layerData.view_events.forEach { viewEvent in
+                let patch = viewEvent.viewEvent.patch
+                let existingPatchNode = createdPatchesAtThisNode.get(patch)
+                let patchNode = existingPatchNode ?? .init(node_id: UUID().uuidString,
+                                                           node_name: .init(value: .patch(patch)))
+                
+                guard let upstreamStateCoordinate = viewEvent
+                    .createConnectedPatchData(interactionPatchNodeId: patchNode.node_id,
+                                              createdPatchesAtThisNode: &createdPatchesAtThisNode,
+                                              patchConnections: &patchConnections) else {
+                    return
+                }
+                
+                // Update layer assignment for node
+                customPatchInputValues.append(
+                    .init(patch_input_coordinate: .init(node_id: patchNode.node_id,
+                                                        port_index: 0),
+                          value: layerData.node_id,
+                          value_type: .init(value: .interactionId))
+                )
+                
+                // Update view state connections
+                viewStatePatchConnections.updateValue(upstreamStateCoordinate,
+                                                      forKey: viewEvent.mutatedStateVar)
+                
+                // Update (possibly new) patch
+                createdPatchesAtThisNode.updateValue(patchNode, forKey: patch)
+                
+                // Output coordinates to return
+                result.updateValue(upstreamStateCoordinate,
+                                   forKey: viewEvent.mutatedStateVar)
+            }
+            
+            // Add any created patch nodes to the native nodes list
+            createdPatchesAtThisNode.values.forEach { patchNode in
+                nativePatchNodes.append(patchNode)
+            }
+            
+            // Recursively explore children
+            if let childrenDict = layerData.children?
+                .createStateVarToInteractionNodeMap(nativePatchNodes: &nativePatchNodes,
+                                                    customPatchInputValues: &customPatchInputValues,
+                                                    viewStatePatchConnections: &viewStatePatchConnections,
+                                                    patchConnections: &patchConnections) {
+                result.merge(childrenDict, uniquingKeysWith: { $1 })
+            }
+        }
+    }
+    
+    /// Recursively gathers all view event data
+    /// * key = layer id
+    /// * value = view event data
+    func getAllViewEventsMap(into dict: [UUID: LayerDataViewEvent]? = nil) -> [UUID: LayerDataViewEvent] {
+        self.reduce(into: dict ?? .init()) { result, layerData in
+            layerData.view_events.forEach { viewEvent in
+                if let id = UUID(layerData.node_id) {
+                    result.updateValue(viewEvent, forKey: id)
+                }
+            }
+            
+            if let appendedChildrenResult = layerData.children?.getAllViewEventsMap(into: result) {
+                result = appendedChildrenResult
+            }
+        }
     }
 }
 
 extension Dictionary where Key == String, Value == SwiftParserInitializerType {
-    func deriveStitchActions() -> SwiftSyntaxPatchActionsResult {
+    func deriveStitchActions(layers: [AIGraphData_V0.LayerData]) -> SwiftSyntaxPatchActionsResult {
         // MARK: data we use as tracking
         // Maps some variable name to a node ID string
         var varNameIdMap = [String : String]()
@@ -89,6 +167,14 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
         
         // Because patch data is decoded before layer data, we don't yet know the destination ports for layer edges, therefore, we just track the source patch to some state variable
         var viewStatePatchConnections = [String : AIGraphData_V0.NodeIndexedCoordinate]()
+        
+        // Create interaction patch nodes from layer data
+        let stateVarToInteractionOutputsMap = layers.createStateVarToInteractionNodeMap(
+            nativePatchNodes: &nativePatchNodes,
+            customPatchInputValues: &customPatchInputValues,
+            viewStatePatchConnections: &viewStatePatchConnections,
+            patchConnections: &patchConnections
+        )
         
         // First pass:
         // 1. Create patch nodes
@@ -139,16 +225,9 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                     break
                 }
             
-            case .jsNodeScript:
+            case .jsNodeScript, .declrRef, .arraySyntax, .viewBuilder:
                 // Skipping here
                 break
-                
-            case .declrRef:
-                break
-                
-            case .viewBuilder:
-                break
-                
             }
         }
         
@@ -162,6 +241,7 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                                         varNameOutputPortMap: varNameOutputPortMap,
                                         customPatchInputValues: &customPatchInputValues,
                                         varNamePatchNodeRefMap: varNamePatchNodeRefMap,
+                                        stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
                                         patchConnections: &patchConnections,
                                         viewStatePatchConnections: &viewStatePatchConnections,
                                         preprocessedJSNodes: &preprocessedJSNodes,
@@ -220,8 +300,6 @@ extension Array where Element == String {
 
 extension SyntaxView {
     func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) -> SwiftSyntaxLayerActionsResult? {
-        // TODO: map references to specific layer IDs
-        
         // Tracks all silent errors
         var silentErrors = [SwiftUISyntaxError]()
         
@@ -336,7 +414,8 @@ extension SyntaxView {
                     id: self.id,
                     args: self.constructorArguments,
                     modifiers: self.modifiers,
-                    childrenLayers: childResults.actions)
+                    childrenLayers: childResults.actions,
+                    bindingDeclarations: bindingDeclarations)
                 
                 silentErrors += layerDataResult.silentErrors
                 var layerData = layerDataResult.layerData
