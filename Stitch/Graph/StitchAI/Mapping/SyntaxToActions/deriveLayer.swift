@@ -278,17 +278,32 @@ extension SyntaxViewName {
             
         case .trackedConstructor(let constructor):
             // Creates view data based on caller/constructor
-            let customInputValuesFromViewConstructor = try self
-                .deriveInputValuesData(viewConstructor: constructor,
-                                       id: id)
-            layerType = constructor.value.layer
-            layerData = .init(node_id: id.description,
-                              node_name: .init(value: .layer(constructor.value.layer)),
-                              custom_layer_input_values: customInputValuesFromViewConstructor)
             
-            if !childrenLayers.isEmpty {
-                layerData.children = childrenLayers
-            }
+            layerType = constructor.value.layer
+            layerData = try constructor
+                .value
+                .createCustomValueEvents(childrenLayers: childrenLayers,
+                                         nodeId: id.description)
+                
+//                .deriveLayerAndCustomValuesFromName(id: id,
+//                                                    args: args,
+//                                                    childrenLayers: childrenLayers)
+            
+            
+//            let customInputValuesFromViewConstructor =
+//            try self
+//                .deriveInputValuesData(viewConstructor: constructor,
+//                                       id: id)
+            
+//            layerType = constructor.value.layer
+            
+//            layerData = .init(node_id: id.description,
+//                              node_name: .init(value: .layer(constructor.value.layer)),
+//                              custom_layer_input_values: customInputValuesFromViewConstructor)
+            
+//            if !childrenLayers.isEmpty {
+//                layerData.children = childrenLayers
+//            }
                         
         case .other, .none:
             let args = args?.defaultArgs ?? []
@@ -354,15 +369,15 @@ extension SyntaxViewName {
                      silentErrors: silentErrors)
     }
     
-    func deriveInputValuesData(viewConstructor: StrictViewConstructor,
-                               id: UUID) throws -> [LayerPortDerivation] {
-        // Handle constructor-arguments
-        // Try to access the SyntaxView.ViewConstructor, if we have one
-        let customInputValues = try viewConstructor.value
-            .createCustomValueEvents()
-        
-        return customInputValues
-    }
+//    func deriveInputValuesData(viewConstructor: StrictViewConstructor,
+//                               id: UUID) throws -> [LayerPortDerivation] {
+//        // Handle constructor-arguments
+//        // Try to access the SyntaxView.ViewConstructor, if we have one
+//        let customInputValues = try viewConstructor.value
+//            .createCustomValueEvents()
+//        
+//        return customInputValues
+//    }
     
     func deriveInputValuesData(args: [SyntaxViewArgumentData],
                                id: UUID,
@@ -450,10 +465,14 @@ extension SyntaxViewName {
             //            )
             
         case .scrollView:
-            let layerData = try Self
-                .createScrollGroupLayer(args: args,
-                                        childrenLayers: childrenLayers)
-            return (.group, layerData)
+            // Handled by `ScrollViewViewConstructor` now
+            
+            fatalErrorIfDebug()
+//            let layerData = try Self
+//                .createScrollGroupLayer(args: args,
+//                                        childrenLayers: childrenLayers)
+//            return (.group, layerData)
+            layerType = .group
             
             // MARK: CONTAINER VIEWS
             
