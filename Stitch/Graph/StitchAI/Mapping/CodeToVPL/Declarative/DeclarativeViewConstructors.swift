@@ -249,8 +249,11 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
                 throw SwiftUISyntaxError.portValueNotFound(argument: arg)
             }
             
+            // Create SF symbol here if PortValue is string type
+            let isStringType = portValue.value?.value_type == .init(value: .string)
+            
             return [
-                .init(input: .image,
+                .init(input: isStringType ? .sfSymbol : .image,
                       inputData: portValue)
             ]
             
@@ -270,23 +273,30 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> ImageViewConstructor? {
         guard let first = args.first else { return nil }
+        let portValueArg = try? first.value.derivePortValues().first
+        let hasStringArg = portValueArg?.value?.value_type == .init(value: .string)
         
-        // 1. Image(systemName:)
+        // Image(systemName:)
         if first.label == "systemName" {
             return .sfSymbol(name: first.value)
         }
         
-        // 2. Image("asset"[, bundle:])
+        // PortValue arg is String --> SF Symbol
+        if hasStringArg {
+            return .sfSymbol(name: first.value)
+        }
+        
+        // Image("asset"[, bundle:])
         if first.label == nil {
             return .asset(name: first.value)
         }
         
-        // 3. Image(decorative: "name"[, bundle:])
+        // Image(decorative: "name"[, bundle:])
         if first.label == "decorative" {
             return .decorative(name: first.value)
         }
         
-        // 4. Image(uiImage:)
+        // Image(uiImage:)
         if first.label == "uiImage" {
             return .uiImage(image: first.value)
         }
