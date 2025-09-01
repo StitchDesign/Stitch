@@ -467,7 +467,7 @@ extension SyntaxViewName {
         case .scrollView:
             // Handled by `ScrollViewViewConstructor` now
             
-            fatalErrorIfDebug()
+//            fatalErrorIfDebug()
 //            let layerData = try Self
 //                .createScrollGroupLayer(args: args,
 //                                        childrenLayers: childrenLayers)
