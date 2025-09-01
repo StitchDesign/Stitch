@@ -325,28 +325,7 @@ View modifiers responding to events such as `simultaneousGesture`, `onAppear` et
 
 The `updateLayerInputs` function will be automatically triggered whenever state is updated. Use native patch nodes inside `updateLayerInputs` to respond to these events.
 
-**It's important that state mutations in these closures are kept to as few state mutations as possible. Do not try to add custom logic**. Custom logic is reserved for `updateLayerInputs`. Here's an example of functionality to avoid:
-```swift
-.onTapGesture {
-    let current = rectColor.first?.value as? String ?? "#FF0000FF"
-    let next: String
-    if current == "#FF0000FF" {
-        next = "#00FF00FF"
-    } else if current == "#00FF00FF" {
-        next = "#0000FFFF"
-    } else {
-        next = "#FF0000FF"
-    }
-    rectColor = [PortValueDescription(value: next, value_type: "color")]
-}
-```
-
-For event handling like this, instead update a state variable that uses a pulse. You may use `STITCH_GRAPH_TIME` to provide a current pulse value:
-```swift
-.onTapGesture {
-    rectPulse = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
-}
-```
+**It's important that state mutations in these closures are kept to as few state mutations as possible. Do not try to add custom logic**. Custom logic is reserved for `updateLayerInputs`.
 
 **Gesture callbacks are subject to the same rules as `updateLayerInputs`, which means no custom logic other than patch function invocations and view state mutations. Some examples to avoid:
 
@@ -396,6 +375,72 @@ let optionPickerOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["optionPicker || Patch"]
     [PortValueDescription(value: 1, value_type: "number")]
 ])
 cardOpacity = optionPickerOutputs
+```
+
+##### Tap Gesture Considerations
+
+Code in tap gesture closures are only allowed to update a pulse. No other functionality is allowed.
+
+Here's an example of functionality to avoid:
+
+```swift
+.onTapGesture {
+    let current = rectColor.first?.value as? String ?? "#FF0000FF"
+    let next: String
+    if current == "#FF0000FF" {
+        next = "#00FF00FF"
+    } else if current == "#00FF00FF" {
+        next = "#0000FFFF"
+    } else {
+        next = "#FF0000FF"
+    }
+    rectColor = [PortValueDescription(value: next, value_type: "color")]
+}
+```
+
+For event handling like this, instead update a state variable that uses a pulse. You may use `STITCH_GRAPH_TIME` to provide a current pulse value:
+```swift
+.onTapGesture {
+    rectPulse = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
+}
+```
+
+Same goes with examples like this, which introduce extra logic beyond the pulse call:
+
+```swift
+.onTapGesture {
+    callPulse = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
+    callScale = [PortValueDescription(value: 0.85, value_type: "number")]
+}
+```
+
+Should instead leverage an Option Picker patch node to update state upon pulse firing:
+```swift
+    var body: some View {
+        ...
+        .onTapGesture {
+            // Limits result to just the pulse update on a tap
+            callPulse = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
+        }
+    }
+
+    func updateLayerInputs() {
+        let optionPickerOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["optionPicker || Patch"]([
+                callPulse,
+                [PortValueDescription(value: 1, value_type: "number")],
+                [PortValueDescription(value: 0.85, value_type: "number")]
+            ])
+
+        // Animation updates the 
+        let classicAnimationOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["classicAnimation || Patch"]([
+                optionPickerOutputs[0],
+                [PortValueDescription(value: 0.15, value_type: "number")],
+                [PortValueDescription(value: "linear", value_type: "animationCurve")]
+            ])
+        
+        callScale = classicAnimationOutputs[0]
+    }
+}
 ```
 
 ##### Drag Gesture Considerations
