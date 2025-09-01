@@ -84,7 +84,6 @@ struct CatalystTopBarGraphButtons: View {
             #if DEBUG || DEV_DEBUG || STITCH_AI_TESTING
             OpenAIConfigurationPicker(document: document)
                 .modifier(CatalystTopBarButtonStyle())
-            #endif
             
             // AI Examples button
             CatalystNavBarButton("list.bullet.rectangle",
