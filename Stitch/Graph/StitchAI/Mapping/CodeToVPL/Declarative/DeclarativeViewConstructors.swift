@@ -1225,24 +1225,15 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
             return scrollGroupData
             
         } else if !hasRootGroupLayer {
-            // Create wrapper VStack with scroll settings
-            let wrapperId = UUID()
-            let wrapperGroupNode = CurrentAIGraphData.LayerData(
-                node_id: wrapperId.description,
-                node_name: .init(value: .layer(.group)),
-                children: childrenLayers,
-                // VStack orientation + scroll settings
-                custom_layer_input_values: [
-                    LayerPortDerivation(input: .orientation, value: .orientation(.vertical))
-                ] + customEvents
-            )
-            
-            // Return the ScrollView container that holds the wrapper
+            // Create new nested VStack with scroll settings (matches createScrollGroupLayer behavior)
             return CurrentAIGraphData.LayerData(
                 node_id: nodeId,
                 node_name: .init(value: .layer(.group)),
-                children: [wrapperGroupNode],
-                custom_layer_input_values: customEvents
+                children: childrenLayers,
+                // The new group node should be a VStack, i.e. a layer group with orientation = .vertical + scroll settings
+                custom_layer_input_values: [
+                    LayerPortDerivation(input: .orientation, value: .orientation(.vertical))
+                ] + customEvents
             )
             
         } else {
