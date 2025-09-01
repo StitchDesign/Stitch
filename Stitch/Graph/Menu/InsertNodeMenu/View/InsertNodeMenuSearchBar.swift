@@ -12,6 +12,7 @@ import GameController
 import Shimmer
 
 let INSERT_NODE_MENU_SEARCH_BAR_HEIGHT: CGFloat = 68
+let INSERT_NODE_MENU_SEARCH_BAR_BUTTON_HEIGHT: CGFloat = 24
 
 // MARK: - Custom Shimmer Effect (for Light Mode)
 
@@ -148,48 +149,7 @@ struct InsertNodeMenuSearchBar: View {
         }
         return queryString
     }
-    
-    var rightSideButton: some View {
-        HStack {
-            Group {
-                if isLoadingAIResult {
-                    HStack {
-                        Button {
-                            document.aiManager?.cancelCurrentRequest()
-                            document.insertNodeMenuState.show = false
-                        } label: {
-                            Image(systemName: "stop.circle")
-                        }
-                        .padding(.trailing, 4)
-                        .scaleEffect(1.5)
-                        .buttonStyle(.borderless)
-                        
-                        
-                        ProgressView()
-                            .scaleEffect(1.5)
-                            .tint(STITCH_TITLE_FONT_COLOR)
-                    }
-                    
-                } else {
-                    Button(action: {
-                        // Helps to defocus the .focusedValue, ensuring our shortcuts like "CMD+A Select All" is enabled again.
-                        self.isFocused = false
-                        
-                        self.userSubmitted()
-                    }, label: {
-                        Image(systemName: "plus.app")
-                    })
-//                    .frame(width: 54, height: 54)
-                    .scaleEffect(1.5)
-                    .buttonStyle(.borderless)
-                }
-            } // Group
-            .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
-            .padding(.trailing, 20)
-            .animation(.linear(duration: 0.2), value: isLoadingAIResult)
-        }
-    }
-    
+        
     var body: some View {
         let searchInput = VStack(spacing: .zero) {
             ZStack(alignment: .leading) {
@@ -215,9 +175,11 @@ struct InsertNodeMenuSearchBar: View {
                                     document.insertNodeMenuState.show = false
                                 } label: {
                                     Image(systemName: "stop.circle")
+                                        .resizable()
+                                        .frame(width: INSERT_NODE_MENU_SEARCH_BAR_BUTTON_HEIGHT,
+                                               height: INSERT_NODE_MENU_SEARCH_BAR_BUTTON_HEIGHT)
                                 }
                                 .padding(.trailing, 8)
-                                .scaleEffect(1.75)
                                 .buttonStyle(.borderless)
                                 
                                 ProgressView()
@@ -259,9 +221,11 @@ struct InsertNodeMenuSearchBar: View {
                                     self.userSubmitted()
                                 }, label: {
                                     Image(systemName: "plus.app")
+                                        .resizable()
+                                        .frame(width: INSERT_NODE_MENU_SEARCH_BAR_BUTTON_HEIGHT,
+                                               height: INSERT_NODE_MENU_SEARCH_BAR_BUTTON_HEIGHT)
                                 })
                                 .padding(.trailing, 8)
-                                .scaleEffect(1.75)
                                 .buttonStyle(.borderless)
                             }
                             .padding(.trailing, 20)
