@@ -288,6 +288,8 @@ extension SwiftUIViewVisitor {
 }
 
 extension SwiftParserInitializerType {
+    /// Creates custom input values, edges, and custom node types for patch graph data.
+    /// Optional parameter `downstreamNodeIdCaller` called in scenarios where recursion is used.
     @MainActor
     func parseStitchActions(varName: String,
                             varNameIdMap: [String : String],
@@ -310,12 +312,11 @@ extension SwiftParserInitializerType {
                 return
             }
             
-            let nodeValueTypeDynamicPortIndices = patch.nonStaticTypedInputPorts
-            // Selected port subject to change if off chance of an upstream JS node
-            var portIndexToCheckForNodeType = nodeValueTypeDynamicPortIndices?.first
+            let nodeValueTypeDynamicPortIndices = patch.nonStaticTypedInputPorts ?? .init()
             
             for (portIndex, arg) in patchNodeData.args.enumerated() {
-                let checkForValueTypeHere = portIndex == portIndexToCheckForNodeType
+                // Determine a custom node value type if this node supports value types and no value has yet been set here
+                let checkForValueTypeHere = nodeValueTypeDynamicPortIndices.contains(portIndex) && !nativePatchValueTypeSettings.keys.contains(patchNodeData.id)
                 
                 switch arg {
                 case .binding(let refName):
@@ -340,31 +341,13 @@ extension SwiftParserInitializerType {
                         continue
                     }
                     
-                    // Determine node type by examining upstream node
-                    if checkForValueTypeHere {
-                       guard let upstreamValueType = upstreamCoordinate
-                        .determineOutputNodeValueType(nativePatchNodes: nativePatchNodes,
-                                                      nativePatchValueTypeSettings: nativePatchValueTypeSettings) else {
-                           // Check next port if native patch node isn't upstream (i.e. a js node instead)
-                           if let _portIndexToCheckForNodeType = portIndexToCheckForNodeType,
-                              let indexOfElem = nodeValueTypeDynamicPortIndices?
-                               .firstIndex(of: _portIndexToCheckForNodeType) {
-                               portIndexToCheckForNodeType = nodeValueTypeDynamicPortIndices?[safe: indexOfElem + 1]
-                           }
-                           
-                           continue
-                       }
-                        
-                        nativePatchValueTypeSettings.updateValue(.init(node_id: patchNodeData.id,
-                                                                       value_type: .init(value: upstreamValueType)) ,
-                                                                 forKey: patchNodeData.id)
-                    }
-                    
-                    patchConnections.append(
-                        .init(src_port: upstreamCoordinate,
-                              dest_port: .init(node_id: patchNodeData.id,
-                                               port_index: portIndex))
-                    )
+                    SwiftParserPatchData
+                        .processIncomingConnectionData(upstreamCoordinate: upstreamCoordinate,
+                                                       downstreamCoordinate: .init(node_id: patchNodeData.id,
+                                                                                   port_index: portIndex),
+                                                       nativePatchNodes: nativePatchNodes,
+                                                       nativePatchValueTypeSettings: &nativePatchValueTypeSettings,
+                                                       patchConnections: &patchConnections)
                     
                 case .value(let argType):
                     let portDataList = try argType.derivePortValues()
@@ -492,10 +475,14 @@ extension SwiftParserInitializerType {
                     return
                 }
                 
-                patchConnections.append(
-                    .init(src_port: .init(node_id: destNodeId,                          port_index: subscriptData.portIndex),
-                          dest_port: destCoordinate)
-                )
+                SwiftParserPatchData
+                    .processIncomingConnectionData(
+                        upstreamCoordinate: .init(node_id: destNodeId,
+                                                  port_index: subscriptData.portIndex),
+                        downstreamCoordinate: destCoordinate,
+                        nativePatchNodes: nativePatchNodes,
+                        nativePatchValueTypeSettings: &nativePatchValueTypeSettings,
+                        patchConnections: &patchConnections)
             }
         
         case .jsNodeScript(let script):
