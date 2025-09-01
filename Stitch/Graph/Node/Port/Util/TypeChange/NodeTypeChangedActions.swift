@@ -143,3 +143,19 @@ extension GraphState {
     }
 }
 
+extension Patch {
+    /// Refers to input ports whose types change given a conditional node value type. Returns nil if the node doesn't support type changing.
+    @MainActor
+    var nonStaticTypedInputPorts: [Int]? {
+        guard let patchNodeDefinition = self.graphNode,
+              let defaultType = patchNodeDefinition.defaultUserVisibleType else {
+            // No type changing support
+            return nil
+        }
+        
+        let valueDynamicRows = patchNodeDefinition.rowDefinitions(for: defaultType).inputs
+            .map { !$0.isTypeStatic }
+            .enumerated().map { $0.0 }
+        return valueDynamicRows
+    }
+}

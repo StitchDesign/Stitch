@@ -288,20 +288,35 @@ extension SwiftUIViewVisitor {
 }
 
 extension SwiftParserInitializerType {
+    @MainActor
     func parseStitchActions(varName: String,
                             varNameIdMap: [String : String],
                             varNameOutputPortMap: [String : SwiftParserSubscript],
     customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue],
                             varNamePatchNodeRefMap: [String : String],
                             stateVarToInteractionOutputsMap: [String: CurrentAIGraphData.NodeIndexedCoordinate],
+                            nativePatchNodes: [String: CurrentAIGraphData.PatchNode],
                             patchConnections: inout [CurrentAIGraphData.PatchConnection],
                             viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate],
+                            nativePatchValueTypeSettings: inout [String: CurrentAIGraphData.NativePatchNodeValueTypeSetting],
                             preprocessedJSNodes: inout [CurrentAIGraphData.PreprocessedJSPatchNode],
                             varNameJsFnMap: inout [String: String],
                             subscriptParentInfo: AIGraphData_V0.NodeIndexedCoordinate? = nil) throws {
         switch self {
         case .patchNode(let patchNodeData):
+            // Marks an input port to check for a custom node type, if supported by this node
+            guard let patch = nativePatchNodes.get(patchNodeData.id)?.node_name.value.patch else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            let nodeValueTypeDynamicPortIndices = patch.nonStaticTypedInputPorts
+            // Selected port subject to change if off chance of an upstream JS node
+            var portIndexToCheckForNodeType = nodeValueTypeDynamicPortIndices?.first
+            
             for (portIndex, arg) in patchNodeData.args.enumerated() {
+                let checkForValueTypeHere = portIndex == portIndexToCheckForNodeType
+                
                 switch arg {
                 case .binding(let refName):
                     // Get edge data
@@ -323,6 +338,26 @@ extension SwiftParserInitializerType {
                     
                     else {
                         continue
+                    }
+                    
+                    // Determine node type by examining upstream node
+                    if checkForValueTypeHere {
+                       guard let upstreamValueType = upstreamCoordinate
+                        .determineOutputNodeValueType(nativePatchNodes: nativePatchNodes,
+                                                      nativePatchValueTypeSettings: nativePatchValueTypeSettings) else {
+                           // Check next port if native patch node isn't upstream (i.e. a js node instead)
+                           if let _portIndexToCheckForNodeType = portIndexToCheckForNodeType,
+                              let indexOfElem = nodeValueTypeDynamicPortIndices?
+                               .firstIndex(of: _portIndexToCheckForNodeType) {
+                               portIndexToCheckForNodeType = nodeValueTypeDynamicPortIndices?[safe: indexOfElem + 1]
+                           }
+                           
+                           continue
+                       }
+                        
+                        nativePatchValueTypeSettings.updateValue(.init(node_id: patchNodeData.id,
+                                                                       value_type: .init(value: upstreamValueType)) ,
+                                                                 forKey: patchNodeData.id)
                     }
                     
                     patchConnections.append(
@@ -354,8 +389,10 @@ extension SwiftParserInitializerType {
                                                         varNameOutputPortMap: varNameOutputPortMap,
                                                         customPatchInputValues: &customPatchInputValues, varNamePatchNodeRefMap: varNamePatchNodeRefMap,
                                                         stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
+                                                        nativePatchNodes: nativePatchNodes,
                                                         patchConnections: &patchConnections,
                                                         viewStatePatchConnections: &viewStatePatchConnections,
+                                                        nativePatchValueTypeSettings: &nativePatchValueTypeSettings,
                                                         preprocessedJSNodes: &preprocessedJSNodes,
                                                         varNameJsFnMap: &varNameJsFnMap,
                                                         subscriptParentInfo: .init(node_id: patchNodeData.id,
@@ -376,8 +413,10 @@ extension SwiftParserInitializerType {
                                             customPatchInputValues: &customPatchInputValues,
                                             varNamePatchNodeRefMap: varNamePatchNodeRefMap,
                                             stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
+                                            nativePatchNodes: nativePatchNodes,
                                             patchConnections: &patchConnections,
                                             viewStatePatchConnections: &viewStatePatchConnections,
+                                            nativePatchValueTypeSettings: &nativePatchValueTypeSettings,
                                             preprocessedJSNodes: &preprocessedJSNodes,
                                             varNameJsFnMap: &varNameJsFnMap,
                                             subscriptParentInfo: .init(node_id: patchNodeData.id,
@@ -429,8 +468,10 @@ extension SwiftParserInitializerType {
                                         customPatchInputValues: &customPatchInputValues,
                                         varNamePatchNodeRefMap: varNamePatchNodeRefMap,
                                         stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
+                                        nativePatchNodes: nativePatchNodes,
                                         patchConnections: &patchConnections,
                                         viewStatePatchConnections: &viewStatePatchConnections,
+                                        nativePatchValueTypeSettings: &nativePatchValueTypeSettings,
                                         preprocessedJSNodes: &preprocessedJSNodes,
                                         varNameJsFnMap: &varNameJsFnMap,)
                 
@@ -466,5 +507,31 @@ extension SwiftParserInitializerType {
         case .viewBuilder, .patchNodeRef, .declrRef, .arraySyntax:
             return
         }
+    }
+}
+
+extension AIGraphData_V0.NodeIndexedCoordinate {
+    /// Determines a custom value type of some node given data from its upstream node connection.
+    @MainActor
+    func determineOutputNodeValueType(nativePatchNodes: [String: CurrentAIGraphData.PatchNode],
+                                      nativePatchValueTypeSettings: [String: CurrentAIGraphData.NativePatchNodeValueTypeSetting]) -> StitchAIPortValue_V1.NodeType? {
+        guard let upstreamNode = nativePatchNodes.get(self.node_id) else {
+
+            
+            return nil
+        }
+        
+        let upstreamNodeType = nativePatchValueTypeSettings.get(self.node_id)?.value_type.value
+        guard let upstreamPatch = upstreamNode.node_name.value.patch else {
+            fatalErrorIfDebug()
+            return nil
+        }
+        
+        guard let upstreamOutput = upstreamPatch.graphNode?.rowDefinitions(for: upstreamNodeType).outputs[safe: self.port_index] else {
+            fatalErrorIfDebug()
+            return nil
+        }
+        
+        return upstreamOutput.value.nodeType
     }
 }

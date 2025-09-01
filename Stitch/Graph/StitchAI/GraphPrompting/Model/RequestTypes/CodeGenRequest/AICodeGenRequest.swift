@@ -157,6 +157,7 @@ extension StitchAICodeCreator {
         }
     }
 
+    @MainActor
     private func processRequest(userPrompt: String,
                                 document: StitchDocumentViewModel,
                                 aiManager: StitchAIManager,
@@ -182,7 +183,7 @@ extension StitchAICodeCreator {
         
         logToServerIfRelease("StitchAICodeCreator codeParserResult:\n\(codeParserResult)")
         
-        let actionsResult = try codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
+        let actionsResult = codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
         
         print("Derived Stitch layer data:\n\((try? actionsResult.encodeToPrintableString()) ?? "")")
         
