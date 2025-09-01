@@ -1045,7 +1045,56 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
             }
         }
 
+        
+        
         return .parameters(axes: axes, showsIndicators: indicators)
+    }
+    
+    /// Handles ScrollView-specific child wrapping logic similar to createScrollGroupLayer
+    /// Creates appropriate layer structure with child wrapping when needed
+    func createLayerWithChildrenWrapping(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
+        
+        // Apply the same logic as createScrollGroupLayer
+        let isFirstLayerGroup = childrenLayers.first?.node_name.value.layer?.isGroupForAI ?? false
+        let hasRootGroupLayer = childrenLayers.count == 1 && isFirstLayerGroup
+        
+        // Get the scroll axis settings from our existing method
+        let customEvents = try self.createCustomValueEvents()
+        
+        if hasRootGroupLayer,
+           let existingGroupData = childrenLayers.first {
+            // Use existing group but add scroll settings
+            var scrollGroupData = existingGroupData
+            scrollGroupData.custom_layer_input_values += customEvents
+            return scrollGroupData
+            
+        } else if !hasRootGroupLayer {
+            // Create wrapper VStack with scroll settings
+            let wrapperId = UUID()
+            let wrapperGroupNode = CurrentAIGraphData.LayerData(
+                node_id: wrapperId.description,
+                node_name: .init(value: .layer(.group)),
+                children: childrenLayers,
+                // VStack orientation + scroll settings
+                custom_layer_input_values: [
+                    LayerPortDerivation(input: .orientation, value: .orientation(.vertical))
+                ] + customEvents
+            )
+            
+            // Return the ScrollView container that holds the wrapper
+            return CurrentAIGraphData.LayerData(
+                node_id: nodeId,
+                node_name: .init(value: .layer(.group)),
+                children: [wrapperGroupNode],
+                custom_layer_input_values: customEvents
+            )
+            
+        } else {
+            throw SwiftUISyntaxError.groupLayerDecodingFailed
+        }
     }
 }
 
