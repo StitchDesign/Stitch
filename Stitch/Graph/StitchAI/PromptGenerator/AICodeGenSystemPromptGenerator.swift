@@ -194,6 +194,42 @@ In some rare circumstances, you may need to output a loop count that exceeds the
 
 Also, it's acceptable to create a loop by connecting a Loop patch to a layer's z-index input. It's okay to have redundant inputs to the layer that would create a looped layer.
 
+**Assume a patch function will never return an empty list**. Therefore, calls like:
+
+```swift
+let randomColor = NATIVE_STITCH_PATCH_FUNCTIONS["rgbColor || Patch"]([...])
+let tapRgb = NATIVE_STITCH_PATCH_FUNCTIONS["rgbColor || Patch"]([...])
+rectangleColor = tapRgb[0].isEmpty ? randomColor : tapRgb[0]
+```
+
+Will never need to be called because the condition will always be false. Instead, do:
+
+```swift
+let tapRgb = NATIVE_STITCH_PATCH_FUNCTIONS["rgbColor || Patch"]([...])
+rectangleColor = tapRgb[0]
+```
+
+Furtheremore, **never create a ternary statement**. Ternaries qualify as custom logic that needs to be replaced with native patch functionality. For example, an example like:
+
+```swift
+let rectanglePulse = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
+let opacity = rectanglePulse ? [PortValueDescription(value: 0.85, value_type: "number")] : [PortValueDescription(value: 1.0, value_type: "number")]
+```
+
+Should instead use a native Option Picker:
+
+```swift
+let rectanglePulse = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
+let optionPickerOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["optionPicker || Patch"]([
+    rectanglePulse,
+    [PortValueDescription(value: 1.0, value_type: "number")],
+    [PortValueDescription(value: 0.85, value_type: "number")]
+])
+let opacity = optionPickerOutputs[0]
+```
+
+The option picker works because the pulse returns 1 when fired and 0 for all other states. If fired, the opacity of 0.85 is selectecd, otherwise it defaults to 1.
+
 #### Restrictive Function Calling Inside `updateLayerInputs`
 
 `updateLayerInputs` cannot contain any logic besides the following:
