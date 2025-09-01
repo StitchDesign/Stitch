@@ -58,11 +58,24 @@ struct StreamingDemoView: View {
                     .font(.system(size: 24))
                     .multilineTextAlignment(.leading)
                     .lineLimit(1)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.secondary)
                     .modifier(HybridShimmerModifier(colorScheme: colorScheme, lightModeConfig: lightModeShimmerConfig))
                     .overlay(alignment: .center) {
                         HStack {
                             Spacer()
+                            Button {
+                                // Cancel streaming
+                                isStreaming = false
+                            } label: {
+                                Image(systemName: "stop.circle")
+                            }
+//                            .frame(width: 54, height: 54)
+//                            .frame(width: 72, height: 72)
+                            .padding(.trailing, 12)
+                            .scaleEffect(1.5)
+                            .buttonStyle(.borderless)
+
+                            
                             ProgressView()
                                 .scaleEffect(1.5)
                         }
@@ -90,9 +103,11 @@ struct StreamingDemoView: View {
                         HStack {
                             Spacer()
                             Button(action: startStreaming) {
-                                Image(systemName: "play.fill")
+                                Image(systemName: "plus.app")
                             }
-                            .frame(width: 36, height: 36)
+//                            .frame(width: 36, height: 36)
+//                            .frame(width: 72, height: 72)
+                            .scaleEffect(1.5)
                             .buttonStyle(.borderless)
                             .disabled(apiKey.isEmpty)
                         }
@@ -329,5 +344,3 @@ struct StreamingDemoView: View {
     }
     
 }
-
-

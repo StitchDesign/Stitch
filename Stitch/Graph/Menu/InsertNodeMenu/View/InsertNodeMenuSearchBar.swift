@@ -158,14 +158,12 @@ struct InsertNodeMenuSearchBar: View {
                             document.aiManager?.cancelCurrentRequest()
                             document.insertNodeMenuState.show = false
                         } label: {
-                            Text("Cancel")
-                                .font(.headline)
+                            Image(systemName: "stop.circle")
                         }
-                        .foregroundStyle(theme.themeData.edgeColor)
-                        .padding()
-                        .background(INSERT_NODE_SEARCH_BACKGROUND.opacity(0.8))
-                        .cornerRadius(12)
+                        .padding(.trailing, 4)
+                        .scaleEffect(1.5)
                         .buttonStyle(.borderless)
+                        
                         
                         ProgressView()
                             .scaleEffect(1.5)
@@ -181,7 +179,8 @@ struct InsertNodeMenuSearchBar: View {
                     }, label: {
                         Image(systemName: "plus.app")
                     })
-                    .frame(width: 36, height: 36)
+//                    .frame(width: 54, height: 54)
+                    .scaleEffect(1.5)
                     .buttonStyle(.borderless)
                 }
             } // Group
@@ -195,24 +194,41 @@ struct InsertNodeMenuSearchBar: View {
         let searchInput = VStack(spacing: .zero) {
             ZStack(alignment: .leading) {
                 if document.isStreamingResponses {
-                    // Show Text view when streaming for content transitions
+                    // Show Text view when streaming for `.contentTransition`
                     Text(displayText)
                         .contentTransition(.numericText())
                         .animation(.default, value: displayText)
-                        .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.leading, 16)
                         .padding(.trailing, 60)
                         .font(.system(size: 24))
                         .multilineTextAlignment(.leading)
                         .lineLimit(1)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.secondary)
                         .modifier(HybridShimmerModifier(colorScheme: colorScheme, lightModeConfig: lightModeShimmerConfig))
+                        .overlay(alignment: .center) {
+                            HStack {
+                                Spacer()
+                                Button {
+                                    // Cancel streaming
+                                    document.aiManager?.cancelCurrentRequest()
+                                    document.insertNodeMenuState.show = false
+                                } label: {
+                                    Image(systemName: "stop.circle")
+                                }
+                                .padding(.trailing, 8)
+                                .scaleEffect(1.75)
+                                .buttonStyle(.borderless)
+                                
+                                ProgressView()
+                                    .scaleEffect(1.5)
+                            }
+                            .padding(.trailing, 20)
+                        }
                 } else {
                     // Show TextField when not streaming for input
                     TextField("Search or enter AI prompt...", text: $queryString)
                         .focused($isFocused)
-                        .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
                         .padding(.leading, 16)
                         .padding(.trailing, 60)
                         .font(.system(size: 24))
@@ -233,10 +249,24 @@ struct InsertNodeMenuSearchBar: View {
                                 self.isFocused = true
                             }
                         }
+                        .overlay(alignment: .center) {
+                            HStack {
+                                Spacer()
+                                Button(action: {
+                                    // Helps to defocus the .focusedValue, ensuring our shortcuts like "CMD+A Select All" is enabled again.
+                                    self.isFocused = false
+                                    
+                                    self.userSubmitted()
+                                }, label: {
+                                    Image(systemName: "plus.app")
+                                })
+                                .padding(.trailing, 8)
+                                .scaleEffect(1.75)
+                                .buttonStyle(.borderless)
+                            }
+                            .padding(.trailing, 20)
+                        }
                 }
-            }
-            .overlay(alignment: .center) {
-                rightSideButton
             }
         }
         // We apparently need both `.onAppear`'s to set .isFocused = true ?
@@ -275,5 +305,13 @@ struct InsertNodeMenuSearchBar: View {
             searchInput
         }
                                     .height(INSERT_NODE_MENU_SEARCH_BAR_HEIGHT) // need to set height again
+    }
+}
+
+#Preview {
+    InsertNodeMenuSearchBar(document: .createEmpty(),
+                            launchTip: StitchAILaunchTip(),
+                            queryString: .constant("testing")) {
+        print("nothing")
     }
 }
