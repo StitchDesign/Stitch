@@ -22,7 +22,9 @@ protocol FromSwiftUIViewToStitch {
     // TODO: this property is incorrect -- some SwiftUI views like ScrollView may not become a Layer
     var layer: AIGraphData_V0.Layer { get }
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue]
+    // Vast majority of SwiftUI View constructors only return 
+    // func createCustomValueEvents() throws -> (CurrentAIGraphData.Layer, CurrentAIGraphData.LayerData)
+    func createCustomValueEvents() throws -> [LayerPortDerivation]
 }
 
 /// View modifiers who may pack or unapck their portvalue data.
@@ -36,6 +38,7 @@ protocol PortValuesPackModifiable: FromSwiftUIViewModifierToStitch {
     var args: [SyntaxViewModifierArgumentType] { get }
 }
 
+// TODO: remove? not actually used?
 extension PortValuesPackModifiable {
     func createCustomValueEvents() throws -> [LayerPortDerivation] {
         // Handle each argument argument

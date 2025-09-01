@@ -138,7 +138,14 @@ func createKnownViewConstructor(from node: FunctionCallExprSyntax,
         return LazyVStackViewConstructor.from(arguments,
                                              viewName: viewName)
             .map { .lazyVStack($0) }
-    case .anyView, .angularGradient, .asyncImage, .button, .capsule, .canvas, .chart, .color, .colorPicker, .contentUnavailableView, .controlGroup, .datePicker, .divider, .disclosureGroup, .emptyView, .forEach, .form, .gauge, .geometryReader, .grid, .gridRow, .group, .groupBox, .labeledContent, .label, .lazyHGrid, .lazyVGrid, .link, .map, .material, .menu, .model3D, .navigationLink, .navigationStack, .navigationSplit, .navigationView, .outlineGroup, .path, .preview, .progressView, .radialGradient, .realityView, .roundedRectangle, .sceneView, .scrollView, .scrollViewReader, .section, .shareLink, .slider, .snapshotView, .spriteView, .stepper, .symbolEffect, .tabView, .textEditor, .textField, .timelineSchedule, .timelineView, .toggle, .tokenField, .toolBar, .videoPlayer, .viewThatFits, .list, .linearGradient, .secureField, .alignmentGuide, .table, .picker, .unevenRoundedRectangle:
+    case .scrollView:
+        return ScrollViewViewConstructor.from(arguments,
+                                              viewName: viewName)
+            .map { .scrollView($0) }
+        
+    case .anyView, .angularGradient, .asyncImage, .button, .capsule, .canvas, .chart, .color, .colorPicker, .contentUnavailableView, .controlGroup, .datePicker, .divider, .disclosureGroup, .emptyView, .forEach, .form, .gauge, .geometryReader, .grid, .gridRow, .group, .groupBox, .labeledContent, .label, .lazyHGrid, .lazyVGrid, .link, .map, .material, .menu, .model3D, .navigationLink, .navigationStack, .navigationSplit, .navigationView, .outlineGroup, .path, .preview, .progressView, .radialGradient, .realityView, .roundedRectangle, .sceneView,
+//            .scrollView,
+            .scrollViewReader, .section, .shareLink, .slider, .snapshotView, .spriteView, .stepper, .symbolEffect, .tabView, .textEditor, .textField, .timelineSchedule, .timelineView, .toggle, .tokenField, .toolBar, .videoPlayer, .viewThatFits, .list, .linearGradient, .secureField, .alignmentGuide, .table, .picker, .unevenRoundedRectangle:
         return nil
     }
 }
@@ -174,7 +181,7 @@ extension TextViewConstructor {
         }
     }
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         let arg = self.arg
         guard let value = try arg.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: arg)
@@ -239,7 +246,7 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
         }
     }
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         switch self {
             
         case .asset(let arg),
@@ -312,7 +319,7 @@ enum SpacerViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .spacer }
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] { [] }
+    func createCustomValueEvents() throws -> [LayerPortDerivation] { [] }
     
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
@@ -329,7 +336,7 @@ enum StitchRealityViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .realityView }
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] { [] }
+    func createCustomValueEvents() throws -> [LayerPortDerivation] { [] }
     
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
@@ -344,7 +351,7 @@ enum BoxViewConstructor: FromSwiftUIViewToStitch {
     var layer: AIGraphData_V0.Layer { .box }
     
     // needs to become a child of the RealityView -- how does
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] { [] }
+    func createCustomValueEvents() throws -> [LayerPortDerivation] { [] }
     
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
@@ -358,7 +365,7 @@ enum ConeViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .cone }
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] { [] }
+    func createCustomValueEvents() throws -> [LayerPortDerivation] { [] }
     
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
@@ -372,7 +379,7 @@ enum CylinderViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .cylinder }
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] { [] }
+    func createCustomValueEvents() throws -> [LayerPortDerivation] { [] }
     
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
@@ -386,7 +393,7 @@ enum SphereViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .sphere }
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] { [] }
+    func createCustomValueEvents() throws -> [LayerPortDerivation] { [] }
     
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
@@ -414,8 +421,8 @@ enum HStackViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .group }
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        var list: [ASTCustomInputValue] = [
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+        var list: [LayerPortDerivation] = [
             .init(input: .orientation, value: .orientation(.horizontal))
         ]
         
@@ -493,8 +500,8 @@ enum VStackViewConstructor: FromSwiftUIViewToStitch {
 
     var layer: AIGraphData_V0.Layer { .group }
 
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        var list: [ASTCustomInputValue] = [
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+        var list: [LayerPortDerivation] = [
             .init(input: .orientation, value: .orientation(.vertical))
         ]
 
@@ -678,8 +685,8 @@ enum ZStackViewConstructor: FromSwiftUIViewToStitch {
 
     var layer: AIGraphData_V0.Layer { .group }
 
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        var list: [ASTCustomInputValue] = []
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+        var list: [LayerPortDerivation] = []
 
         guard case let .parameters(alignmentArg) = self else { return [] }
 
@@ -745,7 +752,7 @@ struct NoArgViewConstructor: FromSwiftUIViewToStitch {
     var args: [SyntaxViewArgumentData]
     var layer: AIGraphData_V0.Layer
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] { [] }
+    func createCustomValueEvents() throws -> [LayerPortDerivation] { [] }
     
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
@@ -773,7 +780,7 @@ struct CircleViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .oval }
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         .init()
     }
     
@@ -787,7 +794,7 @@ struct RectangleViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .rectangle }
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         .init()
     }
     
@@ -881,10 +888,10 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
     // Will this now always produce a group?
     var layer: AIGraphData_V0.Layer { .group }
 
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         guard case let .parameters(axesArg, _) = self else { return [] }
 
-        func enable(_ port: LayerInputPort) -> ASTCustomInputValue {
+        func enable(_ port: LayerInputPort) -> LayerPortDerivation {
             .init(input: port, value: .bool(true))
         }
 
@@ -922,6 +929,19 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
                     case "vertical":   enableY = true
                     default: break
                     }
+                } else if case .complex(let pvdComplexType) = el,
+                          pvdComplexType.typeName == "PortValueDescription" {
+                    // Handle PortValueDescription objects in array
+                    if let valueArg = pvdComplexType.arguments.first(where: { $0.label == "value" }),
+                       case .simple(let simpleData) = valueArg.value,
+                       simpleData.syntaxKind == .literal(.string) {
+                        let axisValue = simpleData.value.replacingOccurrences(of: "\"", with: "")
+                        switch axisValue {
+                        case "horizontal": enableX = true
+                        case "vertical": enableY = true
+                        default: break
+                        }
+                    }
                 }
             }
             if !enableX && !enableY {
@@ -930,19 +950,55 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
             }
 
         case .complex(let complexType):
+            // Handle PortValueDescription arrays for ScrollView axes
+            if complexType.typeName.contains("Array") || complexType.typeName == "[]" {
+                // This is an array containing PortValueDescription objects
+                var enableX = false
+                var enableY = false
+                
+                for arg in complexType.arguments {
+                    if case .complex(let pvdComplexType) = arg.value,
+                       pvdComplexType.typeName == "PortValueDescription" {
+                        // Extract the axis value from PortValueDescription
+                        if let valueArg = pvdComplexType.arguments.first(where: { $0.label == "value" }),
+                           case .simple(let simpleData) = valueArg.value,
+                           simpleData.syntaxKind == .literal(.string) {
+                            let axisValue = simpleData.value.replacingOccurrences(of: "\"", with: "")
+                            switch axisValue {
+                            case "horizontal": enableX = true
+                            case "vertical": enableY = true
+                            default: break
+                            }
+                        }
+                    }
+                }
+                
+                // Generate events based on enabled axes
+                if !enableX && !enableY {
+                    // Default to vertical if no axes specified
+                    enableY = true
+                }
+                
+                var events: [LayerPortDerivation] = []
+                if enableX { events.append(enable(.scrollXEnabled)) }
+                if enableY { events.append(enable(.scrollYEnabled)) }
+                
+                let orientationValue: PortValue = .orientation(
+                    (enableX && !enableY) ? .horizontal : .vertical
+                )
+                events.append(.init(input: .orientation, value: orientationValue))
+                
+                return events
+            }
+            
+            // Fall back to generic complex type handling
             return try handleComplexArgumentType(
                 complexType,
-                // Not relevant when working with `PortValueDescription` ?
                 context: nil)
-
-            // What does PVD for `[.horizontal, .vertical]` look like? Do we get one PVD, or multiple?
-            // The returned PortValue is just a bool, i.e. not enough to tell us
             .map { pv in
-                    // TODO: there's not really a good way to turn
-                    // Can't know
-                    ASTCustomInputValue(input: .scrollYEnabled,
-                                        inputData: pv)
-                }
+                LayerPortDerivation(input: .scrollYEnabled,
+                                    inputData: pv)
+            }
 
         default:
             throw SwiftUISyntaxError
@@ -950,7 +1006,7 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
         }
 
         // Assemble events ---------------------------------------------------
-        var events: [ASTCustomInputValue] = []
+        var events: [LayerPortDerivation] = []
         if enableX { events.append(enable(.scrollXEnabled)) }
         if enableY { events.append(enable(.scrollYEnabled)) }
 
@@ -1266,9 +1322,9 @@ enum LazyHStackViewConstructor: FromSwiftUIViewToStitch {
 
     var layer: AIGraphData_V0.Layer { .group }
 
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
                 
-        var list: [ASTCustomInputValue] = [
+        var list: [LayerPortDerivation] = [
             .init(input: .orientation, value: .orientation(.horizontal))
         ]
         guard case let .parameters(alignmentArg, spacingArg) = self else { return list }
@@ -1325,8 +1381,8 @@ enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
 
     var layer: AIGraphData_V0.Layer { .group }
 
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        var list: [ASTCustomInputValue] = [
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+        var list: [LayerPortDerivation] = [
             .init(input: .orientation, value: .orientation(.vertical))
         ]
         guard case let .parameters(alignmentArg, spacingArg) = self else { return list }
@@ -1443,7 +1499,7 @@ protocol FromSwiftUIViewModifierToStitch {
     static func from(_ args: [SyntaxViewArgumentData],
                      modifierName: SyntaxViewModifierName) -> T?
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue]
+    func createCustomValueEvents() throws -> [LayerPortDerivation]
 }
 
 // MARK: - Opacity View Modifier
@@ -1451,7 +1507,7 @@ protocol FromSwiftUIViewModifierToStitch {
 struct OpacityViewModifier: FromSwiftUIViewModifierToStitch {
     let value: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         guard let portValue = try value.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: value)
         }
@@ -1486,9 +1542,9 @@ enum ScaleEffectViewModifier: FromSwiftUIViewModifierToStitch {
               anchor: SyntaxViewModifierArgumentType?)
 
     // MARK: - Stitch mapping
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         // local helper for optional anchor → .pivot
-        func pivotEvents(_ anchorArg: SyntaxViewModifierArgumentType?) throws -> [ASTCustomInputValue] {
+        func pivotEvents(_ anchorArg: SyntaxViewModifierArgumentType?) throws -> [LayerPortDerivation] {
             guard let anchorArg else { return [] }
             if case let .memberAccess(ma) = anchorArg, let anch = ma.unitPointAnchoring {
                 return [.init(input: .pivot, value: .anchoring(anch))]
@@ -1504,7 +1560,7 @@ enum ScaleEffectViewModifier: FromSwiftUIViewModifierToStitch {
             guard let pv = try scaleArg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: scaleArg)
             }
-            var events: [ASTCustomInputValue] = [.init(input: .scale, inputData: pv)]
+            var events: [LayerPortDerivation] = [.init(input: .scale, inputData: pv)]
             events += try pivotEvents(anchorArg)
             return events
 
@@ -1521,7 +1577,7 @@ enum ScaleEffectViewModifier: FromSwiftUIViewModifierToStitch {
             guard portValueX == portValueY else {
                 throw SwiftUISyntaxError.unsupportedSyntaxArgument("scaleEffect(x:y:) requires uniform scale for Stitch .scale")
             }
-            var events: [ASTCustomInputValue] = [.init(input: .scale, value: portValueX)]
+            var events: [LayerPortDerivation] = [.init(input: .scale, value: portValueX)]
             events += try pivotEvents(anchorArg)
             return events
 
@@ -1536,7 +1592,7 @@ enum ScaleEffectViewModifier: FromSwiftUIViewModifierToStitch {
                 let portValueH = try PortValue(from: h)
                 
                 if portValueW == portValueH {
-                    var events: [ASTCustomInputValue] = [.init(input: .scale, value: portValueW)]
+                    var events: [LayerPortDerivation] = [.init(input: .scale, value: portValueW)]
                     events += try pivotEvents(anchorArg)
                     return events
                 }
@@ -1623,7 +1679,7 @@ extension MemberAccessExprSyntax {
 struct BlurViewModifier: FromSwiftUIViewModifierToStitch {
     let radius: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         guard let portValue = try radius.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: radius)
         }
@@ -1651,7 +1707,7 @@ struct BlurViewModifier: FromSwiftUIViewModifierToStitch {
 struct ZIndexViewModifier: FromSwiftUIViewModifierToStitch {
     let value: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         guard let portValue = try value.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: value)
         }
@@ -1676,7 +1732,7 @@ struct ZIndexViewModifier: FromSwiftUIViewModifierToStitch {
 struct CornerRadiusViewModifier: FromSwiftUIViewModifierToStitch {
     let radius: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         guard let portValue = try radius.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: radius)
         }
@@ -1710,12 +1766,12 @@ struct FrameViewModifier: PortValuesPackModifiable {
 struct ForegroundColorViewModifier: FromSwiftUIViewModifierToStitch {
     let color: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         // First try to parse as Color type for semantic colors like .blue
         if case let .memberAccess(memberAccess) = color {
             let colorStr = memberAccess.property
             if let color = Color.fromSystemName(colorStr) {
-                return [ASTCustomInputValue(input: .color, value: .color(color))]
+                return [LayerPortDerivation(input: .color, value: .color(color))]
             }
         }
         
@@ -1723,7 +1779,7 @@ struct ForegroundColorViewModifier: FromSwiftUIViewModifierToStitch {
         guard let colorPortValue = try color.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: color)
         }
-        return [ASTCustomInputValue(input: .color, inputData: colorPortValue)]
+        return [LayerPortDerivation(input: .color, inputData: colorPortValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -1739,12 +1795,12 @@ struct ForegroundColorViewModifier: FromSwiftUIViewModifierToStitch {
 struct FillViewModifier: FromSwiftUIViewModifierToStitch {
     let color: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         // First try to parse as Color type for semantic colors like .blue
         if case let .memberAccess(memberAccess) = color {
             let colorStr = memberAccess.property
             if let color = Color.fromSystemName(colorStr) {
-                return [ASTCustomInputValue(input: .color, value: .color(color))]
+                return [LayerPortDerivation(input: .color, value: .color(color))]
             }
         }
         
@@ -1752,7 +1808,7 @@ struct FillViewModifier: FromSwiftUIViewModifierToStitch {
         guard let colorPortValue = try color.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: color)
         }
-        return [ASTCustomInputValue(input: .color, inputData: colorPortValue)]
+        return [LayerPortDerivation(input: .color, inputData: colorPortValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -1770,11 +1826,11 @@ struct FillViewModifier: FromSwiftUIViewModifierToStitch {
 struct BrightnessViewModifier: FromSwiftUIViewModifierToStitch {
     let value: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         guard let portValue = try value.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: value)
         }
-        return [ASTCustomInputValue(input: .brightness, inputData: portValue)]
+        return [LayerPortDerivation(input: .brightness, inputData: portValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -1790,11 +1846,11 @@ struct BrightnessViewModifier: FromSwiftUIViewModifierToStitch {
 struct ContrastViewModifier: FromSwiftUIViewModifierToStitch {
     let value: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         guard let portValue = try value.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: value)
         }
-        return [ASTCustomInputValue(input: .contrast, inputData: portValue)]
+        return [LayerPortDerivation(input: .contrast, inputData: portValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -1810,11 +1866,11 @@ struct ContrastViewModifier: FromSwiftUIViewModifierToStitch {
 struct SaturationViewModifier: FromSwiftUIViewModifierToStitch {
     let value: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         guard let portValue = try value.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: value)
         }
-        return [ASTCustomInputValue(input: .saturation, inputData: portValue)]
+        return [LayerPortDerivation(input: .saturation, inputData: portValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -1830,11 +1886,11 @@ struct SaturationViewModifier: FromSwiftUIViewModifierToStitch {
 struct HueRotationViewModifier: FromSwiftUIViewModifierToStitch {
     let angle: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         guard let anglePortValue = try angle.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: angle)
         }
-        return [ASTCustomInputValue(input: .hueRotation, inputData: anglePortValue)]
+        return [LayerPortDerivation(input: .hueRotation, inputData: anglePortValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -1850,9 +1906,9 @@ struct HueRotationViewModifier: FromSwiftUIViewModifierToStitch {
 struct ColorInvertViewModifier: FromSwiftUIViewModifierToStitch {
     // colorInvert() takes no arguments
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         let trueValue = PortValue.bool(true)
-        return [ASTCustomInputValue(input: .colorInvert, value: trueValue)]
+        return [LayerPortDerivation(input: .colorInvert, value: trueValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -1885,11 +1941,11 @@ struct PaddingViewModifier: FromSwiftUIViewModifierToStitch {
     let edges: SyntaxViewModifierArgumentType?
     let length: SyntaxViewModifierArgumentType?
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         // For now, handle uniform padding only
         guard let length = length else {
             return [
-                ASTCustomInputValue(
+                LayerPortDerivation(
                     input: .padding,
                     value: .padding(StitchPadding(
                         top: 16,
@@ -1906,7 +1962,7 @@ struct PaddingViewModifier: FromSwiftUIViewModifierToStitch {
             throw SwiftUISyntaxError.portValueNotFound(argument: length)
         }
    
-        return [ASTCustomInputValue(input: .padding,
+        return [LayerPortDerivation(input: .padding,
                                     value: .padding(paddingValue))]
     }
     
@@ -1945,9 +2001,9 @@ struct PaddingViewModifier: FromSwiftUIViewModifierToStitch {
 struct ClippedViewModifier: FromSwiftUIViewModifierToStitch {
     // .clipped() takes no arguments
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         let trueValue = PortValue.bool(true)
-        return [ASTCustomInputValue(input: .isClipped, value: trueValue)]
+        return [LayerPortDerivation(input: .isClipped, value: trueValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -1963,7 +2019,7 @@ struct ClippedViewModifier: FromSwiftUIViewModifierToStitch {
 struct FontViewModifier: FromSwiftUIViewModifierToStitch {
     let font: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         // For .font() modifier, we need to create both textFont and fontSize events
         let fontEvents = try createFontEvents(from: font)
         return fontEvents
@@ -1982,7 +2038,7 @@ struct FontViewModifier: FromSwiftUIViewModifierToStitch {
 struct FontDesignViewModifier: FromSwiftUIViewModifierToStitch {
     let design: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         // FontDesign affects the fontChoice part of StitchFont
         let fontEvents = try createFontDesignEvents(from: design)
         return fontEvents
@@ -2001,7 +2057,7 @@ struct FontDesignViewModifier: FromSwiftUIViewModifierToStitch {
 struct FontWeightViewModifier: FromSwiftUIViewModifierToStitch {
     let weight: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         // FontWeight affects the fontWeight part of StitchFont
         let fontEvents = try createFontWeightEvents(from: weight)
         return fontEvents
@@ -2020,11 +2076,11 @@ struct FontWeightViewModifier: FromSwiftUIViewModifierToStitch {
 struct RotationEffectViewModifier: FromSwiftUIViewModifierToStitch {
     let angle: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         guard let anglePortValue = try angle.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: angle)
         }
-        return [ASTCustomInputValue(input: .rotationZ, inputData: anglePortValue)]
+        return [LayerPortDerivation(input: .rotationZ, inputData: anglePortValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -2132,12 +2188,12 @@ enum Rotation3DAxis: Codable {
 struct Rotation3DEffectViewModifier: FromSwiftUIViewModifierToStitch {
     let angle: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         guard let anglePortValue = try angle.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: angle)
         }
         // For now, always map to rotationZ regardless of axis
-        return [ASTCustomInputValue(input: .rotationZ, inputData: anglePortValue)]
+        return [LayerPortDerivation(input: .rotationZ, inputData: anglePortValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -2156,7 +2212,7 @@ struct Rotation3DEffectViewModifier: FromSwiftUIViewModifierToStitch {
 struct LayerIdViewModifier: FromSwiftUIViewModifierToStitch {
     let layerId: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+    func createCustomValueEvents() throws -> [LayerPortDerivation] {
         // LayerId modifier doesn't create LayerInputPort values,
         // it uses the layer's own ID from StrictSyntaxView/LayerData
         return []
@@ -2175,7 +2231,7 @@ struct LayerIdViewModifier: FromSwiftUIViewModifierToStitch {
 // MARK: - Font Helper Functions
 
 /// Creates font events from SwiftUI .font() modifier
-func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [ASTCustomInputValue] {
+func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [LayerPortDerivation] {
     // Handle .memberAccess directly (e.g., .headline, .body, .title)
     if case .memberAccess(let memberData) = fontArg,
        let swiftUIFont = parseSwiftUISystemFont(memberData.property) {
@@ -2183,8 +2239,8 @@ func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [A
         let fontSize = mapSwiftUIFontToSize(swiftUIFont)
         
         return [
-            ASTCustomInputValue(input: .textFont, value: .textFont(stitchFont)),
-            ASTCustomInputValue(input: .fontSize, value: .layerDimension(.number(fontSize)))
+            LayerPortDerivation(input: .textFont, value: .textFont(stitchFont)),
+            LayerPortDerivation(input: .fontSize, value: .layerDimension(.number(fontSize)))
         ]
     }
     
@@ -2219,8 +2275,8 @@ func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [A
             
             let stitchFont = StitchFont(fontChoice: fontChoice, fontWeight: fontWeight)
             return [
-                ASTCustomInputValue(input: .textFont, value: .textFont(stitchFont)),
-                ASTCustomInputValue(input: .fontSize, value: .layerDimension(.number(fontSize)))
+                LayerPortDerivation(input: .textFont, value: .textFont(stitchFont)),
+                LayerPortDerivation(input: .fontSize, value: .layerDimension(.number(fontSize)))
             ]
         }
     }
@@ -2287,8 +2343,8 @@ func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [A
                     : .number(fontSize)
                 
                 return [
-                    ASTCustomInputValue(input: .textFont, value: .textFont(defaultFont)),
-                    ASTCustomInputValue(input: .fontSize, value: fontSizeValue)
+                    LayerPortDerivation(input: .textFont, value: .textFont(defaultFont)),
+                    LayerPortDerivation(input: .fontSize, value: fontSizeValue)
                 ]
             }
         }
@@ -2296,37 +2352,37 @@ func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [A
     
     // Fallback: treat as generic font and use default mapping
     let defaultFont = StitchFont(fontChoice: .sf, fontWeight: .SF_regular)
-    return [ASTCustomInputValue(input: .textFont, value: .textFont(defaultFont))]
+    return [LayerPortDerivation(input: .textFont, value: .textFont(defaultFont))]
 }
 
 /// Creates font design events from SwiftUI .fontDesign() modifier
-func createFontDesignEvents(from designArg: SyntaxViewModifierArgumentType) throws -> [ASTCustomInputValue] {
+func createFontDesignEvents(from designArg: SyntaxViewModifierArgumentType) throws -> [LayerPortDerivation] {
     if case .memberAccess(let memberData) = designArg {
         let fontChoice = mapSwiftUIFontDesignToStitchFontChoice(memberData.property)
         let defaultWeight = getDefaultWeightForFontChoice(fontChoice)
         let stitchFont = StitchFont(fontChoice: fontChoice, fontWeight: defaultWeight)
         
-        return [ASTCustomInputValue(input: .textFont, value: .textFont(stitchFont))]
+        return [LayerPortDerivation(input: .textFont, value: .textFont(stitchFont))]
     }
     
     // Fallback
     let defaultFont = StitchFont(fontChoice: .sf, fontWeight: .SF_regular)
-    return [ASTCustomInputValue(input: .textFont, value: .textFont(defaultFont))]
+    return [LayerPortDerivation(input: .textFont, value: .textFont(defaultFont))]
 }
 
 /// Creates font weight events from SwiftUI .fontWeight() modifier
-func createFontWeightEvents(from weightArg: SyntaxViewModifierArgumentType) throws -> [ASTCustomInputValue] {
+func createFontWeightEvents(from weightArg: SyntaxViewModifierArgumentType) throws -> [LayerPortDerivation] {
     if case .memberAccess(let memberData) = weightArg {
         let fontWeight = mapSwiftUIFontWeightToStitchFontWeight(memberData.property)
         // We need to preserve the current font choice, so we'll use SF as default
         let stitchFont = StitchFont(fontChoice: .sf, fontWeight: fontWeight)
         
-        return [ASTCustomInputValue(input: .textFont, value: .textFont(stitchFont))]
+        return [LayerPortDerivation(input: .textFont, value: .textFont(stitchFont))]
     }
     
     // Fallback
     let defaultFont = StitchFont(fontChoice: .sf, fontWeight: .SF_regular)
-    return [ASTCustomInputValue(input: .textFont, value: .textFont(defaultFont))]
+    return [LayerPortDerivation(input: .textFont, value: .textFont(defaultFont))]
 }
 
 // MARK: - Font Mapping Functions

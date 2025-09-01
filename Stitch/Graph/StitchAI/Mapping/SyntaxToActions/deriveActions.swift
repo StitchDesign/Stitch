@@ -460,7 +460,7 @@ extension SyntaxView {
 extension SyntaxViewName {
     /// Handles ScrollView-specific logic including axis detection and scroll behavior
     static func createScrollGroupLayer(args: [SyntaxViewArgumentData],
-                                       childrenLayers: [CurrentAIGraphData.LayerData]) throws -> CurrentAIGraphData.LayerData {
+                                       childrenLayers: [CurrentAIGraphData.LayerData]) throws -> CurrentAIGraphData.LayerData  {
         // Check the scroll axis from constructor arguments
         // let scrollAxis = Self.detectScrollAxis(args: args)
       
@@ -468,11 +468,13 @@ extension SyntaxViewName {
         let isFirstLayerGroup = childrenLayers.first?.node_name.value.layer?.isGroupForAI ?? false
         let hasRootGroupLayer = childrenLayers.count == 1 && isFirstLayerGroup
         
-        // Create a new nested VStack if no root group
         if hasRootGroupLayer,
            let _groupData: CurrentAIGraphData.LayerData = childrenLayers.first {
             return _groupData
-        } else if !hasRootGroupLayer {
+        }
+        
+        // Create a new nested VStack if no root group
+        else if !hasRootGroupLayer {
             // Add new node as middle-man
             let newId = UUID()
             let newGroupNode = CurrentAIGraphData
