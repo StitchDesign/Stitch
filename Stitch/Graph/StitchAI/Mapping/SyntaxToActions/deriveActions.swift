@@ -65,7 +65,7 @@ extension Array where Element == AIGraphData_V0.LayerData {
     /// 1. Determines interaction patch nodes to make based on view events attached to view modifiers.
     /// 2. Returns dictionary of a state var name to a newly created patch node's output coordinate.
     func createStateVarToInteractionNodeMap(nativePatchNodes: inout [CurrentAIGraphData.PatchNode],
-                                            customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue],
+                                            customPatchInputValues: inout [String: CurrentAIGraphData.CustomPatchInputValue],
                                             viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate],
                                             patchConnections: inout [CurrentAIGraphData.PatchConnection]) -> [String: CurrentAIGraphData.NodeIndexedCoordinate] {
         self.reduce(into: [String: CurrentAIGraphData.NodeIndexedCoordinate]()) { result, layerData in
@@ -86,11 +86,12 @@ extension Array where Element == AIGraphData_V0.LayerData {
                 }
                 
                 // Update layer assignment for node
-                customPatchInputValues.append(
+                customPatchInputValues.updateValue(
                     .init(patch_input_coordinate: .init(node_id: patchNode.node_id,
                                                         port_index: 0),
                           value: layerData.node_id,
-                          value_type: .init(value: .interactionId))
+                          value_type: .init(value: .interactionId)),
+                    forKey: patchNode.node_id
                 )
                 
                 // Update view state connections
@@ -161,8 +162,9 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
         var caughtErrors: [SwiftUISyntaxError] = []
         var nativePatchNodes = [CurrentAIGraphData.PatchNode]()
         var nativePatchValueTypeSettings = [CurrentAIGraphData.NativePatchNodeValueTypeSetting]()
+        
         var patchConnections = [CurrentAIGraphData.PatchConnection]()
-        var customPatchInputValues = [CurrentAIGraphData.CustomPatchInputValue]()
+        var customPatchInputValues = [String: CurrentAIGraphData.CustomPatchInputValue]()
         var preprocessedJSNodes = [CurrentAIGraphData.PreprocessedJSPatchNode]()
         
         // Because patch data is decoded before layer data, we don't yet know the destination ports for layer edges, therefore, we just track the source patch to some state variable
@@ -253,12 +255,14 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
             }
         }
         
+        // Third pass: derive custom node value types for native patch nodes
+        
         return .init(actions: AIGraphData_V0
             .PatchData(javascript_patches: preprocessedJSNodes,
                        native_patches: nativePatchNodes,
                        native_patch_value_type_settings: nativePatchValueTypeSettings,
                        patch_connections: patchConnections,
-                       custom_patch_input_values: customPatchInputValues),
+                       custom_patch_input_values: Array(customPatchInputValues.values)),
                      viewStatePatchConnections: viewStatePatchConnections,
                      caughtErrors: caughtErrors)
     }
