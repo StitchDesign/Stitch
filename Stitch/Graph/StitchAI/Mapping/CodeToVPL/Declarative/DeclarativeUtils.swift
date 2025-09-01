@@ -288,24 +288,6 @@ extension SyntaxViewModifierArgumentType {
             return nil
         }
     }
-    
-    /// Recursively finds the base variable for some member access (i.e. returns `g.translation` for `g.translation.translation`)
-//    var memberBaseVariable: SyntaxViewMemberAccess? {
-//        guard let member = self.memberAccess else {
-//            return nil
-//        }
-//        
-//        switch member.base {
-//        case .memberAccess:
-//            return member.base?.memberBaseVariable
-//            
-//        case .stateAccess:
-//            return member
-//            
-//        default:
-//            return nil
-//        }
-//    }
 }
 
 extension MemberAccessExprSyntax {

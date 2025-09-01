@@ -76,7 +76,7 @@ extension GraphEntity {
         let layerStateAssignments = viewStatePatchConnections.compactMap { (stateVarName, patchOutputCoordinate) -> String? in
             guard let patchId = UUID(patchOutputCoordinate.node_id),
                   let patchNodeVarName = varIdNameMap.get(patchId) else {
-                fatalErrorIfDebug()
+                // Valid nil case for interaction nodes, which aren't saved to map
                 return nil
             }
             
@@ -123,6 +123,7 @@ extension Patch {
     func createInteractionStateVarName(layerId: UUID,
                                        outputPortIndex: Int) -> String {
         let gestureName = self.getGestureName(for: outputPortIndex)
-        return "layer_\(layerId.uuidString)_\(gestureName)"
+        let uniqueVar = "layer".createUniqueVarName(nodeId: layerId)
+        return "\(uniqueVar)_\(gestureName)"
     }
 }

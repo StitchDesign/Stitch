@@ -325,28 +325,7 @@ View modifiers responding to events such as `simultaneousGesture`, `onAppear` et
 
 The `updateLayerInputs` function will be automatically triggered whenever state is updated. Use native patch nodes inside `updateLayerInputs` to respond to these events.
 
-**It's important that state mutations in these closures are kept to as few state mutations as possible. Do not try to add custom logic**. Custom logic is reserved for `updateLayerInputs`. Here's an example of functionality to avoid:
-```swift
-.onTapGesture {
-    let current = rectColor.first?.value as? String ?? "#FF0000FF"
-    let next: String
-    if current == "#FF0000FF" {
-        next = "#00FF00FF"
-    } else if current == "#00FF00FF" {
-        next = "#0000FFFF"
-    } else {
-        next = "#FF0000FF"
-    }
-    rectColor = [PortValueDescription(value: next, value_type: "color")]
-}
-```
-
-For event handling like this, instead update a state variable that uses a pulse. You may use `STITCH_GRAPH_TIME` to provide a current pulse value:
-```swift
-.onTapGesture {
-    rectPulse = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
-}
-```
+**It's important that state mutations in these closures are kept to as few state mutations as possible. Do not try to add custom logic**. Custom logic is reserved for `updateLayerInputs`.
 
 **Gesture callbacks are subject to the same rules as `updateLayerInputs`, which means no custom logic other than patch function invocations and view state mutations. Some examples to avoid:
 

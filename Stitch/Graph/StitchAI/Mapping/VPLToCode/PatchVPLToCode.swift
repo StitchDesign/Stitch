@@ -20,7 +20,8 @@ extension GraphState {
         let patchNodeDeclarations = patchData.patchNodeDeclarations
         
         let flattenedLayerData = aiGraph.layer_data_list.allFlattenedItems
-        let layerViewEvents = aiGraph.layer_data_list.getAllViewEvents()
+        let layerViewEventsMap = aiGraph.layer_data_list.getAllViewEventsMap()
+        let layerViewEvents = layerViewEventsMap.values
         
         // Organizes view event data by layer id
         let layerViewEventMap = flattenedLayerData.reduce(into: [String: [LayerDataViewEvent]]()) { result, layerData in
@@ -39,7 +40,7 @@ extension GraphState {
         // Interaction data updated from gesture callbacks
         let interactionStateVars = layerViewEvents.map { $0.mutatedStateVar }
         
-        let allStateVarNames = patchStateVars + interactionStateVars
+        let allStateVarNames = Set(patchStateVars + interactionStateVars)
         let stateVarDeclarations = allStateVarNames.map { stateVarName in
             "@State var \(stateVarName): [PortValueDescription] = []"
         }
@@ -62,23 +63,23 @@ extension GraphState {
         
         // log("createSwiftUICode: topLevelLayerEntities: \(topLevelLayerEntities)")
         
-        // Maps upstream patch node ID to a variable name
-        let varNameIdMap = aiGraph.viewStatePatchConnections.reduce(into: [UUID: String]()) { result, data in
+        // Maps upstream patch node's output port to a view state's var
+        let varIdNameMap = aiGraph.viewStatePatchConnections.reduce(into: [AIGraphData_V0.NodeIndexedCoordinate: String]()) { result, data in
             let (variableName, nodeIndexCoordiante) = data
-            
-            guard let nodeId = UUID(nodeIndexCoordiante.node_id) else {
-                fatalErrorIfDebug()
-                return
-            }
-            
-            result.updateValue(variableName, forKey: nodeId)
+            result.updateValue(variableName, forKey: nodeIndexCoordiante)
         }
+        
+        // Append interactions to var name map
+//        varIdNameMap = layerViewEventsMap.reduce(into: varNameIdMap) { result, data in
+//            let (id, viewEvent) = data
+//            result.updateValue(viewEvent.mutatedStateVar, forKey: id)
+//        }
         
         // log("createSwiftUICode: varNameIdMap: \(varNameIdMap)")
         
         let viewCode = try topLevelLayerEntities
             .createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
-                               varIdNameMap: varNameIdMap,
+                               varIdNameMap: varIdNameMap,
                                layerViewEventMap: layerViewEventMap)
         
         if ignoreScript {

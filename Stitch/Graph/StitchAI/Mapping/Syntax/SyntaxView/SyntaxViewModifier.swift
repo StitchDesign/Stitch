@@ -209,29 +209,6 @@ extension SyntaxViewModifierArgumentType {
 }
 
 extension SyntaxViewModifierArgumentType {
-//    // For recursion
-//    var allNestedSimpleValues: [String] {
-//        switch self {
-//        case .simple(let syntaxViewSimpleData):
-//            return [syntaxViewSimpleData.value]
-//        case .complex(let syntaxViewModifierComplexType):
-//            return syntaxViewModifierComplexType.arguments
-//                .flatMap(\.value.allNestedSimpleValues)
-//        case .stateAccess(let x):
-//            return [x]
-//        case .tuple(let array):
-//            return array.flatMap(\.value.allNestedSimpleValues)
-//        case .array(let array):
-//            return array.flatMap(\.allNestedSimpleValues)
-//        case .memberAccess(let memberExpr):
-//            return [memberExpr.property]
-//        case .closure(let x):
-//            return [x.script]
-//        case .viewEvent(let x):
-//            return [x.eventName]
-//        }
-//    }
-
     // For cases where we need more than just the `string`;
     // see `SyntaxViewModifierArgumentFlatType` for more details
     var allArgumentTypesFlattened: [SyntaxViewModifierArgumentFlatType] {

@@ -155,9 +155,10 @@ struct iPadGraphTopBarButtons: View {
                 }
             }
             
-            // OpenAI Configuration Picker
+            // OpenAI Configuration Picker - only show in debug builds
             #if DEBUG || DEV_DEBUG || STITCH_AI_TESTING
             OpenAIConfigurationPicker(document: document)
+            #endif
             
             // AI Examples button
             iPadNavBarButton(action: { 
