@@ -154,8 +154,11 @@ extension Patch {
         }
         
         let valueDynamicRows = patchNodeDefinition.rowDefinitions(for: defaultType).inputs
-            .map { !$0.isTypeStatic }
-            .enumerated().map { $0.0 }
+            .map { $0.isTypeStatic }
+            .enumerated()
+            .compactMap { index, isTypeStatic in
+                isTypeStatic ? nil : index
+            }
         return valueDynamicRows
     }
 }

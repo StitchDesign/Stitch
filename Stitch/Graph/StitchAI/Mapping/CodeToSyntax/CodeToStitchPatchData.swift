@@ -380,6 +380,15 @@ extension SwiftParserInitializerType {
                                       value_type: portValue.value_type)
                             )
                             
+                            // Update node's custom value type if relevant at this port
+                            if checkForValueTypeHere {
+                                let valueType = portValue.value_type
+                                nativePatchValueTypeSettings
+                                    .updateValue(.init(node_id: patchNodeData.id,
+                                                       value_type: valueType),
+                                                 forKey: patchNodeData.id)
+                            }
+                            
                         case .stateRef(let ref):
                             // Check for edges here
                             if let upstreamData = varNameOutputPortMap.get(ref) {
