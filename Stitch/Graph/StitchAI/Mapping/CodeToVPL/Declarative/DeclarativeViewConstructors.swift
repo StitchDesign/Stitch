@@ -181,13 +181,21 @@ extension TextViewConstructor {
         }
     }
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
         let arg = self.arg
         guard let value = try arg.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: arg)
         }
         
-        return [.init(input: .text, inputData: value)]
+        return CurrentAIGraphData.LayerData(
+            node_id: nodeId,
+            node_name: .init(value: .layer(self.layer)),
+            children: childrenLayers.isEmpty ? nil : childrenLayers,
+            custom_layer_input_values: [.init(input: .text, inputData: value)]
+        )
     }
     
     // Factory that infers the correct overload from a `FunctionCallExprSyntax`
@@ -246,12 +254,16 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
         }
     }
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
+        let portDerivations: [LayerPortDerivation]
+        
         switch self {
-            
         case .asset(let arg),
-                .decorative(let arg),
-                .uiImage(let arg):
+             .decorative(let arg),
+             .uiImage(let arg):
             guard let portValue = try arg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: arg)
             }
@@ -259,7 +271,7 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
             // Create SF symbol here if PortValue is string type
             let isStringType = portValue.value?.value_type == .init(value: .string)
             
-            return [
+            portDerivations = [
                 .init(input: isStringType ? .sfSymbol : .image,
                       inputData: portValue)
             ]
@@ -269,11 +281,18 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
                 throw SwiftUISyntaxError.portValueNotFound(argument: arg)
             }
             
-            return [
+            portDerivations = [
                 .init(input: .sfSymbol,
                       inputData: portValue)
             ]
         }
+        
+        return CurrentAIGraphData.LayerData(
+            node_id: nodeId,
+            node_name: .init(value: .layer(self.layer)),
+            children: childrenLayers.isEmpty ? nil : childrenLayers,
+            custom_layer_input_values: portDerivations
+        )
     }
     
     // Factory that infers the correct overload from a `FunctionCallExprSyntax`
@@ -319,7 +338,16 @@ enum SpacerViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .spacer }
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] { [] }
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
+        return CurrentAIGraphData.LayerData(
+            node_id: nodeId,
+            node_name: .init(value: .layer(self.layer)),
+            children: childrenLayers.isEmpty ? nil : childrenLayers
+        )
+    }
     
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
@@ -336,7 +364,16 @@ enum StitchRealityViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .realityView }
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] { [] }
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
+        return CurrentAIGraphData.LayerData(
+            node_id: nodeId,
+            node_name: .init(value: .layer(self.layer)),
+            children: childrenLayers.isEmpty ? nil : childrenLayers
+        )
+    }
     
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
@@ -351,7 +388,16 @@ enum BoxViewConstructor: FromSwiftUIViewToStitch {
     var layer: AIGraphData_V0.Layer { .box }
     
     // needs to become a child of the RealityView -- how does
-    func createCustomValueEvents() throws -> [LayerPortDerivation] { [] }
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
+        return CurrentAIGraphData.LayerData(
+            node_id: nodeId,
+            node_name: .init(value: .layer(self.layer)),
+            children: childrenLayers.isEmpty ? nil : childrenLayers
+        )
+    }
     
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
@@ -365,7 +411,16 @@ enum ConeViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .cone }
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] { [] }
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
+        return CurrentAIGraphData.LayerData(
+            node_id: nodeId,
+            node_name: .init(value: .layer(self.layer)),
+            children: childrenLayers.isEmpty ? nil : childrenLayers
+        )
+    }
     
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
@@ -379,7 +434,16 @@ enum CylinderViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .cylinder }
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] { [] }
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
+        return CurrentAIGraphData.LayerData(
+            node_id: nodeId,
+            node_name: .init(value: .layer(self.layer)),
+            children: childrenLayers.isEmpty ? nil : childrenLayers
+        )
+    }
     
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
@@ -393,7 +457,16 @@ enum SphereViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .sphere }
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] { [] }
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
+        return CurrentAIGraphData.LayerData(
+            node_id: nodeId,
+            node_name: .init(value: .layer(self.layer)),
+            children: childrenLayers.isEmpty ? nil : childrenLayers
+        )
+    }
     
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
@@ -421,12 +494,22 @@ enum HStackViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .group }
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
         var list: [LayerPortDerivation] = [
             .init(input: .orientation, value: .orientation(.horizontal))
         ]
         
-        guard case let .parameters(alignmentArg, spacingArg) = self else { return [] }
+        guard case let .parameters(alignmentArg, spacingArg) = self else {
+            return CurrentAIGraphData.LayerData(
+                node_id: nodeId,
+                node_name: .init(value: .layer(self.layer)),
+                children: childrenLayers.isEmpty ? nil : childrenLayers,
+                custom_layer_input_values: list
+            )
+        }
         
         switch alignmentArg {
         case .none:
@@ -460,7 +543,12 @@ enum HStackViewConstructor: FromSwiftUIViewToStitch {
                               inputData: value))
         }
         
-        return list
+        return CurrentAIGraphData.LayerData(
+            node_id: nodeId,
+            node_name: .init(value: .layer(self.layer)),
+            children: childrenLayers.isEmpty ? nil : childrenLayers,
+            custom_layer_input_values: list
+        )
     }
     
     // MARK: Parse from SwiftSyntax
@@ -500,12 +588,22 @@ enum VStackViewConstructor: FromSwiftUIViewToStitch {
 
     var layer: AIGraphData_V0.Layer { .group }
 
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
         var list: [LayerPortDerivation] = [
             .init(input: .orientation, value: .orientation(.vertical))
         ]
 
-        guard case let .parameters(alignmentArg, spacingArg) = self else { return [] }
+        guard case let .parameters(alignmentArg, spacingArg) = self else {
+            return CurrentAIGraphData.LayerData(
+                node_id: nodeId,
+                node_name: .init(value: .layer(self.layer)),
+                children: childrenLayers.isEmpty ? nil : childrenLayers,
+                custom_layer_input_values: list
+            )
+        }
 
         // --- alignment (HorizontalAlignment) → .layerGroupAlignment (Anchoring) ---
         switch alignmentArg {
@@ -538,7 +636,12 @@ enum VStackViewConstructor: FromSwiftUIViewToStitch {
             list.append(.init(input: .spacing, inputData: value))
         }
 
-        return list
+        return CurrentAIGraphData.LayerData(
+            node_id: nodeId,
+            node_name: .init(value: .layer(self.layer)),
+            children: childrenLayers.isEmpty ? nil : childrenLayers,
+            custom_layer_input_values: list
+        )
     }
 
     // MARK: Parse from SwiftSyntax
@@ -685,10 +788,20 @@ enum ZStackViewConstructor: FromSwiftUIViewToStitch {
 
     var layer: AIGraphData_V0.Layer { .group }
 
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
         var list: [LayerPortDerivation] = []
 
-        guard case let .parameters(alignmentArg) = self else { return [] }
+        guard case let .parameters(alignmentArg) = self else {
+            return CurrentAIGraphData.LayerData(
+                node_id: nodeId,
+                node_name: .init(value: .layer(self.layer)),
+                children: childrenLayers.isEmpty ? nil : childrenLayers,
+                custom_layer_input_values: list
+            )
+        }
 
         // Map Alignment → Anchoring
         switch alignmentArg {
@@ -711,7 +824,12 @@ enum ZStackViewConstructor: FromSwiftUIViewToStitch {
             }
         }
 
-        return list
+        return CurrentAIGraphData.LayerData(
+            node_id: nodeId,
+            node_name: .init(value: .layer(self.layer)),
+            children: childrenLayers.isEmpty ? nil : childrenLayers,
+            custom_layer_input_values: list
+        )
     }
 
     static func from(_ args: [SyntaxViewArgumentData],
@@ -752,7 +870,16 @@ struct NoArgViewConstructor: FromSwiftUIViewToStitch {
     var args: [SyntaxViewArgumentData]
     var layer: AIGraphData_V0.Layer
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] { [] }
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
+        return CurrentAIGraphData.LayerData(
+            node_id: nodeId,
+            node_name: .init(value: .layer(self.layer)),
+            children: childrenLayers.isEmpty ? nil : childrenLayers
+        )
+    }
     
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
@@ -780,8 +907,15 @@ struct CircleViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .oval }
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
-        .init()
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
+        return CurrentAIGraphData.LayerData(
+            node_id: nodeId,
+            node_name: .init(value: .layer(self.layer)),
+            children: childrenLayers.isEmpty ? nil : childrenLayers
+        )
     }
     
     static func from(_ args: [SyntaxViewArgumentData],
@@ -794,8 +928,15 @@ struct RectangleViewConstructor: FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .rectangle }
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
-        .init()
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
+        return CurrentAIGraphData.LayerData(
+            node_id: nodeId,
+            node_name: .init(value: .layer(self.layer)),
+            children: childrenLayers.isEmpty ? nil : childrenLayers
+        )
     }
     
     static func from(_ args: [SyntaxViewArgumentData],
@@ -888,7 +1029,19 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
     // Will this now always produce a group?
     var layer: AIGraphData_V0.Layer { .group }
 
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
+        // Use the specialized ScrollView wrapping logic
+        return try self.createLayerWithChildrenWrapping(
+            childrenLayers: childrenLayers,
+            nodeId: nodeId
+        )
+    }
+    
+    // Helper method to generate just the port derivations (used by createLayerWithChildrenWrapping)
+    private func generateScrollPortDerivations() throws -> [LayerPortDerivation] {
         guard case let .parameters(axesArg, _) = self else { return [] }
 
         func enable(_ port: LayerInputPort) -> LayerPortDerivation {
@@ -1061,8 +1214,8 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
         let isFirstLayerGroup = childrenLayers.first?.node_name.value.layer?.isGroupForAI ?? false
         let hasRootGroupLayer = childrenLayers.count == 1 && isFirstLayerGroup
         
-        // Get the scroll axis settings from our existing method
-        let customEvents = try self.createCustomValueEvents()
+        // Get the scroll axis settings from our helper method
+        let customEvents = try self.generateScrollPortDerivations()
         
         if hasRootGroupLayer,
            let existingGroupData = childrenLayers.first {
@@ -1371,12 +1524,22 @@ enum LazyHStackViewConstructor: FromSwiftUIViewToStitch {
 
     var layer: AIGraphData_V0.Layer { .group }
 
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
-                
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
         var list: [LayerPortDerivation] = [
             .init(input: .orientation, value: .orientation(.horizontal))
         ]
-        guard case let .parameters(alignmentArg, spacingArg) = self else { return list }
+        
+        guard case let .parameters(alignmentArg, spacingArg) = self else {
+            return CurrentAIGraphData.LayerData(
+                node_id: nodeId,
+                node_name: .init(value: .layer(self.layer)),
+                children: childrenLayers.isEmpty ? nil : childrenLayers,
+                custom_layer_input_values: list
+            )
+        }
 
         // alignment (VerticalAlignment) → .layerGroupAlignment (Anchoring)
         switch alignmentArg {
@@ -1402,7 +1565,13 @@ enum LazyHStackViewConstructor: FromSwiftUIViewToStitch {
             }
             list.append(.init(input: .spacing, inputData: value))
         }
-        return list
+        
+        return CurrentAIGraphData.LayerData(
+            node_id: nodeId,
+            node_name: .init(value: .layer(self.layer)),
+            children: childrenLayers.isEmpty ? nil : childrenLayers,
+            custom_layer_input_values: list
+        )
     }
 
     static func from(_ args: [SyntaxViewArgumentData],
@@ -1430,11 +1599,22 @@ enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
 
     var layer: AIGraphData_V0.Layer { .group }
 
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData {
         var list: [LayerPortDerivation] = [
             .init(input: .orientation, value: .orientation(.vertical))
         ]
-        guard case let .parameters(alignmentArg, spacingArg) = self else { return list }
+        
+        guard case let .parameters(alignmentArg, spacingArg) = self else {
+            return CurrentAIGraphData.LayerData(
+                node_id: nodeId,
+                node_name: .init(value: .layer(self.layer)),
+                children: childrenLayers.isEmpty ? nil : childrenLayers,
+                custom_layer_input_values: list
+            )
+        }
 
         // alignment (HorizontalAlignment) → .layerGroupAlignment (Anchoring)
         switch alignmentArg {
@@ -1461,7 +1641,13 @@ enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
             }
             list.append(.init(input: .spacing, inputData: value))
         }
-        return list
+        
+        return CurrentAIGraphData.LayerData(
+            node_id: nodeId,
+            node_name: .init(value: .layer(self.layer)),
+            children: childrenLayers.isEmpty ? nil : childrenLayers,
+            custom_layer_input_values: list
+        )
     }
 
     static func from(_ args: [SyntaxViewArgumentData],
