@@ -465,10 +465,14 @@ extension SyntaxViewName {
             //            )
             
         case .scrollView:
-            let layerData = try Self
-                .createScrollGroupLayer(args: args,
-                                        childrenLayers: childrenLayers)
-            return (.group, layerData)
+            // Handled by `ScrollViewViewConstructor` now
+            
+            fatalErrorIfDebug()
+//            let layerData = try Self
+//                .createScrollGroupLayer(args: args,
+//                                        childrenLayers: childrenLayers)
+//            return (.group, layerData)
+            layerType = .group
             
             // MARK: CONTAINER VIEWS
             

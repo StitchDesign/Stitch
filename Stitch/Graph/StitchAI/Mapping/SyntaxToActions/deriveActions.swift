@@ -457,44 +457,6 @@ extension SyntaxView {
     }
 }
 
-extension SyntaxViewName {
-    /// Handles ScrollView-specific logic including axis detection and scroll behavior
-    static func createScrollGroupLayer(args: [SyntaxViewArgumentData],
-                                       childrenLayers: [CurrentAIGraphData.LayerData]) throws -> CurrentAIGraphData.LayerData  {
-        // Check the scroll axis from constructor arguments
-        // let scrollAxis = Self.detectScrollAxis(args: args)
-      
-        // var groupLayer: CurrentAIGraphData.LayerData
-        let isFirstLayerGroup = childrenLayers.first?.node_name.value.layer?.isGroupForAI ?? false
-        let hasRootGroupLayer = childrenLayers.count == 1 && isFirstLayerGroup
-        
-        if hasRootGroupLayer,
-           let _groupData: CurrentAIGraphData.LayerData = childrenLayers.first {
-            return _groupData
-        }
-        
-        // Create a new nested VStack if no root group
-        else if !hasRootGroupLayer {
-            // Add new node as middle-man
-            let newId = UUID()
-            let newGroupNode = CurrentAIGraphData
-                .LayerData(node_id: newId.description,
-                           node_name: .init(value: .layer(.group)),
-                           children: childrenLayers,
-                           // the new group node should be a VStack, i.e. a layer group with orientation = .vertical
-                           custom_layer_input_values: [
-                            LayerPortDerivation(input: .orientation,
-                                                value: .orientation(.vertical))
-                           ])
-                        
-            return newGroupNode
-        } else {
-            fatalErrorIfDebug("Unexpected scenario for groups in scroll.")
-            throw SwiftUISyntaxError.groupLayerDecodingFailed
-        }
-    }
-}
-
 
 // https://developer.apple.com/documentation/swiftui/color#Getting-standard-colors
 extension Color {
