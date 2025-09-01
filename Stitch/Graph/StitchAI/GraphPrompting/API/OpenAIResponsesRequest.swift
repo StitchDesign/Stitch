@@ -66,67 +66,58 @@ struct OpenAIResponsesRequest {
         request.setValue("Bearer \(secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        // Build request body using StreamingDemoView format for compatibility
+        // Build request body using correct Responses API format
         var requestBody: [String: Any] = [
-            "model": "o4-mini", // Use working model from StreamingDemoView
+            "model": model.asOpenAIModel, // Use actual model parameter
             "stream": true
         ]
         
-        // Add reasoning parameters matching StreamingDemoView
+        // Add reasoning parameters
         requestBody["reasoning"] = [
-            "summary": "auto",
-            "effort": "medium"
+            "summary": "auto", //verbosity.toReasoningSummary(),
+            "effort": reasoningEffort.toReasoningEffort()
         ]
         
-        // Build messages array with system message
-        var messages: [[String: Any]] = []
-        
-        // Create system message with size validation
-        let systemContent = createOptimizedSystemMessage(
+        // Add instructions (replaces system message)
+        let instructions = createOptimizedSystemMessage(
             dataGlossary: dataGlossaryPrompt,
             assistant: assistantPrompt,
             textInputSize: textInput.count,
             imageSize: base64Image?.count ?? 0
         )
+        requestBody["instructions"] = instructions
         
-        messages.append([
-            "role": "system",
-            "content": systemContent
-        ])
-        
-        // User message
-        let userContent: Any
+        // Build input using correct Responses API format
         if let imageData = base64Image {
-            // For image requests, use multimodal content
-            userContent = [
+            // Multimodal request - use array format with role-based messages
+            requestBody["input"] = [
                 [
-                    "type": "text",
-                    "text": textInput
-                ],
-                [
-                    "type": "image_url",
-                    "image_url": [
-                        "url": "data:image/jpeg;base64,\(imageData)"
+                    "role": "user",
+                    "content": [
+                        [
+                            "type": "input_text",
+                            "text": textInput
+                        ],
+                        [
+                            "type": "input_image",
+                            "image_url": "data:image/jpeg;base64,\(imageData)"
+                        ]
                     ]
                 ]
             ]
         } else {
-            // For text-only requests, use simple string content
-            userContent = textInput
+            // Text-only request - use simple string format
+            requestBody["input"] = textInput
         }
         
-        messages.append([
-            "role": "user",
-            "content": userContent
-        ])
-        
-        requestBody["input"] = messages
-        
-        // Log total request size
+        // Log request details for debugging
         if let jsonData = try? JSONSerialization.data(withJSONObject: requestBody) {
             print("🔍 Total request body: \(jsonData.count) bytes (\(jsonData.count/1024)KB)")
-            if jsonData.count > 100000 { // > 100KB
-                print("⚠️ Request size over 100KB - may cause HTTP 400")
+            
+            // Log readable request structure (truncated)
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                let truncatedRequest = jsonString.count > 2000 ? String(jsonString.prefix(2000)) + "...[TRUNCATED]" : jsonString
+                print("📤 Outgoing Request: \(truncatedRequest)")
             }
         }
         
@@ -149,8 +140,25 @@ struct OpenAIResponsesRequest {
             }
             
             guard httpResponse.statusCode == 200 else {
-                // TODO: handle failure  
-                fatalError("OpenAI Responses: HTTP \(httpResponse.statusCode)")
+                // Capture detailed error response from API
+                var errorData = Data()
+                do {
+                    for try await byte in asyncBytes {
+                        errorData.append(byte)
+                    }
+                    
+                    let errorString = String(data: errorData, encoding: .utf8) ?? "No error data"
+                    print("🚨 API Error Response: \(errorString)")
+                    
+                    // Try to parse as JSON for structured error
+                    if let errorJSON = try? JSONSerialization.jsonObject(with: errorData) {
+                        print("🚨 Parsed Error JSON: \(errorJSON)")
+                    }
+                    
+                    fatalError("OpenAI Responses: HTTP \(httpResponse.statusCode) - \(errorString)")
+                } catch {
+                    fatalError("OpenAI Responses: HTTP \(httpResponse.statusCode) - Could not read error response: \(error)")
+                }
             }
             
             for try await line in asyncBytes.lines {
@@ -291,18 +299,20 @@ extension OpenAIModel {
     }
 }
 
+// Verbosity is not the same as ReasoningSummary
 extension OpenAIVerbosity {
     func toReasoningSummary() -> String {
-        switch self {
-        case .low:
-            return "brief"
-        case .medium:
-            return "auto"  
-        case .high:
-            return "detailed"
-        default:
-            return "auto"
-        }
+        return "auto"
+//        switch self {
+//        case .low:
+//            return "concise"
+//        case .medium:
+//            return "detailed"
+//        case .high:
+//            return "detailed"
+//        default:
+//            return "auto"
+//        }
     }
 }
 
