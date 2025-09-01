@@ -22,20 +22,6 @@ enum SwiftParserPatternBindingArg {
     case subscriptRef(SwiftParserSubscript)
 }
 
-//extension SwiftParserPatternBindingArg: Encodable {
-//    func encode(to encoder: Encoder) throws {
-//        var container = encoder.singleValueContainer()
-//        switch self {
-//        case .value(let value):
-//            try container.encode(value)
-//        case .binding(let value):
-//            try container.encode(value.trimmedDescription)
-//        case .subscriptRef(let value):
-//            try container.encode(value)
-//        }
-//    }
-//}
-
 struct SwiftParserPatchData {
     let id: String
     var patchType: SwiftParserPatchType

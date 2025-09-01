@@ -212,10 +212,6 @@ extension AIGraphData_V0.LayerData {
                                                               upstreamConnectionToInteraction: &upstreamConnectionToInteraction,
                                                               viewStatePatchConnections: &viewStatePatchConnections)
         
-        // Track if this layer has any inputs which connect directly to an interaction output so we can avoid conflicting state variable names
-        // key = this layer's port, value = node id of interaction
-//        var upstreamInteractionToPort = [LayerInputType: UUID]()
-        
         var customInputValues = [LayerPortDerivation]()
         for port in LayerInputPort.allCases {
             let portData = layerData[keyPath: port.schemaPortKeyPath]
@@ -298,12 +294,7 @@ extension AIGraphData_V0.LayerData {
                             inputData: .value(.init(firstValue))
                         ))
                         
-                    case .upstreamConnection(let upstream):
-//                        // Ignore conncections to interaction nodes for now
-//                        guard !knownInteractionPatchIds.contains(upstream.nodeId) else {
-//                            continue
-//                        }
-                        
+                    case .upstreamConnection(let upstream):                        
                         // Upstream connections require @State variable, so we'll make one here
                         let prefixName = "\(port.asLLMStepPort.toCamelCase())_\(portIndex)"
                         let stateVarName = prefixName.createUniqueVarName(nodeId: layerData.id)
