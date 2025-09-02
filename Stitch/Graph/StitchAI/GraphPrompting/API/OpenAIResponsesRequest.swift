@@ -129,6 +129,12 @@ struct OpenAIResponsesRequest {
         var streamingResponse = ""
         var accumulatedReasoning = ""
         
+        // Track timing for all streaming milestones
+        let requestStartTime = Date()
+        var firstReasoningTime: Date? = nil
+        var firstCodeContentTime: Date? = nil
+        var responseCompletedTime: Date? = nil
+        
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
             
@@ -175,7 +181,11 @@ struct OpenAIResponsesRequest {
                                 await handleStreamingEvent(json: json,
                                                           streamingResponse: &streamingResponse,
                                                           accumulatedReasoning: &accumulatedReasoning,
-                                                          document: document)
+                                                          document: document,
+                                                          requestStartTime: requestStartTime,
+                                                          firstReasoningTime: &firstReasoningTime,
+                                                          firstCodeContentTime: &firstCodeContentTime,
+                                                          responseCompletedTime: &responseCompletedTime)
                             }
                         } catch {
                             // Ignore JSON parsing errors for individual chunks
@@ -188,6 +198,38 @@ struct OpenAIResponsesRequest {
             await MainActor.run {
                 document.isStreamingResponses = false
                 document.streamingReasoningText = ""
+            }
+            
+            // Log comprehensive timing results
+            print("⏱️ Streaming Timing Summary:")
+            
+            if let firstReasoningTime = firstReasoningTime {
+                let timeToFirstReasoning = firstReasoningTime.timeIntervalSince(requestStartTime)
+                print("   → First reasoning: \(String(format: "%.2f", timeToFirstReasoning)) seconds")
+            } else {
+                print("   → First reasoning: Not received")
+            }
+            
+            if let firstCodeTime = firstCodeContentTime {
+                let timeToFirstCode = firstCodeTime.timeIntervalSince(requestStartTime)
+                print("   → First code content: \(String(format: "%.2f", timeToFirstCode)) seconds")
+            } else {
+                print("   → First code content: Not received")
+            }
+            
+            if let completionTime = responseCompletedTime {
+                let totalTime = completionTime.timeIntervalSince(requestStartTime)
+                print("   → Response completed: \(String(format: "%.2f", totalTime)) seconds")
+                
+                // Calculate phase durations
+                if let firstReasoningTime = firstReasoningTime, let firstCodeTime = firstCodeContentTime {
+                    let reasoningPhase = firstCodeTime.timeIntervalSince(firstReasoningTime)
+                    let codePhase = completionTime.timeIntervalSince(firstCodeTime)
+                    print("   → Reasoning phase duration: \(String(format: "%.2f", reasoningPhase)) seconds (first code - first reasoning)")
+                    print("   → Code generation phase duration: \(String(format: "%.2f", codePhase)) seconds (completed - first code)")
+                }
+            } else {
+                print("   → Response completed: Not received")
             }
             
             return streamingResponse
@@ -204,17 +246,45 @@ struct OpenAIResponsesRequest {
     private func handleStreamingEvent(json: [String: Any],
                                       streamingResponse: inout String,
                                       accumulatedReasoning: inout String,
-                                      document: StitchDocumentViewModel) async {
+                                      document: StitchDocumentViewModel,
+                                      requestStartTime: Date,
+                                      firstReasoningTime: inout Date?,
+                                      firstCodeContentTime: inout Date?,
+                                      responseCompletedTime: inout Date?) async {
         guard let eventType = json["type"] as? String else { return }
         
         switch eventType {
         case "response.output_text.delta":
             if let delta = json["delta"] as? String {
+                // Record timing for first actual code content
+                if firstCodeContentTime == nil && !delta.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    firstCodeContentTime = Date()
+                    let timeToFirstCode = firstCodeContentTime!.timeIntervalSince(requestStartTime)
+                print("🚀 First code content received after \(String(format: "%.2f", timeToFirstCode)) seconds: \"\(delta.prefix(50))\(delta.count > 50 ? "..." : "")\"")
+                }
                 streamingResponse += delta
+            }
+        
+        case "response.content_part.added":
+            // This indicates a new content part is starting (might be code output)
+            if let part = json["part"] as? [String: Any],
+               let partType = part["type"] as? String {
+                print("📝 Content part started: \(partType)")
+                if partType == "output_text" && firstCodeContentTime == nil {
+                    // This is likely the start of actual code output
+                    print("🎯 Output text part detected - code content should start soon")
+                }
             }
         
         case "response.reasoning_summary_text.delta":
             if let delta = json["delta"] as? String {
+                // Record timing for first reasoning text
+                if firstReasoningTime == nil && !delta.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    firstReasoningTime = Date()
+                    let timeToFirstReasoning = firstReasoningTime!.timeIntervalSince(requestStartTime)
+                    print("🧠 First reasoning received after \(String(format: "%.2f", timeToFirstReasoning)) seconds: \"\(delta.prefix(50))\(delta.count > 50 ? "..." : "")\"")
+                }
+                
                 accumulatedReasoning += delta
                 
                 // Extract header like StreamingDemoView does
@@ -236,6 +306,11 @@ struct OpenAIResponsesRequest {
             }
         
         case "response.completed":
+            // Record completion timing
+            responseCompletedTime = Date()
+            let totalTime = responseCompletedTime!.timeIntervalSince(requestStartTime)
+            print("✅ Response completed after \(String(format: "%.2f", totalTime)) seconds")
+            
             await MainActor.run {
                 document.isStreamingResponses = false
             }
@@ -256,9 +331,9 @@ struct OpenAIResponsesRequest {
     
     /// Creates system message with size logging
     private func createOptimizedSystemMessage(dataGlossary: String,
-                                            assistant: String, 
-                                            textInputSize: Int,
-                                            imageSize: Int) -> String {
+                                              assistant: String,
+                                              textInputSize: Int,
+                                              imageSize: Int) -> String {
         
         // Calculate estimated total request size
         let baseRequestSize = 1000 // Rough estimate for JSON structure, model, etc.
