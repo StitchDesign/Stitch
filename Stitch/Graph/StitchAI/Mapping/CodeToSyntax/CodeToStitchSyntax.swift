@@ -29,7 +29,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     }
 
     // Top-level declarations of patch data
-    var bindingDeclarations = [String : SwiftParserInitializerType]()
+    var bindingDeclarations = [(String, SwiftParserInitializerType)]()
     
     var viewStack: [SyntaxView] = []
     
@@ -70,7 +70,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             }
             
             self.bindingDeclarations
-                .updateValue(.patchNode(patchNode), forKey: currentLHS)
+                .append((currentLHS, .patchNode(patchNode)))
             
             return .skipChildren
         }
@@ -80,8 +80,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             // Subscript reference to some existing outputs
             let subscriptData = self.visitSubscriptData(subscriptCallExpr: subscriptCallExpr)
             self.bindingDeclarations
-                .updateValue(subscriptData,
-                             forKey: currentLHS)
+                .append((currentLHS, subscriptData))
             
             return .skipChildren
         }
@@ -130,24 +129,21 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         if let subscriptExpr = assinmentElem.as(SubscriptCallExprSyntax.self) {
             let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptExpr)
             self.bindingDeclarations
-                .updateValue(.stateMutation(subscriptRef),
-                             forKey: refName)
+                .append((refName, .stateMutation(subscriptRef)))
             return .skipChildren
         }
         
         else if let declRefExpr = assinmentElem.as(DeclReferenceExprSyntax.self) {
             let declLabel = declRefExpr.baseName.trimmedDescription
             self.bindingDeclarations
-                .updateValue(.stateMutation(.declrRef(declLabel)),
-                             forKey: refName)
+                .append((refName, .stateMutation(.declrRef(declLabel))))
             return .skipChildren
         }
         
         // Captures arrays of PortValueDescription
         else if let arrayExpr = assinmentElem.as(ArrayExprSyntax.self) {
             self.bindingDeclarations
-                .updateValue(.stateMutation(.arraySyntax(arrayExpr)),
-                             forKey: refName)
+                .append((refName, .stateMutation(.arraySyntax(arrayExpr))))
             return .skipChildren
         }
         
@@ -183,8 +179,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 // View builder function
                 if let someOrAnyReturnType = funcDeclSyntax.signature.returnClause?.type.as(SomeOrAnyTypeSyntax.self),
                    someOrAnyReturnType.constraint.trimmedDescription == "View" {
-                    self.bindingDeclarations.updateValue(.viewBuilder(bodyScript),
-                                                         forKey: funcName)
+                    self.bindingDeclarations.append((funcName, .viewBuilder(bodyScript)))
                     
                     return .skipChildren
                 }
@@ -192,7 +187,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 
                 // JS node case
                 else {
-                    self.bindingDeclarations.updateValue(.jsNodeScript(bodyScript), forKey: funcName)
+                    self.bindingDeclarations.append((funcName, .jsNodeScript(bodyScript)))
                     return .skipChildren
                 }
             }

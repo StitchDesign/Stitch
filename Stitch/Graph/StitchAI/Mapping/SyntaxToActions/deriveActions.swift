@@ -32,7 +32,7 @@ struct SwiftSyntaxActionsResult: Encodable {
 
 extension Array where Element == SyntaxView {
     @MainActor
-    func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) -> SwiftSyntaxLayerActionsResult {
+    func deriveStitchActions(bindingDeclarations: [(String, SwiftParserInitializerType)]) -> SwiftSyntaxLayerActionsResult {
         var result = SwiftSyntaxLayerActionsResult(actions: [],
                                                    caughtErrors: [])
         
@@ -48,7 +48,7 @@ extension Array where Element == SyntaxView {
 
 extension SwiftUIViewParserResult {
     @MainActor
-    func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) -> SwiftSyntaxActionsResult {
+    func deriveStitchActions(bindingDeclarations: [(String, SwiftParserInitializerType)]) -> SwiftSyntaxActionsResult {
         // Extract layer data
         let layerResults = self.viewStack.deriveStitchActions(bindingDeclarations: bindingDeclarations)
 
@@ -142,7 +142,11 @@ extension Array where Element == AIGraphData_V0.LayerData {
     }
 }
 
-extension Dictionary where Key == String, Value == SwiftParserInitializerType {
+extension Array where Element == (String, SwiftParserInitializerType) {
+    func get(_ name: String) -> SwiftParserInitializerType? {
+        self.first { $0.0 == name }?.1
+    }
+    
     @MainActor
     func deriveStitchActions(layers: [AIGraphData_V0.LayerData]) -> SwiftSyntaxPatchActionsResult {
         // MARK: data we use as tracking
@@ -263,8 +267,8 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
         
         return .init(actions: AIGraphData_V0
             .PatchData(javascript_patches: preprocessedJSNodes,
-                       native_patches: Array(nativePatchNodes.values),
-                       native_patch_value_type_settings: Array(nativePatchValueTypeSettings.values),
+                       native_patches: Array<CurrentAIGraphData.PatchNode>(nativePatchNodes.values),
+                       native_patch_value_type_settings: Array<CurrentAIGraphData.NativePatchNodeValueTypeSetting>(nativePatchValueTypeSettings.values),
                        patch_connections: patchConnections,
                        custom_patch_input_values: customPatchInputValues),
                      viewStatePatchConnections: viewStatePatchConnections,
@@ -309,7 +313,7 @@ extension Array where Element == String {
 
 extension SyntaxView {
     @MainActor
-    func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) -> SwiftSyntaxLayerActionsResult? {
+    func deriveStitchActions(bindingDeclarations: [(String, SwiftParserInitializerType)]) -> SwiftSyntaxLayerActionsResult? {
         // Tracks all silent errors
         var silentErrors = [SwiftUISyntaxError]()
         

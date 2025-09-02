@@ -138,9 +138,9 @@ extension SyntaxViewModifier {
             // Find first line of code with state mutation
             let mutatedStateVar = parsedCode.bindingDeclarations
                 .compactMap {
-                    switch $0.value {
+                    switch $0.1 {
                     case .stateMutation:
-                        return $0.key
+                        return $0.0
                     default:
                         return nil
                     }
@@ -269,7 +269,7 @@ extension SyntaxViewName {
                          args: ViewConstructorType?,
                          modifiers: [SyntaxViewModifier],
                          childrenLayers: [CurrentAIGraphData.LayerData],
-                         bindingDeclarations: [String : SwiftParserInitializerType]) throws -> LayerDerivationResult {
+                         bindingDeclarations: [(String, SwiftParserInitializerType)]) throws -> LayerDerivationResult {
         var silentErrors = [SwiftUISyntaxError]()
         var layerData: CurrentAIGraphData.LayerData
         let layerType: CurrentAIGraphData.Layer
