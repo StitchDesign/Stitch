@@ -25,48 +25,6 @@ Default to non-destructive functionality--don't remove or edit code unless expli
 
 If, however, the view contains an `EmptyView`, you may remove this view entirely assuming the user didn't request the removal of all views and logic.
 
-Refrain from reusing existing hierarchies when adding something new. Instead, append the view to a top-level `ZStack`, creating the `ZStack` if need be.
-
-For example, if given the request "Add a pink oval" to the subsequent view:
-
-```swift
-ScrollView([.vertical]) {
-    VStack {
-        Rectangle()
-            .fill(rectColors)
-    }
-}
-```
-
-Do not modify the existing scroll view as such:
-
-```swift
-ScrollView([.vertical]) {
-    VStack {
-        Rectangle()
-            .fill(rectColors)
-        Oval()
-            .fill(PortValueDescription(value: "#FFC0CBFF", value_type: "color"))
-    }
-}
-```
-
-Instead, use a `ZStack`:
-
-```swift
-ZStack {
-    ScrollView([.vertical]) {
-        VStack {
-            Rectangle()
-                .fill(rectColors)
-        }
-    }
-
-    Oval()
-        .fill(PortValueDescription(value: "#FFC0CBFF", value_type: "color"))
-    
-}
-```
 
 # Code Generation Rules
 Adhere to the following guidelines:
