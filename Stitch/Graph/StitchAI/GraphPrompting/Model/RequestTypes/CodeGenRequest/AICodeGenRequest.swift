@@ -88,7 +88,7 @@ extension StitchAICodeCreator {
         return Task(priority: .high) { [weak document] in
             guard let document = document,
                   let aiManager = document.aiManager else {
-                log("getRequestTask: AICodeGenRequest: getRequestTask: no document or ai manager", .logToServer)
+                // log("getRequestTask: AICodeGenRequest: getRequestTask: no document or ai manager", .logToServer)
                 
                 if let document: StitchDocumentViewModel = document {
                     return .failure(StitchStore.displayError(failure: StitchAIManagerError.secretsNotFound,
@@ -105,7 +105,7 @@ extension StitchAICodeCreator {
                                     aiManager: aiManager,
                                     dataGlossaryPrompt: dataGlossaryPrompt)
                 
-                logToServerIfRelease("SUCCESS Patch Builder:\n\((try? actionsResult.graphData.encodeToPrintableString()) ?? "")")
+                // logToServerIfRelease("SUCCESS Patch Builder:\n\((try? actionsResult.graphData.encodeToPrintableString()) ?? "")")
                 
                 DispatchQueue.main.async { [weak document] in
                     guard let document = document else { return }
@@ -154,7 +154,7 @@ extension StitchAICodeCreator {
 
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
         
-        logToServerIfRelease("StitchAICodeCreator codeParserResult:\n\(codeParserResult)")
+        // logToServerIfRelease("StitchAICodeCreator codeParserResult:\n\(codeParserResult)")
         
         let actionsResult = codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
         

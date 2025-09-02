@@ -116,7 +116,7 @@ extension GraphState {
         let valueChange = (valueAtIndex != value)
         
         guard valueChange else {
-            log("GraphState.inputEditCommitted: value did not change, so returning early")
+            // log("GraphState.inputEditCommitted: value did not change, so returning early")
             
             // See note in `inputEdited`
             input.immediatelyUpdateFieldObserversAfterInputEdit(value)
