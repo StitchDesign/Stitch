@@ -1098,8 +1098,8 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
                 }
             }
             if !enableX && !enableY {
-                throw SwiftUISyntaxError
-                    .unsupportedConstructorForPortValueDecoding(.scrollView(self))
+                // Default to enable Y
+                enableY = true
             }
 
         case .complex(let complexType):
