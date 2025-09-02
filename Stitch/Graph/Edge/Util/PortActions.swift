@@ -26,7 +26,7 @@ extension InputNodeRowObserver {
     func removeUpstreamConnection(node: NodeViewModel) {
         
         guard let upstreamOutputObserver = self.upstreamOutputObserver else {
-            log("InputNodeRowObserver: removeUpstreamConnection: could not find upstream output observer")
+            // log("InputNodeRowObserver: removeUpstreamConnection: could not find upstream output observer")
             return
         }
         

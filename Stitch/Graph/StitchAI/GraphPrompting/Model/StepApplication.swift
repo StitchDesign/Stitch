@@ -257,7 +257,7 @@ func positionAIGeneratedNodes(convertedActions: [any StepActionable],
             if depthMap.get($0) == depthLevel {
                 return nodes.getNode($0)
             }
-            log("positionAIGeneratedNodes: Could not get depth level for \($0.debugFriendlyId)")
+            // log("positionAIGeneratedNodes: Could not get depth level for \($0.debugFriendlyId)")
             return nil
         }
         
@@ -323,7 +323,7 @@ func positionAIGeneratedNodesDuringApply(
         return
     }
 
-    log("positionAIGeneratedNodes: depthMap: \(depthMap)")
+    // log("positionAIGeneratedNodes: depthMap: \(depthMap)")
 
     guard !depthMap.isEmpty else {
 //        fatalErrorIfDebug("Depth-map should never be empty")
@@ -403,7 +403,7 @@ func positionAIGeneratedNodesDuringApply(
                 rowIndexForDepth += 1
 
                 // log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
-                log("positionAIGeneratedNodes: newPosition: \(newPosition)")
+                // log("positionAIGeneratedNodes: newPosition: \(newPosition)")
                 canvasItem.position = newPosition
                 canvasItem.previousPosition = newPosition
             }
