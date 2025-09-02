@@ -31,7 +31,8 @@ struct SwiftSyntaxActionsResult: Encodable {
 }
 
 extension Array where Element == SyntaxView {
-    func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) -> SwiftSyntaxLayerActionsResult {
+    @MainActor
+    func deriveStitchActions(bindingDeclarations: [(String, SwiftParserInitializerType)]) -> SwiftSyntaxLayerActionsResult {
         var result = SwiftSyntaxLayerActionsResult(actions: [],
                                                    caughtErrors: [])
         
@@ -46,7 +47,8 @@ extension Array where Element == SyntaxView {
 }
 
 extension SwiftUIViewParserResult {
-    func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) -> SwiftSyntaxActionsResult {
+    @MainActor
+    func deriveStitchActions(bindingDeclarations: [(String, SwiftParserInitializerType)]) -> SwiftSyntaxActionsResult {
         // Extract layer data
         let layerResults = self.viewStack.deriveStitchActions(bindingDeclarations: bindingDeclarations)
 
@@ -64,7 +66,7 @@ extension Array where Element == AIGraphData_V0.LayerData {
     /// Roles:
     /// 1. Determines interaction patch nodes to make based on view events attached to view modifiers.
     /// 2. Returns dictionary of a state var name to a newly created patch node's output coordinate.
-    func createStateVarToInteractionNodeMap(nativePatchNodes: inout [CurrentAIGraphData.PatchNode],
+    func createStateVarToInteractionNodeMap(nativePatchNodes: inout [String: CurrentAIGraphData.PatchNode],
                                             customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue],
                                             viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate],
                                             patchConnections: inout [CurrentAIGraphData.PatchConnection]) -> [String: CurrentAIGraphData.NodeIndexedCoordinate] {
@@ -107,7 +109,8 @@ extension Array where Element == AIGraphData_V0.LayerData {
             
             // Add any created patch nodes to the native nodes list
             createdPatchesAtThisNode.values.forEach { patchNode in
-                nativePatchNodes.append(patchNode)
+                nativePatchNodes.updateValue(patchNode,
+                                             forKey: patchNode.node_id)
             }
             
             // Recursively explore children
@@ -139,7 +142,12 @@ extension Array where Element == AIGraphData_V0.LayerData {
     }
 }
 
-extension Dictionary where Key == String, Value == SwiftParserInitializerType {
+extension Array where Element == (String, SwiftParserInitializerType) {
+    func get(_ name: String) -> SwiftParserInitializerType? {
+        self.first { $0.0 == name }?.1
+    }
+    
+    @MainActor
     func deriveStitchActions(layers: [AIGraphData_V0.LayerData]) -> SwiftSyntaxPatchActionsResult {
         // MARK: data we use as tracking
         // Maps some variable name to a node ID string
@@ -159,8 +167,8 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
         
         // MARK: data to be returned
         var caughtErrors: [SwiftUISyntaxError] = []
-        var nativePatchNodes = [CurrentAIGraphData.PatchNode]()
-        var nativePatchValueTypeSettings = [CurrentAIGraphData.NativePatchNodeValueTypeSetting]()
+        var nativePatchNodes = [String: CurrentAIGraphData.PatchNode]()
+        var nativePatchValueTypeSettings = [String: CurrentAIGraphData.NativePatchNodeValueTypeSetting]()
         var patchConnections = [CurrentAIGraphData.PatchConnection]()
         var customPatchInputValues = [CurrentAIGraphData.CustomPatchInputValue]()
         var preprocessedJSNodes = [CurrentAIGraphData.PreprocessedJSPatchNode]()
@@ -186,7 +194,8 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                     .createStitchData(varName: varName,
                                       varNameIdMap: &varNameIdMap,
                                       varNameJsFnMap: &varNameJsFnMap)
-                nativePatchNodes.append(newPatchNode)
+                nativePatchNodes.updateValue(newPatchNode,
+                                             forKey: newPatchNode.node_id)
                 
             case .subscriptRef(let subscriptData):
                 // Track top-level bindings of some output port data
@@ -199,7 +208,8 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                         .createStitchData(varName: varName,
                                           varNameIdMap: &varNameIdMap,
                                           varNameJsFnMap: &varNameJsFnMap)
-                    nativePatchNodes.append(newPatchNode)
+                    nativePatchNodes.updateValue(newPatchNode,
+                                                 forKey: newPatchNode.node_id)
                     
                 case .ref:
                     continue
@@ -242,8 +252,10 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                                         customPatchInputValues: &customPatchInputValues,
                                         varNamePatchNodeRefMap: varNamePatchNodeRefMap,
                                         stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
+                                        nativePatchNodes: nativePatchNodes,
                                         patchConnections: &patchConnections,
                                         viewStatePatchConnections: &viewStatePatchConnections,
+                                        nativePatchValueTypeSettings: &nativePatchValueTypeSettings,
                                         preprocessedJSNodes: &preprocessedJSNodes,
                                         varNameJsFnMap: &varNameJsFnMap)
             } catch let error as SwiftUISyntaxError {
@@ -255,8 +267,8 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
         
         return .init(actions: AIGraphData_V0
             .PatchData(javascript_patches: preprocessedJSNodes,
-                       native_patches: nativePatchNodes,
-                       native_patch_value_type_settings: nativePatchValueTypeSettings,
+                       native_patches: Array<CurrentAIGraphData.PatchNode>(nativePatchNodes.values),
+                       native_patch_value_type_settings: Array<CurrentAIGraphData.NativePatchNodeValueTypeSetting>(nativePatchValueTypeSettings.values),
                        patch_connections: patchConnections,
                        custom_patch_input_values: customPatchInputValues),
                      viewStatePatchConnections: viewStatePatchConnections,
@@ -266,6 +278,7 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
 
 extension Array where Element == String {
     /// Derives actions from an array of script strings.
+    @MainActor
     func deriveStitchActions() -> SwiftSyntaxLayerActionsResult {
         let actionsResults = self.flatMap { script in
             let result = SwiftUIViewVisitor.parseSwiftUICode(script)
@@ -299,7 +312,8 @@ extension Array where Element == String {
 }
 
 extension SyntaxView {
-    func deriveStitchActions(bindingDeclarations: [String : SwiftParserInitializerType]) -> SwiftSyntaxLayerActionsResult? {
+    @MainActor
+    func deriveStitchActions(bindingDeclarations: [(String, SwiftParserInitializerType)]) -> SwiftSyntaxLayerActionsResult? {
         // Tracks all silent errors
         var silentErrors = [SwiftUISyntaxError]()
         

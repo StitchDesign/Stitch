@@ -64,7 +64,7 @@ extension SyntaxViewName {
                                    args: nil,
                                    modifiers: [],
                                    childrenLayers: [],
-                                   bindingDeclarations: [:])) != nil
+                                   bindingDeclarations: [])) != nil
     }
 }
 

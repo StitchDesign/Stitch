@@ -43,6 +43,7 @@ protocol StitchAICodeCreator {
     
     static var type: StitchAIRequestBuilder_V0.StitchAIRequestType { get }
     
+    @MainActor
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
                     dataGlossaryPrompt: String) async throws -> String
