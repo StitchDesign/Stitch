@@ -216,8 +216,8 @@ extension SwiftUIViewVisitor {
         // Preprocess the code to ensure single root view in var body
         let preprocessedCode = preprocessSwiftUICode(swiftUICode, context: context)
         
-        log("DEBUG: swiftUICode: \n\(swiftUICode)")
-        log("DEBUG: preprocessedCode: \n\(preprocessedCode)")
+        // log("DEBUG: swiftUICode: \n\(swiftUICode)")
+        // log("DEBUG: preprocessedCode: \n\(preprocessedCode)")
         
         // Fall back to the original visitor-based approach for now
         // but add our own post-processing for modifiers
