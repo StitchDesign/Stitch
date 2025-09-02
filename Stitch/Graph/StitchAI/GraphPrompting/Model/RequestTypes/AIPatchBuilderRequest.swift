@@ -120,7 +120,7 @@ extension SwiftSyntaxActionsResult {
             result.updateValue(nodeId, forKey: nodeId.description)
         }
         
-        // Tracks all patch input coordinates we either make connections or custom vaues for, used for determining if extra rows need to be created
+        // Tracks all patch input coordinates we either make connections or custom values for, used for determining if extra rows need to be created
         let allModifiedPatchIds = self.graphData.patch_data.custom_patch_input_values.map(\.patch_input_coordinate) + self.graphData.patch_data.patch_connections.map(\.dest_port)
         let allModifiedPatchIdsSet = Set(allModifiedPatchIds)
 //        assertInDebug(allModifiedPatchIdsSet.count == allModifiedPatchIds.count)
@@ -382,6 +382,8 @@ extension SwiftSyntaxActionsResult {
         let allNewMappedIds = allNewIds.compactMap { idMap.get($0) }
         let nodeIdsToDelete = Set(document.visibleGraph.nodes.keys).subtracting(allNewMappedIds)
 
+        log("createAIGraph: nodeIdsToDelete: \(nodeIdsToDelete)")
+        
         for nodeIdToDelete in nodeIdsToDelete {
             document.visibleGraph.deleteNode(id: nodeIdToDelete,
                                              document: document)

@@ -131,7 +131,8 @@ struct OpenAIResponsesRequest {
         
         // Track token deltas for eager parsing
         var tokenDeltaCount = 0
-        let eagerParsingThreshold = 8 // Parse every N delta events
+//        let eagerParsingThreshold = 30 // Parse every N delta events
+        let eagerParsingThreshold = 60 // Parse every N delta events
         
         // Track timing for all streaming milestones
         let requestStartTime = Date()
@@ -387,6 +388,9 @@ struct OpenAIResponsesRequest {
             // Derive Stitch actions from parsed code
             var actionsResult = await codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
             
+            // Clear caught errors to prevent showing them during eager parsing
+            actionsResult.caughtErrors.removeAll()
+            
             // Apply partial results if we got meaningful layer data
             if !actionsResult.graphData.layer_data_list.isEmpty {
                 print("✅ Eager parsing succeeded: found \(actionsResult.graphData.layer_data_list.count) layers")
@@ -403,8 +407,8 @@ struct OpenAIResponsesRequest {
                 print("⏭️ Eager parsing: no meaningful layers yet")
             }
         } catch {
-            // Silently ignore parse failures - this is expected with incomplete code
-            print("⏭️ Eager parsing failed (expected): \(error.localizedDescription)")
+            // Silently ignore all parse failures during eager parsing - this is expected with incomplete code
+            // No logging to avoid showing silent errors while streaming
         }
     }
 }
