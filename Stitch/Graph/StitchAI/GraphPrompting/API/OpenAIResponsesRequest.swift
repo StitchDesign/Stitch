@@ -19,6 +19,7 @@ struct OpenAIResponsesRequest {
     let model: OpenAIModel
     let verbosity: OpenAIVerbosity
     let reasoningEffort: OpenAIReasoningEffort
+    let originalCodeLength: Int
     
     init(id: UUID,
          requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
@@ -28,7 +29,8 @@ struct OpenAIResponsesRequest {
          base64Image: String? = nil,
          model: OpenAIModel,
          verbosity: OpenAIVerbosity,
-         reasoningEffort: OpenAIReasoningEffort) {
+         reasoningEffort: OpenAIReasoningEffort,
+         originalCodeLength: Int) {
         self.id = id
         self.requestType = requestType
         self.dataGlossaryPrompt = dataGlossaryPrompt
@@ -38,6 +40,7 @@ struct OpenAIResponsesRequest {
         self.model = model
         self.verbosity = verbosity
         self.reasoningEffort = reasoningEffort
+        self.originalCodeLength = originalCodeLength
     }
     
     func request(document: StitchDocumentViewModel,
@@ -276,7 +279,7 @@ struct OpenAIResponsesRequest {
                 // Eager parsing: increment counter and attempt parsing at threshold
                 tokenDeltaCount += 1
                 if tokenDeltaCount >= eagerParsingThreshold {
-                    await attemptEagerParsing(streamingResponse: streamingResponse, document: document)
+                    await attemptEagerParsing(streamingResponse: streamingResponse, document: document, originalCodeLength: originalCodeLength)
                     tokenDeltaCount = 0 // Reset counter
                 }
             }
@@ -374,9 +377,24 @@ struct OpenAIResponsesRequest {
     }
     
     /// Attempts eager parsing of accumulated streaming response
-    private func attemptEagerParsing(streamingResponse: String, document: StitchDocumentViewModel) async {
+    private func attemptEagerParsing(streamingResponse: String, document: StitchDocumentViewModel, originalCodeLength: Int) async {
         guard !streamingResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             return
+        }
+        
+        // For genuine edits (originalCodeLength > 0), only parse when we reach 90% of original code length
+        if originalCodeLength > 0 {
+            let threshold = Double(originalCodeLength) * 0.9
+            let currentLength = Double(streamingResponse.count)
+            
+            if currentLength < threshold {
+                print("⏭️ Skipping eager parsing: \(streamingResponse.count) chars < 90% threshold (\(Int(threshold)) chars) of original (\(originalCodeLength) chars)")
+                return
+            } else {
+                print("🎯 90% threshold reached! Streaming: \(streamingResponse.count) chars, Original: \(originalCodeLength) chars, Threshold: \(Int(threshold)) chars")
+            }
+        } else {
+            print("🆕 New code creation: eager parsing at \(streamingResponse.count) characters (no original code to compare)")
         }
         
         print("🔄 Attempting eager parsing with \(streamingResponse.count) characters...")

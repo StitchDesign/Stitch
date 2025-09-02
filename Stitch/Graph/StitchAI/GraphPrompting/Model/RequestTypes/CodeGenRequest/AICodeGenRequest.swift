@@ -61,7 +61,8 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
             
             model: .gpt5Mini,
             verbosity: .low,
-            reasoningEffort: .medium)
+            reasoningEffort: .medium,
+            originalCodeLength: swiftUICodeOfGraph.count)
 //        
         let startTime = CFAbsoluteTimeGetCurrent()
         let codeEditResult = try await responsesRequest
