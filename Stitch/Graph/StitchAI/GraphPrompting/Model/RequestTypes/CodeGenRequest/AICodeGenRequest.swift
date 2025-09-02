@@ -48,6 +48,7 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
             // Debug print OpenAI configuration
             log("🤖 Vision Request - Model: \(document.openaiModel), Verbosity: \(validatedVerbosity) (requested: \(document.openaiVerbosity)), Reasoning Effort: \(validatedReasoningEffort) (requested: \(document.openaiReasoningEffort))")
             
+            // TODO: consolidate `OpenAIVisionChatCompletionRequest` and `OpenAIChatCompletionRequest`
             // Request for code edit with image
             let visionEditRequest = try OpenAIVisionChatCompletionRequest(
                 id: self.id,
