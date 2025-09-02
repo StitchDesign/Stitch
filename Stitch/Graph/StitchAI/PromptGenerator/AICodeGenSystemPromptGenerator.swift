@@ -482,6 +482,8 @@ Should instead leverage an Option Picker patch node to update state upon pulse f
 ##### Drag Gesture Considerations
 A drag gesture should almost always default to using the `position` property instead of `translation` property when a drag interaction is requested by the user. Only use `translation` for requests where drag functionality is not expected to persist based on the user's request. **When in doubt, use position, not translation.** 
 
+**You are NOT allowed to use the `.onEnded` handler for any logic.**
+
 ##### Allowed and Disallowed Gestures
 
 **Only tap and drag gestures are supported. Do not create any other gestures like long press or pinch.**
