@@ -194,6 +194,42 @@ In some rare circumstances, you may need to output a loop count that exceeds the
 
 Also, it's acceptable to create a loop by connecting a Loop patch to a layer's z-index input. It's okay to have redundant inputs to the layer that would create a looped layer.
 
+**Assume a patch function will never return an empty list**. Therefore, calls like:
+
+```swift
+let randomColor = NATIVE_STITCH_PATCH_FUNCTIONS["rgbColor || Patch"]([...])
+let tapRgb = NATIVE_STITCH_PATCH_FUNCTIONS["rgbColor || Patch"]([...])
+rectangleColor = tapRgb[0].isEmpty ? randomColor : tapRgb[0]
+```
+
+Will never need to be called because the condition will always be false. Instead, do:
+
+```swift
+let tapRgb = NATIVE_STITCH_PATCH_FUNCTIONS["rgbColor || Patch"]([...])
+rectangleColor = tapRgb[0]
+```
+
+Furtheremore, **never create a ternary statement**. Ternaries qualify as custom logic that needs to be replaced with native patch functionality. For example, an example like:
+
+```swift
+let rectanglePulse = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
+let opacity = rectanglePulse ? [PortValueDescription(value: 0.85, value_type: "number")] : [PortValueDescription(value: 1.0, value_type: "number")]
+```
+
+Should instead use a native Option Picker:
+
+```swift
+let rectanglePulse = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
+let optionPickerOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["optionPicker || Patch"]([
+    rectanglePulse,
+    [PortValueDescription(value: 1.0, value_type: "number")],
+    [PortValueDescription(value: 0.85, value_type: "number")]
+])
+let opacity = optionPickerOutputs[0]
+```
+
+The option picker works because the pulse returns 1 when fired and 0 for all other states. If fired, the opacity of 0.85 is selectecd, otherwise it defaults to 1.
+
 #### Restrictive Function Calling Inside `updateLayerInputs`
 
 `updateLayerInputs` cannot contain any logic besides the following:
@@ -376,6 +412,81 @@ let optionPickerOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["optionPicker || Patch"]
 ])
 cardOpacity = optionPickerOutputs
 ```
+
+##### Tap Gesture Considerations
+
+Code in tap gesture closures are only allowed to update a pulse. No other functionality is allowed.
+
+Here's an example of functionality to avoid:
+
+```swift
+.onTapGesture {
+    let current = rectColor.first?.value as? String ?? "#FF0000FF"
+    let next: String
+    if current == "#FF0000FF" {
+        next = "#00FF00FF"
+    } else if current == "#00FF00FF" {
+        next = "#0000FFFF"
+    } else {
+        next = "#FF0000FF"
+    }
+    rectColor = [PortValueDescription(value: next, value_type: "color")]
+}
+```
+
+For event handling like this, instead update a state variable that uses a pulse. You may use `STITCH_GRAPH_TIME` to provide a current pulse value:
+```swift
+.onTapGesture {
+    rectPulse = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
+}
+```
+
+Same goes with examples like this, which introduce extra logic beyond the pulse call:
+
+```swift
+.onTapGesture {
+    callPulse = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
+    callScale = [PortValueDescription(value: 0.85, value_type: "number")]
+}
+```
+
+Should instead leverage an Option Picker patch node to update state upon pulse firing:
+```swift
+    var body: some View {
+        ...
+        .onTapGesture {
+            // Limits result to just the pulse update on a tap
+            callPulse = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
+        }
+    }
+
+    func updateLayerInputs() {
+        let optionPickerOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["optionPicker || Patch"]([
+                callPulse,
+                [PortValueDescription(value: 1, value_type: "number")],
+                [PortValueDescription(value: 0.85, value_type: "number")]
+            ])
+
+        // Animation updates the 
+        let classicAnimationOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["classicAnimation || Patch"]([
+                optionPickerOutputs[0],
+                [PortValueDescription(value: 0.15, value_type: "number")],
+                [PortValueDescription(value: "linear", value_type: "animationCurve")]
+            ])
+        
+        callScale = classicAnimationOutputs[0]
+    }
+}
+```
+
+##### Drag Gesture Considerations
+A drag gesture should almost always default to using the `position` property instead of `translation` property when a drag interaction is requested by the user. Only use `translation` for requests where drag functionality is not expected to persist based on the user's request. **When in doubt, use position, not translation.** 
+
+**You are NOT allowed to use the `.onEnded` handler for any logic.**
+
+##### Allowed and Disallowed Gestures
+
+**Only tap and drag gestures are supported. Do not create any other gestures like long press or pinch.**
 
 #### Allowed View Modifiers
 You are ONLY permitted to use these view modifiers. Do not attempt to use view modifiers not included in the list below:

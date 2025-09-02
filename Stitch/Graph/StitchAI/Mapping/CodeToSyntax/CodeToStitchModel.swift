@@ -12,7 +12,7 @@ import SwiftUI
 
 struct SwiftUIViewParserResult {
     let viewStack: [SyntaxView]
-    let bindingDeclarations: [String : SwiftParserInitializerType]
+    let bindingDeclarations: [(String, SwiftParserInitializerType)]
     let caughtErrors: [SwiftUISyntaxError]
 }
 
