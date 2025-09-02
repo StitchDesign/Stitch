@@ -59,7 +59,6 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
 //            verbosity: validatedVerbosity,
 //            reasoningEffort: validatedReasoningEffort)
             
-//<<<<<<< HEAD
             model: .gpt5Mini,
             verbosity: .low,
             reasoningEffort: .medium)
@@ -73,61 +72,6 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
         log("⏱️ OpenAI Responses Request completed in \(String(format: "%.2f", duration)) seconds")
         
         return codeEditResult
-////=======
-//            // TODO: consolidate `OpenAIVisionChatCompletionRequest` and `OpenAIChatCompletionRequest`
-//            // Request for code edit with image
-//            let visionEditRequest = try OpenAIVisionChatCompletionRequest(
-//                id: self.id,
-//                requestType: Self.type,
-//                dataGlossaryPrompt: dataGlossaryPrompt,
-//                assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type, previewWindowSize: document.previewWindowSize, previewWindowBackgroundColor: document.previewWindowBackgroundColor),
-//                textInput: try editInputs.encodeToString(),
-//                base64Image: imageData,
-//                model: document.openaiModel,
-//                verbosity: validatedVerbosity,
-//                reasoningEffort: validatedReasoningEffort,
-//                willStream: false)
-//            
-//            let startTime = CFAbsoluteTimeGetCurrent()
-//            let codeEditResult = try await visionEditRequest
-//                .request(document: document,
-//                         aiManager: aiManager)
-//            let endTime = CFAbsoluteTimeGetCurrent()
-//            let duration = endTime - startTime
-//            log("⏱️ OpenAI Vision Request completed in \(String(format: "%.2f", duration)) seconds")
-//            
-//            return codeEditResult
-//        } else {
-//            // Validate parameters for the selected model
-//            let selectedModel = document.openaiModel.asOpenAIModel
-//            let validatedVerbosity = OpenAIModelConstraints.validateVerbosity(for: selectedModel, requestedVerbosity: document.openaiVerbosity)
-//            let validatedReasoningEffort = OpenAIModelConstraints.validateReasoningEffort(for: selectedModel, requestedEffort: document.openaiReasoningEffort)
-//            
-//            // Debug print OpenAI configuration
-//            log("🤖 Regular Request - Model: \(document.openaiModel), Verbosity: \(validatedVerbosity) (requested: \(document.openaiVerbosity)), Reasoning Effort: \(validatedReasoningEffort) (requested: \(document.openaiReasoningEffort))")
-//            
-//            // Fallback to regular text-only request
-//            let codeEditRequest = try OpenAIChatCompletionRequest(
-//                id: self.id,
-//                requestType: Self.type,
-//                dataGlossaryPrompt: dataGlossaryPrompt,
-//                assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type, previewWindowSize: document.previewWindowSize, previewWindowBackgroundColor: document.previewWindowBackgroundColor),
-//                inputs: editInputs,
-//                model: document.openaiModel,
-//                verbosity: validatedVerbosity,
-//                reasoningEffort: validatedReasoningEffort)
-//            
-//            let startTime = CFAbsoluteTimeGetCurrent()
-//            let codeEditResult = try await codeEditRequest
-//                .request(document: document,
-//                         aiManager: aiManager)
-//            let endTime = CFAbsoluteTimeGetCurrent()
-//            let duration = endTime - startTime
-//            log("⏱️ OpenAI Regular Request completed in \(String(format: "%.2f", duration)) seconds")
-//            
-//            return codeEditResult
-//        }
-////>>>>>>> development
     }
 }
 
@@ -185,19 +129,12 @@ extension StitchAICodeCreator {
         }
     }
 
-//<<<<<<< HEAD
     @MainActor
     func processRequest(userPrompt: String,
                         document: StitchDocumentViewModel,
                         aiManager: StitchAIManager,
                         dataGlossaryPrompt: String) async throws -> SwiftSyntaxActionsResult {
-//=======
-//    
-//    private func processRequest(userPrompt: String,
-//                                document: StitchDocumentViewModel,
-//                                aiManager: StitchAIManager,
-//                                dataGlossaryPrompt: String) async throws -> SwiftSyntaxActionsResult {
-//>>>>>>> development
+
         logToServerIfRelease("SUCCESS: userPrompt: \(userPrompt)")
         
         let swiftUICode = try await self

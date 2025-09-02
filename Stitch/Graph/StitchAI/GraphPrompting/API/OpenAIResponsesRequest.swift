@@ -129,6 +129,10 @@ struct OpenAIResponsesRequest {
         var streamingResponse = ""
         var accumulatedReasoning = ""
         
+        // Track token deltas for eager parsing
+        var tokenDeltaCount = 0
+        let eagerParsingThreshold = 8 // Parse every N delta events
+        
         // Track timing for all streaming milestones
         let requestStartTime = Date()
         var firstReasoningTime: Date? = nil
@@ -185,7 +189,9 @@ struct OpenAIResponsesRequest {
                                                           requestStartTime: requestStartTime,
                                                           firstReasoningTime: &firstReasoningTime,
                                                           firstCodeContentTime: &firstCodeContentTime,
-                                                          responseCompletedTime: &responseCompletedTime)
+                                                          responseCompletedTime: &responseCompletedTime,
+                                                          tokenDeltaCount: &tokenDeltaCount,
+                                                          eagerParsingThreshold: eagerParsingThreshold)
                             }
                         } catch {
                             // Ignore JSON parsing errors for individual chunks
@@ -250,7 +256,9 @@ struct OpenAIResponsesRequest {
                                       requestStartTime: Date,
                                       firstReasoningTime: inout Date?,
                                       firstCodeContentTime: inout Date?,
-                                      responseCompletedTime: inout Date?) async {
+                                      responseCompletedTime: inout Date?,
+                                      tokenDeltaCount: inout Int,
+                                      eagerParsingThreshold: Int) async {
         guard let eventType = json["type"] as? String else { return }
         
         switch eventType {
@@ -263,6 +271,13 @@ struct OpenAIResponsesRequest {
                 print("🚀 First code content received after \(String(format: "%.2f", timeToFirstCode)) seconds: \"\(delta.prefix(50))\(delta.count > 50 ? "..." : "")\"")
                 }
                 streamingResponse += delta
+                
+                // Eager parsing: increment counter and attempt parsing at threshold
+                tokenDeltaCount += 1
+                if tokenDeltaCount >= eagerParsingThreshold {
+                    await attemptEagerParsing(streamingResponse: streamingResponse, document: document)
+                    tokenDeltaCount = 0 // Reset counter
+                }
             }
         
         case "response.content_part.added":
@@ -355,6 +370,42 @@ struct OpenAIResponsesRequest {
         
         \(assistant)
         """
+    }
+    
+    /// Attempts eager parsing of accumulated streaming response
+    private func attemptEagerParsing(streamingResponse: String, document: StitchDocumentViewModel) async {
+        guard !streamingResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return
+        }
+        
+        print("🔄 Attempting eager parsing with \(streamingResponse.count) characters...")
+        
+        do {
+            // Use existing SwiftUI parser (forgiving of incomplete code)
+            let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(streamingResponse)
+            
+            // Derive Stitch actions from parsed code
+            var actionsResult = await codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
+            
+            // Apply partial results if we got meaningful layer data
+            if !actionsResult.graphData.layer_data_list.isEmpty {
+                print("✅ Eager parsing succeeded: found \(actionsResult.graphData.layer_data_list.count) layers")
+                
+                await MainActor.run {
+                    // Apply partial results to document
+                    Task(priority: .high) {
+                        await actionsResult.applyAIGraph(to: document, 
+                                                         viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections, 
+                                                         requestType: .userPrompt)
+                    }
+                }
+            } else {
+                print("⏭️ Eager parsing: no meaningful layers yet")
+            }
+        } catch {
+            // Silently ignore parse failures - this is expected with incomplete code
+            print("⏭️ Eager parsing failed (expected): \(error.localizedDescription)")
+        }
     }
 }
 
