@@ -32,6 +32,7 @@ DO NOT use these SwiftUI views:
 * `Button`
 * `LazyVGrid`
 * `GeometryReader`
+* `ForEach`
 
 DO NOT use these SwiftUI view modifiers:
 * `.onAppear`
@@ -40,6 +41,8 @@ DO NOT use these SwiftUI view modifiers:
 * `.task`
 
 DO NOT USE Swift tuples or custom structs or custom views or custom view modifiers.
+
+USE PortValueDescription when possible.
 """
     }
 }

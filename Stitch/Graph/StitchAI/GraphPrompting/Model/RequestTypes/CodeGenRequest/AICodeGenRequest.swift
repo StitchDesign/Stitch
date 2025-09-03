@@ -170,6 +170,7 @@ extension StitchAICodeCreator {
                         aiManager: aiManager,
                         dataGlossaryPrompt: dataGlossaryPrompt)
 
+        logToServerIfRelease("userPrompt: \(userPrompt)")
         logToServerIfRelease("StitchAICodeCreator swiftUICode:\n\(swiftUICode)")
         
 //        guard let parsedVarBody = VarBodyParser.extract(from: swiftUICode) else {
@@ -179,7 +180,7 @@ extension StitchAICodeCreator {
         
 //        logToServerIfRelease("parsedVarBody:\n\(parsedVarBody)")
         
-        return SwiftSyntaxActionsResult.empty
+//        return SwiftSyntaxActionsResult.empty
 
 //<<<<<<< HEAD
 ////         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
@@ -192,15 +193,15 @@ extension StitchAICodeCreator {
 ////        
 ////        return actionsResult
 //=======
-//        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
-//        
-//        logToServerIfRelease("StitchAICodeCreator codeParserResult:\n\(codeParserResult)")
-//        
-//        let actionsResult = codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
-//        
-//        print("Derived Stitch layer data:\n\((try? actionsResult.encodeToPrintableString()) ?? "")")
-//        
-//        return actionsResult
+        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
+        
+        logToServerIfRelease("StitchAICodeCreator codeParserResult:\n\(codeParserResult)")
+        
+        let actionsResult = codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
+        
+        print("Derived Stitch layer data:\n\((try? actionsResult.encodeToPrintableString()) ?? "")")
+        
+        return actionsResult
 //>>>>>>> development
     }
 }
