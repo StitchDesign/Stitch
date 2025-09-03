@@ -96,10 +96,10 @@ extension PortValue {
 
 extension SyntaxViewModifier {
     @MainActor
-    func deriveViewModifierEvents(layerId: UUID) throws -> [LayerDataViewEventsResult] {
+    func deriveViewModifierEvents(layerId: UUID) throws -> SwiftSyntaxPatchActionsResult? {
         guard self.name.isGestureModifier,
               let defaultArgs = self.arguments.defaultArgs else {
-            return []
+            return nil
         }
         
         // A few cases where we extrapolate a view event:
@@ -111,14 +111,12 @@ extension SyntaxViewModifier {
             let viewEvents = defaultArgs
                 .compactMap { $0.value.viewEvent }
             
-            let interactionsResults: [LayerDataViewEventsResult] = try viewEvents.compactMap { viewEvent -> LayerDataViewEventsResult? in
-                guard let actions = try viewEvent.deriveViewEventData(layerId: layerId),
-                      let viewEventName = SyntaxViewEvent(rawValue: viewEvent.eventName) else {
-                    return nil
+            let interactionsResults = try viewEvents.reduce(into: SwiftSyntaxPatchActionsResult()) { result, viewEvent in
+                guard let actions = try viewEvent.deriveViewEventData(layerId: layerId) else {
+                    return
                 }
                 
-                return .init(viewEvent: viewEventName,
-                             actionsResult: actions)
+                result += actions
             }
             
             return interactionsResults
@@ -143,10 +141,7 @@ extension SyntaxViewModifier {
                 .deriveStitchActions(existingData: nil,
                                      viewEventData: (viewEvent, layerId, nil))
             
-            return [
-                .init(viewEvent: viewEvent,
-                      actionsResult: actionsResult)
-            ]
+            return actionsResult
             
             // Find first line of code with state mutation
             
@@ -366,18 +361,16 @@ extension SyntaxViewName {
         }
         
         // Handle view events like drag gestures
-        let interactionEvents = modifiers.flatMap { modifier -> [LayerDataViewEventsResult] in
+        let interactionEvents = modifiers.reduce(into: SwiftSyntaxPatchActionsResult()) { result, modifier in
             do {
-                let results = try modifier.deriveViewModifierEvents(layerId: id)
-                silentErrors += results.flatMap(\.actionsResult.caughtErrors)
-                return results
+                if let actionsResult = try modifier.deriveViewModifierEvents(layerId: id) {
+                    result += actionsResult                    
+                }
             } catch let error as SwiftUISyntaxError {
                 silentErrors.append(error)
             } catch {
                 fatalErrorIfDebug(error.localizedDescription)
             }
-            
-            return []
         }
         
         layerData.view_events = interactionEvents

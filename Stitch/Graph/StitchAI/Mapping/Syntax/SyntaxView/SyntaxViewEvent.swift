@@ -36,10 +36,10 @@ struct LayerDataViewEvent {
     let mutatedStateVar: String
 }
 
-struct LayerDataViewEventsResult {
-    let viewEvent: SyntaxViewEvent
-    let actionsResult: SwiftSyntaxPatchActionsResult
-}
+//struct LayerDataViewEventsResult {
+//    let viewEvent: SyntaxViewEvent
+//    let actionsResult: SwiftSyntaxPatchActionsResult
+//}
 
 //extension LayerDataViewEventsResult {
 //    init() {

@@ -44,7 +44,7 @@ enum AIGraphData_V0 {
         let node_name: StitchAIPatchOrLayer
         var children: [LayerData]?
         var custom_layer_input_values: [LayerPortDerivation] = []
-        var view_events: [LayerDataViewEventsResult] = []
+        var view_events: SwiftSyntaxPatchActionsResult?
     }
     
     struct PreprocessedJSPatchNode: Codable {
