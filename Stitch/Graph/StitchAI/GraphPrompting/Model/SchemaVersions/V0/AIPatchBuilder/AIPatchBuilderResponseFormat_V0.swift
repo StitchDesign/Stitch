@@ -35,7 +35,7 @@ enum AIPatchBuilderResponseFormat_V0 {
         )
         
         // Node Kinds
-        static let NodeName = OpenAISchemaEnum(values: Step_V0.NodeKind.getAiNodeDescriptions().map(\.nodeKind))
+        static let NodeName = OpenAISchemaEnum(values: AIGraphData_V0.NodeKind.getAiNodeDescriptions().map(\.nodeKind))
         
         static let LayerPorts = OpenAISchemaEnum(values: Step_V0.LayerInputPort.allCases
             .map { $0.asLLMStepPort }

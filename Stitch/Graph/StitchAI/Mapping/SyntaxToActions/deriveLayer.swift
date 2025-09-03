@@ -94,7 +94,102 @@ extension PortValue {
     }
 }
 
+extension SyntaxViewModifier {
+    func deriveViewModifierEvents() throws -> LayerDataViewEventsResult {
+        guard self.name.isGestureModifier,
+              let defaultArgs = self.arguments.defaultArgs else {
+            return .init()
+        }
+        
+        // A few cases where we extrapolate a view event:
+        // 1. The view modifier itself has the closure, like .tapGesture
+        // 2. The closure is nested in something like .simultaneousGesture which needs to instantiate a gesture object first
+        
+        // Nested case
+        if self.name.isGestureWithNestedClosure {
+            let viewEvents = defaultArgs
+                .compactMap { $0.value.viewEvent }
+            
+            let interactionsResult: LayerDataViewEventsResult = try viewEvents.reduce(into: .init()) { result, viewEvent in
+                let eventsResult = try viewEvent.deriveViewEventData()
+                result.events += eventsResult.events
+                result.caughtErrors += eventsResult.caughtErrors
+            }
+            
+            return interactionsResult
+        }
+        
+        // Non-nested case
+        else {
+            // Get first closure
+            let closureData = defaultArgs
+                .compactMap { $0.value.closureData }
+                .first
+            
+            guard let closureData = closureData,
+                  let viewEvent = self.name.viewEvent else {
+                return .init()
+            }
+            
+            // Parse script, grab first element with state mutation
+            let parsedCode = SwiftUIViewVisitor.parseSwiftUICode(closureData.script,
+                                                                 willParseView: false)
+            
+            // Find first line of code with state mutation
+            let mutatedStateVar = parsedCode.bindingDeclarations
+                .compactMap {
+                    switch $0.1 {
+                    case .stateMutation:
+                        return $0.0
+                    default:
+                        return nil
+                    }
+                }.first
+            
+            guard let mutatedStateVar = mutatedStateVar else {
+                return .init(events: [],
+                             caughtErrors: parsedCode.caughtErrors)
+            }
+            
+            let layerData = LayerDataViewEvent(viewEvent: viewEvent,
+                                               gestureArg: nil,
+                                               mutatedStateVar: mutatedStateVar)
+            return .init(events: [layerData],
+                         caughtErrors: parsedCode.caughtErrors)
+        }
+    }
+}
+
 extension SyntaxViewModifierName {
+    // Some modifiers have view events that can be extrapolated from.
+    var viewEvent: SyntaxViewEvent? {
+        switch self {
+        case .onTapGesture:
+            return .tapGesture
+            
+        default:
+            return nil
+        }
+    }
+    
+    var isGestureModifier: Bool {
+        switch self {
+        case .onTapGesture, .onLongPressGesture, .simultaneousGesture, .gesture, .exclusiveGesture, .highPriorityGesture:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    var isGestureWithNestedClosure: Bool {
+        switch self {
+        case .gesture, .simultaneousGesture, .exclusiveGesture, .highPriorityGesture:
+            return true
+        default:
+            return false
+        }
+    }
+    
     // May or may not correspond to SwiftUI view modifier's own default argument,
     // e.g. `.clipped`'s default argument is for antialiasing, not whether the view is clipped or not (which is what Stitch's clipped layer-input is about).
     func deriveDefaultPortValueForArgumentlessViewModifier(
@@ -164,282 +259,7 @@ extension SyntaxViewModifierName {
                         
         default:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-            
-//            
-//        case .accentColor:
-//            <#code#>
-//        case .accessibilityAction:
-//            <#code#>
-//        case .accessibilityAddTraits:
-//            <#code#>
-//        case .accessibilityAdjustableAction:
-//            <#code#>
-//        case .accessibilityElement:
-//            <#code#>
-//        case .accessibilityFocused:
-//            <#code#>
-//        case .accessibilityHidden:
-//            <#code#>
-//        case .accessibilityHint:
-//            <#code#>
-//        case .accessibilityIdentifier:
-//            <#code#>
-//        case .accessibilityInputLabels:
-//            <#code#>
-//        case .accessibilityLabel:
-//            <#code#>
-//        case .accessibilityRemoveTraits:
-//            <#code#>
-//        case .accessibilityRepresentation:
-//            <#code#>
-//        case .accessibilityScrollAction:
-//            <#code#>
-//        case .accessibilityShowsLargeContentViewer:
-//            <#code#>
-//        case .accessibilitySortPriority:
-//            <#code#>
-//        case .allowsHitTesting:
-//            <#code#>
-//        case .allowsTightening:
-//            <#code#>
-//        case .animation:
-//            <#code#>
-//        case .aspectRatio:
-//            <#code#>
-//        case .background:
-//            <#code#>
-//        case .backgroundColor:
-//            <#code#>
-//        case .badge:
-//            <#code#>
-//        case .baselineOffset:
-//            <#code#>
-//        case .bold:
-//            <#code#>
-//        case .border:
-//            <#code#>
-//        case .brightness:
-//            <#code#>
-//        case .buttonStyle:
-//            <#code#>
-//        case .clipShape:
-//            <#code#>
-//        case .colorMultiply:
-//            <#code#>
-//        case .compositingGroup:
-//            <#code#>
-//        case .containerRelativeFrame:
-//            <#code#>
-//        case .contentShape:
-//            <#code#>
-//        case .contrast:
-//            <#code#>
-//        case .controlSize:
-//            <#code#>
-//        case .contextMenu:
-//            <#code#>
-//        case .disableAutocorrection:
-//            <#code#>
-//        case .disabled:
-//            <#code#>
-//        case .drawingGroup:
-//            <#code#>
-//        case .dynamicTypeSize:
-//            <#code#>
-//        case .environment:
-//            <#code#>
-//        case .environmentObject:
-//            <#code#>
-//        case .exclusiveGesture:
-//            <#code#>
-//        case .fixedSize:
-//            <#code#>
-//        case .focusable:
-//            <#code#>
-//        case .focused:
-//            <#code#>
-//        case .font:
-//            <#code#>
-//        case .fontDesign:
-//            <#code#>
-//        case .fontWeight:
-//            <#code#>
-//        case .foregroundColor:
-//            <#code#>
-//        case .foregroundStyle:
-//            <#code#>
-//        case .gesture:
-//            <#code#>
-//        case .help:
-//            <#code#>
-//        case .highPriorityGesture:
-//            <#code#>
-//        case .hoverEffect:
-//            <#code#>
-//        case .hueRotation:
-//            <#code#>
-//        case .id:
-//            <#code#>
-//        case .ignoresSafeArea:
-//            <#code#>
-//        case .interactiveDismissDisabled:
-//            <#code#>
-//        case .italic:
-//            <#code#>
-//        case .kerning:
-//            <#code#>
-//        case .layerId:
-//            <#code#>
-//        case .layoutPriority:
-//            <#code#>
-//        case .lineLimit:
-//            <#code#>
-//        case .lineSpacing:
-//            <#code#>
-//        case .listRowBackground:
-//            <#code#>
-//        case .listRowInsets:
-//            <#code#>
-//        case .listRowSeparator:
-//            <#code#>
-//        case .listRowSeparatorTint:
-//            <#code#>
-//        case .listSectionSeparator:
-//            <#code#>
-//        case .listSectionSeparatorTint:
-//            <#code#>
-//        case .listSectionSeparatorVisibility:
-//            <#code#>
-//        case .listStyle:
-//            <#code#>
-//        case .mask:
-//            <#code#>
-//        case .matchedGeometryEffect:
-//            <#code#>
-//        case .menuStyle:
-//            <#code#>
-//        case .minimumScaleFactor:
-//            <#code#>
-//        case .monospaced:
-//            <#code#>
-//        case .monospacedDigit:
-//            <#code#>
-//        case .multilineTextAlignment:
-//            <#code#>
-//        case .navigationBarBackButtonHidden:
-//            <#code#>
-//        case .navigationBarHidden:
-//            <#code#>
-//        case .navigationBarItems:
-//            <#code#>
-//        case .navigationBarTitle:
-//            <#code#>
-//        case .navigationBarTitleDisplayMode:
-//            <#code#>
-//        case .navigationDestination:
-//            <#code#>
-//        case .navigationTitle:
-//            <#code#>
-//        case .onAppear:
-//            <#code#>
-//        case .onChange:
-//            <#code#>
-//        case .onDisappear:
-//            <#code#>
-//        case .onDrag:
-//            <#code#>
-//        case .onDrop:
-//            <#code#>
-//        case .onHover:
-//            <#code#>
-//        case .onLongPressGesture:
-//            <#code#>
-//        case .onSubmit:
-//            <#code#>
-//        case .onTapGesture:
-//            <#code#>
-//        case .overlay:
-//            <#code#>
-//        case .preferredColorScheme:
-//            <#code#>
-//        case .presentationCornerRadius:
-//            <#code#>
-//        case .presentationDetents:
-//            <#code#>
-//        case .progressViewStyle:
-//            <#code#>
-//        case .projectionEffect:
-//            <#code#>
-//        case .redacted:
-//            <#code#>
-//        case .refreshable:
-//            <#code#>
-//        case .safeAreaInset:
-//            <#code#>
-//        case .saturation:
-//            <#code#>
-//        case .scaleEffect:
-//            <#code#>
-//        case .scrollClipDisabled:
-//            <#code#>
-//        case .scrollDisabled:
-//            <#code#>
-//        case .scrollDismissesKeyboard:
-//            <#code#>
-//        case .scrollIndicators:
-//            <#code#>
-//        case .scrollTargetBehavior:
-//            <#code#>
-//        case .searchable:
-//            <#code#>
-//        case .sensoryFeedback:
-//            <#code#>
-//        case .shadow:
-//            <#code#>
-//        case .simultaneousGesture:
-//            <#code#>
-//        case .sliderStyle:
-//            <#code#>
-//        case .smallCaps:
-//            <#code#>
-//        case .submitLabel:
-//            <#code#>
-//        case .swipeActions:
-//            <#code#>
-//        case .symbolEffect:
-//            <#code#>
-//        case .symbolRenderingMode:
-//            <#code#>
-//        case .tableStyle:
-//            <#code#>
-//        case .task:
-//            <#code#>
-//        case .textCase:
-//            <#code#>
-//        case .textContentType:
-//            <#code#>
-//        case .textFieldStyle:
-//            <#code#>
-//        case .textInputAutocapitalization:
-//            <#code#>
-//        case .textSelection:
-//            <#code#>
-//        case .toolbar:
-//            <#code#>
-//        case .tracking:
-//            <#code#>
-//        case .transformEffect:
-//            <#code#>
-//        case .transition:
-//            <#code#>
-//        case .truncationMode:
-//            <#code#>
-//        case .underline:
-//            <#code#>
-//        case .uppercaseSmallCaps:
-//            <#code#>
         }
-        
     }
 }
 
@@ -448,7 +268,8 @@ extension SyntaxViewName {
     func deriveLayerData(id: UUID,
                          args: ViewConstructorType?,
                          modifiers: [SyntaxViewModifier],
-                         childrenLayers: [CurrentAIGraphData.LayerData]) throws -> LayerDerivationResult {
+                         childrenLayers: [CurrentAIGraphData.LayerData],
+                         bindingDeclarations: [(String, SwiftParserInitializerType)]) throws -> LayerDerivationResult {
         var silentErrors = [SwiftUISyntaxError]()
         var layerData: CurrentAIGraphData.LayerData
         let layerType: CurrentAIGraphData.Layer
@@ -457,20 +278,33 @@ extension SyntaxViewName {
             
         case .trackedConstructor(let constructor):
             // Creates view data based on caller/constructor
-            let customInputValuesFromViewConstructor = try self
-                .deriveInputValuesData(viewConstructor: constructor,
-                                       id: id)
+            
             layerType = constructor.value.layer
-            layerData = .init(node_id: id.description,
-                              node_name: .init(value: .layer(constructor.value.layer)),
-                              custom_layer_input_values: customInputValuesFromViewConstructor.inputValues)
+            layerData = try constructor
+                .value
+                .createCustomValueEvents(childrenLayers: childrenLayers,
+                                         nodeId: id.description)
+                
+//                .deriveLayerAndCustomValuesFromName(id: id,
+//                                                    args: args,
+//                                                    childrenLayers: childrenLayers)
             
-            if !childrenLayers.isEmpty {
-                layerData.children = childrenLayers
-            }
             
-            silentErrors += customInputValuesFromViewConstructor.silentErrors
+//            let customInputValuesFromViewConstructor =
+//            try self
+//                .deriveInputValuesData(viewConstructor: constructor,
+//                                       id: id)
             
+//            layerType = constructor.value.layer
+            
+//            layerData = .init(node_id: id.description,
+//                              node_name: .init(value: .layer(constructor.value.layer)),
+//                              custom_layer_input_values: customInputValuesFromViewConstructor)
+            
+//            if !childrenLayers.isEmpty {
+//                layerData.children = childrenLayers
+//            }
+                        
         case .other, .none:
             let args = args?.defaultArgs ?? []
 
@@ -504,7 +338,7 @@ extension SyntaxViewName {
             }
         }
         
-        // Parse view modifier events
+        // Parse view modifiers
         for modifierEvent in customInputValuesFromViewModifiers {
             switch modifierEvent {
             case .layerInputValues(let valuesList):
@@ -514,23 +348,36 @@ extension SyntaxViewName {
             }
         }
         
+        // Handle view events like drag gestures
+        let interactionEvents = modifiers.flatMap { modifier -> [LayerDataViewEvent] in
+            do {
+                let result = try modifier.deriveViewModifierEvents()
+                silentErrors += result.caughtErrors
+                return result.events
+            } catch let error as SwiftUISyntaxError {
+                silentErrors.append(error)
+            } catch {
+                fatalErrorIfDebug(error.localizedDescription)
+            }
+            
+            return []
+        }
+        
+        layerData.view_events = interactionEvents
+        
         return .init(layerData: layerData,
                      silentErrors: silentErrors)
     }
     
-    func deriveInputValuesData(viewConstructor: StrictViewConstructor,
-                               id: UUID) throws -> LayerInputValuesDerivationResult {
-        var silentErrors = [SwiftUISyntaxError]()
-        let layerType = viewConstructor.value.layer
-        
-        // Handle constructor-arguments
-        // Try to access the SyntaxView.ViewConstructor, if we have one
-        let customInputValues = try viewConstructor.value
-            .createCustomValueEvents()
-        
-        return .init(inputValues: customInputValues,
-                     silentErrors: silentErrors)
-    }
+//    func deriveInputValuesData(viewConstructor: StrictViewConstructor,
+//                               id: UUID) throws -> [LayerPortDerivation] {
+//        // Handle constructor-arguments
+//        // Try to access the SyntaxView.ViewConstructor, if we have one
+//        let customInputValues = try viewConstructor.value
+//            .createCustomValueEvents()
+//        
+//        return customInputValues
+//    }
     
     func deriveInputValuesData(args: [SyntaxViewArgumentData],
                                id: UUID,
@@ -618,44 +465,48 @@ extension SyntaxViewName {
             //            )
             
         case .scrollView:
-            let layerData = try Self
-                .createScrollGroupLayer(args: args,
-                                        childrenLayers: childrenLayers)
-            return (.group, layerData)
+            // Handled by `ScrollViewViewConstructor` now
+            
+//            fatalErrorIfDebug()
+//            let layerData = try Self
+//                .createScrollGroupLayer(args: args,
+//                                        childrenLayers: childrenLayers)
+//            return (.group, layerData)
+            layerType = .group
             
             // MARK: CONTAINER VIEWS
             
         case .hStack, .lazyHStack:
             layerType = .group
             customValues.append(
-                try .init(id: id,
-                          input: .orientation,
-                          value: .orientation(.horizontal))
+                .init(id: id,
+                      input: .orientation,
+                      value: .orientation(.horizontal))
             )
             
         case .vStack, .lazyVStack:
             layerType = .group
             customValues.append(
-                try .init(id: id,
-                          input: .orientation,
-                          value: .orientation(.vertical))
+                .init(id: id,
+                      input: .orientation,
+                      value: .orientation(.vertical))
             )
             
         case .zStack:
             layerType = .group
             customValues.append(
-                try .init(id: id,
-                          input: .orientation,
-                          value: .orientation(.none))
+                .init(id: id,
+                      input: .orientation,
+                      value: .orientation(.none))
             )
             
             // TODO: JULY 3: technically, we don't support `LazyHGrid` and `Grid`?
         case .lazyVGrid, .lazyHGrid, .grid:
             layerType = .group
             customValues.append(
-                try .init(id: id,
-                          input: .orientation,
-                          value: .orientation(.grid))
+                .init(id: id,
+                      input: .orientation,
+                      value: .orientation(.grid))
             )
             
             
@@ -1039,11 +890,8 @@ extension SyntaxViewName {
         case .stateAccess(let varName):
             return [.stateRef(varName)]
             
-        case .memberAccess:
-            fatalError("Not supported here")
-        
-        case .closure:
-            fatalError("Not supported here")
+        case .memberAccess, .closure, .viewEvent:
+            throw SwiftUISyntaxError.portValueDecodingError(.portValueDecodingError(describe(argument)))
         }
     }
     

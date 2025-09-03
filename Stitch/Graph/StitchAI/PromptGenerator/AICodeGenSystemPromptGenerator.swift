@@ -9,10 +9,19 @@ import SwiftUI
 extension StitchAIManager {
     static func aiCodeGenSystemPromptGenerator(requestType: StitchAIRequestBuilder_V0.StitchAIRequestType, previewWindowSize: CGSize, previewWindowBackgroundColor: Color) throws -> String {
         let supportedViewModifiers = SyntaxViewModifierName.allCases
-            .filter { (try? $0.deriveLayerInputPort()) != nil }
+            .filter {
+                do {
+                    // allow nil cases
+                    let _ = try $0.deriveLayerInputPort()
+                    return true
+                } catch {
+                    return false
+                }
+            }
             .map(\.rawValue)
         
         return """
+
 You are an excellent Swift and SwiftUI developer.
 
 Return ONLY CODE and NOTHING ELSE. NO COMMENTS, NO EXPLANATIONS, etc.

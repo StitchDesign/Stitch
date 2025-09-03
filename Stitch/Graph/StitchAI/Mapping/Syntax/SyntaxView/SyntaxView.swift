@@ -21,7 +21,7 @@ struct StrictSyntaxView {
 // MARK: intended for parsing arbitrary SwiftUI code that might or might not have a corresponding Stitch concept, i.e. the code -> vpl direction
 
 // fka `ViewNode`
-struct SyntaxView: Equatable, Sendable {
+struct SyntaxView: Sendable {
         
     // representation of a SwiftUI View
     // e.g. `Text`, `Rectangle`, `Image`
@@ -116,12 +116,21 @@ extension SyntaxView {
     }
 }
 
-enum ViewConstructorType: Equatable, Sendable, Encodable {
+enum ViewConstructorType: Sendable {
     case trackedConstructor(StrictViewConstructor)
     case other([SyntaxViewArgumentData])
 }
 
 extension ViewConstructorType {
+    var description: String {
+        switch self {
+        case .trackedConstructor(let constructor):
+            return "\(constructor)"
+        case .other(let args):
+            return args.description
+        }
+    }
+    
     var defaultArgs: [SyntaxViewArgumentData]? {
         switch self {
         case .trackedConstructor:

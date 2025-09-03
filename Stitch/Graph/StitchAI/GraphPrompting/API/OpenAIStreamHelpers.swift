@@ -164,14 +164,16 @@ extension StitchAIManager {
                                                    with request: AIRequest,
                                                    attempt: Int,
                                                    document: StitchDocumentViewModel) async -> Result<AIRequest.RequestResponsePayload, Error> where AIRequest: StitchAIRequestable {
+        let startTime = Date()
         let result = await Result { @Sendable in
             try await fetchWithRetries(urlRequest)
         }
+        let requestDuration = Date().timeIntervalSince(startTime)
                 
         switch result {
         case .success(let success):
             let jsonResponse = String(data: success.0, encoding: .utf8)
-            print("Successful AI response:\n\(jsonResponse ?? "none")")
+            print("Successful AI response after \(String(format: "%.2f", requestDuration)) seconds:\n\(jsonResponse ?? "none")")
             do {
                 let response = try JSONDecoder().decode(OpenAIResponse.self, from: success.0)
                 
@@ -189,7 +191,7 @@ extension StitchAIManager {
                 return .failure(StitchAIManagerError.responseDecodingFailure("\(error)"))
             }
         case .failure(let failure):
-            print("makeNonStreamedRequest failure: \(failure)")
+            print("makeNonStreamedRequest failure after \(String(format: "%.2f", requestDuration)) seconds: \(failure)")
             return .failure(failure)
         }
     }

@@ -23,14 +23,50 @@ private func describe(_ kind: SyntaxArgumentKind) -> String {
     }
 }
 
+extension SyntaxViewArgumentData {
+    var description: String {
+        describe(self)
+    }
+}
+
+extension SyntaxViewModifierArgumentType {
+    var description: String {
+        switch self {
+        case .simple(let data):
+            return "\(data)"
+            
+        case .memberAccess(let data):
+            return data.trimmedDescription
+            
+        case .stateAccess(let x):
+            return x
+            
+        case .tuple(let args):
+            return args.map(\.description).joined(separator: ", ")
+            
+        case .array(let args):
+            return args.map(\.description).joined(separator: ", ")
+        
+        case .complex(let type):
+            return "\(type)"
+            
+        case .closure(let script):
+            return "\(script)"
+        
+        case .viewEvent(let viewEvent):
+            return "\(viewEvent)"
+        }
+    }
+}
+
 /// Nicely formats a `SyntaxViewModifierArgumentType` so that we don't dump the
 /// full struct/enum hierarchy when printing.
 /// Formats the `(value, syntaxKind)` pair in a compact way
-private func describe(_ data: SyntaxViewArgumentData) -> String {
+func describe(_ data: SyntaxViewArgumentData) -> String {
     "\(data.value))" //, \(describe(data.syntaxKind))"
 }
 
-private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
+func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
     switch argType {
     case .simple(let data):
         return "simple(\(data))"
@@ -53,6 +89,9 @@ private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
         
     case .closure(let script):
         return "closure(\(script))"
+    
+    case .viewEvent(let viewEvent):
+        return viewEvent.eventName
     }
 }
 
@@ -61,8 +100,8 @@ func formatSyntaxView(_ node: SyntaxView, indent: String = "") -> String {
     var result = "\(indent)SyntaxView("
     result += "\n\(indent)    name: \"\(node.name)\","
     
-    let argsString = (try? node.constructorArguments.encodeToPrintableString()) ?? ""
-    let modifiersString = (try? node.modifiers.encodeToPrintableString()) ?? ""
+    let argsString = node.constructorArguments?.description ?? ""
+    let modifiersString = "\(node.modifiers)"
     
     // Format arguments
     result += "\n\(indent)    constructorArguments: \n\(argsString)"

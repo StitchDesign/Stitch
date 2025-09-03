@@ -17,7 +17,8 @@ extension LayerNodeEntity {
     @MainActor
     func createSwiftUIViewBuilderCode(children: [LayerNodeEntity],
                                       orderedLayerEntities: [LayerNodeEntity],
-                                      varIdNameMap: [UUID: String]) throws -> String? {
+                                      varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String],
+                                      layerViewEventMap: [String: [LayerDataViewEvent]]) throws -> String? {
         switch self.layer {
             
             // ───────── Shapes (no-arg) ─────────
@@ -38,7 +39,8 @@ extension LayerNodeEntity {
             return try self
                 .createNestedGroupSwiftUICode(children: children,
                                               orderedLayerEntities: orderedLayerEntities,
-                                              varIdNameMap: varIdNameMap)
+                                              varIdNameMap: varIdNameMap,
+                                              layerViewEventMap: layerViewEventMap)
             
             
             // ───────── Reality primitives (no-arg) ─────────
@@ -108,12 +110,14 @@ extension LayerNodeEntity {
     @MainActor
     func createNestedGroupSwiftUICode(children: [LayerNodeEntity],
                                       orderedLayerEntities: [LayerNodeEntity],
-                                      varIdNameMap: [UUID: String]) throws -> String? {
+                                      varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String],
+                                      layerViewEventMap: [String: [LayerDataViewEvent]]) throws -> String? {
         assertInDebug(self.layer == .group)
         
         let childrenContents = try children
             .createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
-                               varIdNameMap: varIdNameMap)
+                               varIdNameMap: varIdNameMap,
+                               layerViewEventMap: layerViewEventMap)
         
         // Check if scroll is enabled
         let scrollXEnabled = self.scrollXEnabledPort.packedData.inputPort.values?.first?.getBool ?? false
@@ -176,7 +180,8 @@ extension LayerNodeEntity {
                 // Generate LazyVGrid code
                 return try self.createLazyVGridCode(children: children,
                                                     orderedLayerEntities: orderedLayerEntities,
-                                                    varIdNameMap: varIdNameMap)
+                                                    varIdNameMap: varIdNameMap,
+                                                    layerViewEventMap: layerViewEventMap)
             }
         }
     }
@@ -184,12 +189,14 @@ extension LayerNodeEntity {
     @MainActor
     func createLazyVGridCode(children: [LayerNodeEntity],
                              orderedLayerEntities: [LayerNodeEntity],
-                             varIdNameMap: [UUID: String]) throws -> String? {
+                             varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String],
+                             layerViewEventMap: [String: [LayerDataViewEvent]]) throws -> String? {
         assertInDebug(self.layer == .group)
         
         let childrenContents = try children
             .createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
-                               varIdNameMap: varIdNameMap)
+                               varIdNameMap: varIdNameMap,
+                               layerViewEventMap: layerViewEventMap)
         
         // Get spacing from the group's spacing port
         let spacingArgs = try self.spacingPort.getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
@@ -230,7 +237,8 @@ extension LayerNodeEntity {
     /// Converts layer data from graph to SwiftUI code
     @MainActor
     func createSwiftUICode(orderedLayerEntities: [LayerNodeEntity],
-                           varIdNameMap: [UUID: String]) throws -> String? {
+                           varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String],
+                           layerViewEventMap: [String: [LayerDataViewEvent]]) throws -> String? {
         let childrenLayerEntities = orderedLayerEntities.filter {
             $0.layerGroupId == self.id
         }
@@ -243,7 +251,8 @@ extension LayerNodeEntity {
             guard let groupSwiftUICode = try self
                 .createNestedGroupSwiftUICode(children: childrenLayerEntities,
                                               orderedLayerEntities: orderedLayerEntities,
-                                              varIdNameMap: varIdNameMap) else {
+                                              varIdNameMap: varIdNameMap,
+                                              layerViewEventMap: layerViewEventMap) else {
                 return nil
             }
             
@@ -255,7 +264,8 @@ extension LayerNodeEntity {
             guard let constructor = try self
                 .createSwiftUIViewBuilderCode(children: childrenLayerEntities,
                                               orderedLayerEntities: orderedLayerEntities,
-                                              varIdNameMap: varIdNameMap) else {
+                                              varIdNameMap: varIdNameMap,
+                                              layerViewEventMap: layerViewEventMap) else {
                 return nil
             }
                 
@@ -265,17 +275,21 @@ extension LayerNodeEntity {
         // Create modifiers from custom_layer_input_values
         let modifiersString = try self.getSwiftUIViewModifierStrings(varIdNameMap: varIdNameMap)
         
+        // Creates modifiers for gesture
+        let gestureModifiersString = self.getSwiftUIGestureViewModifierStrings(layerViewEventMap: layerViewEventMap)
+        
         var swiftUICode = """
             \(constructorCode)
-            \t.layerId("\(self.id)")
             \(modifiersString.joined(separator: "\n").indentLines())
+            \(gestureModifiersString.joined(separator: "\n").indentLines())
             """
         
         if isNotGroupButHasChildren {
             // Convert children recursively
             let swiftUICodeForChildren = try childrenLayerEntities.compactMap {
                 try $0.createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
-                                         varIdNameMap: varIdNameMap)
+                                         varIdNameMap: varIdNameMap,
+                                         layerViewEventMap: layerViewEventMap)
             }
             
             swiftUICode += "\n\(swiftUICodeForChildren)"
@@ -288,12 +302,14 @@ extension LayerNodeEntity {
 extension Array where Element == LayerNodeEntity {
     @MainActor
     func createSwiftUICode(orderedLayerEntities: [LayerNodeEntity],
-                           varIdNameMap: [UUID: String]) throws -> String {
+                           varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String],
+                           layerViewEventMap: [String: [LayerDataViewEvent]]) throws -> String {
         var droppedLayers: [LayerNodeEntity] = []
         
         let strings = try self.compactMap { layerEntity -> String? in
             let result = try layerEntity.createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
-                                                           varIdNameMap: varIdNameMap)
+                                                           varIdNameMap: varIdNameMap,
+                                                           layerViewEventMap: layerViewEventMap)
             if result == nil {
                 droppedLayers.append(layerEntity)
                 log("DROPPED LAYER: \(layerEntity.layer) with id \(layerEntity.id) - createSwiftUICode returned nil")
@@ -390,7 +406,7 @@ func createAlignmentArg(anchoring: Anchoring,
 extension LayerNodeEntity {
     /// Creates StrictViewModifier array from LayerData custom input values
     @MainActor
-    func getSwiftUIViewModifierStrings(varIdNameMap: [UUID: String]) throws -> [String] {
+    func getSwiftUIViewModifierStrings(varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String]) throws -> [String] {
         let ports = self.layer.inputDefinitions
         
         return try ports.compactMap { port -> String? in
@@ -421,6 +437,53 @@ extension LayerNodeEntity {
                 return ".\(viewModifier.rawValue)(\(unpackedArgsString))"
             }
             
+        }
+    }
+    
+    /// Creates view modifier callbacks for gesture data.
+    func getSwiftUIGestureViewModifierStrings(layerViewEventMap: [String: [LayerDataViewEvent]]) -> [String] {
+        // Organize gesture data by each syntax type
+        let gestureDataHere = layerViewEventMap.reduce(into: [SyntaxViewEvent : [LayerDataViewEvent]]()) { result, mapData in
+            let (layerIdString, viewEvents) = mapData
+            
+            guard layerIdString == self.id.uuidString else { return }
+            
+            viewEvents.forEach { viewEvent in
+                var layerDataList = result.get(viewEvent.viewEvent) ?? []
+                layerDataList.append(viewEvent)
+                result.updateValue(layerDataList, forKey: viewEvent.viewEvent)
+            }
+        }
+        
+        return gestureDataHere.map { (viewEventName, viewEvents) -> String in
+            switch viewEventName {
+            case .dragGesture:
+                let dragBindings = viewEvents.map { viewEvent in
+                    // TODO: unpack support
+                    
+                    guard let gestureProp = viewEvent.gestureArg else {
+                        fatalErrorIfDebug()
+                        return ""
+                    }
+                    
+                    return "\(viewEvent.mutatedStateVar) = [PortValueDescription(value: \(gestureProp), value_type: \"position\")]"
+                }
+                    .joined(separator: "\n")
+                
+                return """
+                    .simultaneousGesture(DragGesture().onChanged { g in
+                    \(dragBindings.indentLines())
+                    })
+                    """
+            case .tapGesture:
+                // Tap gesture closure is constant so no need to iterate over the full list
+                    
+                return """
+                    .onTapGesture {
+                        rectPulse = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
+                    }
+                    """
+            }
         }
     }
 }
@@ -484,9 +547,9 @@ extension LayerInputPort {
             return .font
             
         case .fontSize:
-            // FontSize should not create a separate font modifier when textFont exists
-            // The textFont case handles both font family/weight and size together
-            return nil
+            // FontSize should create a font modifier when it contains PortValueDescription
+            // This handles the case where fontSize comes from PortValueDescription
+            return .font
         case .rotationX:
             // For now, treat rotationX as unsupported
             return nil

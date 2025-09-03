@@ -48,6 +48,7 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
             // Debug print OpenAI configuration
             log("🤖 Vision Request - Model: \(document.openaiModel), Verbosity: \(validatedVerbosity) (requested: \(document.openaiVerbosity)), Reasoning Effort: \(validatedReasoningEffort) (requested: \(document.openaiReasoningEffort))")
             
+            // TODO: consolidate `OpenAIVisionChatCompletionRequest` and `OpenAIChatCompletionRequest`
             // Request for code edit with image
             let visionEditRequest = try OpenAIVisionChatCompletionRequest(
                 id: self.id,
@@ -157,6 +158,7 @@ extension StitchAICodeCreator {
         }
     }
 
+    @MainActor
     private func processRequest(userPrompt: String,
                                 document: StitchDocumentViewModel,
                                 aiManager: StitchAIManager,
@@ -179,15 +181,27 @@ extension StitchAICodeCreator {
         
         return SwiftSyntaxActionsResult.empty
 
-//         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
+//<<<<<<< HEAD
+////         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
+////        
+////        logToServerIfRelease("StitchAICodeCreator codeParserResult:\n\(codeParserResult)")
+////        
+////        let actionsResult = try codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
+////        
+////        print("Derived Stitch layer data:\n\((try? actionsResult.encodeToPrintableString()) ?? "")")
+////        
+////        return actionsResult
+//=======
+//        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
 //        
 //        logToServerIfRelease("StitchAICodeCreator codeParserResult:\n\(codeParserResult)")
 //        
-//        let actionsResult = try codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
+//        let actionsResult = codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
 //        
 //        print("Derived Stitch layer data:\n\((try? actionsResult.encodeToPrintableString()) ?? "")")
 //        
 //        return actionsResult
+//>>>>>>> development
     }
 }
 

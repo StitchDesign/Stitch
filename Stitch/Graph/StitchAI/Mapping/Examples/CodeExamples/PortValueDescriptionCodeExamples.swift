@@ -59,4 +59,12 @@ VStack {
 }
 """
     )
+    
+    static let textWithFontSizePVD = MappingCodeExample(
+        title: "Text with PortValueDescription font size",
+        code: """
+Text("love")
+    .font([PortValueDescription(value_type: "number", value: 36)])
+"""
+    )
 }

@@ -12,13 +12,13 @@ import SwiftUI
 
 struct SwiftUIViewParserResult {
     let viewStack: [SyntaxView]
-    let bindingDeclarations: [String : SwiftParserInitializerType]
+    let bindingDeclarations: [(String, SwiftParserInitializerType)]
     let caughtErrors: [SwiftUISyntaxError]
 }
 
 enum SwiftParserPatternBindingArg {
     case value(SyntaxViewModifierArgumentType)
-    case binding(DeclReferenceExprSyntax)
+    case binding(String)
     case subscriptRef(SwiftParserSubscript)
 }
 
@@ -28,7 +28,7 @@ struct SwiftParserPatchData {
     var args: [SwiftParserPatternBindingArg]
 }
 
-enum SwiftParserPatchType {
+enum SwiftParserPatchType: Encodable {
     case native(String)
     case js(String)
 }
@@ -59,6 +59,8 @@ indirect enum SwiftParserInitializerType: Sendable {
     
     // view builder functions (script in value)
     case viewBuilder(String)
+    
+    case arraySyntax(ArrayExprSyntax)
 }
 
 // Subscripts can be used on references or nodes themselves

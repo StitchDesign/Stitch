@@ -9,12 +9,14 @@ import SwiftUI
 import StitchSchemaKit
 
 /// Redundant copy for newest version, should Stitch AI and SSK versions diverge.
-extension CurrentStep.NodeKind {
-    static func getAiNodeDescriptions() -> [StitchAINodeKindDescription] {
+extension AIGraphData_V0.NodeKind {
+    static func getAiNodeDescriptions(excludedPatches: Set<Patch> = .init()) -> [StitchAINodeKindDescription] {
         // Filter out the scroll interaction node
-        let allDescriptions = CurrentStep.Patch.allAiDescriptions + CurrentStep.Layer.allAiDescriptions
+        let allDescriptions = AIGraphData_V0.Patch.allAiDescriptions + AIGraphData_V0.Layer.allAiDescriptions
         return allDescriptions.filter { description in
-            !description.nodeKind.contains("legacyScrollInteraction")
+            let isExcludedNode = excludedPatches.contains(where: { description.nodeKind.contains($0.aiDisplayTitle) })
+            
+            return !isExcludedNode
         }
     }
 }
@@ -71,7 +73,7 @@ struct StitchAINodeSectionDescription: Encodable {
     var nodes: [StitchAINodeIODescription]
 }
 
-extension CurrentStep.PatchOrLayer {
+extension AIGraphData_V0.PatchOrLayer {
     @MainActor
     func getAINodeDescription(graph: GraphState) throws -> StitchAINodeIODescription? {
         guard let migratedPatchOrLayer = try? self.convert(to: PatchOrLayer.self) else {
@@ -98,7 +100,7 @@ extension CurrentStep.PatchOrLayer {
             
             // Backwards compat check for runtime's PortValue
             // Silent failures allow for new port value types to get ignored, which should be ok for layers
-            guard let migratedValue = try? runtimeValue.convert(to: CurrentStep.PortValue.self) else {
+            guard let migratedValue = try? runtimeValue.convert(to: AIGraphData_V0.PortValue.self) else {
                 switch self {
                 case .patch(let patch):
                     fatalErrorIfDebug("Issues reading values for patch \(patch) on value \(runtimeValue)")
@@ -126,7 +128,7 @@ extension CurrentStep.PatchOrLayer {
             let runtimeValue = outputObserver.getActiveValue(activeIndex: .init(.zero))
             
             // Backwards compat check for runtime's PortValue
-            let migratedValue = try runtimeValue.convert(to: CurrentStep.PortValue.self)
+            let migratedValue = try runtimeValue.convert(to: AIGraphData_V0.PortValue.self)
             
             return StitchAIPortValueDescription(
                 label: outputObserver.label(node: defaultNode,
@@ -147,11 +149,18 @@ extension CurrentStep.PatchOrLayer {
 extension StitchAINodeSectionDescription {
     @MainActor
     init(_ section: NodeSection,
-         graph: GraphState) throws {
+         graph: GraphState,
+         excludedPatches: Set<Patch> = .init()) throws {
         let nodesInSection: [StitchAINodeIODescription] = try section
             .getNodesForSection()
             .compactMap { patchOrLayer -> StitchAINodeIODescription? in
-                try patchOrLayer.getAINodeDescription(graph: graph)
+                if let patch = patchOrLayer.patch {
+                    let isExcludedNode = excludedPatches.contains(patch)
+                    
+                    if isExcludedNode { return nil }
+                }
+                
+                return try patchOrLayer.getAINodeDescription(graph: graph)
             }
         
         self.header = section.description
@@ -168,14 +177,14 @@ struct StitchAINodeIODescription: Encodable {
 extension StitchAINodeIODescription {
     @MainActor
     init(_ NodeInfo: any NodeDefinition.Type) throws {
-        let migratedNodeKind = try NodeInfo.graphKind.kind.convert(to: CurrentStep.PatchOrLayer.self)
+        let migratedNodeKind = try NodeInfo.graphKind.kind.convert(to: AIGraphData_V0.PatchOrLayer.self)
         self.nodeKind = migratedNodeKind.asLLMStepNodeName
         let rowDefinitions = NodeInfo.rowDefinitions(for: NodeInfo.defaultUserVisibleType)
         
         do {
             self.inputs = try rowDefinitions.inputs.compactMap {
                 // Migrates PortValue data to supported AI version
-                guard let migratedInput = try? $0.defaultValues.first!.convert(to: CurrentStep.PortValue.self) else {
+                guard let migratedInput = try? $0.defaultValues.first!.convert(to: AIGraphData_V0.PortValue.self) else {
                     // Silent failure for layer inputs which don't have ordering constraints of patches
                     switch migratedNodeKind {
                     case .layer:
@@ -190,7 +199,7 @@ extension StitchAINodeIODescription {
             }
             
             self.outputs = try rowDefinitions.outputs.map {
-                let migratedOutput = try $0.value.convert(to: CurrentStep.PortValue.self)
+                let migratedOutput = try $0.value.convert(to: AIGraphData_V0.PortValue.self)
                 
                 return .init(label: $0.label,
                              value: migratedOutput)
@@ -204,7 +213,7 @@ extension StitchAINodeIODescription {
 
 struct StitchAIPortValueDescription {
     var label: String
-    var value: CurrentStep.PortValue
+    var value: AIGraphData_V0.PortValue
 }
 
 extension StitchAIPortValueDescription: Encodable {
