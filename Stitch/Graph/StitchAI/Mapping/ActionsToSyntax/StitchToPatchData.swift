@@ -18,7 +18,7 @@ struct StitchPatchCodeConversionResult {
 
 extension GraphEntity {
     func createBindingDeclarations(nodeIdsInTopologicalOrder: [UUID],
-                                   viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]) throws -> StitchPatchCodeConversionResult {
+                                   viewStatePatchConnections: [String : NodeIOCoordinate]) throws -> StitchPatchCodeConversionResult {
         // Maps node IDs to a new var name
         var varIdNameMap: [UUID: String] = [:]
         
@@ -74,13 +74,14 @@ extension GraphEntity {
         
         // Create @State assignments based on patch connections into layers
         let layerStateAssignments = viewStatePatchConnections.compactMap { (stateVarName, patchOutputCoordinate) -> String? in
-            guard let patchId = UUID(patchOutputCoordinate.node_id),
-                  let patchNodeVarName = varIdNameMap.get(patchId) else {
+            let patchId = patchOutputCoordinate.nodeId
+
+            guard let patchNodeVarName = varIdNameMap.get(patchId) else {
                 // Valid nil case for interaction nodes, which aren't saved to map
                 return nil
             }
             
-            return "\(stateVarName) = \(patchNodeVarName)[\(patchOutputCoordinate.port_index)]"
+            return "\(stateVarName) = \(patchNodeVarName)[\(patchOutputCoordinate.portId ?? 0)]"
         }
         
         return .init(patchNodeDeclarations: patchNodeDeclarations + layerStateAssignments,

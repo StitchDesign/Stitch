@@ -13,10 +13,10 @@ enum AIGraphData_V0 {
     
     struct GraphData: Codable {
         let layer_data_list: [LayerData]
-        let patch_data: PatchData
+        let patchNodes: [NodeEntity]
 
         // Maps upstream patch output coordinate to some new created @State var name
-        let viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]
+        let viewStatePatchConnections: [String : NodeIOCoordinate]
     }
     
     struct GraphDataSchema: Encodable {
@@ -28,11 +28,11 @@ enum AIGraphData_V0 {
     }
     
     struct PatchData: Codable {
-        let javascript_patches: [AIGraphData_V0.PreprocessedJSPatchNode]
-        let native_patches: [AIGraphData_V0.PatchNode]
-        let native_patch_value_type_settings: [AIGraphData_V0.NativePatchNodeValueTypeSetting]
-        let patch_connections: [PatchConnection]
-        let custom_patch_input_values: [CustomPatchInputValue]
+        var javascript_patches: [AIGraphData_V0.PreprocessedJSPatchNode]
+        var native_patches: [AIGraphData_V0.PatchNode]
+        var native_patch_value_type_settings: [AIGraphData_V0.NativePatchNodeValueTypeSetting]
+        var patch_connections: [PatchConnection]
+        var custom_patch_input_values: [CustomPatchInputValue]
     
         // All connections are captured by patch data regardless of patch or layer
 //        let layer_connections: [LayerConnection]
@@ -44,7 +44,7 @@ enum AIGraphData_V0 {
         let node_name: StitchAIPatchOrLayer
         var children: [LayerData]?
         var custom_layer_input_values: [LayerPortDerivation] = []
-        var view_events: [LayerDataViewEvent] = []
+        var view_events: [SwiftPatchViewEvent]?
     }
     
     struct PreprocessedJSPatchNode: Codable {
@@ -294,6 +294,7 @@ extension LayerPortDerivation: Encodable {
         case value
         case value_type
         case state_ref
+        case state_ref_member_access
     }
     
 //    init(from decoder: any Decoder) throws {
@@ -315,18 +316,25 @@ extension LayerPortDerivation: Encodable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(coordinate, forKey: .coordinate)
         
-        switch self.inputData {
-        case .value(let value):
-            // Encodes values in manner that produces friendly printable result
-            try AIGraphData_V0.PortValue.encodeFromAI(container: &container,
-                                                      valueData: value.value,
-                                                      valueType: value.value_type,
-                                                      valueKey: .value,
-                                                      valueTypeKey: .value_type)
-
-        case .stateRef(let refName):
-            try container.encode(refName, forKey: .state_ref)
-        }
+        // TODO: come back here
+        fatalError()
+//        self.inputData.forEach { _inputData in
+//            switch _inputData {
+//            case .value(let value):
+//                // Encodes values in manner that produces friendly printable result
+//                try AIGraphData_V0.PortValue.encodeFromAI(container: &container,
+//                                                          valueData: value.value,
+//                                                          valueType: value.value_type,
+//                                                          valueKey: .value,
+//                                                          valueTypeKey: .value_type)
+//                
+//            case .stateRef(let refName):
+//                try container.encode(refName, forKey: .state_ref)
+//                
+//            case .stateRefInViewEvent(let memberAccess):
+//                try container.encode(memberAccess.memberAccess.trimmedDescription, forKey: .state_ref_member_access)
+//            }
+//        }
     }
 }
 
@@ -384,29 +392,27 @@ extension AIGraphData_V0.PortValue {
     }
 }
 
-extension Array where Element == AIGraphData_V0.LayerData {
-    func allNestedCustomInputValues(callback: (String, LayerPortDerivation) -> ()) {
-        for layerData in self {
-            for customInputValue in layerData.custom_layer_input_values {
-                callback(layerData.node_id, customInputValue)
-            }
-            
-            layerData.children?.allNestedCustomInputValues(callback: callback)
-        }
-    }
-}
+//extension Array where Element == AIGraphData_V0.LayerData {
+//    func allNestedCustomInputValues(callback: (String, LayerPortDerivation) -> ()) {
+//        for layerData in self {
+//            for customInputValue in layerData.custom_layer_input_values {
+//                callback(layerData.node_id, customInputValue)
+//            }
+//            
+//            layerData.children?.allNestedCustomInputValues(callback: callback)
+//        }
+//    }
+//}
 
 extension AIGraphData_V0.LayerData {
-    func createSidebarLayerData(idMap: [String : UUID]) throws -> SidebarLayerData {
-        guard let newId = idMap.get(self.node_id) else {
-            throw SwiftUISyntaxError.viewNodeNotFound
+    func createSidebarLayerData() -> SidebarLayerData {
+        let children = self.children?.map {
+            $0.createSidebarLayerData()
         }
         
-        let children = try self.children?.map {
-            try $0.createSidebarLayerData(idMap: idMap)
-        }
+        assertInDebug(UUID(self.node_id) != nil)
         
-        return SidebarLayerData(id: newId,
+        return SidebarLayerData(id: UUID(self.node_id) ?? UUID(),
                                 children: children)
     }
 }
