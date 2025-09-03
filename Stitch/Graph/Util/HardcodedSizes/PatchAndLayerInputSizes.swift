@@ -24,15 +24,16 @@ struct PatchOrLayerSizes {
     static let layerOutputSize: CGSize = .ASSUMED_LAYER_OUTPUT_SIZE
 }
 
-extension CanvasItemViewModel {
+extension CanvasItemId {
     @MainActor
-    func getHardcodedSize(_ graph: GraphReader) -> CGSize? {
+    func getHardcodedSize(kind: NodeKind,
+                          nodeType: NodeType?) -> CGSize? {
         
-        switch self.id {
+        switch self {
         
         case .node(let nodeId):
-            if let patchNode = graph.getNode(nodeId)?.patchNode {
-                return PatchOrLayerSizes.patches[patchNode.patch]?[patchNode.userVisibleType]
+            if let patch = kind.getPatch {
+                return PatchOrLayerSizes.patches[patch]?[nodeType]
             } else {
                 return nil
             }

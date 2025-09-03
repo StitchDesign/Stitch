@@ -66,17 +66,17 @@ extension Array where Element == any StepActionable {
 
 @MainActor
 func calculateAINodesAdjacency(
-    nodes: VisibleNodesViewModel
+    nodes: [NodeEntity]
 ) -> (depthMap: DepthMap?,
       hasCycle: Bool) {
     
     let adjacency = AdjacencyCalculator()
     
-    nodes.nodes.values.forEach { node in
-        node.getAllInputsObservers().forEach { (inputObserver: InputNodeRowObserver) in
-            if let upstreamOutput = inputObserver.upstreamOutputCoordinate {
+    nodes.forEach { node in
+        node.inputs.forEach { inputData in
+            if let upstreamOutput = inputData.upstreamConnection {
                 adjacency.addEdge(from: upstreamOutput.nodeId,
-                                  to: inputObserver.id.nodeId)
+                                  to: node.id)
             }
         }
     }
@@ -86,9 +86,9 @@ func calculateAINodesAdjacency(
     if var depthMap = depthMap, !hasCycle {
         // If we did not have a cycle, also add those nodes which did not have a connection;
         // Node without connection = node with depth level 0
-        nodes.nodes.keys.forEach {
-            if !depthMap.get($0).isDefined {
-                depthMap.updateValue(0, forKey: $0)
+        nodes.forEach {
+            if !depthMap.get($0.id).isDefined {
+                depthMap.updateValue(0, forKey: $0.id)
             }
         }
         return (depthMap, hasCycle)

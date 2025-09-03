@@ -51,14 +51,17 @@ extension SyntaxViewName {
         SyntaxViewName(rawValue: identifier)
     }
 
+    @MainActor
     static let supportedViews: [Self] = Self.allCases.filter {
         $0.isSupported
     }
     
+    @MainActor
     static let unsupportedViews: [Self] = Self.allCases.filter {
         !$0.isSupported
     }
     
+    @MainActor
     var isSupported: Bool {
         (try? self.deriveLayerData(id: .init(),
                                    args: nil,
