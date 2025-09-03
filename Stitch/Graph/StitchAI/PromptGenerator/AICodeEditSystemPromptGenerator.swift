@@ -8,6 +8,7 @@
 import SwiftUI
 
 extension StitchAIManager {
+    @MainActor
     static func aiCodeEditSystemPromptGenerator(requestType: StitchAIRequestBuilder_V0.StitchAIRequestType, previewWindowSize: CGSize, previewWindowBackgroundColor: Color) throws -> String {
 """
 # Code Generation and Graph Builder for Stitch

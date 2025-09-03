@@ -314,64 +314,65 @@ extension AIGraphData_V0.LayerData {
             }
         }
         
+        fatalError()
         // Determine view events
-        let viewEvents: [LayerDataViewEvent] = patchToLayerAssignmentMap.flatMap { interactionToLayer -> [LayerDataViewEvent] in
-            let (patchInteractionId, layerId) = interactionToLayer
-            
-            // Ensure that interactions are only for this layer
-            guard layerId == sidebarData.id else { return [] }
-            
-            let outputPortIdsUsedFromInteraction = upstreamConnectionToInteraction.values
-                .compactMap { upstreamInteractionCoordinate -> Int? in
-                    guard upstreamInteractionCoordinate.nodeId == patchInteractionId else {
-                        return nil
-                    }
-                    
-                    return upstreamInteractionCoordinate.portId
-                }
-
-            switch nodesDict.get(patchInteractionId)?.kind {
-            case .patch(let patch):
-                return outputPortIdsUsedFromInteraction.map { outputPortId in
-                    let interactionOutputCoordinate = AIGraphData_V0.NodeIndexedCoordinate(
-                        node_id: patchInteractionId.uuidString,
-                        port_index: outputPortId)
-
-                    let _viewEventName = patch.syntaxViewEvent
-                    assertInDebug(_viewEventName != nil)
-                    let viewEventName = _viewEventName ?? .dragGesture
-                    
-                    let gestureProperty = patch.getGestureName(for: outputPortId)
-                    let stateVarName = patch.createInteractionStateVarName(layerId: layerData.id,
-                                                                           outputPortIndex: outputPortId)
-                    
-                    // Check for state var names to override if redundant state vars were made for connected layer inputs
-                    viewStatePatchConnections = viewStatePatchConnections.reduce(into: viewStatePatchConnections) { result, connectionData in
-                        let (oldKey, viewStateUpstreamCoordinate) = connectionData
-                        if viewStateUpstreamCoordinate == interactionOutputCoordinate {
-                            // Update key
-                            result.removeValue(forKey: oldKey)
-                            result.updateValue(viewStateUpstreamCoordinate,
-                                               forKey: stateVarName)
-                        }
-                    }
-                    
-                    return .init(viewEvent: viewEventName,
-                                 gestureArg: "g.\(gestureProperty)",
-                                 mutatedStateVar: stateVarName)
-                }
-            
-            default:
-                fatalErrorIfDebug()
-                return []
-            }
-        }
+//        let viewEvents: [LayerDataViewEvent] = patchToLayerAssignmentMap.flatMap { interactionToLayer -> [LayerDataViewEvent] in
+//            let (patchInteractionId, layerId) = interactionToLayer
+//            
+//            // Ensure that interactions are only for this layer
+//            guard layerId == sidebarData.id else { return [] }
+//            
+//            let outputPortIdsUsedFromInteraction = upstreamConnectionToInteraction.values
+//                .compactMap { upstreamInteractionCoordinate -> Int? in
+//                    guard upstreamInteractionCoordinate.nodeId == patchInteractionId else {
+//                        return nil
+//                    }
+//                    
+//                    return upstreamInteractionCoordinate.portId
+//                }
+//
+//            switch nodesDict.get(patchInteractionId)?.kind {
+//            case .patch(let patch):
+//                return outputPortIdsUsedFromInteraction.map { outputPortId in
+//                    let interactionOutputCoordinate = AIGraphData_V0.NodeIndexedCoordinate(
+//                        node_id: patchInteractionId.uuidString,
+//                        port_index: outputPortId)
+//
+//                    let _viewEventName = patch.syntaxViewEvent
+//                    assertInDebug(_viewEventName != nil)
+//                    let viewEventName = _viewEventName ?? .dragGesture
+//                    
+//                    let gestureProperty = patch.getGestureName(for: outputPortId)
+//                    let stateVarName = patch.createInteractionStateVarName(layerId: layerData.id,
+//                                                                           outputPortIndex: outputPortId)
+//                    
+//                    // Check for state var names to override if redundant state vars were made for connected layer inputs
+//                    viewStatePatchConnections = viewStatePatchConnections.reduce(into: viewStatePatchConnections) { result, connectionData in
+//                        let (oldKey, viewStateUpstreamCoordinate) = connectionData
+//                        if viewStateUpstreamCoordinate == interactionOutputCoordinate {
+//                            // Update key
+//                            result.removeValue(forKey: oldKey)
+//                            result.updateValue(viewStateUpstreamCoordinate,
+//                                               forKey: stateVarName)
+//                        }
+//                    }
+//                    
+//                    return .init(viewEvent: viewEventName,
+//                                 gestureArg: "g.\(gestureProperty)",
+//                                 mutatedStateVar: stateVarName)
+//                }
+//            
+//            default:
+//                fatalErrorIfDebug()
+//                return []
+//            }
+//        }
         
         self = .init(node_id: sidebarData.id.description,
                      node_name: .init(value: .layer(layerData.layer)),
                      children: children,
                      custom_layer_input_values: customInputValues,
-                     view_events: viewEvents)
+                     view_events: .init())
     }
 }
 

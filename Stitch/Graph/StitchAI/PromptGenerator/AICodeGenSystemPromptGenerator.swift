@@ -7,6 +7,7 @@
 import SwiftUI
 
 extension StitchAIManager {
+    @MainActor
     static func aiCodeGenSystemPromptGenerator(requestType: StitchAIRequestBuilder_V0.StitchAIRequestType, previewWindowSize: CGSize, previewWindowBackgroundColor: Color) throws -> String {
         let supportedViewModifiers = SyntaxViewModifierName.allCases
             .filter {

@@ -10,113 +10,114 @@ import SwiftUI
 extension GraphState {
     @MainActor
     func createSwiftUICode(ignoreScript: Bool = false, usePortValueDescription: Bool = true) throws -> String {
-        let graphEntity = self.createSchema()
-        let aiGraph = try AIGraphData_V0.GraphData(from: graphEntity)
-        
-        let patchData = try graphEntity
-            .createBindingDeclarations(nodeIdsInTopologicalOrder: self.nodeIdsInTopologicalOrder,
-                                       viewStatePatchConnections: aiGraph.viewStatePatchConnections)
-        
-        let patchNodeDeclarations = patchData.patchNodeDeclarations
-        
-        let flattenedLayerData = aiGraph.layer_data_list.allFlattenedItems
-        let layerViewEventsMap = aiGraph.layer_data_list.getAllViewEventsMap()
-        let layerViewEvents = layerViewEventsMap.values
-        
-        // Organizes view event data by layer id
-        let layerViewEventMap = flattenedLayerData.reduce(into: [String: [LayerDataViewEvent]]()) { result, layerData in
-            layerData.view_events.forEach{ viewEvent in
-                var viewEventsList = result.get(layerData.node_id) ?? []
-                viewEventsList.append(viewEvent)
-                
-                result.updateValue(viewEventsList,
-                                   forKey: layerData.node_id)
-            }
-        }
-        
-        // Patches that connect to layers
-        let patchStateVars = Array(aiGraph.viewStatePatchConnections.keys)
-        
-        // Interaction data updated from gesture callbacks
-        let interactionStateVars = layerViewEvents.map { $0.mutatedStateVar }
-        
-        let allStateVarNames = Set(patchStateVars + interactionStateVars)
-        let stateVarDeclarations = allStateVarNames.map { stateVarName in
-            "@State var \(stateVarName): [PortValueDescription] = []"
-        }
-            .joined(separator: "\n")
-            .indentLines()
-
-        // log("createSwiftUICode: stateVarDeclarations: \(stateVarDeclarations)")
-        
-        let allLayerEntities = graphEntity.nodes
-            .compactMap { $0.layerNodeEntity }
-        
-        // log("createSwiftUICode: allLayerEntities: \(allLayerEntities)")
-        
-        let orderedLayerEntities = graphEntity.orderedSidebarLayers
-            .createOrderedLayersForCodeGen(nodes: self.nodes)
-        
-        // Filter for just top layer entities in beginning
-        let topLevelLayerEntities = allLayerEntities
-            .filter { $0.layerGroupId == nil }
-        
-        // log("createSwiftUICode: topLevelLayerEntities: \(topLevelLayerEntities)")
-        
-        // Maps upstream patch node's output port to a view state's var
-        let varIdNameMap = aiGraph.viewStatePatchConnections.reduce(into: [AIGraphData_V0.NodeIndexedCoordinate: String]()) { result, data in
-            let (variableName, nodeIndexCoordiante) = data
-            result.updateValue(variableName, forKey: nodeIndexCoordiante)
-        }
-        
-        // Append interactions to var name map
-//        varIdNameMap = layerViewEventsMap.reduce(into: varNameIdMap) { result, data in
-//            let (id, viewEvent) = data
-//            result.updateValue(viewEvent.mutatedStateVar, forKey: id)
+        return "TBD"
+//        let graphEntity = self.createSchema()
+//        let aiGraph = try AIGraphData_V0.GraphData(from: graphEntity)
+//        
+//        let patchData = try graphEntity
+//            .createBindingDeclarations(nodeIdsInTopologicalOrder: self.nodeIdsInTopologicalOrder,
+//                                       viewStatePatchConnections: aiGraph.viewStatePatchConnections)
+//        
+//        let patchNodeDeclarations = patchData.patchNodeDeclarations
+//        
+//        let flattenedLayerData = aiGraph.layer_data_list.allFlattenedItems
+//        let layerViewEventsMap = aiGraph.layer_data_list.getAllViewEventsMap()
+//        let layerViewEvents = layerViewEventsMap.values
+//        
+//        // Organizes view event data by layer id
+//        let layerViewEventMap = flattenedLayerData.reduce(into: [String: [LayerDataViewEvent]]()) { result, layerData in
+//            layerData.view_events.forEach{ viewEvent in
+//                var viewEventsList = result.get(layerData.node_id) ?? []
+//                viewEventsList.append(viewEvent)
+//                
+//                result.updateValue(viewEventsList,
+//                                   forKey: layerData.node_id)
+//            }
 //        }
-        
-        // log("createSwiftUICode: varNameIdMap: \(varNameIdMap)")
-        
-        let viewCode = try topLevelLayerEntities
-            .createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
-                               varIdNameMap: varIdNameMap,
-                               layerViewEventMap: layerViewEventMap)
-        
-        if ignoreScript {
-            return viewCode
-        }
-        
-        // Create js nodes script
-        let jsNodesScript = patchData.jsNodeFns.map { jsNodeData in
-            """
-            static func fn_\(jsNodeData.key)(_ inputs: [[PortValueDescription]]) -> [[PortValueDescription]] {
-            \(jsNodeData.value.indentLines())
-            }
-            """
-        }
-            .joined(separator: "\n\n")
-        
-        let innerStructContents = """
-        \(stateVarDeclarations)
-
-        var body: some View {
-        \(viewCode.indentLines(n: 2))
-        }
-
-        func updateLayerInputs() {
-        \(patchNodeDeclarations.joined(separator: "\n").indentLines())
-        }
-
-        \(jsNodesScript)
-        """
-        
-        let script = """
-        struct ContentView: View {
-        \(innerStructContents.indentLines())
-        }
-        """
-        
-        return script
+//        
+//        // Patches that connect to layers
+//        let patchStateVars = Array(aiGraph.viewStatePatchConnections.keys)
+//        
+//        // Interaction data updated from gesture callbacks
+//        let interactionStateVars = layerViewEvents.map { $0.mutatedStateVar }
+//        
+//        let allStateVarNames = Set(patchStateVars + interactionStateVars)
+//        let stateVarDeclarations = allStateVarNames.map { stateVarName in
+//            "@State var \(stateVarName): [PortValueDescription] = []"
+//        }
+//            .joined(separator: "\n")
+//            .indentLines()
+//
+//        // log("createSwiftUICode: stateVarDeclarations: \(stateVarDeclarations)")
+//        
+//        let allLayerEntities = graphEntity.nodes
+//            .compactMap { $0.layerNodeEntity }
+//        
+//        // log("createSwiftUICode: allLayerEntities: \(allLayerEntities)")
+//        
+//        let orderedLayerEntities = graphEntity.orderedSidebarLayers
+//            .createOrderedLayersForCodeGen(nodes: self.nodes)
+//        
+//        // Filter for just top layer entities in beginning
+//        let topLevelLayerEntities = allLayerEntities
+//            .filter { $0.layerGroupId == nil }
+//        
+//        // log("createSwiftUICode: topLevelLayerEntities: \(topLevelLayerEntities)")
+//        
+//        // Maps upstream patch node's output port to a view state's var
+//        let varIdNameMap = aiGraph.viewStatePatchConnections.reduce(into: [AIGraphData_V0.NodeIndexedCoordinate: String]()) { result, data in
+//            let (variableName, nodeIndexCoordiante) = data
+//            result.updateValue(variableName, forKey: nodeIndexCoordiante)
+//        }
+//        
+//        // Append interactions to var name map
+////        varIdNameMap = layerViewEventsMap.reduce(into: varNameIdMap) { result, data in
+////            let (id, viewEvent) = data
+////            result.updateValue(viewEvent.mutatedStateVar, forKey: id)
+////        }
+//        
+//        // log("createSwiftUICode: varNameIdMap: \(varNameIdMap)")
+//        
+//        let viewCode = try topLevelLayerEntities
+//            .createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
+//                               varIdNameMap: varIdNameMap,
+//                               layerViewEventMap: layerViewEventMap)
+//        
+//        if ignoreScript {
+//            return viewCode
+//        }
+//        
+//        // Create js nodes script
+//        let jsNodesScript = patchData.jsNodeFns.map { jsNodeData in
+//            """
+//            static func fn_\(jsNodeData.key)(_ inputs: [[PortValueDescription]]) -> [[PortValueDescription]] {
+//            \(jsNodeData.value.indentLines())
+//            }
+//            """
+//        }
+//            .joined(separator: "\n\n")
+//        
+//        let innerStructContents = """
+//        \(stateVarDeclarations)
+//
+//        var body: some View {
+//        \(viewCode.indentLines(n: 2))
+//        }
+//
+//        func updateLayerInputs() {
+//        \(patchNodeDeclarations.joined(separator: "\n").indentLines())
+//        }
+//
+//        \(jsNodesScript)
+//        """
+//        
+//        let script = """
+//        struct ContentView: View {
+//        \(innerStructContents.indentLines())
+//        }
+//        """
+//        
+//        return script
     }
 }
 

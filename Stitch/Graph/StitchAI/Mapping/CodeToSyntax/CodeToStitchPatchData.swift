@@ -296,7 +296,7 @@ extension SwiftParserInitializerType {
                             varNameOutputPortMap: [String : SwiftParserSubscript],
     customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue],
                             varNamePatchNodeRefMap: [String : String],
-                            stateVarToInteractionOutputsMap: [String: CurrentAIGraphData.NodeIndexedCoordinate],
+//                            stateVarToInteractionOutputsMap: [String: CurrentAIGraphData.NodeIndexedCoordinate],
                             nativePatchNodes: [String: CurrentAIGraphData.PatchNode],
                             patchConnections: inout [CurrentAIGraphData.PatchConnection],
                             viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate],
@@ -331,13 +331,14 @@ extension SwiftParserInitializerType {
                     }
                     
                     // Second, check if we're reading state for some interaction
-                    else if let upstreamInteractionData = stateVarToInteractionOutputsMap
-                            .get(refName) {
-                        upstreamCoordinate = .init(node_id: upstreamInteractionData.node_id,
-                                                   port_index: upstreamInteractionData.port_index)
-                    }
+//                    else if let upstreamInteractionData = stateVarToInteractionOutputsMap
+//                            .get(refName) {
+//                        upstreamCoordinate = .init(node_id: upstreamInteractionData.node_id,
+//                                                   port_index: upstreamInteractionData.port_index)
+//                    }
                     
                     else {
+                        fatalError()
                         continue
                     }
                     
@@ -380,7 +381,7 @@ extension SwiftParserInitializerType {
                                                         varNameIdMap: varNameIdMap,
                                                         varNameOutputPortMap: varNameOutputPortMap,
                                                         customPatchInputValues: &customPatchInputValues, varNamePatchNodeRefMap: varNamePatchNodeRefMap,
-                                                        stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
+//                                                        stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
                                                         nativePatchNodes: nativePatchNodes,
                                                         patchConnections: &patchConnections,
                                                         viewStatePatchConnections: &viewStatePatchConnections,
@@ -404,7 +405,7 @@ extension SwiftParserInitializerType {
                                             varNameOutputPortMap: varNameOutputPortMap,
                                             customPatchInputValues: &customPatchInputValues,
                                             varNamePatchNodeRefMap: varNamePatchNodeRefMap,
-                                            stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
+//                                            stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
                                             nativePatchNodes: nativePatchNodes,
                                             patchConnections: &patchConnections,
                                             viewStatePatchConnections: &viewStatePatchConnections,
@@ -459,7 +460,7 @@ extension SwiftParserInitializerType {
                                         varNameOutputPortMap: varNameOutputPortMap,
                                         customPatchInputValues: &customPatchInputValues,
                                         varNamePatchNodeRefMap: varNamePatchNodeRefMap,
-                                        stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
+//                                        stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
                                         nativePatchNodes: nativePatchNodes,
                                         patchConnections: &patchConnections,
                                         viewStatePatchConnections: &viewStatePatchConnections,

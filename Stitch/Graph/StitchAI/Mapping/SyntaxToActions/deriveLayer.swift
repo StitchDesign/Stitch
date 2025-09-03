@@ -95,10 +95,11 @@ extension PortValue {
 }
 
 extension SyntaxViewModifier {
-    func deriveViewModifierEvents() throws -> LayerDataViewEventsResult {
+    @MainActor
+    func deriveViewModifierEvents(layerId: UUID) throws -> [LayerDataViewEventsResult] {
         guard self.name.isGestureModifier,
               let defaultArgs = self.arguments.defaultArgs else {
-            return .init()
+            return []
         }
         
         // A few cases where we extrapolate a view event:
@@ -110,13 +111,17 @@ extension SyntaxViewModifier {
             let viewEvents = defaultArgs
                 .compactMap { $0.value.viewEvent }
             
-            let interactionsResult: LayerDataViewEventsResult = try viewEvents.reduce(into: .init()) { result, viewEvent in
-                let eventsResult = try viewEvent.deriveViewEventData()
-                result.events += eventsResult.events
-                result.caughtErrors += eventsResult.caughtErrors
+            let interactionsResults: [LayerDataViewEventsResult] = try viewEvents.compactMap { viewEvent -> LayerDataViewEventsResult? in
+                guard let actions = try viewEvent.deriveViewEventData(layerId: layerId),
+                      let viewEventName = SyntaxViewEvent(rawValue: viewEvent.eventName) else {
+                    return nil
+                }
+                
+                return .init(viewEvent: viewEventName,
+                             actionsResult: actions)
             }
             
-            return interactionsResult
+            return interactionsResults
         }
         
         // Non-nested case
@@ -132,30 +137,41 @@ extension SyntaxViewModifier {
             }
             
             // Parse script, grab first element with state mutation
-            let parsedCode = SwiftUIViewVisitor.parseSwiftUICode(closureData.script,
+            let actionsResult = SwiftUIViewVisitor.parseSwiftUICode(closureData.script,
                                                                  willParseView: false)
+                .bindingDeclarations
+                .deriveStitchActions(existingData: nil,
+                                     viewEventData: (viewEvent, layerId, nil))
+            
+            return [
+                .init(viewEvent: viewEvent,
+                      actionsResult: actionsResult)
+            ]
             
             // Find first line of code with state mutation
-            let mutatedStateVar = parsedCode.bindingDeclarations
-                .compactMap {
-                    switch $0.1 {
-                    case .stateMutation:
-                        return $0.0
-                    default:
-                        return nil
-                    }
-                }.first
             
-            guard let mutatedStateVar = mutatedStateVar else {
-                return .init(events: [],
-                             caughtErrors: parsedCode.caughtErrors)
-            }
+            // TODO: come back here
+
             
-            let layerData = LayerDataViewEvent(viewEvent: viewEvent,
-                                               gestureArg: nil,
-                                               mutatedStateVar: mutatedStateVar)
-            return .init(events: [layerData],
-                         caughtErrors: parsedCode.caughtErrors)
+            //            let mutatedStateVar = parsedCode.bindingDeclarations
+//                .compactMap {
+//                    switch $0.1 {
+//                    case .stateMutation:
+//                        return $0.0
+//                    default:
+//                        return nil
+//                    }
+//                }.first
+//            
+//            guard let mutatedStateVar = mutatedStateVar else {
+//                return nil
+//            }
+//            
+//            let layerData = LayerDataViewEvent(viewEvent: viewEvent,
+//                                               gestureArg: nil,
+//                                               mutatedStateVar: mutatedStateVar)
+//            return .init(events: [layerData],
+//                         caughtErrors: parsedCode.caughtErrors)
         }
     }
 }
@@ -265,6 +281,7 @@ extension SyntaxViewModifierName {
 
 extension SyntaxViewName {
     /// Leaf-level mapping for **this** node only
+    @MainActor
     func deriveLayerData(id: UUID,
                          args: ViewConstructorType?,
                          modifiers: [SyntaxViewModifier],
@@ -349,11 +366,11 @@ extension SyntaxViewName {
         }
         
         // Handle view events like drag gestures
-        let interactionEvents = modifiers.flatMap { modifier -> [LayerDataViewEvent] in
+        let interactionEvents = modifiers.flatMap { modifier -> [LayerDataViewEventsResult] in
             do {
-                let result = try modifier.deriveViewModifierEvents()
-                silentErrors += result.caughtErrors
-                return result.events
+                let results = try modifier.deriveViewModifierEvents(layerId: id)
+                silentErrors += results.flatMap(\.actionsResult.caughtErrors)
+                return results
             } catch let error as SwiftUISyntaxError {
                 silentErrors.append(error)
             } catch {
