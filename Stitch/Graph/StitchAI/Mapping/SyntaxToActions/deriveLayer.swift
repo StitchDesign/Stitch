@@ -8,6 +8,7 @@
 import Foundation
 import StitchSchemaKit
 import SwiftUI
+import SwiftSyntax
 
 struct LayerDerivationResult {
     let layerData: CurrentAIGraphData.LayerData
@@ -21,38 +22,45 @@ struct LayerInputValuesDerivationResult {
 
 struct LayerPortDerivation {
     var coordinate: CurrentAIGraphData.LayerInputType
-    let inputData: LayerPortDerivationType
+    let inputData: [PatchSyntaxResultType]
 }
 
-enum LayerPortDerivationType {
-    case value(PortValueDescription)
-    case stateRef(String)
-}
+//enum LayerPortDerivationType {
+//    case value(PortValueDescription)
+//    case stateRef(String)
+//    case stateRefInViewEvent(ViewEventStateRefPortValue)
+//}
+//
+//struct ViewEventStateRefPortValue {
+//    let memberAccess: MemberAccessExprSyntax
+//    let valueType: NodeType
+//    let viewEvent: SyntaxViewEvent
+//}
+//
+//extension LayerPortDerivationType {
+//    var value: PortValueDescription? {
+//        switch self {
+//        case .value(let portValueDescription):
+//            return portValueDescription
+//        case .stateRef, .stateRefInViewEvent:
+//            return nil
+//        }
+//    }
+//}
 
-extension LayerPortDerivationType {
-    var value: PortValueDescription? {
-        switch self {
-        case .value(let portValueDescription):
-            return portValueDescription
-        case .stateRef:
-            return nil
-        }
-    }
-}
-
-extension Array where Element == LayerPortDerivationType {
+extension Array where Element == PatchSyntaxResultType {
     func createUnpackedEvents(layerInputPort: LayerInputPort) throws -> [LayerPortDerivation] {
         let unpackedPortEvents = self.enumerated().map { portIndex, layerPortEvent in
             guard let unpackedPortIndex = UnpackedPortType(rawValue: portIndex) else {
                 fatalErrorIfDebug()
                 return LayerPortDerivation(input: layerInputPort,
-                                           inputData: layerPortEvent)
+                                           inputData: [layerPortEvent])
             }
             
             return LayerPortDerivation(coordinate: .init(
                 layerInput: layerInputPort,
                 portType: .unpacked(unpackedPortIndex)),
-                                       inputData: layerPortEvent)
+                                       inputData: [layerPortEvent])
             
         }
         
@@ -95,10 +103,11 @@ extension PortValue {
 }
 
 extension SyntaxViewModifier {
-    func deriveViewModifierEvents() throws -> LayerDataViewEventsResult {
+    @MainActor
+    func deriveViewModifierEvents(layerId: UUID) throws -> [SwiftPatchViewEvent]? {
         guard self.name.isGestureModifier,
               let defaultArgs = self.arguments.defaultArgs else {
-            return .init()
+            return nil
         }
         
         // A few cases where we extrapolate a view event:
@@ -110,13 +119,16 @@ extension SyntaxViewModifier {
             let viewEvents = defaultArgs
                 .compactMap { $0.value.viewEvent }
             
-            let interactionsResult: LayerDataViewEventsResult = try viewEvents.reduce(into: .init()) { result, viewEvent in
-                let eventsResult = try viewEvent.deriveViewEventData()
-                result.events += eventsResult.events
-                result.caughtErrors += eventsResult.caughtErrors
+            let interactionsResults: [SwiftPatchViewEvent] = try viewEvents
+                .compactMap { viewEvent -> SwiftPatchViewEvent? in
+                guard let actions = try viewEvent.deriveViewEventData(layerId: layerId) else {
+                    return nil
+                }
+                
+                return actions
             }
             
-            return interactionsResult
+            return interactionsResults
         }
         
         // Non-nested case
@@ -128,41 +140,54 @@ extension SyntaxViewModifier {
             
             guard let closureData = closureData,
                   let viewEvent = self.name.viewEvent else {
-                return .init()
+                return nil
             }
             
             // Parse script, grab first element with state mutation
-            let parsedCode = SwiftUIViewVisitor.parseSwiftUICode(closureData.script,
-                                                                 willParseView: false)
+            let actionsResult = try SwiftUIViewVisitor
+                .parseSwiftUICode(closureData.script,
+                                  willParseView: false)
+                .bindingDeclarations
+                .getSwiftPatchCodeTypes()
+                
+            return [
+                .init(viewEvent: .init(layerId: layerId,
+                                       type: viewEvent,
+                                       gestureArg: nil),
+                      codeStatements: actionsResult)
+            ]
             
             // Find first line of code with state mutation
-            let mutatedStateVar = parsedCode.bindingDeclarations
-                .compactMap {
-                    switch $0.1 {
-                    case .stateMutation:
-                        return $0.0
-                    default:
-                        return nil
-                    }
-                }.first
             
-            guard let mutatedStateVar = mutatedStateVar else {
-                return .init(events: [],
-                             caughtErrors: parsedCode.caughtErrors)
-            }
+            // TODO: come back here
+
             
-            let layerData = LayerDataViewEvent(viewEvent: viewEvent,
-                                               gestureArg: nil,
-                                               mutatedStateVar: mutatedStateVar)
-            return .init(events: [layerData],
-                         caughtErrors: parsedCode.caughtErrors)
+            //            let mutatedStateVar = parsedCode.bindingDeclarations
+//                .compactMap {
+//                    switch $0.1 {
+//                    case .stateMutation:
+//                        return $0.0
+//                    default:
+//                        return nil
+//                    }
+//                }.first
+//            
+//            guard let mutatedStateVar = mutatedStateVar else {
+//                return nil
+//            }
+//            
+//            let layerData = LayerDataViewEvent(viewEvent: viewEvent,
+//                                               gestureArg: nil,
+//                                               mutatedStateVar: mutatedStateVar)
+//            return .init(events: [layerData],
+//                         caughtErrors: parsedCode.caughtErrors)
         }
     }
 }
 
 extension SyntaxViewModifierName {
     // Some modifiers have view events that can be extrapolated from.
-    var viewEvent: SyntaxViewEvent? {
+    var viewEvent: SyntaxViewEventType? {
         switch self {
         case .onTapGesture:
             return .tapGesture
@@ -265,6 +290,7 @@ extension SyntaxViewModifierName {
 
 extension SyntaxViewName {
     /// Leaf-level mapping for **this** node only
+    @MainActor
     func deriveLayerData(id: UUID,
                          args: ViewConstructorType?,
                          modifiers: [SyntaxViewModifier],
@@ -329,18 +355,16 @@ extension SyntaxViewName {
         }
         
         // Handle view events like drag gestures
-        let interactionEvents = modifiers.flatMap { modifier -> [LayerDataViewEvent] in
+        let interactionEvents = modifiers.reduce(into: [SwiftPatchViewEvent]()) { result, modifier in
             do {
-                let result = try modifier.deriveViewModifierEvents()
-                silentErrors += result.caughtErrors
-                return result.events
+                if let actionsResult = try modifier.deriveViewModifierEvents(layerId: id) {
+                    result += actionsResult
+                }
             } catch let error as SwiftUISyntaxError {
                 silentErrors.append(error)
             } catch {
                 fatalErrorIfDebug(error.localizedDescription)
             }
-            
-            return []
         }
         
         layerData.view_events = interactionEvents
@@ -359,6 +383,7 @@ extension SyntaxViewName {
 //        return customInputValues
 //    }
     
+    @MainActor
     func deriveInputValuesData(args: [SyntaxViewArgumentData],
                                id: UUID,
                                layerType: CurrentAIGraphData.Layer) throws -> LayerInputValuesDerivationResult {
@@ -564,6 +589,7 @@ extension SyntaxViewName {
         return (layerType, layerNode)
     }
     
+    @MainActor
     func deriveCustomValuesFromConstructorArgument(layerType: CurrentAIGraphData.Layer,
                                                    arg: SyntaxViewArgumentData
     ) throws -> [LayerPortDerivation] {
@@ -576,13 +602,15 @@ extension SyntaxViewName {
 //            ]
 //        }
         
-        return try arg.value.allArgumentTypesFlattened.flatMap { argFlatType -> [LayerPortDerivation] in
+        var result = [LayerPortDerivation]()
+        
+        for argFlatType in arg.value.allArgumentTypesFlattened {
             guard let port = try SyntaxViewArgumentData.deriveLayerInputPort(
                 layerType,
                 label: arg.label, // the overall label for the entire argument
                 argFlatType: argFlatType,
             ) else {
-                return []
+                continue
             }
             
             // log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: port: \(port)")
@@ -594,10 +622,13 @@ extension SyntaxViewName {
             
             // log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: values: \(values)")
             
-            return values
+            result += values
         }
+        
+        return result
     }
     
+    @MainActor
     private static func deriveCustomValuesFromViewModifier(id: UUID,
                                                            layerType: CurrentAIGraphData.Layer,
                                                            modifier: SyntaxViewModifier) throws -> LayerInputViewModification? {
@@ -649,6 +680,7 @@ extension SyntaxViewName {
         }
     }
         
+    @MainActor
     private static func derivePortValues(
         from arguments: [SyntaxViewArgumentData],
         modifierName: SyntaxViewModifierName,
@@ -677,7 +709,7 @@ extension SyntaxViewName {
             return [
                 .init(coordinate: .init(layerInput: port,
                                         portType: .packed),
-                      inputData: .value(.init(value)))
+                      inputData: [.portData(.values([value]))])
             ]
         }
         
@@ -688,14 +720,14 @@ extension SyntaxViewName {
                                       context: .viewModifier(port))
         }
         
-        let portValuesFromArgs = portDataFromArgs.compactMap {
-            switch $0.inputData {
-            case .value(let value):
-                return value
-            default:
-                return nil
-            }
-        }
+//        let portValuesFromArgs = portDataFromArgs.compactMap {
+//            switch $0.inputData {
+//            case .value(let value):
+//                return value
+//            default:
+//                return nil
+//            }
+//        }
         
         // Scenarios where we assumed packed value or connection
         if arguments.count == 1,
@@ -727,6 +759,7 @@ extension SyntaxViewName {
 
     // TODO: we should not actually need `context` when calling `derivePortValues` from within the `createCustomValueEvents` method of an explicitly supported view-constructors and view-modifiers (which *just is* the "context");
     // in practice, this function is mostly helpful for handling the PortValueDescriptions returned by our LLM
+    @MainActor
     static func derivePortValues(from argument: SyntaxViewModifierArgumentType,
                                  port: LayerInputPort,
                                  context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivation] {
@@ -822,30 +855,37 @@ extension SyntaxViewName {
         default:
             let values = try Self
                 .derivePortValues(from: argument,
-                                  context: context)
+                                  varName: nil,
+                                  viewEvent: nil,
+                                  nodesDict: [:])
             
-            return values.map {
+            return [
                 .init(input: port,
-                      inputData: $0)
-            }
+                      inputData: values)
+            ]
         }
     }
 
     static func derivePortValues(from argument: SyntaxViewModifierArgumentType,
-                                 context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivationType] {
-        
+                                 varName: String?,
+                                 viewEvent: SyntaxViewEvent?,
+                                 nodesDict: [UUID: NodeEntity]) throws -> [PatchSyntaxResultType] {
         switch argument {
         
         // Handles types like PortValueDescription
         case .complex(let complexType):
             return try handleComplexArgumentType(complexType,
-                                                 context: context)
+                                                 varName: varName,
+                                                 viewEvent: viewEvent,
+                                                 nodesDict: nodesDict)
             
         case .tuple(let tupleArgs):
             // Recursively determine PortValue of each arg
             return try tupleArgs.flatMap {
                 try Self.derivePortValues(from: $0.value,
-                                          context: context)
+                                          varName: varName,
+                                          viewEvent: viewEvent,
+                                          nodesDict: nodesDict)
             }
             
         case .array(let arrayArgs):
@@ -855,7 +895,9 @@ extension SyntaxViewName {
                 // log("SyntaxViewName: derivePortValue: had array: $0: \($0)")
                 // log("SyntaxViewName: derivePortValue: had array: context: \(context)")
                 return try Self.derivePortValues(from: $0,
-                                                 context: context)
+                                                 varName: varName,
+                                                 viewEvent: viewEvent,
+                                                 nodesDict: nodesDict)
             }
             
         case .simple(let data):
@@ -874,24 +916,58 @@ extension SyntaxViewName {
                 let data = try JSONEncoder().encode(aiPortValueEncoding)
                 let aiPortValue = try JSONDecoder().decode(CurrentAIGraphData.StitchAIPortValue.self, from: data)
                 
-                return [.value(.init(aiPortValue.value))]
+                return [
+                    .portData(.values([aiPortValue.value]))
+                ]
 
             default:
                 // log("derivePortValues error: non-literal data found for simple case")
                 throw SwiftUISyntaxError.portValueNotFound(argument: argument)
             }
             
-        case .stateAccess(let varName):
-            return [.stateRef(varName)]
+        case .stateAccess(let stateAccessRef):
+            // Check for tap case
+            if stateAccessRef == "STITCH_GRAPH_TIME" {
+                guard let viewEvent = viewEvent,
+                      let varName = varName else {
+                    return []
+                }
+                
+                let result = viewEvent
+                    .createConnectedPatchData(gestureArg: nil,
+                                              varName: varName,
+                                              nodesDict: nodesDict)
+                return result
+            }
             
-        case .memberAccess, .closure, .viewEvent, .view:
+            // See what happens here
+            fatalErrorIfDebug()
+            return []
+            
+        case .memberAccess(let memberAccess):
+            // Check for member syntax for view event arg, like `g.translation.width`
+            // Interaction nodes are already created with the parameter created from a view event, so this logic is here to determine specific connections and if unpack nodes should be made
+            guard let viewEvent = viewEvent,
+                  let varName = varName else {
+                fatalErrorIfDebug()
+                return []
+            }
+            
+            return memberAccess
+                .createConnectedPatchData(viewEvent: viewEvent,
+                                          varName: varName,
+                                          nodesDict: nodesDict)
+            
+        case .closure, .viewEvent:
             throw SwiftUISyntaxError.portValueDecodingError(.portValueDecodingError(describe(argument)))
         }
     }
     
+    @MainActor
     static func deriveCustomValuesFromRotationLayerInputTranslation(id: UUID,
                                                                     layerType: CurrentAIGraphData.Layer,
-                                                                    modifier: SyntaxViewModifier) throws -> [LayerPortDerivation] {
+                                                                    modifier: SyntaxViewModifier,
+                                                                    document: StitchDocumentViewModel) throws -> [LayerPortDerivation] {
         var customValues = [LayerPortDerivation]()
         
         guard let angleArgument = modifier.arguments.defaultArgs?[safe: 0],
@@ -950,7 +1026,9 @@ extension SyntaxViewName {
 }
 
 func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
-                               context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivationType] {
+                               varName: String?,
+                               viewEvent: SyntaxViewEvent?,
+                               nodesDict: [UUID: NodeEntity]) throws -> [PatchSyntaxResultType] {
     
     let complexTypeName = SyntaxValueName(rawValue: complexType.typeName)
     switch complexTypeName {
@@ -964,16 +1042,44 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
         // Search for simple value recursively
         return try SyntaxViewName
             .derivePortValues(from: firstArg.value,
-                              context: context)
+                              varName: varName,
+                              viewEvent: viewEvent,
+                              nodesDict: nodesDict)
         
     case .portValueDescription:
-        do {
-            let aiPortValue = try complexType.arguments.decode(CurrentAIGraphData.StitchAIPortValue.self)
-            return [.value(.init(aiPortValue.value))]
-        } catch {
-            log("PortValue decoding error: \(error)")
-            // fatalErrorIfDevDebug()
-            throw error
+        guard let firstArg = complexType.arguments.first else {
+            fatalErrorIfDebug()
+            return []
+        }
+        
+        switch firstArg.value {
+        case .simple:
+            // Only decode PortValue directly if first arg is detected as a simple type
+            do {
+                let aiPortValue = try complexType.arguments.decode(CurrentAIGraphData.StitchAIPortValue.self)
+                return [.portData(.values([aiPortValue.value]))]
+            } catch {
+                log("PortValue decoding error: \(error)")
+                // fatalErrorIfDevDebug()
+                throw error
+            }
+            
+        case .memberAccess(let memberAccess):
+            guard let viewEvent = viewEvent,
+                  let varName = varName,
+                  let secondArg = complexType.arguments[safe: 1],
+                  let nodeType = NodeType(secondArg.value.simpleValue?.stripQuotes() ?? "") else {
+                fatalErrorIfDebug()
+                return []
+            }
+            
+            return memberAccess
+                .createConnectedPatchData(viewEvent: viewEvent,
+                                          varName: varName,
+                                          nodesDict: nodesDict)
+            
+        default:
+            return try firstArg.value.derivePortValues(viewEvent: viewEvent)
         }
     
     case .binding, .color:
@@ -1022,8 +1128,10 @@ enum SyntaxArgumentConstructorContext {
 }
 
 extension SyntaxViewModifierArgumentType {
-    func derivePortValues(_ context: SyntaxArgumentConstructorContext? = nil) throws -> [LayerPortDerivationType] {
+    func derivePortValues(viewEvent: SyntaxViewEvent? = nil) throws -> [PatchSyntaxResultType] {
         try SyntaxViewName.derivePortValues(from: self,
-                                            context: context)
+                                            varName: nil,
+                                            viewEvent: viewEvent,
+                                            nodesDict: [:])
     }
 }

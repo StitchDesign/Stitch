@@ -76,7 +76,6 @@ struct PropertySidebarFlyoutState: Equatable {
 
 // TODO: derive this from exsiting LayerNodeDefinition ? i.e. filter which sections we show by the LayerNodeDefinition's input list
 extension Layer {
-    @MainActor
     func supportsInputs(for section: LayerInspectorSection) -> Bool {
         let layerInputs = self.layerGraphNode.inputDefinitions
         return !layerInputs.intersection(section.sectionData).isEmpty

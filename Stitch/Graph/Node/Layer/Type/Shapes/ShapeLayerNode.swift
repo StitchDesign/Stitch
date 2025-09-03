@@ -11,23 +11,18 @@ import StitchSchemaKit
 
 extension LayerInputPortSet {
     
-    @MainActor
     static let strokeInputs: LayerInputPortSet = LayerInspectorSection.stroke.sectionData.toOrderedSet
     
-    @MainActor
     static let layerEffects: LayerInputPortSet = LayerInspectorSection.layerEffects.sectionData.toOrderedSet
     
     // 3D layers support layer-effects but not regular SwiftUI shadows
-    @MainActor
     static let layerEffectsWithoutShadow: LayerInputPortSet =  LayerInspectorSection.layerEffects
         .sectionData
         .filter { !LayerInspectorSection.shadow.toSet.contains($0) }
         .toOrderedSet
     
-    @MainActor
     static let typography: LayerInputPortSet = LayerInspectorSection.typography.sectionData.toOrderedSet
     
-    @MainActor
     static let textFieldInputs = LayerInputPortSet([
         .placeholderText,
         .beginEditing,
@@ -40,46 +35,38 @@ extension LayerInputPortSet {
     ])
     
     // For Text layer
-    @MainActor
     static let typographyWithoutTextFieldInputs: LayerInputPortSet = LayerInspectorSection.typography
         .sectionData
         .filter { !Self.textFieldInputs.contains($0) } // TODO: set difference ?
         .toOrderedSet
     
     // For TextField layer
-    @MainActor
     static let typographyWithoutText: LayerInputPortSet = LayerInspectorSection.typography
         .sectionData
         .filter { $0 != .text }
         .toOrderedSet
     
-    @MainActor
     static let aspectRatio: LayerInputPortSet = [
         .widthAxis,
         .heightAxis,
         .contentMode
     ]
     
-    @MainActor
     static let sizing: LayerInputPortSet = LayerInspectorSection.sizing.sectionData.toOrderedSet
     
     // LayerGroup only?
-    @MainActor
     static let paddingAndSpacing: LayerInputPortSet = [
 //        .padding,
         .spacing
     ]
     
-    @MainActor
     static let pinning: LayerInputPortSet = LayerInspectorSection.pinning.sectionData.toOrderedSet
     
-    @MainActor
     static let layerPaddingAndMargin: LayerInputPortSet = [
         .layerPadding,
         .layerMargin
     ]
     
-    @MainActor
     static let offsetInGroup: LayerInputPortSet = [
         .offsetInGroup // belongs with "positioning" section
     ]
