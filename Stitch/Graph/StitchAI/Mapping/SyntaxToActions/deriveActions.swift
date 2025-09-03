@@ -41,7 +41,7 @@ extension SwiftSyntaxPatchActionsResult {
     static func + (lhs: Self, rhs: Self) -> Self {
         var lhs = lhs
         lhs.actions += rhs.actions
-        lhs.viewStatePatchConnections.merge(lhs.viewStatePatchConnections, uniquingKeysWith: { $1 })
+        lhs.viewStatePatchConnections.merge(rhs.viewStatePatchConnections, uniquingKeysWith: { $1 })
         lhs.caughtErrors += rhs.caughtErrors
         return lhs
     }
