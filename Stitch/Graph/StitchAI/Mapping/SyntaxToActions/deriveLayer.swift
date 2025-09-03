@@ -364,7 +364,7 @@ extension SyntaxViewName {
         let interactionEvents = modifiers.reduce(into: SwiftSyntaxPatchActionsResult()) { result, modifier in
             do {
                 if let actionsResult = try modifier.deriveViewModifierEvents(layerId: id) {
-                    result += actionsResult                    
+                    result += actionsResult
                 }
             } catch let error as SwiftUISyntaxError {
                 silentErrors.append(error)

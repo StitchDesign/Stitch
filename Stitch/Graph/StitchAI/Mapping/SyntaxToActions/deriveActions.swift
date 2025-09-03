@@ -253,21 +253,6 @@ extension Array where Element == (String, SwiftParserInitializerType) {
     @MainActor
     func deriveStitchActions(existingData: SwiftSyntaxPatchActionsResult?,
                              viewEventData: (SyntaxViewEvent, UUID, String?)? = nil) -> SwiftSyntaxPatchActionsResult {
-        // MARK: data we use as tracking
-        // Maps some variable name to a node ID string
-        var varNameIdMap = [String : String]()
-        
-        // Maps any declarations made of top-level outputs
-        var varNameOutputPortMap = [String : SwiftParserSubscript]()
-        
-        // Maps patch functions references
-        var varNamePatchNodeRefMap = [String : String]()
-        
-        // Tracks @State variable declarations
-        var viewStateVarNames = Set<String>()
-        
-        // Tracks a variable name for each JS function name
-        var varNameJsFnMap = [String : String]()
         
         // MARK: data to be returned
         var caughtErrors: [SwiftUISyntaxError] = existingData?.caughtErrors ?? []
@@ -281,6 +266,19 @@ extension Array where Element == (String, SwiftParserInitializerType) {
         var patchConnections = existingData?.actions.patch_connections ?? []
         var customPatchInputValues = existingData?.actions.custom_patch_input_values ?? []
         var preprocessedJSNodes = existingData?.actions.javascript_patches ?? []
+        
+        // MARK: data we use as tracking
+        // Maps some variable name to a node ID string
+        var varNameIdMap = [String : String]()
+        
+        // Maps any declarations made of top-level outputs
+        var varNameOutputPortMap = [String : SwiftParserSubscript]()
+        
+        // Maps patch functions references
+        var varNamePatchNodeRefMap = [String : String]()
+        
+        // Tracks a variable name for each JS function name
+        var varNameJsFnMap = [String : String]()
         
         // Tracks
 //        var viewEventProps = [String]()
@@ -331,9 +329,6 @@ extension Array where Element == (String, SwiftParserInitializerType) {
                 varNamePatchNodeRefMap.updateValue(patchNodeRef, forKey: varName)
                 
             case .stateMutation(let mutationData):
-                // Create state with disconnected upstream patch port, feed this into layer data and update all the helpers
-                viewStateVarNames.insert(varName)
-                
                 // Save outputs that are assigned to this variable
                 switch mutationData {
                 case .subscriptRef(let subscriptData):
@@ -347,7 +342,7 @@ extension Array where Element == (String, SwiftParserInitializerType) {
                 case .arraySyntax(let arraySyntax):
                     // Find what we're parsing
                     guard let (viewEvent, viewEventLayerId, viewEventParam) = viewEventData,
-                        let funcExpr = arraySyntax.elements.first?.expression.as(FunctionCallExprSyntax.self) else {
+                          let funcExpr = arraySyntax.elements.first?.expression.as(FunctionCallExprSyntax.self) else {
                         break
                     }
                     
@@ -377,7 +372,7 @@ extension Array where Element == (String, SwiftParserInitializerType) {
                     else {
                         // Find the property that's read from the gesture param
                         gestureArg = defaultArgs.compactMap { arg -> String? in
-//                            guard let paramVarName = onChangeHandler.paramVars.first,
+                            //                            guard let paramVarName = onChangeHandler.paramVars.first,
                             guard let paramVarName = viewEventParam,
                                   let memberAccess = arg.value.firstMemberAccess else {
                                 return nil
@@ -409,7 +404,7 @@ extension Array where Element == (String, SwiftParserInitializerType) {
                 default:
                     break
                 }
-            
+                
             case .jsNodeScript, .declrRef, .arraySyntax, .viewBuilder:
                 // Skipping here
                 break
