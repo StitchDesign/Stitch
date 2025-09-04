@@ -66,7 +66,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             // Assumed to be patch node
             guard let patchNode = self.visitPatchData(funcExpr,
                                                       varName: currentLHS) else {
-//                fatalError()
+                fatalErrorIfDebug()
                 log("visit: MAJOR ERROR with funcExpr -> self.visitPatchData")
                 return .skipChildren
             }

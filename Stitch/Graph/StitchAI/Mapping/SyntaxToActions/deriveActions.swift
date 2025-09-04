@@ -261,7 +261,7 @@ extension Array where Element == (String, SwiftParserInitializerType) {
             } catch let error as SwiftUISyntaxError {
                 caughtErrors.append(error)
             } catch {
-//                fatalErrorIfDebug(error.localizedDescription)
+                fatalErrorIfDebug(error.localizedDescription)
                 log("deriveStitchActions: error.localizedDescription: \(error.localizedDescription)")
             }
         }
@@ -396,7 +396,7 @@ extension SyntaxView {
             guard let initializer = bindingDeclarations.get(self.name),
                   let viewBuilderFn = initializer.viewBuilderScript else {
                 silentErrors.append(SwiftUISyntaxError.unsupportedSyntaxViewName(self.name))
-//                fatalErrorIfDebug()
+                fatalErrorIfDebug()
                 return nil
             }
             
@@ -436,8 +436,8 @@ extension SyntaxView {
                 var layerData = layerDataResult.layerData
                 
                 guard let layer = layerData.node_name.value.layer else {
-//                    fatalErrorIfDebug("deriveStitchActions error: no layer found for \(layerData.node_name.value)")
-                    log("deriveStitchActions error: no layer found for \(layerData.node_name.value)")
+                    fatalErrorIfDebug("deriveStitchActions error: no layer found for \(layerData.node_name.value)")
+                    // log("deriveStitchActions error: no layer found for \(layerData.node_name.value)")
                     throw SwiftUISyntaxError.layerDecodingFailed
                 }
                 
@@ -457,12 +457,12 @@ extension SyntaxView {
                     return .init(actions: childResults.actions + backgroundLayerData.actions,
                                  caughtErrors: silentErrors)
                 } else {
-                    // fatalErrorIfDebug(error.localizedDescription)
+                    fatalErrorIfDebug(error.localizedDescription)
                     log("SyntaxView: NOT shouldFailSilently: deriveStitchActions: error.localizedDescription: \(error.localizedDescription)")
                     return nil
                 }
             } catch {
-                // fatalErrorIfDebug(error.localizedDescription)
+                 fatalErrorIfDebug(error.localizedDescription)
                 log("SyntaxView: deriveStitchActions: error.localizedDescription: \(error.localizedDescription)")
                 return nil
             }

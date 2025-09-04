@@ -19,7 +19,6 @@ struct OpenAIResponsesRequest {
     let model: OpenAIModel
     let verbosity: OpenAIVerbosity
     let reasoningEffort: OpenAIReasoningEffort
-    let originalCodeLength: Int
     
     init(id: UUID,
          requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
@@ -29,8 +28,7 @@ struct OpenAIResponsesRequest {
          base64Image: String? = nil,
          model: OpenAIModel,
          verbosity: OpenAIVerbosity,
-         reasoningEffort: OpenAIReasoningEffort,
-         originalCodeLength: Int) {
+         reasoningEffort: OpenAIReasoningEffort) {
         self.id = id
         self.requestType = requestType
         self.dataGlossaryPrompt = dataGlossaryPrompt
@@ -40,14 +38,14 @@ struct OpenAIResponsesRequest {
         self.model = model
         self.verbosity = verbosity
         self.reasoningEffort = reasoningEffort
-        self.originalCodeLength = originalCodeLength
     }
     
     func request(document: StitchDocumentViewModel,
                  aiManager: StitchAIManager) async throws -> String {
         guard let secrets = try? Secrets() else {
             // TODO: handle failure
-            fatalError("OpenAI Responses: No secrets found")
+            fatalErrorIfDebug("OpenAI Responses: No secrets found")
+            throw StitchAIManagerError.secretsNotFound
         }
         
         return try await performStreamingRequest(document: document, 

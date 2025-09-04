@@ -40,11 +40,13 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
         
         // Validate parameters for the selected model
         let selectedModel = document.openaiModel.asOpenAIModel
-        let validatedVerbosity = OpenAIModelConstraints.validateVerbosity(for: selectedModel, requestedVerbosity: document.openaiVerbosity)
-        let validatedReasoningEffort = OpenAIModelConstraints.validateReasoningEffort(for: selectedModel, requestedEffort: document.openaiReasoningEffort)
         
+        let validatedVerbosity = OpenAIModelConstraints.validateVerbosity(
+            for: selectedModel,
+            requestedVerbosity: document.openaiVerbosity)
+    
         // Debug print OpenAI configuration
-        log("🤖 Responses Request - Model: \(document.openaiModel), Verbosity: \(validatedVerbosity) (requested: \(document.openaiVerbosity)), Reasoning Effort: \(validatedReasoningEffort) (requested: \(document.openaiReasoningEffort))")
+        log("🤖 Responses Request - Model: \(document.openaiModel), Verbosity: \(validatedVerbosity) (requested: \(document.openaiVerbosity)), Reasoning Effort: \(document.openaiReasoningEffort)")
         
         // Use new OpenAI Responses endpoint for streaming
         let responsesRequest = OpenAIResponsesRequest(
@@ -54,16 +56,11 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
             assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type, previewWindowSize: document.previewWindowSize, previewWindowBackgroundColor: document.previewWindowBackgroundColor),
             textInput: try editInputs.encodeToString(),
             base64Image: base64Image, // Handle both image and text-only cases
+            model: selectedModel,
+            verbosity: validatedVerbosity,
+            reasoningEffort: document.openaiReasoningEffort.asOpenAIReasoningEffort)
             
-//            model: document.openaiModel,
-//            verbosity: validatedVerbosity,
-//            reasoningEffort: validatedReasoningEffort)
-            
-            model: .gpt5Mini,
-            verbosity: .low,
-            reasoningEffort: .medium,
-            originalCodeLength: swiftUICodeOfGraph.count)
-//        
+
         let startTime = CFAbsoluteTimeGetCurrent()
         let codeEditResult = try await responsesRequest
             .request(document: document,
@@ -143,15 +140,8 @@ extension StitchAICodeCreator {
                         aiManager: aiManager,
                         dataGlossaryPrompt: dataGlossaryPrompt)
 
+        logToServerIfRelease("userPrompt: \(userPrompt)") // Very helpful to see user-prompt here again
         logToServerIfRelease("StitchAICodeCreator swiftUICode:\n\(swiftUICode)")
-        
-//        guard let parsedVarBody = VarBodyParser.extract(from: swiftUICode) else {
-//            logToServerIfRelease("SwiftUISyntaxError.couldNotParseVarBody.localizedDescription: \(SwiftUISyntaxError.couldNotParseVarBody.localizedDescription)")
-//            throw SwiftUISyntaxError.couldNotParseVarBody
-//        }
-        
-//        logToServerIfRelease("parsedVarBody:\n\(parsedVarBody)")
-        
 
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
         

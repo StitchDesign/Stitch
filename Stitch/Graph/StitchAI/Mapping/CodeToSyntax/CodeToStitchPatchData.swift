@@ -133,7 +133,7 @@ extension SwiftUIViewVisitor {
                     let argData = try Self.parseArgumentType(from: innerFirstElem)
                     return .value(argData)
                 } catch {
-//                    fatalError(error.localizedDescription)
+                    fatalErrorIfDebug(error.localizedDescription)
                     log("visitPatchData: had error \(error.localizedDescription) for arg \(arg)")
                     return nil
                 }
@@ -154,7 +154,7 @@ extension SwiftUIViewVisitor {
             }
             
             else {
-                // fatalErrorIfDebug()
+                fatalErrorIfDebug()
                 log("visitPatchData: had problem")
                 return nil
             }
@@ -179,7 +179,7 @@ extension SwiftUIViewVisitor {
             // Assumed to be patch node
             guard let patchNode = self.visitPatchData(patchFn,
                                                       varName: nil) else {
-//                fatalError()
+                fatalErrorIfDebug()
                 log("visitSubscriptData: HAD MAJOR ERROR")
                 return nil
             }
@@ -259,7 +259,7 @@ extension SwiftUIViewVisitor {
               let portIndex = Int(labeledExpr.literal.text) else {
             // Check if it's a subscript call for a stitch function
             guard let patchNodeName = subscriptCallExpr.getPatchNodeName() else {
-                // fatalError()
+                 fatalErrorIfDebug()
                 log("deriveSubscriptData: HAD MAJOR ERROR")
                 return nil
             }
@@ -272,7 +272,7 @@ extension SwiftUIViewVisitor {
             guard let patchNode = self.visitPatchData(funcExpr,
                                                       // no var name from subscript
                                                       varName: nil) else {
-                // fatalError()
+                fatalErrorIfDebug()
                 log("deriveSubscriptData: HAD MAJOR ERROR")
                 return nil
             }
@@ -293,7 +293,7 @@ extension SwiftUIViewVisitor {
         }
         
         else {
-            // fatalError()
+             fatalErrorIfDebug()
             log("deriveSubscriptData: HAD MAJOR ERROR")
             return nil
         }
@@ -403,7 +403,7 @@ extension SwiftParserInitializerType {
                                                         subscriptParentInfo: .init(node_id: patchNodeData.id,
                                                                                    port_index: portIndex))
                             } else {
-                                // fatalErrorIfDebug("Expected to find subscript data")
+                                fatalErrorIfDebug("Expected to find subscript data")
                                 log("Expected to find subscript data")
                             }
                         }

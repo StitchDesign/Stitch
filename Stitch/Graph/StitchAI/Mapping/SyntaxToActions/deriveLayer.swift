@@ -284,27 +284,7 @@ extension SyntaxViewName {
                 .value
                 .createCustomValueEvents(childrenLayers: childrenLayers,
                                          nodeId: id.description)
-                
-//                .deriveLayerAndCustomValuesFromName(id: id,
-//                                                    args: args,
-//                                                    childrenLayers: childrenLayers)
-            
-            
-//            let customInputValuesFromViewConstructor =
-//            try self
-//                .deriveInputValuesData(viewConstructor: constructor,
-//                                       id: id)
-            
-//            layerType = constructor.value.layer
-            
-//            layerData = .init(node_id: id.description,
-//                              node_name: .init(value: .layer(constructor.value.layer)),
-//                              custom_layer_input_values: customInputValuesFromViewConstructor)
-            
-//            if !childrenLayers.isEmpty {
-//                layerData.children = childrenLayers
-//            }
-                        
+                                        
         case .other, .none:
             let args = args?.defaultArgs ?? []
 
