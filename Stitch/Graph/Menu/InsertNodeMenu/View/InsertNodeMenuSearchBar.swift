@@ -10,7 +10,9 @@ import Combine
 import UIKit
 import GameController
 
+
 let INSERT_NODE_MENU_SEARCH_BAR_HEIGHT: CGFloat = 68
+let INSERT_NODE_MENU_SEARCH_BAR_BUTTON_HEIGHT: CGFloat = 24
 
 struct InsertNodeMenuSearchBar: View {
     /*
@@ -23,6 +25,7 @@ struct InsertNodeMenuSearchBar: View {
     
     @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = .defaultTheme
     @FocusState private var isFocused: Bool
+    @Environment(\.colorScheme) private var colorScheme
     
     @Bindable var document: StitchDocumentViewModel
     let launchTip: StitchAILaunchTip
@@ -33,76 +36,103 @@ struct InsertNodeMenuSearchBar: View {
         document.isLoadingAI
     }
     
-    var rightSideButton: some View {
-        HStack {
-            Group {
-                if isLoadingAIResult {
-                    HStack {
-                        Button {
-                            document.aiManager?.cancelCurrentRequest()
-                            document.insertNodeMenuState.show = false
-                        } label: {
-                            Text("Cancel")
-                                .font(.headline)
-                        }
-                        .foregroundStyle(theme.themeData.edgeColor)
-                        .padding()
-                        .background(INSERT_NODE_SEARCH_BACKGROUND.opacity(0.8))
-                        .cornerRadius(12)
-                        .buttonStyle(.borderless)
-                        
-                        ProgressView()
-                            .scaleEffect(1.5)
-                            .tint(STITCH_TITLE_FONT_COLOR)
-                    }
-                    
-                } else {
-                    Button(action: {
-                        // Helps to defocus the .focusedValue, ensuring our shortcuts like "CMD+A Select All" is enabled again.
-                        self.isFocused = false
-                        
-                        self.userSubmitted()
-                    }, label: {
-                        Image(systemName: "plus.app")
-                    })
-                    .frame(width: 36, height: 36)
-                    .buttonStyle(.borderless)
-                }
-            } // Group
-            .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
-            .padding(.trailing, 20)
-            .animation(.linear(duration: 0.2), value: isLoadingAIResult)
-        }
+    private var lightModeShimmerConfig: CustomShimmerConfig {
+        CustomShimmerConfig(
+            tint: .white.opacity(0.15),
+            highlight: .white,
+            blur: 5
+        )
     }
     
+    private var displayText: String {
+        if document.isStreamingResponses {
+            return document.streamingReasoningText.isEmpty ? "Thinking..." : document.streamingReasoningText
+        }
+        return queryString
+    }
+        
     var body: some View {
         let searchInput = VStack(spacing: .zero) {
-            TextField("Search or enter AI prompt...", text: $queryString)
-                .focused($isFocused)
-                .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
-                .padding(.leading, 16)
-                .padding(.trailing, 60)
-                .overlay(alignment: .center) {
-                    rightSideButton
-                }
-                .font(.system(size: 24))
-                .disableAutocorrection(true)
-                .onSubmit {
-                    self.userSubmitted()
-                }
-                .onAppear {
-                     // log("InsertNodeMenuSearchBar: onAppear: inner")
-                    self.queryString = ""
-                    self.isFocused = true
+            ZStack(alignment: .leading) {
+                if document.isStreamingResponses {
+                    // Show Text view when streaming for `.contentTransition`
+                    Text(displayText)
+                        .contentTransition(.numericText())
+                        .animation(.default, value: displayText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.leading, 16)
+                        .padding(.trailing, 60)
+                        .font(.system(size: 24))
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(1)
+                        .foregroundColor(.secondary)
+                        .modifier(HybridShimmerModifier(colorScheme: colorScheme, lightModeConfig: lightModeShimmerConfig))
+                        .overlay(alignment: .center) {
+                            HStack {
+                                Spacer()
+                                Button {
+                                    // Cancel streaming
+                                    document.aiManager?.cancelCurrentRequest()
+                                    document.insertNodeMenuState.show = false
+                                } label: {
+                                    Image(systemName: "stop.circle")
+                                        .resizable()
+                                        .frame(width: INSERT_NODE_MENU_SEARCH_BAR_BUTTON_HEIGHT,
+                                               height: INSERT_NODE_MENU_SEARCH_BAR_BUTTON_HEIGHT)
+                                }
+                                .padding(.trailing, 8)
+                                .buttonStyle(.borderless)
+                                
+                                ProgressView()
+                                    .scaleEffect(1.5)
+                            }
+                            .padding(.trailing, 20)
+                        }
+                } else {
+                    // Show TextField when not streaming for input
+                    TextField("Search or enter AI prompt...", text: $queryString)
+                        .focused($isFocused)
+                        .padding(.leading, 16)
+                        .padding(.trailing, 60)
+                        .font(.system(size: 24))
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(1)
+                        .disableAutocorrection(true)
+                        .onSubmit {
+                            self.userSubmitted()
+                        }
+                        .onAppear {
+                             // log("InsertNodeMenuSearchBar: onAppear: inner")
+                            self.queryString = ""
+                            self.isFocused = true
 
-                    // Hack: additional focus-setting after a slight delay; it seems that StitchHostingController contributes to the field being sometimes defocused after .onAppear
-                    //                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-                        // log("InsertNodeMenuSearchBar: onAppear: inner: callback")
-                        self.isFocused = true
-                    }
+                            // Hack: additional focus-setting after a slight delay; it seems that StitchHostingController contributes to the field being sometimes defocused after .onAppear
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                                // log("InsertNodeMenuSearchBar: onAppear: inner: callback")
+                                self.isFocused = true
+                            }
+                        }
+                        .overlay(alignment: .center) {
+                            HStack {
+                                Spacer()
+                                Button(action: {
+                                    // Helps to defocus the .focusedValue, ensuring our shortcuts like "CMD+A Select All" is enabled again.
+                                    self.isFocused = false
+                                    
+                                    self.userSubmitted()
+                                }, label: {
+                                    Image(systemName: "plus.app")
+                                        .resizable()
+                                        .frame(width: INSERT_NODE_MENU_SEARCH_BAR_BUTTON_HEIGHT,
+                                               height: INSERT_NODE_MENU_SEARCH_BAR_BUTTON_HEIGHT)
+                                })
+                                .padding(.trailing, 8)
+                                .buttonStyle(.borderless)
+                            }
+                            .padding(.trailing, 20)
+                        }
                 }
+            }
         }
         // We apparently need both `.onAppear`'s to set .isFocused = true ?
         // Note: do not wipe queryString in .onChange(of: self.isFocused), otherwise we lose the user's string when user switches back to the Stitch window in Catalyst.
@@ -140,5 +170,13 @@ struct InsertNodeMenuSearchBar: View {
             searchInput
         }
                                     .height(INSERT_NODE_MENU_SEARCH_BAR_HEIGHT) // need to set height again
+    }
+}
+
+#Preview {
+    InsertNodeMenuSearchBar(document: .createEmpty(),
+                            launchTip: StitchAILaunchTip(),
+                            queryString: .constant("testing")) {
+        print("nothing")
     }
 }

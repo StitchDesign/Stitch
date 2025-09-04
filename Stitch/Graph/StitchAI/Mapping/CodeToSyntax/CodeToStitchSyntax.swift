@@ -66,7 +66,9 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             // Assumed to be patch node
             guard let patchNode = self.visitPatchData(funcExpr,
                                                       varName: currentLHS) else {
-                fatalError()
+                fatalErrorIfDebug()
+                log("visit: MAJOR ERROR with funcExpr -> self.visitPatchData")
+                return .skipChildren
             }
             
             self.bindingDeclarations
@@ -76,9 +78,9 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         }
         
         // Subscript callers used to access some node outputs
-        else if let subscriptCallExpr = initializer.value.as(SubscriptCallExprSyntax.self) {
-            // Subscript reference to some existing outputs
-            let subscriptData = self.visitSubscriptData(subscriptCallExpr: subscriptCallExpr)
+        else if let subscriptCallExpr = initializer.value.as(SubscriptCallExprSyntax.self),
+                // Subscript reference to some existing outputs
+                let subscriptData = self.visitSubscriptData(subscriptCallExpr: subscriptCallExpr) {
             self.bindingDeclarations
                 .append((currentLHS, subscriptData))
             
@@ -126,8 +128,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         let assinmentElem = elements[2]
         let refName = refExpr.baseName.trimmedDescription
         
-        if let subscriptExpr = assinmentElem.as(SubscriptCallExprSyntax.self) {
-            let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptExpr)
+        if let subscriptExpr = assinmentElem.as(SubscriptCallExprSyntax.self),
+           let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptExpr) {
             self.bindingDeclarations
                 .append((refName, .stateMutation(subscriptRef)))
             return .skipChildren

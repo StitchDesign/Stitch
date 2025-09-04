@@ -284,27 +284,7 @@ extension SyntaxViewName {
                 .value
                 .createCustomValueEvents(childrenLayers: childrenLayers,
                                          nodeId: id.description)
-                
-//                .deriveLayerAndCustomValuesFromName(id: id,
-//                                                    args: args,
-//                                                    childrenLayers: childrenLayers)
-            
-            
-//            let customInputValuesFromViewConstructor =
-//            try self
-//                .deriveInputValuesData(viewConstructor: constructor,
-//                                       id: id)
-            
-//            layerType = constructor.value.layer
-            
-//            layerData = .init(node_id: id.description,
-//                              node_name: .init(value: .layer(constructor.value.layer)),
-//                              custom_layer_input_values: customInputValuesFromViewConstructor)
-            
-//            if !childrenLayers.isEmpty {
-//                layerData.children = childrenLayers
-//            }
-                        
+                                        
         case .other, .none:
             let args = args?.defaultArgs ?? []
 
@@ -753,8 +733,8 @@ extension SyntaxViewName {
                 switch viewName {
                     
                 case .scrollView:
-                    log("SyntaxViewName: derivePortValue: had view constructor for scroll view: port: \(port)")
-                    log("SyntaxViewName: derivePortValue: had view constructor for scroll view: memberAccess.valueText: \(memberAccess.property)")
+                    // log("SyntaxViewName: derivePortValue: had view constructor for scroll view: port: \(port)")
+                    // log("SyntaxViewName: derivePortValue: had view constructor for scroll view: memberAccess.valueText: \(memberAccess.property)")
                     // https://developer.apple.com/documentation/swiftui/scrollview
                     // ScrollView only supports a single un-labeled constructor-argument? The other constructor was deprecated?
                     switch port {
@@ -856,10 +836,10 @@ extension SyntaxViewName {
             
         case .array(let arrayArgs):
             // Recursively determine PortValue of each arg
-            log("SyntaxViewName: derivePortValue: had array: arrayArgs: \(arrayArgs)")
+            // log("SyntaxViewName: derivePortValue: had array: arrayArgs: \(arrayArgs)")
             return try arrayArgs.flatMap {
-                log("SyntaxViewName: derivePortValue: had array: $0: \($0)")
-                log("SyntaxViewName: derivePortValue: had array: context: \(context)")
+                // log("SyntaxViewName: derivePortValue: had array: $0: \($0)")
+                // log("SyntaxViewName: derivePortValue: had array: context: \(context)")
                 return try Self.derivePortValues(from: $0,
                                                  context: context)
             }
@@ -883,7 +863,7 @@ extension SyntaxViewName {
                 return [.value(.init(aiPortValue.value))]
 
             default:
-                log("derivePortValues error: non-literal data found for simple case")
+                // log("derivePortValues error: non-literal data found for simple case")
                 throw SwiftUISyntaxError.portValueNotFound(argument: argument)
             }
             

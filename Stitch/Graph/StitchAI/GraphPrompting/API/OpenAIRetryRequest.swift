@@ -94,11 +94,7 @@ extension StitchAIManager {
     
         
         let aiManager = self
-        
-        // Immediately cancel the LEGACY current task
-        aiManager.currentTaskLEGACY?.task.cancel()
-        aiManager.currentTaskLEGACY = nil
-        
+                
         // Immediately cancel the current task
         aiManager.currentTask?.cancel()
         aiManager.currentTask = nil
@@ -122,18 +118,7 @@ extension StitchAIManager {
         
         // This can somehow fail?
         // assertInDebug(slept.isDefined)
-            
-        let task = aiManager.getOpenAITask(
-            request: request,
-            attempt: attempt + 1,
-            document: document,
-            canShareAIRetries: canShareAIRetries)
-        
-        aiManager.currentTaskLEGACY = .init(
-            task: task,
-            // Will be populated as each chunk is processed
-            nodeIdMap: .init())
-        
+                
         // TODO: support retries with the new-style of AI ? See `SubmitUserPromptToOpenAI`
         
         document.llmRecording.currentlyInARetryDelay = false
@@ -157,11 +142,7 @@ extension StitchDocumentViewModel {
         // TODO: comment below is slightly obscure -- what's going on here?
         // Reset checks which would later break new recording mode
         self.insertNodeMenuState = InsertNodeMenuState()
-        
-        // TODO: should also wipe the currentTask ?
-        self.aiManager?.currentTaskLEGACY?.task.cancel()
-        self.aiManager?.currentTaskLEGACY = nil
-        
+                
         self.aiManager?.currentTask?.cancel()
         self.aiManager?.currentTask = nil
         

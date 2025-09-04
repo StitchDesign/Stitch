@@ -262,6 +262,7 @@ extension Array where Element == (String, SwiftParserInitializerType) {
                 caughtErrors.append(error)
             } catch {
                 fatalErrorIfDebug(error.localizedDescription)
+                log("deriveStitchActions: error.localizedDescription: \(error.localizedDescription)")
             }
         }
         
@@ -395,7 +396,7 @@ extension SyntaxView {
             guard let initializer = bindingDeclarations.get(self.name),
                   let viewBuilderFn = initializer.viewBuilderScript else {
                 silentErrors.append(SwiftUISyntaxError.unsupportedSyntaxViewName(self.name))
-//                fatalErrorIfDebug()
+                fatalErrorIfDebug()
                 return nil
             }
             
@@ -436,6 +437,7 @@ extension SyntaxView {
                 
                 guard let layer = layerData.node_name.value.layer else {
                     fatalErrorIfDebug("deriveStitchActions error: no layer found for \(layerData.node_name.value)")
+                    // log("deriveStitchActions error: no layer found for \(layerData.node_name.value)")
                     throw SwiftUISyntaxError.layerDecodingFailed
                 }
                 
@@ -456,11 +458,12 @@ extension SyntaxView {
                                  caughtErrors: silentErrors)
                 } else {
                     fatalErrorIfDebug(error.localizedDescription)
+                    log("SyntaxView: NOT shouldFailSilently: deriveStitchActions: error.localizedDescription: \(error.localizedDescription)")
                     return nil
                 }
             } catch {
-                // fatalErrorIfDebug(error.localizedDescription)
-                log(error.localizedDescription)
+                 fatalErrorIfDebug(error.localizedDescription)
+                log("SyntaxView: deriveStitchActions: error.localizedDescription: \(error.localizedDescription)")
                 return nil
             }
             

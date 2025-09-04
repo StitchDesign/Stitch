@@ -16,69 +16,71 @@ import SwiftyJSON
 extension StitchAIManager {
     
     // Used when we need to kick off a request, either initially or as a retry
-    @MainActor
-    func getOpenAITask(request: AIGraphCreationRequest,
-                       attempt: Int,
-                       document: StitchDocumentViewModel,
-                       canShareAIRetries: Bool) -> Task<OpenAIMessage, any Error> {
-        Task(priority: .high) { [weak self] in
-            guard let aiManager = self else {
-                fatalErrorIfDebug()
-                throw NSError()
-            }
-            
-            switch await aiManager.startOpenAIRequest(
-                request,
-                attempt: attempt,
-                lastCapturedError: document.llmRecording.actionsError ?? "",
-                document: document) {
-                
-            case .success(let result):
-                log("getOpenAIStreamingTask: succeeded")
-                
-                // Handle successful response
-                // Note: does not fire until we properly handle the whole request
-                await MainActor.run { [weak document] in
-                    guard let document = document else {
-                        fatalErrorIfDebug("getOpenAIStreamingTask: no document")
-                        return
-                    }
-                    aiManager.aiGraphRequestCompleted(request: request,
-                                                      document: document)
-                }
-                
-                return result
-                
-            case .failure(let error):
-                log("getOpenAIStreamingTask: error: \(error.description)")
-                
-                // If the error was a timeout or rate limit, we'll want to try again:
-                if error.shouldRetryRequest {
-                    await aiManager.retryOrShowErrorModal(
-                        request: request,
-                        steps: Array(document.llmRecording.streamedSteps),
-                        attempt: attempt,
-                        document: document,
-                        canShareAIRetries: canShareAIRetries)
-                }
-                
-                // Else, if e.g. 'no internet connection', we won't try again and will show error modal to the user.
-                else {
-                    // TODO: do we really need to do this on `MainActor.run`? See also note in `retryOrShowErrorModal`
-                    await MainActor.run { [weak document] in
-                        guard let document = document else {
-                            fatalErrorIfDebug("getOpenAIStreamingTask: no document")
-                            document?.aiManager?.cancelCurrentRequest()
-                            return
-                        }
-                        document.handleNonRetryableError(error, request)
-                    }
-                }
-                
-                throw error
-            }
-        }
-    }
+    
+    // TODO: remove? no longer used
+//    @MainActor
+//    func getOpenAITask(request: AIGraphCreationRequest,
+//                       attempt: Int,
+//                       document: StitchDocumentViewModel,
+//                       canShareAIRetries: Bool) -> Task<OpenAIMessage, any Error> {
+//        Task(priority: .high) { [weak self] in
+//            guard let aiManager = self else {
+//                fatalErrorIfDebug()
+//                throw NSError()
+//            }
+//            
+//            switch await aiManager.startOpenAIRequest(
+//                request,
+//                attempt: attempt,
+//                lastCapturedError: document.llmRecording.actionsError ?? "",
+//                document: document) {
+//                
+//            case .success(let result):
+//                log("getOpenAIStreamingTask: succeeded")
+//                
+//                // Handle successful response
+//                // Note: does not fire until we properly handle the whole request
+//                await MainActor.run { [weak document] in
+//                    guard let document = document else {
+//                        fatalErrorIfDebug("getOpenAIStreamingTask: no document")
+//                        return
+//                    }
+//                    aiManager.aiGraphRequestCompleted(request: request,
+//                                                      document: document)
+//                }
+//                
+//                return result
+//                
+//            case .failure(let error):
+//                log("getOpenAIStreamingTask: error: \(error.description)")
+//                
+//                // If the error was a timeout or rate limit, we'll want to try again:
+//                if error.shouldRetryRequest {
+//                    await aiManager.retryOrShowErrorModal(
+//                        request: request,
+//                        steps: Array(document.llmRecording.streamedSteps),
+//                        attempt: attempt,
+//                        document: document,
+//                        canShareAIRetries: canShareAIRetries)
+//                }
+//                
+//                // Else, if e.g. 'no internet connection', we won't try again and will show error modal to the user.
+//                else {
+//                    // TODO: do we really need to do this on `MainActor.run`? See also note in `retryOrShowErrorModal`
+//                    await MainActor.run { [weak document] in
+//                        guard let document = document else {
+//                            fatalErrorIfDebug("getOpenAIStreamingTask: no document")
+//                            document?.aiManager?.cancelCurrentRequest()
+//                            return
+//                        }
+//                        document.handleNonRetryableError(error, request)
+//                    }
+//                }
+//                
+//                throw error
+//            }
+//        }
+//    }
         
     // Note: the failures that can happen in here are catastrophic and meant for us as developers, not something the user can take action on
     static func getURLRequestForOpenAI<AIRequest>(request: AIRequest,

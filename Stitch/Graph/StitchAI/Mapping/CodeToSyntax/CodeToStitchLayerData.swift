@@ -31,7 +31,7 @@ extension SwiftUIViewVisitor {
             let viewModifierName = memberExpr.declName.baseName.text
             
             if let modifierName = SyntaxViewModifierName(rawValue: viewModifierName) {
-                log("visitViewModifierData: no modifier for \(viewModifierName)")
+                // log("visitViewModifierData: no modifier for \(viewModifierName)")
                 let modifier = SyntaxViewModifier(
                     name: modifierName,
                     arguments: args

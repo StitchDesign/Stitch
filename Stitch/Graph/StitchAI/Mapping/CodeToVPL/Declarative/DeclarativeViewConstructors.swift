@@ -2523,13 +2523,13 @@ func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [L
             // Extract fontSize from different PortValueDescription formats
             if let directNumber = portValueDescription.value as? Double {
                 // value_type: "number", value: 36.0
-                log("DEBUG: Extracted as Double: \(directNumber)")
+                //                log("DEBUG: Extracted as Double: \(directNumber)")
                 fontSize = directNumber
                 isLayerDimensionType = false
             } else if let numberString = portValueDescription.value as? String,
                       let parsedNumber = Double(numberString) {
                 // value_type: "layerDimension", value: "36"
-                log("DEBUG: Extracted from String: \(parsedNumber)")
+                //                log("DEBUG: Extracted from String: \(parsedNumber)")
                 fontSize = parsedNumber
                 isLayerDimensionType = true
             }
@@ -2537,7 +2537,7 @@ func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [L
             // TODO: a smarter way to parse the `portValueDescription.value` as a StitchAISizeDimension ? Or parse as a string or number instead of type-casting ?
             else if let sizeDimension = (portValueDescription.value as? StitchAISizeDimension_V0.StitchAISizeDimension) {
                 // value_type: "layerDimension", value: StitchAISizeDimension with nested number
-                log("DEBUG: Extracted as StitchAISizeDimension_V0")
+                //                log("DEBUG: Extracted as StitchAISizeDimension_V0")
                 switch sizeDimension.value {
                 case .number(let number):
                     fontSize = number
@@ -2549,7 +2549,7 @@ func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [L
             
             else if let sizeDimension = portValueDescription.value as? StitchAISizeDimension_V1.StitchAISizeDimension {
                 // value_type: "layerDimension", value: StitchAISizeDimension with nested number
-                log("DEBUG: Extracted as StitchAISizeDimension_V1")
+                //                log("DEBUG: Extracted as StitchAISizeDimension_V1")
                 switch sizeDimension.value {
                 case .number(let number):
                     fontSize = number

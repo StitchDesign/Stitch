@@ -249,7 +249,7 @@ struct ProjectsHomeCommands: Commands {
             
             SwiftUIShortcutView(title: "Paste",
                                 key: PASTE_SELECTED_NODES_SHORTCUT,
-                                disabled: textFieldFocused || !activeProject) {
+                                disabled: textFieldFocused || !activeProject || (store.currentDocument?.showAITrainingExamplesOverlay ?? false)) {
                 log("paste shortcut")
                 // pastes both nodes and comments
                 dispatch(SelectedGraphItemsPasted())

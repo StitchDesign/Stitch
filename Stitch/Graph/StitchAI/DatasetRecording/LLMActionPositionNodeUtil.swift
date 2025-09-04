@@ -66,8 +66,8 @@ final class AdjacencyCalculator {
         
         // If not all nodes were processed, a cycle exists
         let hasCycle = (processedNodes < nodeCount)
-        log("AdjacencyCalculator: computeDepth: processedNodes: \(processedNodes)")
-        log("AdjacencyCalculator: computeDepth: nodeCount: \(nodeCount)")
+        // log("AdjacencyCalculator: computeDepth: processedNodes: \(processedNodes)")
+        // log("AdjacencyCalculator: computeDepth: nodeCount: \(nodeCount)")
         return hasCycle ? (nil, true) : (depth, false)
     }
 }
