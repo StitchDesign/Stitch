@@ -649,6 +649,7 @@
 		EC51AA7926B307E3007919D6 /* groupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC51AA7826B307E3007919D6 /* groupTests.swift */; };
 		EC5251E12E3B0B2800E1AAC1 /* FontCodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5251E02E3B0B2800E1AAC1 /* FontCodeExamples.swift */; };
 		EC5263032B59D83600EE1E52 /* HandleStitchAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5263022B59D83600EE1E52 /* HandleStitchAction.swift */; };
+		EC5322982E6A1D4C0081C712 /* stitch_examples_with_generated_code.json in Resources */ = {isa = PBXBuildFile; fileRef = EC5322972E6A1D4C0081C712 /* stitch_examples_with_generated_code.json */; };
 		EC53C0EE2D543A32002ECAEB /* LayerInspectorRowButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC53C0ED2D543A32002ECAEB /* LayerInspectorRowButton.swift */; };
 		EC53F3BA287E25D60021095B /* SineNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC53F3B9287E25D60021095B /* SineNode.swift */; };
 		EC53F3BC287E25EE0021095B /* ArcTan2Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC53F3BB287E25EE0021095B /* ArcTan2Node.swift */; };
@@ -1177,7 +1178,6 @@
 		ECFD9FAF297B748F00D86359 /* CopyAndPasteNodesActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFD9FAE297B748F00D86359 /* CopyAndPasteNodesActions.swift */; };
 		ECFEFF9A26BDD93F00CF042E /* PortValueDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFEFF9926BDD93F00CF042E /* PortValueDefaults.swift */; };
 		ECFEFF9E26BDE18A00CF042E /* miscTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFEFF9D26BDE18A00CF042E /* miscTests.swift */; };
-		ECFF01092E67B8D2007007E9 /* stitch_examples_with_generated_code.json in Resources */ = {isa = PBXBuildFile; fileRef = ECFF01082E67B8D2007007E9 /* stitch_examples_with_generated_code.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1835,6 +1835,7 @@
 		EC51AA7826B307E3007919D6 /* groupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = groupTests.swift; sourceTree = "<group>"; };
 		EC5251E02E3B0B2800E1AAC1 /* FontCodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontCodeExamples.swift; sourceTree = "<group>"; };
 		EC5263022B59D83600EE1E52 /* HandleStitchAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandleStitchAction.swift; sourceTree = "<group>"; };
+		EC5322972E6A1D4C0081C712 /* stitch_examples_with_generated_code.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = stitch_examples_with_generated_code.json; sourceTree = "<group>"; };
 		EC53C0ED2D543A32002ECAEB /* LayerInspectorRowButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorRowButton.swift; sourceTree = "<group>"; };
 		EC53F3B9287E25D60021095B /* SineNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SineNode.swift; sourceTree = "<group>"; };
 		EC53F3BB287E25EE0021095B /* ArcTan2Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArcTan2Node.swift; sourceTree = "<group>"; };
@@ -2338,7 +2339,6 @@
 		ECFD9FAE297B748F00D86359 /* CopyAndPasteNodesActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CopyAndPasteNodesActions.swift; sourceTree = "<group>"; };
 		ECFEFF9926BDD93F00CF042E /* PortValueDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueDefaults.swift; sourceTree = "<group>"; };
 		ECFEFF9D26BDE18A00CF042E /* miscTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = miscTests.swift; sourceTree = "<group>"; };
-		ECFF01082E67B8D2007007E9 /* stitch_examples_with_generated_code.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = stitch_examples_with_generated_code.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3626,7 +3626,7 @@
 		B5617A7C2C175C5500B53DAF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				ECFF01082E67B8D2007007E9 /* stitch_examples_with_generated_code.json */,
+				EC5322972E6A1D4C0081C712 /* stitch_examples_with_generated_code.json */,
 				200BD85E254F66EE00692903 /* Assets.xcassets */,
 				B555013A2C1C081D0081C3F1 /* ML */,
 				20A71F8225523CCA00553F7E /* Sounds */,
@@ -5836,6 +5836,7 @@
 				E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */,
 				EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */,
 				B5849FB62DFBDA7100D668ED /* versioning.sh in Resources */,
+				EC5322982E6A1D4C0081C712 /* stitch_examples_with_generated_code.json in Resources */,
 				B5849FD82DFBDF3600D668ED /* AIGraphCreationSystemPrompt_V1.md in Resources */,
 				ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */,
 				20A71F8F2552434000553F7E /* positive_ping.mp3 in Resources */,
@@ -5844,7 +5845,6 @@
 				B5AED9162DE2BAFB00C514F2 /* Patch.md in Resources */,
 				B5A8899A2DFBD2F6000A8148 /* AIGraphCreationSystemPrompt_V0.md in Resources */,
 				B5EE9A962DE66D0A00DB85C3 /* README.md in Resources */,
-				ECFF01092E67B8D2007007E9 /* stitch_examples_with_generated_code.json in Resources */,
 				B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */,
 				B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */,
 				E42CFD462D4413F90034CCFF /* secrets.json in Resources */,
