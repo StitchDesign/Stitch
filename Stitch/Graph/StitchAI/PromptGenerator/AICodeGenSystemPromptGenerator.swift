@@ -27,22 +27,24 @@ You are an excellent Swift and SwiftUI developer.
 Return ONLY CODE and NOTHING ELSE. NO COMMENTS, NO EXPLANATIONS, etc.
 
 Always return all code in a `struct ContentView: View`.
-
-DO NOT use these SwiftUI views:
-* `Button`
-* `LazyVGrid`
-* `GeometryReader`
-* `ForEach`
-
-DO NOT use these SwiftUI view modifiers:
-* `.onAppear`
-* `.clipShape`
-* `.minimumScaleFactor`
-* `.task`
-
-DO NOT USE Swift tuples or custom structs or custom views or custom view modifiers.
-
-USE PortValueDescription when possible.
 """
     }
 }
+
+/*
+ DO NOT use these SwiftUI views:
+ * `Button`
+ * `LazyVGrid`
+ * `GeometryReader`
+ * `ForEach`
+
+ DO NOT use these SwiftUI view modifiers:
+ * `.onAppear`
+ * `.clipShape`
+ * `.minimumScaleFactor`
+ * `.task`
+
+ DO NOT USE Swift tuples or custom structs or custom views or custom view modifiers.
+
+ USE PortValueDescription when possible.
+ */
