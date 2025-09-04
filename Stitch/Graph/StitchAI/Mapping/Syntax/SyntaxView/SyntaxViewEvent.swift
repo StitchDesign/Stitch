@@ -162,11 +162,13 @@ extension SyntaxViewModifierViewEvent {
         
         let param = onChangeHandler.paramVars.first
         
-        let actionsResult = parsedData.bindingDeclarations
-            .deriveStitchActions(existingData: nil,
-                                 viewEventData: (viewName, layerId, param))
+        fatalError("coming back here")
         
-        return actionsResult
+//        let actionsResult = parsedData.bindingDeclarations
+//            .deriveStitchActions(existingData: nil,
+//                                 viewEventData: (viewName, layerId, param))
+//        
+//        return actionsResult
 //        let events = try parsedData.bindingDeclarations.compactMap { keyValue -> LayerDataViewEvent? in
 //            let (refName, assignmentValue) = keyValue
             

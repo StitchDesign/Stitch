@@ -183,13 +183,15 @@ extension SwiftParserPatchData {
         
         // Determine node type by examining upstream node
         if checkForValueTypeHere {
-           if let upstreamValueType = upstreamCoordinate
-            .determineOutputNodeValueType(nativePatchNodes: nativePatchNodes,
-                                          nativePatchValueTypeSettings: nativePatchValueTypeSettings) {
-               nativePatchValueTypeSettings.updateValue(.init(node_id: upstreamCoordinate.node_id,
-                                                              value_type: .init(value: upstreamValueType)) ,
-                                                        forKey: upstreamCoordinate.node_id)
-           }
+            fatalError("deleting this fn")
+            
+//           if let upstreamValueType = upstreamCoordinate
+//            .determineOutputNodeValueType(nativePatchNodes: nativePatchNodes,
+//                                          nativePatchValueTypeSettings: nativePatchValueTypeSettings) {
+//               nativePatchValueTypeSettings.updateValue(.init(node_id: upstreamCoordinate.node_id,
+//                                                              value_type: .init(value: upstreamValueType)) ,
+//                                                        forKey: upstreamCoordinate.node_id)
+//           }
         }
         
         // Create connection data
