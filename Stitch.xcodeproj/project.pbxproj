@@ -727,7 +727,6 @@
 		EC68A700288B31A000689F92 /* GroupNodeDestructionActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC68A6FF288B31A000689F92 /* GroupNodeDestructionActions.swift */; };
 		EC6914E02DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6914DF2DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift */; };
 		EC69451C2ABD3BF6003ED2CF /* EdgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC69451B2ABD3BF6003ED2CF /* EdgeView.swift */; };
-		EC6A70622E22D364009ED3C1 /* DeclarativeViewConstructorsDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6A70612E22D364009ED3C1 /* DeclarativeViewConstructorsDemoView.swift */; };
 		EC6A70642E22D405009ED3C1 /* Parameter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6A70632E22D405009ED3C1 /* Parameter.swift */; };
 		EC6AAE6B2B52337F00D07E3C /* IconName.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6AAE6A2B52337F00D07E3C /* IconName.swift */; };
 		EC6B2E122D76273600804E38 /* PortPreviewPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6B2E112D76273600804E38 /* PortPreviewPopoverView.swift */; };
@@ -1912,7 +1911,6 @@
 		EC68A6FF288B31A000689F92 /* GroupNodeDestructionActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupNodeDestructionActions.swift; sourceTree = "<group>"; };
 		EC6914DF2DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AITrainingExampleFromExistingGraph.swift; sourceTree = "<group>"; };
 		EC69451B2ABD3BF6003ED2CF /* EdgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeView.swift; sourceTree = "<group>"; };
-		EC6A70612E22D364009ED3C1 /* DeclarativeViewConstructorsDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeclarativeViewConstructorsDemoView.swift; sourceTree = "<group>"; };
 		EC6A70632E22D405009ED3C1 /* Parameter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parameter.swift; sourceTree = "<group>"; };
 		EC6AAE6A2B52337F00D07E3C /* IconName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconName.swift; sourceTree = "<group>"; };
 		EC6B2E112D76273600804E38 /* PortPreviewPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortPreviewPopoverView.swift; sourceTree = "<group>"; };
@@ -5163,7 +5161,6 @@
 			children = (
 				B58E9D732E4581A60070816A /* SwiftUItoStitch.swift */,
 				ECDAFFF42E1F739A00AF71E9 /* DeclarativeViewConstructors.swift */,
-				EC6A70612E22D364009ED3C1 /* DeclarativeViewConstructorsDemoView.swift */,
 				EC6A70632E22D405009ED3C1 /* Parameter.swift */,
 				ECDAFFF62E200F4400AF71E9 /* DeclarativeUtils.swift */,
 			);
@@ -6922,7 +6919,6 @@
 				ECB7B5D12A72DD7600E2D30B /* NodeViewModelType.swift in Sources */,
 				B5CEA0B82E2713B000A647FD /* AIGraphDataLayerUtil_V0.swift in Sources */,
 				EC4081272C014CD70047989F /* StitchRootModifier.swift in Sources */,
-				EC6A70622E22D364009ED3C1 /* DeclarativeViewConstructorsDemoView.swift in Sources */,
 				ECB238EF2E0B958700D55A25 /* deriveSyntaxFromLayerInput.swift in Sources */,
 				EC60E57C27178DDD00AABE71 /* LayerUtils.swift in Sources */,
 				EC2DD178289B6BF80089D501 /* NodeInputChangedActions.swift in Sources */,

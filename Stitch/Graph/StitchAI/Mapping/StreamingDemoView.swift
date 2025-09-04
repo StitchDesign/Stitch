@@ -9,6 +9,8 @@ import SwiftUI
 import Foundation
 import Shimmer
 
+// MARK: HAS DIVERGED A BIT FROM INSERT-NODE-MENU-SEARCHBAR
+
 // MARK: Relevant OpenAI docs, the response.reasoning_* objects for the Responses endpoint: https://platform.openai.com/docs/api-reference/responses_streaming/response/reasoning_text
 
 // Shimmer helpers defined in `InsertNodeMenuSearchbar.swift`
