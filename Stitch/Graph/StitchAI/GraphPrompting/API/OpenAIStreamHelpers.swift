@@ -21,6 +21,7 @@ struct ChunkProcessed: StitchStoreEvent {
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         
         log("ChunkProcessed: newStep: \(newStep)")
+        return .noChange
         
         guard let state = store.currentDocument else {
             log("ChunkProcessed: no current document")
@@ -41,8 +42,9 @@ struct ChunkProcessed: StitchStoreEvent {
         
         Task(priority: .high) { [weak aiManager] in
             
-            guard let aiManager = aiManager,
-                  let nodeIdMap = aiManager.currentTaskLEGACY?.nodeIdMap else {
+//            guard let aiManager = aiManager,
+//                  let nodeIdMap = aiManager.currentTaskLEGACY?.nodeIdMap else {
+            guard let aiManager = aiManager else {
                 log("ChunkProcessed: Did not have AI manager and/or current task")
                 return
             }
@@ -64,12 +66,12 @@ struct ChunkProcessed: StitchStoreEvent {
                 log("ChunkProcessed: successfully parsed step, parsedStep: \(parsedStep)")
                                 
                 // see note on `provideGenuinelyUniqueUUIDForAIStep`
-                let (updatedParsedStep,
-                     updatedNodeIdMap) = provideGenuinelyUniqueUUIDForAIStep(newStep,
-                                                                             parsedStep,
-                                                                             nodeIdMap: nodeIdMap)
-                parsedStep = updatedParsedStep
-                aiManager.currentTaskLEGACY?.nodeIdMap = updatedNodeIdMap
+//                let (updatedParsedStep,
+//                     updatedNodeIdMap) = provideGenuinelyUniqueUUIDForAIStep(newStep,
+//                                                                             parsedStep,
+//                                                                             nodeIdMap: nodeIdMap)
+//                parsedStep = updatedParsedStep
+//                aiManager.currentTaskLEGACY?.nodeIdMap = updatedNodeIdMap
                 
                 
                 if let validationError = state.onNewStepReceived(originalSteps: state.llmRecording.actions,
@@ -144,14 +146,15 @@ extension StitchAIManager {
             }
         }
     }
+    
     func makeRequest<AIRequest>(for urlRequest: URLRequest,
                                 with request: AIRequest,
                                 attempt: Int,
                                 document: StitchDocumentViewModel) async -> Result<AIRequest.RequestResponsePayload, Error> where AIRequest: StitchAIRequestable {
         if request.willStream {
             return await self.openStream(for: urlRequest,
-                                   with: request,
-                                   attempt: attempt)
+                                         with: request,
+                                         attempt: attempt)
         } else {
             return await self.makeNonStreamedRequest(for: urlRequest,
                                                      with: request,

@@ -121,37 +121,37 @@ extension StitchAIManager {
             return .failure(.urlRequestCreationFailure)
         }
         
-//        let streamOpeningResult = await self.makeRequest(
-//            for: urlRequest,
-//            with: request,
-//            attempt: attempt,
-//            document: document)
-//        
-//        switch streamOpeningResult {
-//            
-//        case .success(let response):
-//            // Even if we had a successful response, may have hit a rate limit?
-//            // TODO: is this still necessary for streaming requests?
-//            if let error = handlePossibleRateLimit(
-//                response: response.1,
-//                request: request) {
-//                return .failure(error)
-//            }
-//            
-//            return .success(response.0)
-//            
-//        case .failure(let error):
-//            // Note: `error` might be a cancellation, which is acceptable and not an error
-//            log("StitchAIManager: startOpenAIRequest: streaming error: \(error.localizedDescription)", .logToServer)
-//            if let error = handleOpenAIStreamingError(
-//                error,
-//                attempt: attempt,
-//                request: request) {
-//                return .failure(error)
-//            }
-//            
-//            return .failure(.other(error))
-//        }
+        let streamOpeningResult = await self.makeRequest(
+            for: urlRequest,
+            with: request,
+            attempt: attempt,
+            document: document)
+        
+        switch streamOpeningResult {
+            
+        case .success(let response):
+            // Even if we had a successful response, may have hit a rate limit?
+            // TODO: is this still necessary for streaming requests?
+            if let error = handlePossibleRateLimit(
+                response: response.1,
+                request: request) {
+                return .failure(error)
+            }
+            
+            return .success(response.0)
+            
+        case .failure(let error):
+            // Note: `error` might be a cancellation, which is acceptable and not an error
+            log("StitchAIManager: startOpenAIRequest: streaming error: \(error.localizedDescription)", .logToServer)
+            if let error = handleOpenAIStreamingError(
+                error,
+                attempt: attempt,
+                request: request) {
+                return .failure(error)
+            }
+            
+            return .failure(.other(error))
+        }
     }
      
     private func handlePossibleRateLimit<AIRequest>(response: URLResponse,

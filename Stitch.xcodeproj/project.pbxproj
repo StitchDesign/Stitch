@@ -488,6 +488,7 @@
 		EC165EDC29C8B9330024ECDF /* JSONShapeCommandParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC165EDB29C8B9330024ECDF /* JSONShapeCommandParsing.swift */; };
 		EC165EDE29C8BA890024ECDF /* JSONCustomShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC165EDD29C8BA890024ECDF /* JSONCustomShape.swift */; };
 		EC165EE029C8E1FE0024ECDF /* CodablePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC165EDF29C8E1FE0024ECDF /* CodablePoint.swift */; };
+		EC16C66F2E69FC0900491A65 /* OpenAIStreamHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC16C66E2E69FC0900491A65 /* OpenAIStreamHelpers.swift */; };
 		EC17549328B9753800968D65 /* UIDeviceUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC17549228B9753800968D65 /* UIDeviceUtils.swift */; };
 		EC17ACC226B4BC5900137EA5 /* StitchAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC17ACBF26B4BC5900137EA5 /* StitchAudio.swift */; };
 		EC17ACC426B4BC5900137EA5 /* StitchVideoMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC17ACC126B4BC5900137EA5 /* StitchVideoMetadata.swift */; };
@@ -1678,6 +1679,7 @@
 		EC165EDB29C8B9330024ECDF /* JSONShapeCommandParsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONShapeCommandParsing.swift; sourceTree = "<group>"; };
 		EC165EDD29C8BA890024ECDF /* JSONCustomShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONCustomShape.swift; sourceTree = "<group>"; };
 		EC165EDF29C8E1FE0024ECDF /* CodablePoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodablePoint.swift; sourceTree = "<group>"; };
+		EC16C66E2E69FC0900491A65 /* OpenAIStreamHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIStreamHelpers.swift; sourceTree = "<group>"; };
 		EC17549228B9753800968D65 /* UIDeviceUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIDeviceUtils.swift; sourceTree = "<group>"; };
 		EC17ACBF26B4BC5900137EA5 /* StitchAudio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StitchAudio.swift; sourceTree = "<group>"; };
 		EC17ACC126B4BC5900137EA5 /* StitchVideoMetadata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StitchVideoMetadata.swift; sourceTree = "<group>"; };
@@ -4703,6 +4705,7 @@
 				B5FF449D2D5D0AF70083B34E /* StitchAIManagerError.swift */,
 				EC9348A32CE3F86000772117 /* OpenAIRequest.swift */,
 				EC86AD562DCC1E7700E9B00E /* OpenAIRequestHelpers.swift */,
+				EC16C66E2E69FC0900491A65 /* OpenAIStreamHelpers.swift */,
 				EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */,
 				EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */,
 				EC75FA8B2DE034C600FF87E8 /* OpenAIRequestConfig.swift */,
@@ -6488,6 +6491,7 @@
 				B50AD538292CB170003CC61E /* KeyBindingActions.swift in Sources */,
 				ECD234E4289C802C0083CF0F /* UnpackNode.swift in Sources */,
 				20747C5325CB09BB00570787 /* PatchUtils.swift in Sources */,
+				EC16C66F2E69FC0900491A65 /* OpenAIStreamHelpers.swift in Sources */,
 				ECD936562B714E9E008969E3 /* AnimatableCurveLine.swift in Sources */,
 				ECE35EE827CEE83C00CB8F5C /* FieldCoordinate.swift in Sources */,
 				EC60AE772DFB3BF5001F5119 /* CatalystNavBarButtonView.swift in Sources */,
