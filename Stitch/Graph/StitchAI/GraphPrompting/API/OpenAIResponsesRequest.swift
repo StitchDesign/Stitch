@@ -80,14 +80,13 @@ struct OpenAIResponsesRequest {
             "summary": "auto", //verbosity.toReasoningSummary(),
             "effort": reasoningEffort.toReasoningEffort()
         ]
+                
+        let instructions = """
+        \(dataGlossaryPrompt)
         
-        // Add instructions (replaces system message)
-        let instructions = createOptimizedSystemMessage(
-            dataGlossary: dataGlossaryPrompt,
-            assistant: assistantPrompt,
-            textInputSize: textInput.count,
-            imageSize: base64Image?.count ?? 0
-        )
+        \(assistantPrompt)
+        """
+        
         requestBody["instructions"] = instructions
         
         // Build input using correct Responses API format
@@ -278,10 +277,12 @@ struct OpenAIResponsesRequest {
                 
                 // Eager parsing: increment counter and attempt parsing at threshold
                 tokenDeltaCount += 1
-                if tokenDeltaCount >= eagerParsingThreshold {
-                    await attemptEagerParsing(streamingResponse: streamingResponse, document: document, originalCodeLength: originalCodeLength)
-                    tokenDeltaCount = 0 // Reset counter
-                }
+                
+                // TODO: explore eager parsing differently
+//                if tokenDeltaCount >= eagerParsingThreshold {
+//                    await attemptEagerParsing(streamingResponse: streamingResponse, document: document, originalCodeLength: originalCodeLength)
+//                    tokenDeltaCount = 0 // Reset counter
+//                }
             }
         
         case "response.content_part.added":
@@ -347,88 +348,61 @@ struct OpenAIResponsesRequest {
             }
         }
     }
+        
+//    /// Attempts eager parsing of accumulated streaming response
+//    private func attemptEagerParsing(streamingResponse: String, document: StitchDocumentViewModel, originalCodeLength: Int) async {
+//        guard !streamingResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+//            return
+//        }
+//        
+//        // For genuine edits (originalCodeLength > 0), only parse when we reach 90% of original code length
+//        if originalCodeLength > 0 {
+//            let threshold = Double(originalCodeLength) * 0.9
+//            let currentLength = Double(streamingResponse.count)
+//            
+//            if currentLength < threshold {
+//                print("⏭️ Skipping eager parsing: \(streamingResponse.count) chars < 90% threshold (\(Int(threshold)) chars) of original (\(originalCodeLength) chars)")
+//                return
+//            } else {
+//                print("🎯 90% threshold reached! Streaming: \(streamingResponse.count) chars, Original: \(originalCodeLength) chars, Threshold: \(Int(threshold)) chars")
+//            }
+//        } else {
+//            print("🆕 New code creation: eager parsing at \(streamingResponse.count) characters (no original code to compare)")
+//        }
+//        
+//        print("🔄 Attempting eager parsing with \(streamingResponse.count) characters...")
+//        
+//        do {
+//            // Use existing SwiftUI parser (forgiving of incomplete code)
+//            let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(streamingResponse)
+//            
+//            // Derive Stitch actions from parsed code
+//            var actionsResult = await codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
+//            
+//            // Clear caught errors to prevent showing them during eager parsing
+//            actionsResult.caughtErrors.removeAll()
+//            
+//            // Apply partial results if we got meaningful layer data
+//            if !actionsResult.graphData.layer_data_list.isEmpty {
+//                print("✅ Eager parsing succeeded: found \(actionsResult.graphData.layer_data_list.count) layers")
+//                
+//                await MainActor.run {
+//                    // Apply partial results to document
+//                    Task(priority: .high) {
+//                        await actionsResult.applyAIGraph(to: document, 
+//                                                         viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections, 
+//                                                         requestType: .userPrompt)
+//                    }
+//                }
+//            } else {
+//                print("⏭️ Eager parsing: no meaningful layers yet")
+//            }
+//        } catch {
+//            // Silently ignore all parse failures during eager parsing - this is expected with incomplete code
+//            // No logging to avoid showing silent errors while streaming
+//        }
+//    }
     
-    /// Creates system message with size logging
-    private func createOptimizedSystemMessage(dataGlossary: String,
-                                              assistant: String,
-                                              textInputSize: Int,
-                                              imageSize: Int) -> String {
-        
-        // Calculate estimated total request size
-        let baseRequestSize = 1000 // Rough estimate for JSON structure, model, etc.
-        let fullSystemSize = dataGlossary.count + assistant.count + 10 // +10 for newlines
-        let totalEstimatedSize = baseRequestSize + fullSystemSize + textInputSize + imageSize
-        
-        print("🔍 System message size analysis:")
-        print("🔍 dataGlossaryPrompt: \(dataGlossary.count) characters")
-        print("🔍 assistantPrompt: \(assistant.count) characters") 
-        print("🔍 textInput: \(textInputSize) characters")
-        if imageSize > 0 {
-            print("🔍 base64Image: \(imageSize) characters")
-        }
-        print("🔍 estimated total request: \(totalEstimatedSize) bytes (\(totalEstimatedSize/1024)KB)")
-        
-        // Always use full system prompts - no truncation
-        return """
-        \(dataGlossary)
-        
-        \(assistant)
-        """
-    }
-    
-    /// Attempts eager parsing of accumulated streaming response
-    private func attemptEagerParsing(streamingResponse: String, document: StitchDocumentViewModel, originalCodeLength: Int) async {
-        guard !streamingResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return
-        }
-        
-        // For genuine edits (originalCodeLength > 0), only parse when we reach 90% of original code length
-        if originalCodeLength > 0 {
-            let threshold = Double(originalCodeLength) * 0.9
-            let currentLength = Double(streamingResponse.count)
-            
-            if currentLength < threshold {
-                print("⏭️ Skipping eager parsing: \(streamingResponse.count) chars < 90% threshold (\(Int(threshold)) chars) of original (\(originalCodeLength) chars)")
-                return
-            } else {
-                print("🎯 90% threshold reached! Streaming: \(streamingResponse.count) chars, Original: \(originalCodeLength) chars, Threshold: \(Int(threshold)) chars")
-            }
-        } else {
-            print("🆕 New code creation: eager parsing at \(streamingResponse.count) characters (no original code to compare)")
-        }
-        
-        print("🔄 Attempting eager parsing with \(streamingResponse.count) characters...")
-        
-        do {
-            // Use existing SwiftUI parser (forgiving of incomplete code)
-            let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(streamingResponse)
-            
-            // Derive Stitch actions from parsed code
-            var actionsResult = await codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
-            
-            // Clear caught errors to prevent showing them during eager parsing
-            actionsResult.caughtErrors.removeAll()
-            
-            // Apply partial results if we got meaningful layer data
-            if !actionsResult.graphData.layer_data_list.isEmpty {
-                print("✅ Eager parsing succeeded: found \(actionsResult.graphData.layer_data_list.count) layers")
-                
-                await MainActor.run {
-                    // Apply partial results to document
-                    Task(priority: .high) {
-                        await actionsResult.applyAIGraph(to: document, 
-                                                         viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections, 
-                                                         requestType: .userPrompt)
-                    }
-                }
-            } else {
-                print("⏭️ Eager parsing: no meaningful layers yet")
-            }
-        } catch {
-            // Silently ignore all parse failures during eager parsing - this is expected with incomplete code
-            // No logging to avoid showing silent errors while streaming
-        }
-    }
 }
 
 // MARK: - Extensions for OpenAI model configuration

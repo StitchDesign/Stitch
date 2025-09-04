@@ -1,5 +1,5 @@
 //
-//  GeneratedCodeInspectionView.swift
+//  StitchAITrainingDataInspectionOverlay.swift
 //  Stitch
 //
 //  Created by Christian J Clampitt on 8/29/25.

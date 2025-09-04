@@ -118,18 +118,7 @@ extension StitchAIManager {
         
         // This can somehow fail?
         // assertInDebug(slept.isDefined)
-            
-        let task = aiManager.getOpenAITask(
-            request: request,
-            attempt: attempt + 1,
-            document: document,
-            canShareAIRetries: canShareAIRetries)
-        
-//        aiManager.currentTaskLEGACY = .init(
-//            task: task,
-//            // Will be populated as each chunk is processed
-//            nodeIdMap: .init())
-        
+                
         // TODO: support retries with the new-style of AI ? See `SubmitUserPromptToOpenAI`
         
         document.llmRecording.currentlyInARetryDelay = false
