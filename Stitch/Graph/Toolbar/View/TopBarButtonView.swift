@@ -162,7 +162,7 @@ struct iPadGraphTopBarButtons: View {
             // AI Examples button
             iPadNavBarButton(action: { 
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    document.showAIExamples.toggle()
+                    document.showAITrainingExamplesOverlay.toggle()
                 }
             }, iconName: .sfSymbol("list.bullet.rectangle"))
             #endif

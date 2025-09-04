@@ -8,9 +8,12 @@
 import Foundation
 import SwiftUI
 
+
+// MARK: THIS VIEW IS ONLY FOR VIEWING AI-TRAINING DATA, A JSON ARRAY OF JSON OBJECTS LIKE { `user_prompt`, `generated_code` }
+
 // MARK: - Data Models
 
-struct StitchAIGraphExample: Codable, Identifiable {
+struct StitchAITrainingDatum: Codable, Identifiable {
     let id = UUID()
     let userPrompt: String
     let generatedCode: String
@@ -23,8 +26,8 @@ struct StitchAIGraphExample: Codable, Identifiable {
 
 // MARK: - Data Loader
 
-class StitchAIExamplesLoader: ObservableObject {
-    @Published var examples: [StitchAIGraphExample] = []
+class StitchAITrainingDataLoader: ObservableObject {
+    @Published var examples: [StitchAITrainingDatum] = []
     @Published var isLoading = false
     @Published var error: String?
     
@@ -39,7 +42,7 @@ class StitchAIExamplesLoader: ObservableObject {
         do {
             let data = try Data(contentsOf: url)
             let decoder = JSONDecoder()
-            examples = try decoder.decode([StitchAIGraphExample].self, from: data)
+            examples = try decoder.decode([StitchAITrainingDatum].self, from: data)
             isLoading = false
             log("Successfully loaded \(examples.count) AI graph examples")
         } catch {
@@ -52,7 +55,7 @@ class StitchAIExamplesLoader: ObservableObject {
 
 // MARK: - AI Code Creator
 
-struct StitchAIExampleCodeCreator: StitchAICodeCreator {
+struct StitchAITrainingDataCodeCreator: StitchAICodeCreator {
     let id: UUID = UUID()
     static let type = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt
     
@@ -73,14 +76,14 @@ struct StitchAIExampleCodeCreator: StitchAICodeCreator {
 
 // MARK: - UI Components
 
-struct GeneratedCodeInspectionView: View {
-    @StateObject private var loader = StitchAIExamplesLoader()
+struct StitchAITrainingDataInspectionOverlay: View {
+    @StateObject private var loader = StitchAITrainingDataLoader()
     @Bindable var document: StitchDocumentViewModel
     @State private var customCodeInput: String = ""
     @State private var deletedPrompts: [String] = []
     
     private var isExpanded: Bool {
-        document.showAIExamples
+        document.showAITrainingExamplesOverlay
     }
     
     private let panelWidth: CGFloat = 400
@@ -98,7 +101,7 @@ struct GeneratedCodeInspectionView: View {
                         Spacer()
                         Button("×") {
                             withAnimation(.easeInOut(duration: 0.3)) {
-                                document.showAIExamples = false
+                                document.showAITrainingExamplesOverlay = false
                             }
                         }
                         .font(.title2)
@@ -222,7 +225,7 @@ struct GeneratedCodeInspectionView: View {
         }
     }
     
-    private func applyExample(_ example: StitchAIGraphExample) {
+    private func applyExample(_ example: StitchAITrainingDatum) {
         log("Applying AI graph example: \(example.userPrompt)")
         applyGeneratedCode(example.generatedCode, userPrompt: example.userPrompt)
     }
@@ -235,7 +238,7 @@ struct GeneratedCodeInspectionView: View {
         applyGeneratedCode(code, userPrompt: "Custom pasted code")
     }
     
-    private func deleteExample(_ example: StitchAIGraphExample) {
+    private func deleteExample(_ example: StitchAITrainingDatum) {
         log("Deleting AI graph example: \(example.userPrompt)")
         
         // Add prompt to deleted list
@@ -253,7 +256,7 @@ struct GeneratedCodeInspectionView: View {
                     return
                 }
                 
-                let codeCreator = StitchAIExampleCodeCreator(generatedCode: generatedCode)
+                let codeCreator = StitchAITrainingDataCodeCreator(generatedCode: generatedCode)
                 
                 // Reuse existing processRequest flow
                 let dataGlossaryPrompt = try StitchAIManager
@@ -270,7 +273,7 @@ struct GeneratedCodeInspectionView: View {
                         await actionsResult
                             .applyAIGraph(to: document,
                                           viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
-                                          requestType: StitchAIExampleCodeCreator.type)
+                                          requestType: StitchAITrainingDataCodeCreator.type)
                     }
                 }
                 
@@ -292,7 +295,7 @@ struct GeneratedCodeInspectionView: View {
 }
 
 struct StitchAIExampleRowView: View {
-    let example: StitchAIGraphExample
+    let example: StitchAITrainingDatum
     let onTap: () -> Void
     let onDelete: () -> Void
     @State private var isHovering = false

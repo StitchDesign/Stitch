@@ -89,7 +89,7 @@ struct CatalystTopBarGraphButtons: View {
             CatalystNavBarButton("list.bullet.rectangle",
                                  toolTip: "AI Examples") {
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    document.showAIExamples.toggle()
+                    document.showAITrainingExamplesOverlay.toggle()
                 }
             }
             #endif

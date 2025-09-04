@@ -52,7 +52,7 @@ struct StitchProjectOverlayView: View {
             }
             
             // AI Examples overlay
-            GeneratedCodeInspectionView(document: document)
+            StitchAITrainingDataInspectionOverlay(document: document)
             
             HStack(spacing: .zero) {
                 Spacer()
