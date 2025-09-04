@@ -27,6 +27,8 @@ You are an excellent Swift and SwiftUI developer.
 Return ONLY CODE and NOTHING ELSE. NO COMMENTS, NO EXPLANATIONS, etc.
 
 Always return all code in a `struct ContentView: View`.
+
+USE PortValueDescription when possible.
 """
     }
 }
