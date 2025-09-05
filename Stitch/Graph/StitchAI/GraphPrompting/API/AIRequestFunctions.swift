@@ -41,14 +41,14 @@ func makeOpenAIStreamingRequest(
     
     // Build request body using correct Responses API format
     var requestBody: [String: Any] = [
-        "model": model.asOpenAIModel,
+        "model": model.rawValue,
         "stream": true
     ]
     
     // Add reasoning parameters
     requestBody["reasoning"] = [
         "summary": "auto",
-        "effort": reasoningEffort.toReasoningEffort()
+        "effort": reasoningEffort.rawValue
     ]
     
     let instructions = """
@@ -215,18 +215,26 @@ func makeClaudeRequest(
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     request.setValue(claudeAPIKey, forHTTPHeaderField: "x-api-key")
     request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+    request.setValue("output-128k-2025-02-19", forHTTPHeaderField: "anthropic-beta")
     
-    // Convert to Claude format
-    let instructions = """
-    \(params.dataGlossaryPrompt)
+    // Convert to Claude format with prompt caching
+    // Split the system prompts into cacheable segments
+    let cacheableDataGlossary: [String: Any] = [
+        "type": "text",
+        "text": params.dataGlossaryPrompt,
+        "cache_control": ["type": "ephemeral"]
+    ]
     
-    \(params.assistantPrompt)
-    """
+    let cacheableAssistantPrompt: [String: Any] = [
+        "type": "text", 
+        "text": params.assistantPrompt,
+        "cache_control": ["type": "ephemeral"]
+    ]
     
     var claudeBody: [String: Any] = [
         "model": model.rawValue, // Use the actual model parameter
-        "max_tokens": 4096,
-        "system": instructions
+        "max_tokens": 32768, // High limit for complex code generation (with beta header support)
+        "system": [cacheableDataGlossary, cacheableAssistantPrompt]
     ]
     
     // Handle text + optional image input
@@ -254,18 +262,43 @@ func makeClaudeRequest(
     
     request.httpBody = try JSONSerialization.data(withJSONObject: claudeBody)
     
-    // Log request details for debugging
+    // Log request details for debugging including cache structure
     if let jsonData = request.httpBody {
         print("🔍 Total Claude request body: \(jsonData.count) bytes (\(jsonData.count/1024)KB)")
         print("📤 Using Claude model: \(model.rawValue)")
+        print("💾 Request includes prompt caching: 2 segments (data glossary + assistant prompt)")
+        
+        // Calculate approximate token counts for cache analysis
+        let dataGlossaryLength = params.dataGlossaryPrompt.count
+        let assistantPromptLength = params.assistantPrompt.count
+        let totalSystemPromptLength = dataGlossaryLength + assistantPromptLength
+        
+        // Rough token estimation (4 chars ≈ 1 token)
+        let estimatedDataGlossaryTokens = dataGlossaryLength / 4
+        let estimatedAssistantPromptTokens = assistantPromptLength / 4
+        let estimatedTotalSystemTokens = totalSystemPromptLength / 4
+        
+        print("📊 Estimated cacheable tokens:")
+        print("   → Data glossary: ~\(estimatedDataGlossaryTokens) tokens (\(dataGlossaryLength) chars)")
+        print("   → Assistant prompt: ~\(estimatedAssistantPromptTokens) tokens (\(assistantPromptLength) chars)")
+        print("   → Total system prompt: ~\(estimatedTotalSystemTokens) tokens (\(totalSystemPromptLength) chars)")
+        
+        log("Claude request with caching: ~\(estimatedTotalSystemTokens) estimated system tokens", .logToServer)
     }
     
     // Set streaming UI state
     document.isStreamingResponses = true
     document.streamingReasoningText = "Claude is thinking..."
     
+    // Track request timing
+    let requestStartTime = Date()
+    
     do {
         let (data, response) = try await URLSession.shared.data(for: request)
+        
+        // Calculate request duration
+        let requestDuration = Date().timeIntervalSince(requestStartTime)
+        print("⏱️ Claude request completed in \(String(format: "%.2f", requestDuration)) seconds")
         
         // Reset streaming UI state
         document.isStreamingResponses = false
@@ -276,6 +309,9 @@ func makeClaudeRequest(
             // throw StitchAIManagerError.requestFailed
             fatalError()
         }
+        
+        // Monitor cache performance from response headers
+        await monitorClaudeCachePerformance(headers: httpResponse.allHeaderFields)
         
         if !(200...299).contains(httpResponse.statusCode) {
             log("Claude request failed with status code: \(httpResponse.statusCode)", .logToServer)
@@ -302,6 +338,10 @@ func makeClaudeRequest(
     } catch {
         document.isStreamingResponses = false
         document.streamingReasoningText = ""
+        
+        // Log failure timing
+        let failureDuration = Date().timeIntervalSince(requestStartTime)
+        print("❌ Claude request failed after \(String(format: "%.2f", failureDuration)) seconds")
         
         log("Claude request failed: \(error)", .logToServer)
         throw error
@@ -454,5 +494,67 @@ private func handleOpenAIStreamingEvent(
         } else {
             print("❓ Unhandled event type: \(eventType)")
         }
+    }
+}
+
+/// Monitor Claude prompt cache performance from response headers
+private func monitorClaudeCachePerformance(headers: [AnyHashable: Any]) async {
+    print("🔍 Claude Response Headers for Cache Analysis:")
+    
+    // Look for cache-related headers
+    var cacheCreated = false
+    var cacheHit = false
+    var inputTokens: Int? = nil
+    var outputTokens: Int? = nil
+    var cacheCreationInputTokens: Int? = nil
+    var cacheReadInputTokens: Int? = nil
+    
+    for (key, value) in headers {
+        let keyString = String(describing: key).lowercased()
+        let valueString = String(describing: value)
+        
+        // Log all headers for debugging
+        print("   \(key): \(value)")
+        
+        // Check for usage headers
+        if keyString.contains("anthropic-billing-input-tokens") {
+            inputTokens = Int(valueString)
+        } else if keyString.contains("anthropic-billing-output-tokens") {
+            outputTokens = Int(valueString)
+        } else if keyString.contains("anthropic-billing-cache-creation-input-tokens") {
+            cacheCreationInputTokens = Int(valueString)
+            cacheCreated = true
+        } else if keyString.contains("anthropic-billing-cache-read-input-tokens") {
+            cacheReadInputTokens = Int(valueString)
+            cacheHit = true
+        }
+    }
+    
+    // Analyze cache performance
+    if cacheCreated && cacheHit {
+        print("💾 CACHE PERFORMANCE: Both cache creation and cache hit detected")
+        if let created = cacheCreationInputTokens, let read = cacheReadInputTokens {
+            let savings = created - read
+            let savingsPercent = (Double(savings) / Double(created)) * 100
+            print("   📊 Cache savings: \(savings) tokens (\(String(format: "%.1f", savingsPercent))%)")
+        }
+    } else if cacheCreated {
+        print("🆕 CACHE PERFORMANCE: New cache created")
+        if let tokens = cacheCreationInputTokens {
+            print("   📝 Cache creation tokens: \(tokens)")
+        }
+    } else if cacheHit {
+        print("⚡ CACHE PERFORMANCE: Cache hit! Significant token savings")
+        if let tokens = cacheReadInputTokens {
+            print("   📖 Cache read tokens: \(tokens)")
+        }
+    } else {
+        print("❌ CACHE PERFORMANCE: No cache headers detected - cache may not be working")
+    }
+    
+    // Log overall token usage
+    if let input = inputTokens, let output = outputTokens {
+        print("🎯 Total token usage: \(input) input + \(output) output = \(input + output) total")
+        log("Claude request used \(input + output) total tokens (in: \(input), out: \(output))", .logToServer)
     }
 }
