@@ -207,14 +207,13 @@ extension SwiftParserPatchData {
                 
             case .subscriptRef(let subscriptRef):
                 // Recursively call data
-                switch try SwiftParserInitializerType.subscriptRef(subscriptRef)
-                    .getSwiftPatchCodeType() {
-                case .normal(let expr):
-                    return .subscriptType(expr, subscriptRef.portIndex)
-                default:
-                    fatalErrorIfDebug("No support for 2D array access or none.")
-                    return .subscriptType(.ref("none"), subscriptRef.portIndex)
+                guard let result = try SwiftParserInitializerType.subscriptRef(subscriptRef)
+                    .getSwiftPatchCodeType() else {
+                    fatalErrorIfDebug()
+                    return .subscriptType(.normal(.ref("none")), subscriptRef.portIndex)
                 }
+                
+                return .subscriptType(result, subscriptRef.portIndex)
                 
             case .value(let argType):
                 let portDataList: [PortValueCodeType] = try argType.derivePortValues().map { portData in

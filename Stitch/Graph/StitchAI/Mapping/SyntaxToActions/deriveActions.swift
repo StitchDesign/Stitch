@@ -82,13 +82,18 @@ extension SwiftUIViewParserResult {
         let interactionsPatchActionResult = layerResults.actions.getPatchResultsFromViewEvents()
 
         // Extract patch data
-        fatalError("call the new bindings helper here")
+        let patchResults = try! self.bindingDeclarations
+            .map { data -> (String, SwiftPatchCodeType?) in
+                let result = try data.1.getSwiftPatchCodeType()
+                return (data.0, result)
+            }
+        
 //        let patchResults = self.bindingDeclarations.deriveStitchActions(existingData: interactionsPatchActionResult)
         
-//        return .init(graphData: .init(layer_data_list: layerResults.actions,
-//                                      patch_data: patchResults.actions,
-//                                      viewStatePatchConnections: patchResults.viewStatePatchConnections),
-//                     caughtErrors: self.caughtErrors + layerResults.caughtErrors + patchResults.caughtErrors)
+        return .init(graphData: .init(layer_data_list: layerResults.actions,
+                                      patch_data: .init(javascript_patches: [], native_patches: [], native_patch_value_type_settings: [], patch_connections: [], custom_patch_input_values: []),
+                                      viewStatePatchConnections: [:]),
+                     caughtErrors: self.caughtErrors + layerResults.caughtErrors)// + patchResults.caughtErrors)
     }
 }
 
@@ -252,9 +257,9 @@ enum SwiftPatchClosureType {
     case jsNodeDeclaration(AIGraphData_V0.PreprocessedJSPatchNode)
 }
 
-enum SwiftPatchCodeType {
+indirect enum SwiftPatchCodeType {
     case normal(SwiftPatchCodeExpression)
-    case subscriptType(SwiftPatchCodeExpression, Int)
+    case subscriptType(SwiftPatchCodeType, Int)
 }
 
 /// Expressions expected in patch Swift code. The idea here being we can create a tree of syntax that, with a string-keyed dictionary, can track any reference in code.
@@ -302,10 +307,10 @@ extension SwiftParserInitializerType {
                     return nil
                 }
                 
-                return .subscriptType(patchData, subscriptData.portIndex)
+                return .subscriptType(.normal(patchData), subscriptData.portIndex)
                 
             case .ref(let refName):
-                return .subscriptType(.ref(refName), subscriptData.portIndex)
+                return .subscriptType(.normal(.ref(refName)), subscriptData.portIndex)
             }
             
         case .patchNodeRef(let string):
