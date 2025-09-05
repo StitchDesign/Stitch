@@ -40,9 +40,7 @@ extension OpenAIMessage {
 
 protocol StitchAICodeCreator {
     var id: UUID { get }
-    
-    static var type: StitchAIRequestBuilder_V0.StitchAIRequestType { get }
-    
+        
     @MainActor
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,

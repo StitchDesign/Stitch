@@ -13,10 +13,11 @@ import SwiftUI
 import Sentry
 import SwiftyJSON
 
+
 extension StitchAIManager {
     
     // Used when we need to kick off a request, either initially or as a retry
-    
+
     // TODO: remove? no longer used
 //    @MainActor
 //    func getOpenAITask(request: AIGraphCreationRequest,
@@ -87,21 +88,51 @@ extension StitchAIManager {
                                                   secrets: Secrets) -> URLRequest? where AIRequest: StitchAIRequestable {
         
         let config = request.config
-                
+        
         // Configure request headers and parameters
         var urlRequest = URLRequest(url: OPEN_AI_BASE_URL)
         urlRequest.httpMethod = "POST"
         urlRequest.timeoutInterval = config.timeoutInterval
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         urlRequest.setValue("Bearer \(secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
-
+        
         let bodyPayload = try? request.getPayloadData()
         urlRequest.httpBody = bodyPayload
         
         return urlRequest
     }
     
-    /// Execute the API request with retry logic
+    /// Execute the AI API request with retry logic
+    // Routes to either OpenAI or Claude based on configuration
+    func startAIRequest<AIRequest>(_ request: AIRequest,
+                                   attempt: Int,
+                                   lastCapturedError: String,
+                                   document: StitchDocumentViewModel) async -> Result<OpenAIMessage, StitchAIStreamingError> where AIRequest: StitchAIRequestable {
+        
+        print("🔥 DEBUG: startAIRequest called!")
+        log("StitchAIManager: startAIRequest called")
+        
+        let provider = AIProviderConfig.shared.currentProvider
+        print("🔥 DEBUG: Current provider: \(provider.displayName)")
+        log("StitchAIManager: startAIRequest: Using provider: \(provider.displayName)")
+        
+        switch provider {
+        case .openAI:
+            log("StitchAIManager: Routing to OpenAI")
+            return await startOpenAIRequest(request,
+                                            attempt: attempt,
+                                            lastCapturedError: lastCapturedError,
+                                            document: document)
+        case .claude:
+            log("StitchAIManager: Routing to Claude")
+            return await startClaudeRequest(request,
+                                            attempt: attempt,
+                                            lastCapturedError: lastCapturedError,
+                                            document: document)
+        }
+    }
+    
+    /// Execute the OpenAI API request with retry logic
     // fka `makeRequest`
     func startOpenAIRequest<AIRequest>(_ request: AIRequest,
                                        attempt: Int,
@@ -153,7 +184,7 @@ extension StitchAIManager {
             return .failure(.other(error))
         }
     }
-     
+    
     private func handlePossibleRateLimit<AIRequest>(response: URLResponse,
                                                     request: AIRequest) -> StitchAIStreamingError? where AIRequest: StitchAIRequestable {
         
@@ -211,8 +242,8 @@ extension StitchAIManager {
         }
         
         // Handle network connection errors
-       else if error.code == NSURLErrorNotConnectedToInternet ||
-            error.code == NSURLErrorNetworkConnectionLost {
+        else if error.code == NSURLErrorNotConnectedToInternet ||
+                    error.code == NSURLErrorNetworkConnectionLost {
             return .internetConnectionFailed
         }
         
@@ -222,7 +253,7 @@ extension StitchAIManager {
         }
     }
     
-
+    
     // Note: this actually fires WHENEVER the stream is closed, e.g. even when task is cancelled
     
     // We successfully opened the stream and received bits until the stream was closed (without an error?).
@@ -252,18 +283,32 @@ extension StitchAIManager {
         if !document.llmRecording.streamedSteps.isEmpty {
             document.llmRecording.modal = .ratingToast(userInputPrompt: request.userPrompt)
         }
-                
+        
         document.encodeProjectInBackground()
+    }
+        
+    /// Extract media type from data URL (e.g., "data:image/jpeg;base64,..." -> "image/jpeg")
+    static func extractMediaTypeFromDataURL(_ dataURL: String) -> String? {
+        if let range = dataURL.range(of: "data:") {
+            let afterData = String(dataURL[range.upperBound...])
+            if let semicolonRange = afterData.range(of: ";") {
+                return String(afterData[..<semicolonRange.lowerBound])
+            }
+        }
+        return nil
     }
 }
 
 extension StitchAIRequestable {
     func request(document: StitchDocumentViewModel,
                  aiManager: StitchAIManager) async throws -> Self.FinalDecodedResult {
-        let result = await aiManager.startOpenAIRequest(self,
-                                                        attempt: 0,
-                                                        lastCapturedError: "",
-                                                        document: document)
+        print("🔥 DEBUG: StitchAIRequestable.request called for \(String(describing: type(of: self)))")
+        log("StitchAIRequestable.request called for \(String(describing: type(of: self)))", .logToServer)
+        
+        let result = await aiManager.startAIRequest(self,
+                                                    attempt: 0,
+                                                    lastCapturedError: "",
+                                                    document: document)
         
         switch result {
             
@@ -272,7 +317,7 @@ extension StitchAIRequestable {
             let initialDecodedResult = try Self.parseOpenAIResponse(message: msg)
             let result = try Self.validateResponse(decodedResult: initialDecodedResult)
             return result
-
+            
         case .failure(let failure):
             log("StitchAIRequestable: requestForMessage: failure")
             logToServerIfRelease("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)")
@@ -283,41 +328,41 @@ extension StitchAIRequestable {
 
 extension StitchAIFunctionRequestable {
     /// Called when an OpenAI function expects subsequent functions to call.
-//    func requestMessagesForNextFn<ResultType>(returnedFnType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
-//                                              requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
-//                                              document: StitchDocumentViewModel,
-//                                              aiManager: StitchAIManager) async throws -> [OpenAIMessage] where ResultType: Codable {
-//        let result = await aiManager.startOpenAIRequest(self,
-//                                                        attempt: 0,
-//                                                        lastCapturedError: "",
-//                                                        document: document)
-//        switch result {
-//            
-//        case .success(var msg):
-//            log("StitchAIRequestable: requestForMessage: success")
-//            let supplementarySystemPrompt = OpenAIMessage(
-//                role: .system,
-//                content: try returnedFnType.getAssistantPrompt(for: requestType)
-//            )
-//            
-//            // Create tool message for function response
-//            let responseToolMsg = try msg.createNewToolMessage()
-//            
-//            return [supplementarySystemPrompt, msg, responseToolMsg]
-//        case .failure(let failure):
-//            log("StitchAIRequestable: requestForMessage: failure")
-//            logToServerIfRelease("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)")
-//            throw failure
-//        }
-//    }
+    //    func requestMessagesForNextFn<ResultType>(returnedFnType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
+    //                                              requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
+    //                                              document: StitchDocumentViewModel,
+    //                                              aiManager: StitchAIManager) async throws -> [OpenAIMessage] where ResultType: Codable {
+    //        let result = await aiManager.startOpenAIRequest(self,
+    //                                                        attempt: 0,
+    //                                                        lastCapturedError: "",
+    //                                                        document: document)
+    //        switch result {
+    //
+    //        case .success(var msg):
+    //            log("StitchAIRequestable: requestForMessage: success")
+    //            let supplementarySystemPrompt = OpenAIMessage(
+    //                role: .system,
+    //                content: try returnedFnType.getAssistantPrompt(for: requestType)
+    //            )
+    //
+    //            // Create tool message for function response
+    //            let responseToolMsg = try msg.createNewToolMessage()
+    //
+    //            return [supplementarySystemPrompt, msg, responseToolMsg]
+    //        case .failure(let failure):
+    //            log("StitchAIRequestable: requestForMessage: failure")
+    //            logToServerIfRelease("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)")
+    //            throw failure
+    //        }
+    //    }
     
-    /// Called when last OpenAI function is called.
+    /// Called when last AI function is called.
     func requestMessageForFn(document: StitchDocumentViewModel,
                              aiManager: StitchAIManager) async throws -> OpenAIMessage {
-        let result = await aiManager.startOpenAIRequest(self,
-                                                        attempt: 0,
-                                                        lastCapturedError: "",
-                                                        document: document)
+        let result = await aiManager.startAIRequest(self,
+                                                    attempt: 0,
+                                                    lastCapturedError: "",
+                                                    document: document)
         switch result {
             
         case .success(let msg):

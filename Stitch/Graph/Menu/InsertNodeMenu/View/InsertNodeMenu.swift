@@ -89,7 +89,7 @@ struct InsertNodeMenuView: View {
                         Text("Start Using Stitch AI"),
                         action: {
                             self.canShareAIData = true
-                            dispatch(SubmitUserPromptToOpenAI(prompt: queryString))
+                            dispatch(SubmitUserPromptToAIProvider(prompt: queryString))
                         }
                     ),
                     secondaryButton: .default(
@@ -225,7 +225,7 @@ struct InsertNodeMenuView: View {
         // MARK: must follow logic for the data collection alert so that the menu doesn't disappear
         document.insertNodeMenuState.show = false
         
-        dispatch(SubmitUserPromptToOpenAI(prompt: queryString))
+        dispatch(SubmitUserPromptToAIProvider(prompt: queryString))
     }
     
     func userSubmitted() {

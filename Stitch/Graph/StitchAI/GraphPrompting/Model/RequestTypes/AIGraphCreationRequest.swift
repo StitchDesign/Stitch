@@ -70,7 +70,7 @@ struct AIGraphCreationRequest: StitchAIRequestable {
                 document: document,
                 canShareData: StitchStore.canShareAIData,
                 userPromptTableName: aiManager.graphGenerationUserPromptTableName)
-            
+                        
             // TODO: Remove - legacy streaming code no longer needed with Responses endpoint
             fatalError("Legacy streaming code should not be called - use Responses endpoint instead")
             

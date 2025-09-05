@@ -26,6 +26,12 @@ struct Secrets: Equatable {
     let openAIModelGraphCreation: String
     let openAIModelJsNode: String
     let openAIModelGraphDescription: String
+    
+    let claudeAPIKey: String?
+    let claudeModelGraphCreation: String?
+    let claudeModelJsNode: String?
+    let claudeModelGraphDescription: String?
+    
     let sentryDSN: String
     
     init?() throws {
@@ -59,6 +65,12 @@ extension Secrets: Decodable {
         case openAIModelGraphCreation = "OPEN_AI_MODEL_GRAPH_CREATION"
         case openAIModelJsNode = "OPEN_AI_MODEL_JS_NODE"
         case openAIModelGraphDescription = "OPEN_AI_MODEL_GRAPH_DESCRIPTION"
+        
+        case claudeAPIKey = "CLAUDE_API_KEY"
+        case claudeModelGraphCreation = "CLAUDE_MODEL_GRAPH_CREATION"
+        case claudeModelJsNode = "CLAUDE_MODEL_JS_NODE"
+        case claudeModelGraphDescription = "CLAUDE_MODEL_GRAPH_DESCRIPTION"
+        
         case sentryDSN = "SENTRY_DSN"
     }
 }

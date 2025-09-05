@@ -57,7 +57,6 @@ class StitchAITrainingDataLoader: ObservableObject {
 
 struct StitchAITrainingDataCodeCreator: StitchAICodeCreator {
     let id: UUID = UUID()
-    static let type = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt
     
     let preGeneratedCode: String
     
@@ -272,8 +271,7 @@ struct StitchAITrainingDataInspectionOverlay: View {
                     Task(priority: .high) {
                         await actionsResult
                             .applyAIGraph(to: document,
-                                          viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
-                                          requestType: StitchAITrainingDataCodeCreator.type)
+                                          viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections)
                     }
                 }
                 

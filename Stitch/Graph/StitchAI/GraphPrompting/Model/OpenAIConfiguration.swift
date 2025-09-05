@@ -87,6 +87,7 @@ struct OpenAIModelConstraints {
     }
 }
 
+
 extension String {
     var asOpenAIModel: OpenAIModel {
         OpenAIModel(rawValue: self) ?? .default

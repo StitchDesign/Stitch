@@ -146,6 +146,7 @@ enum StitchAppSettings: String {
     case OPENAI_MODEL = "OpenAIModel"
     case OPENAI_VERBOSITY = "OpenAIVerbosity"
     case OPENAI_REASONING_EFFORT = "OpenAIReasoningEffort"
+    case CLAUDE_MODEL = "ClaudeModel"
 }
 
 struct AppSettingsView: View {
@@ -168,6 +169,8 @@ struct AppSettingsView: View {
     @AppStorage(StitchAppSettings.EXPERIMENTAL_JS_NODE.rawValue) private var enabledJsNode: Bool = false
     
     @AppStorage(StitchAppSettings.EXPERIMENTAL_NODE_SUMMARIES.rawValue) private var enabledNodeSummaries: Bool = false
+    
+    @State private var currentAIProvider = AIProviderConfig.shared.currentProvider
         
     let allCameraChoices = getCameraPickerOptions()
 
@@ -179,6 +182,7 @@ struct AppSettingsView: View {
             defaultPreviewWindowDevicePicker
             isOptionRequiredForShortcutsPicker
             canShareAIRetriesPicker
+            aiProviderPicker
             
             Divider()
             Text("Experimental Features")
@@ -316,6 +320,35 @@ struct AppSettingsView: View {
                 .popover(isPresented: $showDataCollectionPopover) {
                     StitchDocsPopoverView(router: .overview(.dataCollection))
                 }
+        }
+    }
+    
+    @MainActor
+    var aiProviderPicker: some View {
+        VStack(alignment: .leading) {
+            HStack(alignment: .center) {
+                Text("AI Provider").fontWeight(.bold)
+                Menu {
+                    ForEach(AIProvider.allCases, id: \.self) { provider in
+                        Button(provider.displayName) {
+                            currentAIProvider = provider
+                            AIProviderConfig.shared.currentProvider = provider
+                        }
+                    }
+                } label: {
+                    HStack {
+                        Text(currentAIProvider.displayName)
+                        #if !targetEnvironment(macCatalyst)
+                        Image(systemName: "chevron.up.chevron.down")
+                        #endif
+                    }
+                }
+                .padding(.leading, 10)
+            }
+            StitchCaptionView("Choose between OpenAI and Claude for AI-powered features.")
+        }
+        .onAppear {
+            currentAIProvider = AIProviderConfig.shared.currentProvider
         }
     }
     
