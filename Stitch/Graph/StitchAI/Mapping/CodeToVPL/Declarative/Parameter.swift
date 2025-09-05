@@ -9,13 +9,7 @@ import SwiftUI
 import SwiftSyntax
 import SwiftParser
 
-//struct ASTCustomInputValue: Equatable, Hashable {
-//    let input: CurrentAIGraphData.LayerInputPort
-//    let value: LayerPortDerivationType
-//}
-
-typealias ASTCustomInputValue = LayerPortDerivation
-
+// fka `ASTCustomInputValue`
 extension LayerPortDerivation {
     // TODO: remove this init
     init(id: NodeId,

@@ -274,4 +274,13 @@ ScrollView {
 }
 """
     )
+    
+    static let fontWithPortValueDescription = MappingCodeExample(
+        title: "Font with PortValueDescription Size",
+        code:
+"""
+Text("Dynamic Font Size")
+    .font([PortValueDescription(value_type: "number", value: 28)])
+"""
+    )
 }

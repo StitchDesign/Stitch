@@ -25,21 +25,21 @@ extension StitchStore {
 
 struct StitchAIProjectViewer: View {
     @FocusedValue(\.focusedField) private var focusedField
-    @State private var aiJsonPrompt = ""
+    @State private var swiftUICode = ""
     
     let store: StitchStore
     @Bindable var document: StitchDocumentViewModel
 
-    func validateJSON() {
-        // Reset previous state
-        document.graph.update(from: .createEmpty())
-        let data = self.aiJsonPrompt.data(using: .utf8)!
-        let steps: Steps = try! getStitchDecoder().decode(LLMStepActions.self, from: data)
-        let stepActions: [any StepActionable] = steps.map { $0.parseAsStepAction().value! }
-        log("StitchAIProjectViewer: validateJSON: steps: \(steps)")
-        log("StitchAIProjectViewer: validateJSON: stepActions: \(stepActions)")
-        if let validationError = document.validateAndApplyActions(stepActions) {
-            fatalErrorIfDebug("StitchAIProjectViewer: validateJSON: validationError: \(validationError.description)")
+    func validateJSON() {        
+        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
+        
+        // Syntax → Actions
+        var stitchActionsResult = codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
+        
+        // Apply AI result to fake document
+        Task(priority: .high) {
+            await stitchActionsResult
+                .createAIGraph(document: document)
         }
     }
     
@@ -51,8 +51,8 @@ struct StitchAIProjectViewer: View {
                               alertState: store.alertState)
             VStack {
                 HStack {
-                    TextField("Insert array of JSON actions...",
-                              text: $aiJsonPrompt)
+                    TextField("Insert SwiftUI Code",
+                              text: $swiftUICode)
                     .focusedValue(\.focusedField, .aiPreviewerTextField)
                     .onSubmit {
                         validateJSON()

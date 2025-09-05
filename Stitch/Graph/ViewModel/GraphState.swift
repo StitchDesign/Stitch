@@ -941,17 +941,17 @@ extension GraphState {
     func getLayerChildren(for groupId: NodeId) -> NodeIdSet {
         
         guard let layerGroupItem = self.layersSidebarViewModel.items.get(groupId) else {
-            log("getLayerChildren: had no sidebar item for \(groupId)")
+            // log("getLayerChildren: had no sidebar item for \(groupId)")
             return .init()
         }
         
         guard let children = layerGroupItem.children else {
-            log("getLayerChildren: \(groupId) was not a group?: layerGroupItem.children: \(layerGroupItem.children)")
+            // log("getLayerChildren: \(groupId) was not a group?: layerGroupItem.children: \(layerGroupItem.children)")
             return .init()
         }
         
         let layerChildren = children.map(\.id).toSet
-        log("getLayerChildren: layerChildren: \(layerChildren)")
+        // log("getLayerChildren: layerChildren: \(layerChildren)")
         return layerChildren
         
 //        self.layersSidebarViewModel.items.get(groupId)?

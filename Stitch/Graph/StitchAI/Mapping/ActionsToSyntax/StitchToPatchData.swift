@@ -12,6 +12,7 @@ import SwiftUI
 
 struct StitchPatchCodeConversionResult {
     let patchNodeDeclarations: [String]
+    let jsNodeFns: [String: String]
     let varNameIdMap: [String : String]
 }
 
@@ -28,24 +29,42 @@ extension GraphEntity {
         }
         
         let patchNodeDeclarations = try nodeIdsInTopologicalOrder.compactMap { nodeId -> String? in
-            guard let patchNodeEntity = patchNodeEntityDict.get(nodeId) else {
-                // Layer node, return nil
+            guard let patchNodeEntity = patchNodeEntityDict.get(nodeId),
+                  !patchNodeEntity.patch.isInteractionPatchNode else {
+                // Layer node and interaction node, return nil
                 return nil
             }
             
-            let varName = patchNodeEntity.patch.rawValue.createUniqueVarName(nodeId: nodeId)
+            let isJSNode = patchNodeEntity.patch == .javascript
+            let varName = patchNodeEntity.patch.createUniqueVarName(nodeId: nodeId)
             
             let args: [String] = try patchNodeEntity.inputs.map { $0.portData }
                 .createSwiftUICodeArgs(patchNodeEntityMap: patchNodeEntityDict)
             
+            let fnNameSpace = isJSNode ? "Self.fn_\(varName)" : """
+            NATIVE_STITCH_PATCH_FUNCTIONS["\(patchNodeEntity.patch.aiDisplayTitle)"]
+            """
+            
             let patchDeclaration = """
-                let \(varName) = NATIVE_STITCH_PATCH_FUNCTIONS["\(patchNodeEntity.patch.aiDisplayTitle)"]([
-                        \(args.joined(separator: ",\n\t\t"))
+                let \(varName) = \(fnNameSpace)([
+                \(args.joined(separator: ",\n").indentLines(n: 2))
                     ])
                 """
             
             varIdNameMap.updateValue(varName, forKey: nodeId)
             return patchDeclaration
+        }
+        
+        // Save scripts for JS nodes
+        let jsNodeFns: [String: String] = patchNodeEntityDict.values.reduce(into: .init()) { result, node in
+            guard let jsSettings = node.javaScriptNodeSettings else {
+                return
+            }
+            
+            let varName = node.patch.createUniqueVarName(nodeId: node.id)
+//            let fnName = "fn_\(varName)"
+            
+            result.updateValue(jsSettings.script, forKey: varName)
         }
         
         // Create new script that maps var names to some ID, which we use later to get actual UUID for node
@@ -57,7 +76,7 @@ extension GraphEntity {
         let layerStateAssignments = viewStatePatchConnections.compactMap { (stateVarName, patchOutputCoordinate) -> String? in
             guard let patchId = UUID(patchOutputCoordinate.node_id),
                   let patchNodeVarName = varIdNameMap.get(patchId) else {
-                fatalErrorIfDebug()
+                // Valid nil case for interaction nodes, which aren't saved to map
                 return nil
             }
             
@@ -65,13 +84,46 @@ extension GraphEntity {
         }
         
         return .init(patchNodeDeclarations: patchNodeDeclarations + layerStateAssignments,
+                     jsNodeFns: jsNodeFns,
                      varNameIdMap: varNameIdMap)
+    }
+}
+
+extension Patch {
+    func createUniqueVarName(nodeId: UUID) -> String {
+        let patchString = self.defaultDisplayTitle().toCamelCase()
+        
+        return patchString.createUniqueVarName(nodeId: nodeId)
     }
 }
 
 extension String {
     func createUniqueVarName(nodeId: UUID) -> String {
         "\(self)_\(nodeId.uuidString)"
+            .replacingOccurrences(of: " ", with: "_")
             .replacingOccurrences(of: "-", with: "_")
+    }
+}
+
+extension Patch {
+    func getGestureName(for outputPortIndex: Int) -> String {
+        switch self {
+        case .dragInteraction:
+            return outputPortIndex == 0 ? "position" : "translation"
+            
+        case .pressInteraction:
+            return "pulse"
+            
+        default:
+            fatalErrorIfDebug()
+            return ""
+        }
+    }
+    
+    func createInteractionStateVarName(layerId: UUID,
+                                       outputPortIndex: Int) -> String {
+        let gestureName = self.getGestureName(for: outputPortIndex)
+        let uniqueVar = "layer".createUniqueVarName(nodeId: layerId)
+        return "\(uniqueVar)_\(gestureName)"
     }
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 extension Array where Element == NodeConnectionType {
-    func createSwiftUICodeArgs(varIdNameMap: [UUID: String],
+    func createSwiftUICodeArgs(varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String],
                                isLayer: Bool) throws -> [String] {
         try self.map { inputData in
             try inputData.createSwiftUICodeArg(varIdNameMap: varIdNameMap,
@@ -36,22 +36,32 @@ extension NodeConnectionType {
                 throw SwiftUISyntaxError.upstreamVarNameNotFound(upstream)
             }
             
-            let upstreamVarName = upstreamPatchNode.patch.rawValue.createUniqueVarName(nodeId: upstream.nodeId)
+            // Edge case behavior for interactions, which save data to state variables
+            if upstreamPatchNode.patch.isInteractionPatchNode,
+               let interactionId = upstreamPatchNode.inputs.first?.portData.values?.first?.getInteractionId?.id {
+                return upstreamPatchNode.patch.createInteractionStateVarName(layerId: interactionId,
+                                                                             outputPortIndex: portIndex)
+            }
+            
+            let upstreamVarName = upstreamPatchNode.patch.createUniqueVarName(nodeId: upstream.nodeId)
             
             // Port indices used just for patches
             return "\(upstreamVarName)[\(portIndex)]"
         }
     }
     
-    func createSwiftUICodeArg(varIdNameMap: [UUID: String],
+    func createSwiftUICodeArg(varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String],
                               isLayer: Bool) throws -> String {
         switch self {
         case .values(let values):
             return try values.createSwiftUICodeArg()
             
         case .upstreamConnection(let upstream):
+            let indexedCoordinate = AIGraphData_V0.NodeIndexedCoordinate(node_id: upstream.nodeId.uuidString,
+                                                                         port_index: upstream.portId!)
+            
             // Variable name should already exist given topological order, otherwise its a cycle case which we should ignore
-            guard let upstreamVarName = varIdNameMap.get(upstream.nodeId),
+            guard let upstreamVarName = varIdNameMap.get(indexedCoordinate),
                   let portIndex = upstream.portId else {
                 throw SwiftUISyntaxError.upstreamVarNameNotFound(upstream)
             }
@@ -73,16 +83,20 @@ extension Array where Element == PortValue {
         }
         
         let valueDesc = PrintablePortValueDescription(firstValue)
-        let string = try valueDesc.jsonWithoutQuotedKeys()
         
-        // gets rid of brackets
-        let trimmedStr = string.dropFirst().dropLast()
-        return "[PortValueDescription(\(trimmedStr))]"
+        // Manually construct the PortValueDescription with proper square bracket formatting
+        let valueJson = try JSONEncoder().encode(valueDesc.value)
+        let valueString = String(data: valueJson, encoding: .utf8) ?? "\"\""
+        
+        // Replace curly braces with square brackets for dictionary values
+        let correctedValueString = valueString.replacingOccurrences(of: "{", with: "[").replacingOccurrences(of: "}", with: "]")
+        
+        return "[PortValueDescription(value: \(correctedValueString), value_type: \"\(valueDesc.value_type.value)\")]"
     }
 }
 
 extension LayerInputEntity {
-    func getSwiftUICodeForValues(varIdNameMap: [UUID: String]) throws -> String {
+    func getSwiftUICodeForValues(varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String]) throws -> String {
         let portValueArgsString: String
         
         // Check packed/unpacked mode
@@ -132,7 +146,7 @@ func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) 
         }
     case .memberAccess(let m):
         // Handle member access like .green, .blue etc.
-        if let base = m.base, base == "Color" {
+        if let base = m.base, base.trimmedDescription == "Color" {
             // Convert Color.green to hex format
             return "\"#\(colorToHex(m.property))\""
         } else if m.base == nil && m.property.count > 0 {
@@ -169,7 +183,7 @@ func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) 
         if c.typeName == "CGSize" {
             // Extract width and height for size type
             let dict = (try? c.arguments.createValuesDict()) ?? [:]
-            return "{\(dict.map { "\"\($0.key)\": \"\($0.value)\"" }.joined(separator: ", "))}"
+            return "[\(dict.map { "\"\($0.key)\": \"\($0.value)\"" }.joined(separator: ", "))]"
         }
         return "\"\(c.typeName)(...)\""
         
@@ -184,10 +198,17 @@ func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) 
             let value = extractValueForPortValueDescription(field.value)
             return "\"\(label)\": \(value)"
         }.joined(separator: ", ")
-        return "{\(dict)}"
+        return "[\(dict)]"
     case .stateAccess(_):
         // State access should not use PortValueDescription according to system prompt
-        return "/* state access - should not be wrapped */"
+        fatalErrorIfDebug("/* state access - should not be wrapped */")
+        return ""
+    case .closure:
+        fatalErrorIfDebug()
+        return ""
+    case .viewEvent(let x):
+        fatalErrorIfDebug()
+        return ""
     }
 }
 
@@ -268,6 +289,27 @@ func renderArgWithoutPortValueDescription(_ arg: SyntaxViewModifierArgumentType)
     case .stateAccess(let stateName):
         // Render state variables directly by name
         return stateName
+    case .closure(let code):
+        return """
+            { (\(code.paramVars.joined(separator: ", "))) in
+            \(code.script.indentLines())
+            }
+            """
+    case .viewEvent(let viewEvent):
+        let constructorArgsString = viewEvent.eventConstructorArgs
+            .map { renderArgWithoutPortValueDescription($0.value) }
+            .joined(separator: ", ")
+        
+        let viewEventClosuresString = viewEvent.eventModifiers.map { (modifierName, closureData) in
+            let closureString = renderArgWithoutPortValueDescription(.closure(closureData))
+            
+            return ".\(modifierName) \(closureString)".indentLines()
+        }
+        
+        return """
+            \(viewEvent.eventName)(\(constructorArgsString))
+            \(viewEventClosuresString)
+            """
     }
 }
 

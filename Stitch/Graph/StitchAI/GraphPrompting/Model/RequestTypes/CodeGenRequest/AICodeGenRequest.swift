@@ -38,60 +38,38 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
             source_code: swiftUICodeOfGraph,
             user_prompt: userPrompt)
         
-        // If we have an image, use the vision request; otherwise use the regular request
-        if let imageData = base64Image {
-            // Validate parameters for the selected model
-            let selectedModel = document.openaiModel.asOpenAIModel
-            let validatedVerbosity = OpenAIModelConstraints.validateVerbosity(for: selectedModel, requestedVerbosity: document.openaiVerbosity)
-            let validatedReasoningEffort = OpenAIModelConstraints.validateReasoningEffort(for: selectedModel, requestedEffort: document.openaiReasoningEffort)
+        // Validate parameters for the selected model
+        let selectedModel = document.openaiModel.asOpenAIModel
+        
+        let validatedVerbosity = OpenAIModelConstraints.validateVerbosity(
+            for: selectedModel,
+            requestedVerbosity: document.openaiVerbosity)
+    
+        // Debug print OpenAI configuration
+        log("🤖 Responses Request - Model: \(document.openaiModel), Verbosity: \(validatedVerbosity) (requested: \(document.openaiVerbosity)), Reasoning Effort: \(document.openaiReasoningEffort)")
+        
+        // Use new OpenAI Responses endpoint for streaming
+        let responsesRequest = OpenAIResponsesRequest(
+            id: self.id,
+            requestType: Self.type,
+            dataGlossaryPrompt: dataGlossaryPrompt,
+            assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type, previewWindowSize: document.previewWindowSize, previewWindowBackgroundColor: document.previewWindowBackgroundColor),
+            textInput: try editInputs.encodeToString(),
+            base64Image: base64Image, // Handle both image and text-only cases
+            model: selectedModel,
+            verbosity: validatedVerbosity,
+            reasoningEffort: document.openaiReasoningEffort.asOpenAIReasoningEffort)
             
-            // Debug print OpenAI configuration
-            log("🤖 Vision Request - Model: \(document.openaiModel), Verbosity: \(validatedVerbosity) (requested: \(document.openaiVerbosity)), Reasoning Effort: \(validatedReasoningEffort) (requested: \(document.openaiReasoningEffort))")
-            
-            // Request for code edit with image
-            let visionEditRequest = try OpenAIVisionChatCompletionRequest(
-                id: self.id,
-                requestType: Self.type,
-                dataGlossaryPrompt: dataGlossaryPrompt,
-                assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type),
-                textInput: try editInputs.encodeToString(),
-                base64Image: imageData,
-                model: document.openaiModel,
-                verbosity: validatedVerbosity,
-                reasoningEffort: validatedReasoningEffort,
-                willStream: false)
-            
-            let codeEditResult = try await visionEditRequest
-                .request(document: document,
-                         aiManager: aiManager)
-            
-            return codeEditResult
-        } else {
-            // Validate parameters for the selected model
-            let selectedModel = document.openaiModel.asOpenAIModel
-            let validatedVerbosity = OpenAIModelConstraints.validateVerbosity(for: selectedModel, requestedVerbosity: document.openaiVerbosity)
-            let validatedReasoningEffort = OpenAIModelConstraints.validateReasoningEffort(for: selectedModel, requestedEffort: document.openaiReasoningEffort)
-            
-            // Debug print OpenAI configuration
-            log("🤖 Regular Request - Model: \(document.openaiModel), Verbosity: \(validatedVerbosity) (requested: \(document.openaiVerbosity)), Reasoning Effort: \(validatedReasoningEffort) (requested: \(document.openaiReasoningEffort))")
-            
-            // Fallback to regular text-only request
-            let codeEditRequest = try OpenAIChatCompletionRequest(
-                id: self.id,
-                requestType: Self.type,
-                dataGlossaryPrompt: dataGlossaryPrompt,
-                assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type),
-                inputs: editInputs,
-                model: document.openaiModel,
-                verbosity: validatedVerbosity,
-                reasoningEffort: validatedReasoningEffort)
-            
-            let codeEditResult = try await codeEditRequest
-                .request(document: document,
-                         aiManager: aiManager)
-            
-            return codeEditResult
-        }
+
+        let startTime = CFAbsoluteTimeGetCurrent()
+        let codeEditResult = try await responsesRequest
+            .request(document: document,
+                     aiManager: aiManager)
+        let endTime = CFAbsoluteTimeGetCurrent()
+        let duration = endTime - startTime
+        log("⏱️ OpenAI Responses Request completed in \(String(format: "%.2f", duration)) seconds")
+        
+        return codeEditResult
     }
 }
 
@@ -108,7 +86,7 @@ extension StitchAICodeCreator {
         return Task(priority: .high) { [weak document] in
             guard let document = document,
                   let aiManager = document.aiManager else {
-                log("getRequestTask: AICodeGenRequest: getRequestTask: no document or ai manager", .logToServer)
+                // log("getRequestTask: AICodeGenRequest: getRequestTask: no document or ai manager", .logToServer)
                 
                 if let document: StitchDocumentViewModel = document {
                     return .failure(StitchStore.displayError(failure: StitchAIManagerError.secretsNotFound,
@@ -119,47 +97,29 @@ extension StitchAICodeCreator {
             }
             
             do {
-                let actionsResult = try await request
+                var actionsResult = try await request
                     .processRequest(userPrompt: userPrompt,
                                     document: document,
                                     aiManager: aiManager,
                                     dataGlossaryPrompt: dataGlossaryPrompt)
                 
-                let graphData = actionsResult.graphData
-                let allDiscoveredErrors = actionsResult.caughtErrors
-                
-                logToServerIfRelease("SUCCESS Patch Builder:\n\((try? graphData.encodeToPrintableString()) ?? "")")
+                // logToServerIfRelease("SUCCESS Patch Builder:\n\((try? actionsResult.graphData.encodeToPrintableString()) ?? "")")
                 
                 DispatchQueue.main.async { [weak document] in
                     guard let document = document else { return }
                     
-                    do {
-                        try graphData
+                    Task(priority: .high) {
+                        await actionsResult
                             .applyAIGraph(to: document,
                                           viewStatePatchConnections: actionsResult.graphData .viewStatePatchConnections,
                                           requestType: Self.type)
-                        
-#if STITCH_AI_TESTING || DEBUG || DEV_DEBUG
-                        // Display parsing warnings
-                        if !allDiscoveredErrors.isEmpty {
-                            let caughtErrorsString = allDiscoveredErrors.reduce(into: "") { stringBuilder, error in
-                                stringBuilder += "\n\(error)"
-                            }
-                            
-                            document.storeDelegate?.alertState.stitchFileError = .unknownError("Warnings for the following unknown concepts:\(caughtErrorsString)")
-                        }
-#endif
-                        
-                    } catch {
-                        logToServerIfRelease("Error applying AI graph: \(error.localizedDescription)")
-                        document.storeDelegate?.alertState.stitchFileError = .unknownError("\(error)")
                     }
                     
-                    document.aiManager?.currentTaskTesting = nil
+                    document.aiManager?.currentTask = nil
                     document.insertNodeMenuState.show = false
                 }
                 
-                return .success(graphData)
+                return .success(actionsResult.graphData)
             } catch {
                 return .failure(StitchStore.displayError(failure: error,
                                                          document: document))
@@ -167,10 +127,12 @@ extension StitchAICodeCreator {
         }
     }
 
-    private func processRequest(userPrompt: String,
-                                document: StitchDocumentViewModel,
-                                aiManager: StitchAIManager,
-                                dataGlossaryPrompt: String) async throws -> SwiftSyntaxActionsResult {
+    @MainActor
+    func processRequest(userPrompt: String,
+                        document: StitchDocumentViewModel,
+                        aiManager: StitchAIManager,
+                        dataGlossaryPrompt: String) async throws -> SwiftSyntaxActionsResult {
+
         logToServerIfRelease("SUCCESS: userPrompt: \(userPrompt)")
         
         let swiftUICode = try await self
@@ -178,22 +140,14 @@ extension StitchAICodeCreator {
                         aiManager: aiManager,
                         dataGlossaryPrompt: dataGlossaryPrompt)
 
+        logToServerIfRelease("userPrompt: \(userPrompt)") // Very helpful to see user-prompt here again
         logToServerIfRelease("StitchAICodeCreator swiftUICode:\n\(swiftUICode)")
-        
-//        guard let parsedVarBody = VarBodyParser.extract(from: swiftUICode) else {
-//            logToServerIfRelease("SwiftUISyntaxError.couldNotParseVarBody.localizedDescription: \(SwiftUISyntaxError.couldNotParseVarBody.localizedDescription)")
-//            throw SwiftUISyntaxError.couldNotParseVarBody
-//        }
-        
-//        logToServerIfRelease("parsedVarBody:\n\(parsedVarBody)")
-        
 
-        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode,
-                                                                   varNameIdMap: [:])
+        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
         
-        logToServerIfRelease("StitchAICodeCreator codeParserResult:\n\(codeParserResult)")
+        // logToServerIfRelease("StitchAICodeCreator codeParserResult:\n\(codeParserResult)")
         
-        let actionsResult = try codeParserResult.deriveStitchActions()
+        let actionsResult = codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
         
         print("Derived Stitch layer data:\n\((try? actionsResult.encodeToPrintableString()) ?? "")")
         
@@ -207,7 +161,7 @@ extension StitchStore {
                              document: StitchDocumentViewModel) -> any Error {
         log("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)", .logToServer)
         print(failure.localizedDescription)
-        document.aiManager?.currentTaskTesting = nil
+        document.aiManager?.currentTask = nil
         document.insertNodeMenuState.show = false
         
         // Display error

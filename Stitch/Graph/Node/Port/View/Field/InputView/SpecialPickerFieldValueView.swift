@@ -50,7 +50,7 @@ extension LayerTextDecoration {
 
 extension PortValue {
     // Only intended for special pickers
-    var sfSymbol: String {
+    var sfSymbolForSpecialPickerUI: String {
         switch self {
         case .textAlignment(let x):
             return x.sfSymbol
@@ -79,7 +79,7 @@ struct SpecialPickerFieldValueView: View {
     var body: some View {
         Picker("", selection: $currentChoice) {
             ForEach(choices, id: \.self) { choice in
-                Image(systemName: choice.sfSymbol).tag(choice)
+                Image(systemName: choice.sfSymbolForSpecialPickerUI).tag(choice)
             }
         }
         .pickerStyle(.segmented)

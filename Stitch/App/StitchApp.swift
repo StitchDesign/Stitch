@@ -45,16 +45,18 @@ struct StitchApp: App {
 //#if DEV_DEBUG
     var body: some Scene {
         WindowGroup {
-//            ConstructorDemoView()
-//             VarBodyParserDemoView()
-             
-            ASTExplorerView()
             
-//                .onAppear {
-//                    let prompt = try! StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .userPrompt)
-//                    print("PROMPT HERE:")
-//                    print(prompt)
-//                }
+            StreamingDemoView()
+            
+            ASTExplorerView()
+            //                .onAppear {
+            //                    let prompt = try! StitchAIManager.aiCodeGenSystemPromptGenerator(
+            //                        requestType: .userPrompt,
+            //                        previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
+            //                        previewWindowBackgroundColor: .white)
+            //                    print("PROMPT HERE:")
+            //                    print(prompt)
+            //                }
         }
     }
 #else

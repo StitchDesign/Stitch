@@ -6,8 +6,9 @@
 //
 
 import SwiftUI
+import Foundation
 
-protocol FromSwiftUIViewToStitch: Encodable {
+protocol FromSwiftUIViewToStitch {
     associatedtype T
     
     // nil if ViewConstructor could not be turned into Stitch concepts
@@ -22,7 +23,11 @@ protocol FromSwiftUIViewToStitch: Encodable {
     // TODO: this property is incorrect -- some SwiftUI views like ScrollView may not become a Layer
     var layer: AIGraphData_V0.Layer { get }
     
-    func createCustomValueEvents() throws -> [ASTCustomInputValue]
+    // Creates complete LayerData with children and custom value events
+    func createCustomValueEvents(
+        childrenLayers: [CurrentAIGraphData.LayerData],
+        nodeId: String
+    ) throws -> CurrentAIGraphData.LayerData
 }
 
 /// View modifiers who may pack or unapck their portvalue data.

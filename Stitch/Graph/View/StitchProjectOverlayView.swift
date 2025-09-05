@@ -51,6 +51,9 @@ struct StitchProjectOverlayView: View {
                 PatchCanvasEmptyStateView(document: document)
             }
             
+            // AI Examples overlay
+            StitchAITrainingDataInspectionOverlay(document: document)
+            
             HStack(spacing: .zero) {
                 Spacer()
                 // Floating preview kept outside NavigationSplitView for animation purposes

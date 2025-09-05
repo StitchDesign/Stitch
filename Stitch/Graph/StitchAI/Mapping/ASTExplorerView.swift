@@ -71,7 +71,7 @@ struct ASTExplorerView: View {
     @State private var codes: [String] = examples.map(\.code)
 
     // Derived / transient state for current tab
-    @State private var firstSyntax: SyntaxView?
+    @State private var firstSyntax: [SyntaxView] = []
     @State private var stitchActions: SwiftSyntaxActionsResult?
     @State private var regeneratedCode: String = ""
     @State private var errorString: String?
@@ -137,7 +137,7 @@ struct ASTExplorerView: View {
                 }
             }
             .tabViewStyle(.automatic)
-            .onChange(of: selectedTab, initial: true) { _, _ in transform() }
+            .onChange(of: selectedTab) { _, _ in transform() }
             
             if let errorString = errorString {
                 VStack(alignment: .leading) {
@@ -212,7 +212,9 @@ struct ASTExplorerView: View {
                 case .parsedSyntax:
                     stageView(
                         title: Stage.parsedSyntax.title,
-                        text: firstSyntax.map { formatSyntaxView($0) } ?? "—"
+                        text: firstSyntax
+                            .map { formatSyntaxView($0) }
+                            .joined(separator: "\n")
                     )
                     .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
                                             removal:   .move(edge: .bottom).combined(with: .opacity)))
@@ -243,36 +245,36 @@ struct ASTExplorerView: View {
         let currentCode = codes[selectedTab]
 
         // Reset all values
-        firstSyntax = nil
+        firstSyntax = []
         stitchActions = nil
         regeneratedCode = ""
         errorString = nil
         silentlyCaughtErrors = []
 
-        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(currentCode,
-                                                                   varNameIdMap: [:])
+        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(currentCode)
         
         // Parse code → Syntax
-        firstSyntax = codeParserResult.rootView
-        
-        silentlyCaughtErrors += codeParserResult.caughtErrors
+        firstSyntax = codeParserResult.viewStack
 
-        do {
-            // Syntax → Actions
-            let stitchActionsResult = try codeParserResult.deriveStitchActions()
-            
-            stitchActions = stitchActionsResult
-            silentlyCaughtErrors += stitchActionsResult.caughtErrors
-            
-            // Apply AI result to fake document
-            try stitchActionsResult.graphData
+        // Syntax → Actions
+        var stitchActionsResult = codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
+        
+        stitchActions = stitchActionsResult
+        silentlyCaughtErrors = stitchActionsResult.caughtErrors
+        
+        // Apply AI result to fake document
+        Task(priority: .high) {
+            await stitchActionsResult
                 .createAIGraph(document: fakeDoc)
             
-            // Generate SwiftUI code with configurable script wrapper
-            let newSwiftUICode = try fakeDoc.graph.createSwiftUICode(ignoreScript: ignoreScript, usePortValueDescription: usePortValueDescription)
-            self.regeneratedCode = newSwiftUICode
-        } catch {
-            errorString = "\(error)"
+            try await MainActor.run {
+                // Updates all errors
+                silentlyCaughtErrors = stitchActionsResult.caughtErrors
+                
+                // Generate SwiftUI code with configurable script wrapper
+                let newSwiftUICode = try fakeDoc.graph.createSwiftUICode(ignoreScript: ignoreScript, usePortValueDescription: usePortValueDescription)
+                self.regeneratedCode = newSwiftUICode
+            }
         }
     }
 
@@ -289,7 +291,6 @@ struct ASTExplorerView: View {
                     .font(.system(.body, design: .monospaced))
                     .padding()
                     .border(Color.secondary)
-                    .onChange(of: binding.wrappedValue, initial: true) { _,_  in transform() }
             } else {
                 TextEditor(text: .constant(text))
                     .font(.system(.body, design: .monospaced))

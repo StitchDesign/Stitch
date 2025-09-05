@@ -12,7 +12,7 @@ struct OpenAIConfigurationPicker: View {
     
     // AI Configuration - Persisted via @AppStorage
     @AppStorage(StitchAppSettings.OPENAI_MODEL.rawValue) 
-    private var openaiModel: String = "gpt-5-2025-08-07"
+    private var openaiModel: String = OpenAIModel.gpt5Mini.rawValue
     
     @AppStorage(StitchAppSettings.OPENAI_VERBOSITY.rawValue) 
     private var openaiVerbosity: String = "low"

@@ -8,7 +8,7 @@
 import SwiftUI
 
 extension StitchAIManager {
-    static func aiCodeEditSystemPromptGenerator(requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) throws -> String {
+    static func aiCodeEditSystemPromptGenerator(requestType: StitchAIRequestBuilder_V0.StitchAIRequestType, previewWindowSize: CGSize, previewWindowBackgroundColor: Color) throws -> String {
 """
 # Code Generation and Graph Builder for Stitch
 
@@ -19,65 +19,17 @@ You are a tool that creates data for prototypes in our app, called Stitch. Stitc
 
 ## Editing Behavior
 
+**Always** use Swift dictionary literals with square brackets `[ ... ]` for any `value` dictionaries, and **always** wrap values in `[PortValueDescription]` arrays (never a single `PortValueDescription`).
+
 Default to non-destructive functionality--don't remove or edit code unless explicitly requested or required by the user's request.
 
 If, however, the view contains an `EmptyView`, you may remove this view entirely assuming the user didn't request the removal of all views and logic.
 
-Refrain from reusing existing hierarchies when adding something new. Instead, append the view to a top-level `ZStack`, creating the `ZStack` if need be.
-
-For example, if given the request "Add a pink oval" to the subsequent view:
-
-```swift
-ScrollView([.vertical]) {
-    VStack {
-        Rectangle()
-            .fill(rectColors)
-            .layerId("76A53AE1-7B9F-48EA-8BB1-23CF7B74FFFF")
-    }
-}
-.layerId("1D822183-260F-4997-9AB5-C896B00C013C")
-```
-
-Do not modify the existing scroll view as such:
-
-```swift
-ScrollView([.vertical]) {
-    VStack {
-        Rectangle()
-            .fill(rectColors)
-            .layerId("76A53AE1-7B9F-48EA-8BB1-23CF7B74FFFF")
-        Oval()
-            .fill(PortValueDescription(value: "#FFC0CBFF", value_type: "color"))
-            .layerId("E739BE1F-3A2B-4C1D-8F6E-1234567890AB")
-    }
-}
-.layerId("1D822183-260F-4997-9AB5-C896B00C013C")
-```
-
-And instead use a `ZStack`:
-
-```swift
-ZStack {
-    ScrollView([.vertical]) {
-        VStack {
-            Rectangle()
-                .fill(rectColors)
-                .layerId("76A53AE1-7B9F-48EA-8BB1-23CF7B74FFFF")
-        }
-    }
-    .layerId("1D822183-260F-4997-9AB5-C896B00C013C")
-
-    Oval()
-        .fill(PortValueDescription(value: "#FFC0CBFF", value_type: "color"))
-        .layerId("E739BE1F-3A2B-4C1D-8F6E-1234567890AB")
-}
-.layerId("1AA4B943-9442-4D36-A380-525F65D8449E")
-```
 
 # Code Generation Rules
-Adhere to the following guideliens:
+Adhere to the following guidelines:
 
-\(try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: requestType))
+\(try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: requestType, previewWindowSize: previewWindowSize, previewWindowBackgroundColor: previewWindowBackgroundColor))
 
 # Summary
 Edit the provided source code given the provided user prompt. Adhere to the strict guidelines provided in the above document.

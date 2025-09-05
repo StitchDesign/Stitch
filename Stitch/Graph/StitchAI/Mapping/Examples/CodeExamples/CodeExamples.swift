@@ -30,6 +30,23 @@ extension MappingExamples {
     // TODO: break into separate pieces
     static let codeExamples: [MappingCodeExample] = [
         
+        // Background examples - testing background to ZStack transformation
+        BackgroundCodeExamples.simpleBackgroundFunctionCall,
+        BackgroundCodeExamples.simpleBackgroundClosure,
+        BackgroundCodeExamples.multipleChildrenBackground,
+        BackgroundCodeExamples.vstackBackground,
+        BackgroundCodeExamples.complexBackgroundWithModifiers,
+        BackgroundCodeExamples.nestedBackground,
+        
+        // Overlay examples - testing overlay to ZStack transformation
+        OverlayCodeExamples.simpleOverlayFunctionCall,
+        OverlayCodeExamples.simpleOverlayClosure,
+        OverlayCodeExamples.multipleChildrenOverlay,
+        OverlayCodeExamples.vstackOverlay,
+        OverlayCodeExamples.complexOverlayWithModifiers,
+        OverlayCodeExamples.nestedOverlay,
+                
+        // OLDER
         ViewModifierCodeExamples.colorInitInFillModifier,
         ViewModifierCodeExamples.paddingNoArgsModifier,
         
@@ -54,6 +71,7 @@ extension MappingExamples {
         FontCodeExamples.fontWithColorAndWeight,
         FontCodeExamples.stackWithDifferentFonts,
         FontCodeExamples.fontInScrollView,
+        FontCodeExamples.fontWithPortValueDescription,
         
         // ScrollView
         ScrollViewCodeExamples.scrollViewVStack,
@@ -100,6 +118,7 @@ extension MappingExamples {
         PortValueDescriptionCodeExamples.textWithOpacityPVD,
         PortValueDescriptionCodeExamples.rectangleWithBlurPVD,
         PortValueDescriptionCodeExamples.stackWithPortValueDescriptions,
+        PortValueDescriptionCodeExamples.textWithFontSizePVD,
         
         // Rotation with PortValueDescription examples
         RotationModifierCodeExamples.rotationEffectPortValueDescription,

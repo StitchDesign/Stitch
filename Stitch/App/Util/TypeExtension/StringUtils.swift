@@ -31,6 +31,19 @@ extension String {
     var asJFFString: JSONFriendlyFormat {
         .string(self)
     }
+    
+    func indentLines(n: Int = 1) -> String {
+        let n = max(1, n)
+        
+        let indents = (0..<n)
+            .map { _ in "\t" }
+            .joined()
+        
+        return self
+            .components(separatedBy: .newlines)
+            .map { $0.isEmpty ? "" : indents + $0 }
+            .joined(separator: "\n")
+    }
 }
 
 extension StitchStringValue {

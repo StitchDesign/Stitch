@@ -94,7 +94,7 @@ Explicit Sizing: Only update the size of a layer if the user explicitly provides
 The following is a description of each node. Patches may support "value" types, referring to the patches' ability to specify the value-type solved with its logic. For example, an "add" patch node may sum numbers, positions, strings, or others.
 
 ```
-\(try CurrentStep.NodeKind.getAiNodeDescriptions().encodeToPrintableString())
+\(try AIGraphData_V0.NodeKind.getAiNodeDescriptions().encodeToPrintableString())
 ```
 
 These are the nodes in our application; and the input and output ports they have:

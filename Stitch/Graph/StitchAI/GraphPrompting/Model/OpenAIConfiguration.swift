@@ -75,25 +75,14 @@ enum OpenAIReasoningEffort: String, CaseIterable, Identifiable {
 
 // Model-specific parameter validation
 struct OpenAIModelConstraints {
-    static func validateVerbosity(for model: OpenAIModel, requestedVerbosity: String) -> String {
+    static func validateVerbosity(for model: OpenAIModel, requestedVerbosity: String) -> OpenAIVerbosity {
         switch model {
         case .o4Mini:
             // O4 models only support "medium" verbosity
-            return "medium"
+            return .medium
         case .gpt5, .gpt5Mini, .gpt5Nano:
             // GPT-5 family supports all verbosity levels
-            return requestedVerbosity
-        }
-    }
-    
-    static func validateReasoningEffort(for model: OpenAIModel, requestedEffort: String) -> String {
-        switch model {
-        case .o4Mini:
-            // O4 models support all reasoning effort levels
-            return requestedEffort
-        case .gpt5, .gpt5Mini, .gpt5Nano:
-            // GPT-5 family supports all reasoning effort levels
-            return requestedEffort
+            return requestedVerbosity.asOpenAIVerbosity
         }
     }
 }

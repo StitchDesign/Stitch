@@ -28,6 +28,7 @@ extension StitchAISpacing_V1.StitchAISpacing: StitchVersionedCodable {
     }
 }
 
+// This is an extension of SSK V33's StitchSpacing
 extension StitchSpacing: StitchAIValueStringConvertable {
     var encodableString: String {
         self.display
@@ -42,6 +43,7 @@ extension StitchSpacing: StitchAIValueStringConvertable {
     }
 }
 
+// This extends the AI-specific wrapper type on SSK V33's StitchSpacing type
 extension StitchAISpacing_V1.StitchAISpacing: StitchAIValueStringConvertable, CustomStringConvertible {
     var description: String {
         self.value.display

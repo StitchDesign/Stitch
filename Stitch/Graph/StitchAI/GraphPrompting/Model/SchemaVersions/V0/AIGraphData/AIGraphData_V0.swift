@@ -9,6 +9,8 @@ import StitchSchemaKit
 import SwiftUI
 
 enum AIGraphData_V0 {
+    typealias NodeKind = NodeKind_V33.NodeKind
+    
     struct GraphData: Codable {
         let layer_data_list: [LayerData]
         let patch_data: PatchData
@@ -26,8 +28,8 @@ enum AIGraphData_V0 {
     }
     
     struct PatchData: Codable {
-        let javascript_patches: [AIGraphData_V0.JsPatchNode]
-        let native_patches: [AIGraphData_V0.NativePatchNode]
+        let javascript_patches: [AIGraphData_V0.PreprocessedJSPatchNode]
+        let native_patches: [AIGraphData_V0.PatchNode]
         let native_patch_value_type_settings: [AIGraphData_V0.NativePatchNodeValueTypeSetting]
         let patch_connections: [PatchConnection]
         let custom_patch_input_values: [CustomPatchInputValue]
@@ -42,6 +44,13 @@ enum AIGraphData_V0 {
         let node_name: StitchAIPatchOrLayer
         var children: [LayerData]?
         var custom_layer_input_values: [LayerPortDerivation] = []
+        var view_events: [LayerDataViewEvent] = []
+    }
+    
+    struct PreprocessedJSPatchNode: Codable {
+        let node_id: String
+        let funcName: String
+        let sourceCode: String
     }
     
     struct JsPatchNode: Codable {
@@ -52,7 +61,7 @@ enum AIGraphData_V0 {
         let output_definitions: [JavaScriptPortDefinitionAI_V1.JavaScriptPortDefinitionAI]
     }
     
-    struct NativePatchNode: Codable {
+    struct PatchNode: Codable {
         let node_id: String
         let node_name: StitchAIPatchOrLayer
     }
@@ -376,13 +385,13 @@ extension AIGraphData_V0.PortValue {
 }
 
 extension Array where Element == AIGraphData_V0.LayerData {
-    func allNestedCustomInputValues(callback: @escaping (String, LayerPortDerivation) throws -> ()) throws {
+    func allNestedCustomInputValues(callback: (String, LayerPortDerivation) -> ()) {
         for layerData in self {
             for customInputValue in layerData.custom_layer_input_values {
-                try callback(layerData.node_id, customInputValue)
+                callback(layerData.node_id, customInputValue)
             }
             
-            try layerData.children?.allNestedCustomInputValues(callback: callback)
+            layerData.children?.allNestedCustomInputValues(callback: callback)
         }
     }
 }
@@ -390,7 +399,7 @@ extension Array where Element == AIGraphData_V0.LayerData {
 extension AIGraphData_V0.LayerData {
     func createSidebarLayerData(idMap: [String : UUID]) throws -> SidebarLayerData {
         guard let newId = idMap.get(self.node_id) else {
-            throw AIPatchBuilderRequestError.nodeIdNotFound
+            throw SwiftUISyntaxError.viewNodeNotFound
         }
         
         let children = try self.children?.map {

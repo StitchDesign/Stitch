@@ -180,7 +180,6 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
             return .noChange
         }
         
-
         do {
             let swiftUICodeOfGraph = try document.visibleGraph.createSwiftUICode()
                         
@@ -197,7 +196,7 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
                 swiftUICodeOfGraph: swiftUICodeOfGraph,
                 base64Image: base64ImageData)
             
-            aiManager.currentTaskTesting = try requestTask
+            aiManager.currentTask = try requestTask
                 .getRequestTask(userPrompt: prompt,
                                 document: document)
         } catch {
@@ -366,23 +365,23 @@ struct ActiveIndexChangedAction: StitchDocumentEvent {
     }
 }
 
-struct InsertNodeQuery_REPL: View {
-
-    let query: String = "a"
-
-    var results: [InsertNodeMenuOption] {
-        searchForNodes(by: query,
-                       searchOptions: .ALL_NODE_SEARCH_OPTIONS)
-    }
-
-    var body: some View {
-        ForEach(results, id: \.id) {
-            Text($0.displayTitle)
-        }
-    }
-}
-
-#Preview {
-    InsertNodeQuery_REPL()
-        .scaleEffect(4)
-}
+//struct InsertNodeQuery_REPL: View {
+//
+//    let query: String = "a"
+//
+//    var results: [InsertNodeMenuOption] {
+//        searchForNodes(by: query,
+//                       searchOptions: .ALL_NODE_SEARCH_OPTIONS)
+//    }
+//
+//    var body: some View {
+//        ForEach(results, id: \.id) {
+//            Text($0.displayTitle)
+//        }
+//    }
+//}
+//
+//#Preview {
+//    InsertNodeQuery_REPL()
+//        .scaleEffect(4)
+//}

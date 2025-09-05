@@ -686,12 +686,12 @@ extension Array where Element: SidebarItemSwipable {
             return lhsGroupIndexDiff < rhsGroupIndexDiff
         }
         
-#if DEV_DEBUG
-        log("before: \(beforeElement?.id.debugFriendlyId ?? "none")\tafter: \(afterElement?.id.debugFriendlyId ?? "none")")
-        log("supported group ranges: \(supportedGroupRanges)")
-        log("recommendation test for \(indexOfDraggedLocation):")
-        rankedItems.forEach { print("\($0.id.debugFriendlyId), \($0.sidebarIndex), diff: \(abs(indexOfDraggedLocation.rowIndex - $0.sidebarIndex.rowIndex))") }
-#endif
+//#if DEV_DEBUG
+//        log("before: \(beforeElement?.id.debugFriendlyId ?? "none")\tafter: \(afterElement?.id.debugFriendlyId ?? "none")")
+//        log("supported group ranges: \(supportedGroupRanges)")
+//        log("recommendation test for \(indexOfDraggedLocation):")
+//        rankedItems.forEach { print("\($0.id.debugFriendlyId), \($0.sidebarIndex), diff: \(abs(indexOfDraggedLocation.rowIndex - $0.sidebarIndex.rowIndex))") }
+//#endif
         
         // Covers top of list and many top of group scenarios
         guard let recommendedItem = rankedItems.first else {

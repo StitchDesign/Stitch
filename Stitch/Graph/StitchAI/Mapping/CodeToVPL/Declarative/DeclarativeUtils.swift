@@ -215,7 +215,7 @@ extension SyntaxViewModifierArgumentType {
     var alignmentLiteral: Alignment? {
         switch self {
         case .memberAccess(let member):
-            guard let member = member.base else { return nil }
+            guard let member = member.base?.trimmedDescription else { return nil }
             switch member {
             case "topLeading":     return .topLeading
             case "top":            return .top
@@ -246,9 +246,55 @@ extension SyntaxViewModifierArgumentType {
             return nil
         }
     }
+    
+    var memberAccess: MemberAccessExprSyntax? {
+        switch self {
+        case .memberAccess(let member):
+            return member
+        default:
+            return nil
+        }
+    }
+    
+    /// Finds first `MemberAccessExprSyntax`, which may be nested.
+    var firstMemberAccess: MemberAccessExprSyntax? {
+        switch self {
+        case .simple:
+            return nil
+        case .complex(let syntaxViewModifierComplexType):
+            return syntaxViewModifierComplexType.arguments.compactMap {
+                $0.value.firstMemberAccess
+            }.first
+        case .tuple(let array):
+            return array.compactMap { $0.value.firstMemberAccess }.first
+        case .array(let array):
+            return array.compactMap { $0.firstMemberAccess }.first
+        case .memberAccess(let memberAccessExprSyntax):
+            return memberAccessExprSyntax
+        case .stateAccess:
+            return nil
+        case .closure:
+            return nil
+        case .viewEvent(let syntaxViewModifierViewEvent):
+            return syntaxViewModifierViewEvent.eventConstructorArgs.compactMap { $0.value.firstMemberAccess }.first
+        }
+    }
+    
+    var stateAccess: String? {
+        switch self {
+        case .stateAccess(let member):
+            return member
+        default:
+            return nil
+        }
+    }
 }
 
-extension SyntaxViewMemberAccess {
+extension MemberAccessExprSyntax {
+    var property: String {
+        self.declName.baseName.trimmedDescription
+    }
+    
     // New helper: horizontal alignment literal
     var horizAlignLiteral: HorizontalAlignment? {
         let ident = self.property

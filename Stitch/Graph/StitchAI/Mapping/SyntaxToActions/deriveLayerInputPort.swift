@@ -228,9 +228,10 @@ extension SyntaxViewModifierName {
         case .disabled:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case .background:
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+            return nil
         case .font:
-            return .simple(.textFont)
+            // return .simple(.textFont)
+            return .simple(.fontSize)
         case .multilineTextAlignment:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
             
@@ -426,11 +427,13 @@ extension SyntaxViewModifierName {
         case .onDrop:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
 
-            
         case .onSubmit:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        
+        // TODO: We actually "support" `.overlay`, or allow the LLM to send us code containing `.overlay`
         case .overlay:
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+            return nil
+            
         case .preferredColorScheme:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case .presentationCornerRadius:

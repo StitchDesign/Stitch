@@ -96,7 +96,13 @@ extension PortValue {
     
     var getPadding: StitchPadding? {
         switch self {
-        case .padding(let x): return x
+        case .padding(let x):
+            return x
+        case .number(let x):
+            return StitchPadding(top: x,
+                                 right: x,
+                                 bottom: x,
+                                 left: x)
         default: return nil
         }
     }

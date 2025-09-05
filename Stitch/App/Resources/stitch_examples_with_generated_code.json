@@ -1,0 +1,260 @@
+[
+  {
+    "user_prompt": "create a red rectangle of size 100x100",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#FF0000FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"100.0\",\"height\":\"100.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a blue rectangle of size 200x120",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#0000FFFF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"200.0\",\"height\":\"120.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a green oval of size 160x80",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Oval()\n            .fill([PortValueDescription(value: \"#00FF00FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"160.0\",\"height\":\"80.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a black rectangle of size 48x48",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#000000FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"48.0\",\"height\":\"48.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a yellow oval of size 220x140",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Oval()\n            .fill([PortValueDescription(value: \"#FFFF00FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"220.0\",\"height\":\"140.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a pink rectangle of size 50x150",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#FFC0CBFF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"50.0\",\"height\":\"150.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a purple oval of size 120x120",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Oval()\n            .fill([PortValueDescription(value: \"#8000FFFF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"120.0\",\"height\":\"120.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create big text for \"hello\"",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text(\"hello\")\n            .font(.system(size: 72))\n    }\n    func updateLayerInputs() {\n    }\n}"
+  },
+  {
+    "user_prompt": "create an orange rectangle of size 90x60",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#FFA500FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"90.0\",\"height\":\"60.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a cyan oval of size 300x120",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Oval()\n            .fill([PortValueDescription(value: \"#00FFFFFF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"300.0\",\"height\":\"120.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a brown rectangle of size 72x112",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#8B4513FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"72.0\",\"height\":\"112.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+
+  {
+    "user_prompt": "create a gray rectangle of size 300x200",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#808080FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"300.0\",\"height\":\"200.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a white oval of size 64x96",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Oval()\n            .fill([PortValueDescription(value: \"#FFFFFFFF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"64.0\",\"height\":\"96.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a teal rectangle of size 70x90",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#008080FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"70.0\",\"height\":\"90.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a magenta oval of size 240x160",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Oval()\n            .fill([PortValueDescription(value: \"#FF00FFFF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"240.0\",\"height\":\"160.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a dark blue rectangle of size 180x40",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#00008BFF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"180.0\",\"height\":\"40.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+
+  {
+    "user_prompt": "create a red oval of size 200x200",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Oval()\n            .fill([PortValueDescription(value: \"#FF0000FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"200.0\",\"height\":\"200.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a green rectangle of size 140x220",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#00FF00FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"140.0\",\"height\":\"220.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a red oval",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Ellipse()\n            .fill(Color.red)\n    }\n    func updateLayerInputs() {\n    }\n}"
+  },
+  {
+    "user_prompt": "create a blue oval of size 90x140",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Oval()\n            .fill([PortValueDescription(value: \"#0000FFFF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"90.0\",\"height\":\"140.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a black rectangle of size 12x12",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#000000FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"12.0\",\"height\":\"12.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a yellow oval of size 44x88",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Oval()\n            .fill([PortValueDescription(value: \"#FFFF00FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"44.0\",\"height\":\"88.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+
+  {
+    "user_prompt": "create a pink rectangle of size 200x40",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#FFC0CBFF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"200.0\",\"height\":\"40.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a purple oval of size 40x200",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Oval()\n            .fill([PortValueDescription(value: \"#8000FFFF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"40.0\",\"height\":\"200.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create an orange rectangle of size 256x128",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#FFA500FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"256.0\",\"height\":\"128.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a cyan oval of size 180x180",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Oval()\n            .fill([PortValueDescription(value: \"#00FFFFFF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"180.0\",\"height\":\"180.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a brown rectangle of size 320x60",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#8B4513FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"320.0\",\"height\":\"60.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+
+  {
+    "user_prompt": "create a gray rectangle of size 24x90",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#808080FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"24.0\",\"height\":\"90.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a white oval of size 128x64",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Oval()\n            .fill([PortValueDescription(value: \"#FFFFFFFF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"128.0\",\"height\":\"64.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a teal rectangle of size 400x20",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#008080FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"400.0\",\"height\":\"20.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+
+  {
+    "user_prompt": "create a text that says 'Hello!' at 24pt in black",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Hello!\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"24\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#000000FF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a green rectangle",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill(Color.green)\n    }\n    func updateLayerInputs() {\n    }\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Welcome' at 40pt in blue",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Welcome\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"40\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#0000FFFF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'SwiftUI' at 14pt in gray",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"SwiftUI\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"14\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#808080FF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Title' at 30pt in purple",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Title\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"30\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#8000FFFF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Subtitle' at 16pt in pink",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Subtitle\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"16\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#FFC0CBFF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create big text for \"yo\" and small text for \"hey!\"",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        VStack {\n            Text(\"yo\")\n                .font(.largeTitle)\n            Text(\"hey!\")\n                .font(.caption)\n        }\n    }\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Done' at 24pt in green",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Done\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"24\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#00FF00FF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Cancel' at 20pt in red",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Cancel\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"20\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#FF0000FF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Next' at 22pt in orange",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Next\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"22\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#FFA500FF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Back' at 18pt in brown",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Back\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"18\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#8B4513FF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'OK' at 28pt in teal",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"OK\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"28\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#008080FF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a red oval",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Ellipse()\n            .fill(Color.red)\n            .frame(width: 200, height: 100)\n    }\n\n    func updateLayerInputs() {\n    }\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Loading…' at 26pt in cyan",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Loading…\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"26\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#00FFFFFF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Error' at 24pt in red",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Error\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"24\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#FF3B30FF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Success' at 24pt in green",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Success\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"24\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#34C759FF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Tap' at 22pt in purple",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Tap\", value_type: \"string\")])\n\t\t\t.foregroundColor([PortValueDescription(value: \"#8000FFFF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Warning' at 24pt in yellow",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Warning\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"24\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#FFFF00FF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Info' at 24pt in blue",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Info\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"24\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#0000FFFF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a blue rectangle of size 200x120",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#0000FFFF\", value_type: \"color\")])\n            .frame(width: 200, height: 120)\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Tap' at 22pt in purple",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Tap\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"22\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#8000FFFF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Go' at 22pt in orange",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Go\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"22\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#FFA500FF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Stop' at 22pt in red",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Stop\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"22\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#FF0000FF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+
+  {
+    "user_prompt": "create a text that says 'Login' at 20pt in black",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Login\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"20\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#000000FF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Sign Up' at 20pt in blue",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Sign Up\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"20\", value_type: \"layerDimension\")])\n            .foregroundColor([PortValueDescription(value: \"#0000FFFF\", value_type: \"color\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create large text for \"I love you\"",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text(\"I love you\")\n            .font(.largeTitle)\n    }\n}"
+  },
+  {
+    "user_prompt": "create big text with \"happy day!\"",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([]\"happy day!\")\n            .font(.system(size: 80))\n    }\n    func updateLayerInputs() {\n    }\n}"
+  },
+  {
+    "user_prompt": "create a red rectangle of size 360x40",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#FF0000FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"360.0\",\"height\":\"40.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a green oval of size 44x44",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Oval()\n            .fill([PortValueDescription(value: \"#00FF00FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"44.0\",\"height\":\"44.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create big text with \"happy day!\"",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text(\"happy day!\")\n            .font(.system(size: 80))\n    }\n    func updateLayerInputs() {\n    }\n}"
+  },
+  {
+    "user_prompt": "create a blue rectangle of size 128x256",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#0000FFFF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"128.0\",\"height\":\"256.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a text that says 'Tap' at 22pt in purple",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Text([PortValueDescription(value: \"Tap\", value_type: \"string\")])\n            .font([PortValueDescription(value: \"22\", value_type: \"layerDimension\")])\n            .foregroundColor(.purple)\n    }\n    func updateLayerInputs() {}\n}"
+  },
+  {
+    "user_prompt": "create a gray rectangle of size 500x4",
+    "generated_code": "struct ContentView: View {\n    var body: some View {\n        Rectangle()\n            .fill([PortValueDescription(value: \"#808080FF\", value_type: \"color\")])\n            .frame([PortValueDescription(value: [\"width\":\"500.0\",\"height\":\"4.0\"], value_type: \"size\")])\n    }\n    func updateLayerInputs() {}\n}"
+  }
+]

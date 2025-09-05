@@ -190,7 +190,7 @@ extension StitchAIPortValue_V0.PortValue {
         case .contentMode(let x):
             return x
         case .spacing(let x):
-            return x
+            return StitchAISpacing_V0.StitchAISpacing(value: x)
         case .padding(let x):
             return x
         case .sizingScenario(let x):

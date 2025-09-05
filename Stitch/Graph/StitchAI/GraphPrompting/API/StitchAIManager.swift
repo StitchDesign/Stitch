@@ -11,26 +11,14 @@ import SwiftUI
 import SwiftyJSON
 import Sentry
 
-// Lifecycle is a single stream; if we have to retry, we destroy the existing CurrentAITask and create a new one
-struct CurrentAITask {
-    // Streaming request to OpenAI
-    var task: Task<OpenAIMessage, any Error>
-    
-    // Map of OpenAI-provided UUIDs (which may be same across multiple sessions) vs. Stitch's genuinely always-unique UUIDs;
-    // See notes for `remapNodeIds`;
-    // Populated as we receive and parse each `Step`
-    var nodeIdMap: [StitchAIUUID: NodeId] = .init()
-}
 
 final actor StitchAIManager {
     let secrets: Secrets
 
     let postgrest: PostgrestClient
       
-    @MainActor var currentTask: CurrentAITask?
-    
     // Tracks task for new AI strat
-    @MainActor var currentTaskTesting: Task<Result<AIGraphData_V0.GraphData, any Error>, Never>?
+    @MainActor var currentTask: Task<Result<AIGraphData_V0.GraphData, any Error>, Never>?
 
     init?() throws {
         guard let secrets = try Secrets() else {
@@ -83,13 +71,8 @@ extension StitchAIManager {
     
     @MainActor
     func cancelCurrentRequest() {
-        guard let currentTask = self.currentTask else {
-            return
-        }
-        
-        currentTask.task.cancel()
+        self.currentTask?.cancel()
         self.currentTask = nil
-        self.currentTaskTesting = nil
     }
 }
 
