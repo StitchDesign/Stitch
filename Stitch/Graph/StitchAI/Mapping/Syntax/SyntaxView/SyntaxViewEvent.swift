@@ -36,10 +36,10 @@ struct LayerDataViewEvent {
     let mutatedStateVar: String
 }
 
-//struct LayerDataViewEventsResult {
-//    let viewEvent: SyntaxViewEvent
-//    let actionsResult: SwiftSyntaxPatchActionsResult
-//}
+struct LayerDataViewEventsResult {
+    let viewEvent: SyntaxViewEvent
+    let actionsResult: SwiftSyntaxPatchActionsResult
+}
 
 //extension LayerDataViewEventsResult {
 //    init() {
@@ -149,7 +149,7 @@ extension LayerDataViewEvent {
 
 extension SyntaxViewModifierViewEvent {
     @MainActor
-    func deriveViewEventData(layerId: UUID) throws -> SwiftSyntaxPatchActionsResult? {
+    func deriveViewEventData(layerId: UUID) throws -> [(String, SwiftPatchCodeType)]? {
         // Check for onChange handlers
         guard let viewName = SyntaxViewEvent(rawValue: self.eventName),
               let onChangeHandler = self.eventModifiers.get("onChanged") else {
@@ -160,15 +160,17 @@ extension SyntaxViewModifierViewEvent {
         let parsedData = SwiftUIViewVisitor.parseSwiftUICode(onChangeHandler.script,
                                                              willParseView: false)
         
-        let param = onChangeHandler.paramVars.first
+        var actionsResult: [(String, SwiftPatchCodeType)] = []
         
-        fatalError("coming back here")
+        // Prepend gesture parameter to code list if used
+        if let param = onChangeHandler.paramVars.first {
+            actionsResult.append((param, .normal(.viewEventArg(viewName))))
+        }
         
-//        let actionsResult = parsedData.bindingDeclarations
-//            .deriveStitchActions(existingData: nil,
-//                                 viewEventData: (viewName, layerId, param))
-//        
-//        return actionsResult
+        actionsResult += try parsedData.bindingDeclarations
+            .getSwiftPatchCodeTypes()
+        
+        return actionsResult
 //        let events = try parsedData.bindingDeclarations.compactMap { keyValue -> LayerDataViewEvent? in
 //            let (refName, assignmentValue) = keyValue
             

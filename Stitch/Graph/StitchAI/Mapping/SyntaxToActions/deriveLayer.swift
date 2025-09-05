@@ -96,7 +96,7 @@ extension PortValue {
 
 extension SyntaxViewModifier {
     @MainActor
-    func deriveViewModifierEvents(layerId: UUID) throws -> SwiftSyntaxPatchActionsResult? {
+    func deriveViewModifierEvents(layerId: UUID) throws -> [(String, SwiftPatchCodeType)]? {
         guard self.name.isGestureModifier,
               let defaultArgs = self.arguments.defaultArgs else {
             return nil
@@ -111,7 +111,7 @@ extension SyntaxViewModifier {
             let viewEvents = defaultArgs
                 .compactMap { $0.value.viewEvent }
             
-            let interactionsResults = try viewEvents.reduce(into: SwiftSyntaxPatchActionsResult()) { result, viewEvent in
+            let interactionsResults = try viewEvents.reduce(into: [(String, SwiftPatchCodeType)]()) { result, viewEvent in
                 guard let actions = try viewEvent.deriveViewEventData(layerId: layerId) else {
                     return
                 }
@@ -363,7 +363,7 @@ extension SyntaxViewName {
         }
         
         // Handle view events like drag gestures
-        let interactionEvents = modifiers.reduce(into: SwiftSyntaxPatchActionsResult()) { result, modifier in
+        let interactionEvents = modifiers.reduce(into: [(String, SwiftPatchCodeType)]()) { result, modifier in
             do {
                 if let actionsResult = try modifier.deriveViewModifierEvents(layerId: id) {
                     result += actionsResult

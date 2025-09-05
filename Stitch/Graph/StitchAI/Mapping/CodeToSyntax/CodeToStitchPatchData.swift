@@ -216,47 +216,48 @@ extension SwiftParserPatchData {
                 return .subscriptType(result, subscriptRef.portIndex)
                 
             case .value(let argType):
-                let portDataList: [PortValueCodeType] = try argType.derivePortValues().map { portData in
-                    switch portData {
-                    case .value(let portValue):
-                        return .value(.init(value: portValue.value,
-                                         value_type: portValue.value_type))
-                        
-                        // TODO: custom node type
-                        // Update node's custom value type if relevant at this port
-                        //                        if checkForValueTypeHere {
-                        //                            let valueType = portValue.value_type
-                        //                            nativePatchValueTypeSettings
-                        //                                .updateValue(.init(node_id: patchNodeData.id,
-                        //                                                   value_type: valueType),
-                        //                                             forKey: patchNodeData.id)
-                        //                        }
-                        
-                    case .stateRef(let ref):
-                        return .variable(ref)
-                        //                        // Check for edges here
-                        //                        if let upstreamData = varNameOutputPortMap.get(ref) {
-                        //                            try SwiftParserInitializerType.subscriptRef(upstreamData)
-                        //                                .parseStitchActions(varName: varName,
-                        //                                                    varNameIdMap: varNameIdMap,
-                        //                                                    varNameOutputPortMap: varNameOutputPortMap,
-                        //                                                    customPatchInputValues: &customPatchInputValues, varNamePatchNodeRefMap: varNamePatchNodeRefMap,
-                        ////                                                        stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
-                        //                                                    nativePatchNodes: nativePatchNodes,
-                        //                                                    patchConnections: &patchConnections,
-                        //                                                    viewStatePatchConnections: &viewStatePatchConnections,
-                        //                                                    nativePatchValueTypeSettings: &nativePatchValueTypeSettings,
-                        //                                                    preprocessedJSNodes: &preprocessedJSNodes,
-                        //                                                    varNameJsFnMap: &varNameJsFnMap,
-                        //                                                    subscriptParentInfo: .init(node_id: patchNodeData.id,
-                        //                                                                               port_index: portIndex))
-                        //                        } else {
-                        //                            fatalErrorIfDebug("Expected to find subscript data")
-                        //                        }
-                    }
-                }
-                
-                return .normal(.portValuesInit(portDataList))
+                return .normal(.portValuesInit([argType]))
+//                let portDataList: [PortValueCodeType] = try argType.derivePortValues().map { portData in
+//                    switch portData {
+//                    case .value(let portValue):
+//                        return .value(.init(value: portValue.value,
+//                                         value_type: portValue.value_type))
+//                        
+//                        // TODO: custom node type
+//                        // Update node's custom value type if relevant at this port
+//                        //                        if checkForValueTypeHere {
+//                        //                            let valueType = portValue.value_type
+//                        //                            nativePatchValueTypeSettings
+//                        //                                .updateValue(.init(node_id: patchNodeData.id,
+//                        //                                                   value_type: valueType),
+//                        //                                             forKey: patchNodeData.id)
+//                        //                        }
+//                        
+//                    case .stateRef(let ref):
+//                        return .ref(ref)
+//                        //                        // Check for edges here
+//                        //                        if let upstreamData = varNameOutputPortMap.get(ref) {
+//                        //                            try SwiftParserInitializerType.subscriptRef(upstreamData)
+//                        //                                .parseStitchActions(varName: varName,
+//                        //                                                    varNameIdMap: varNameIdMap,
+//                        //                                                    varNameOutputPortMap: varNameOutputPortMap,
+//                        //                                                    customPatchInputValues: &customPatchInputValues, varNamePatchNodeRefMap: varNamePatchNodeRefMap,
+//                        ////                                                        stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
+//                        //                                                    nativePatchNodes: nativePatchNodes,
+//                        //                                                    patchConnections: &patchConnections,
+//                        //                                                    viewStatePatchConnections: &viewStatePatchConnections,
+//                        //                                                    nativePatchValueTypeSettings: &nativePatchValueTypeSettings,
+//                        //                                                    preprocessedJSNodes: &preprocessedJSNodes,
+//                        //                                                    varNameJsFnMap: &varNameJsFnMap,
+//                        //                                                    subscriptParentInfo: .init(node_id: patchNodeData.id,
+//                        //                                                                               port_index: portIndex))
+//                        //                        } else {
+//                        //                            fatalErrorIfDebug("Expected to find subscript data")
+//                        //                        }
+//                    }
+//                }
+//                
+//                return .normal(.portValuesInit(portDataList))
             }
         }
         

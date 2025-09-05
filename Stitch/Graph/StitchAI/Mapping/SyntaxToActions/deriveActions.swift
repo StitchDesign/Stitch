@@ -81,12 +81,8 @@ extension SwiftUIViewParserResult {
         
         let interactionsPatchActionResult = layerResults.actions.getPatchResultsFromViewEvents()
 
-        // Extract patch data
-        let patchResults = try! self.bindingDeclarations
-            .map { data -> (String, SwiftPatchCodeType?) in
-                let result = try data.1.getSwiftPatchCodeType()
-                return (data.0, result)
-            }
+        // Prepend view event data for code from `updateLayerInputs`
+        let allPatchCode = try! interactionsPatchActionResult + self.bindingDeclarations.getSwiftPatchCodeTypes()
         
 //        let patchResults = self.bindingDeclarations.deriveStitchActions(existingData: interactionsPatchActionResult)
         
@@ -114,8 +110,8 @@ extension Array where Element == SyntaxView {
 }
 
 extension Array where Element == AIGraphData_V0.LayerData {
-    func getPatchResultsFromViewEvents() -> SwiftSyntaxPatchActionsResult {
-        self.reduce(into: SwiftSyntaxPatchActionsResult()) { result, layerData in
+    func getPatchResultsFromViewEvents() -> [(String, SwiftPatchCodeType)] {
+        self.reduce(into: [(String, SwiftPatchCodeType)]()) { result, layerData in
             if let actionsResult = layerData.view_events {
                 result += actionsResult
             }
@@ -260,12 +256,13 @@ enum SwiftPatchClosureType {
 indirect enum SwiftPatchCodeType {
     case normal(SwiftPatchCodeExpression)
     case subscriptType(SwiftPatchCodeType, Int)
+    case error(SwiftUISyntaxError)
 }
 
 /// Expressions expected in patch Swift code. The idea here being we can create a tree of syntax that, with a string-keyed dictionary, can track any reference in code.
 enum SwiftPatchCodeExpression {
     case patchNodeInit(SwiftPatchNodeCode)
-    case portValuesInit([PortValueCodeType])
+    case portValuesInit([SyntaxViewModifierArgumentType])
     case ref(String)
     case viewEventArg(SyntaxViewEvent)
     case jsRef(String, [SwiftPatchCodeType])
@@ -285,9 +282,22 @@ struct SwiftPatchNodeCode {
 //}
 
 // Types of values expected in Swift code
-enum PortValueCodeType {
-    case value(PortValueDescription)
-    case variable(String)
+//enum PortValueCodeType {
+//    case value(PortValueDescription)
+//    case ref(String)
+//    case memberAccessRef(MemberAccessExprSyntax)
+//}
+
+extension Array where Element == (String, SwiftParserInitializerType) {
+    func getSwiftPatchCodeTypes() throws -> [(String, SwiftPatchCodeType)] {
+        try self.compactMap { data -> (String, SwiftPatchCodeType)? in
+            guard let result = try data.1.getSwiftPatchCodeType() else {
+                fatalErrorIfDebug()
+                return nil
+            }
+            return (data.0, result)
+        }
+    }
 }
 
 extension SwiftParserInitializerType {
@@ -326,69 +336,73 @@ extension SwiftParserInitializerType {
                 return .normal(.ref(patchNodeRef))
                 
             case .arraySyntax(let arraySyntax):
-                // TODO: see what we can abstract
-                fatalError()
+                guard arraySyntax.elements.count == 1,
+                      let firstElem = arraySyntax.elements.first else {
+                    // Only know of count sof 1 so far
+                    fatalErrorIfDebug()
+                    return nil
+                }
                 
-                //                // Find what we're parsing
-                //                guard let (viewEvent, viewEventLayerId, viewEventParam) = viewEventData,
-                //                      let funcExpr = arraySyntax.elements.first?.expression.as(FunctionCallExprSyntax.self) else {
-                //                    break
-                //                }
-                //
-                //                let args: ViewConstructorType
-                //                do {
-                //                    args = try SwiftUIViewVisitor.parseArguments(from: funcExpr)
-                //                } catch let error as SwiftUISyntaxError {
-                //                    caughtErrors.append(error)
-                //                    break
-                //                } catch {
-                //                    fatalErrorIfDebug(error.localizedDescription)
-                //                    break
-                //                }
-                //
-                //                guard let defaultArgs = args.defaultArgs else {
-                //                    break
-                //                }
-                //
-                //                let gestureArg: String?
-                //
-                //                // A little hacky--if PortValueDescription of position type, return a packed variable
-                //                if (defaultArgs[safe: 1]?.value.simpleValue?.contains("position") ?? false) {
-                //                    // TODO: see if position or translation
-                //                    gestureArg = "position"
-                //                }
-                //
-                //                else {
-                //                    // Find the property that's read from the gesture param
-                //                    gestureArg = defaultArgs.compactMap { arg -> String? in
-                //                        //                            guard let paramVarName = onChangeHandler.paramVars.first,
-                //                        guard let paramVarName = viewEventParam,
-                //                              let memberAccess = arg.value.firstMemberAccess else {
-                //                            return nil
-                //                        }
-                //
-                //                        var propertyString = memberAccess.trimmedDescription
-                //                        let prefixStr = "\(paramVarName)."
-                //
-                //                        if propertyString.hasPrefix(prefixStr) {
-                //                            propertyString = String(propertyString.dropFirst(prefixStr.count))
-                //                        }
-                //
-                //                        return propertyString
-                //
-                //                    }.first
-                //                }
-                //
-                //                let viewEventData = LayerDataViewEvent(viewEvent: viewEvent,
-                //                                                       gestureArg: gestureArg,
-                //                                                       mutatedStateVar: varName)
-                //
-                //                viewEventData
-                //                    .updateInteractionData(layerId: viewEventLayerId,
-                //                                           nativePatchNodes: &nativePatchNodes,
-                //                                           customPatchInputValues: &customPatchInputValues,
-                //                                           viewStatePatchConnections: &viewStatePatchConnections,
-                //                                           patchConnections: &patchConnections)
+                // Find what we're parsing
+                guard let funcExpr = firstElem.expression.as(FunctionCallExprSyntax.self) else {
+                    return nil
+                }
+                
+                let args: ViewConstructorType
+                do {
+                    args = try SwiftUIViewVisitor.parseArguments(from: funcExpr)
+                } catch let error as SwiftUISyntaxError {
+                    return .error(error)
+                } catch {
+                    fatalErrorIfDebug(error.localizedDescription)
+                    return nil
+                }
+                
+                guard let defaultArgs = args.defaultArgs else {
+                    fatalErrorIfDebug()
+                    return nil
+                }
+                
+                return .normal(.portValuesInit(defaultArgs.map(\.value)))
+//                let gestureArg: String?
+//                
+//                // A little hacky--if PortValueDescription of position type, return a packed variable
+//                if (defaultArgs[safe: 1]?.value.simpleValue?.contains("position") ?? false) {
+//                    // TODO: see if position or translation
+//                    gestureArg = "position"
+//                }
+//                
+//                else {
+//                    // Find the property that's read from the gesture param
+//                    gestureArg = defaultArgs.compactMap { arg -> String? in
+//                        //                            guard let paramVarName = onChangeHandler.paramVars.first,
+//                        guard let paramVarName = viewEventParam,
+//                              let memberAccess = arg.value.firstMemberAccess else {
+//                            return nil
+//                        }
+//                        
+//                        var propertyString = memberAccess.trimmedDescription
+//                        let prefixStr = "\(paramVarName)."
+//                        
+//                        if propertyString.hasPrefix(prefixStr) {
+//                            propertyString = String(propertyString.dropFirst(prefixStr.count))
+//                        }
+//                        
+//                        return propertyString
+//                        
+//                    }.first
+//                }
+//                
+//                let viewEventData = LayerDataViewEvent(viewEvent: viewEvent,
+//                                                       gestureArg: gestureArg,
+//                                                       mutatedStateVar: varName)
+//                
+//                viewEventData
+//                    .updateInteractionData(layerId: viewEventLayerId,
+//                                           nativePatchNodes: &nativePatchNodes,
+//                                           customPatchInputValues: &customPatchInputValues,
+//                                           viewStatePatchConnections: &viewStatePatchConnections,
+//                                           patchConnections: &patchConnections)
                 
             default:
                 return nil
