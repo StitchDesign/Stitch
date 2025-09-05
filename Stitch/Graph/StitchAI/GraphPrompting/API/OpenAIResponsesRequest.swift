@@ -8,10 +8,9 @@
 import Foundation
 import SwiftUI
 
-/// Request implementation using OpenAI's Responses endpoint with streaming support
+// TODO: find a better name
 struct OpenAIResponsesRequest {
     let id: UUID
-    let requestType: StitchAIRequestBuilder_V0.StitchAIRequestType
     let dataGlossaryPrompt: String
     let assistantPrompt: String
     let textInput: String
@@ -21,7 +20,6 @@ struct OpenAIResponsesRequest {
     let reasoningEffort: OpenAIReasoningEffort
     
     init(id: UUID,
-         requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
          dataGlossaryPrompt: String,
          assistantPrompt: String,
          textInput: String,
@@ -30,7 +28,6 @@ struct OpenAIResponsesRequest {
          verbosity: OpenAIVerbosity,
          reasoningEffort: OpenAIReasoningEffort) {
         self.id = id
-        self.requestType = requestType
         self.dataGlossaryPrompt = dataGlossaryPrompt
         self.assistantPrompt = assistantPrompt
         self.textInput = textInput
@@ -57,6 +54,24 @@ struct OpenAIResponsesRequest {
     private func performStreamingRequest(document: StitchDocumentViewModel,
                                          aiManager: StitchAIManager,
                                          secrets: Secrets) async throws -> String {
+        
+        // Check which AI provider is selected
+        let provider = AIProviderConfig.shared.currentProvider
+        print("🔥 DEBUG: OpenAIResponsesRequest using provider: \(provider.displayName)")
+        log("OpenAIResponsesRequest: Using provider: \(provider.displayName)", .logToServer)
+        
+        switch provider {
+        case .openAI:
+            return try await performOpenAIStreamingRequest(document: document, aiManager: aiManager, secrets: secrets)
+        case .claude:
+            return try await performClaudeStreamingRequest(document: document, aiManager: aiManager, secrets: secrets)
+        }
+    }
+    
+    @MainActor
+    private func performOpenAIStreamingRequest(document: StitchDocumentViewModel,
+                                               aiManager: StitchAIManager,
+                                               secrets: Secrets) async throws -> String {
         guard let url = URL(string: "https://api.openai.com/v1/responses") else {
             // TODO: handle failure
             fatalError("OpenAI Responses: Invalid URL")
@@ -78,7 +93,8 @@ struct OpenAIResponsesRequest {
             "summary": "auto", //verbosity.toReasoningSummary(),
             "effort": reasoningEffort.toReasoningEffort()
         ]
-                
+         
+        // TODO: should this be flipped -- `assistantPrompt` first, `dataGlossoaryPrompt` last ?
         let instructions = """
         \(dataGlossaryPrompt)
         
@@ -250,6 +266,115 @@ struct OpenAIResponsesRequest {
         }
     }
     
+    @MainActor
+    private func performClaudeStreamingRequest(document: StitchDocumentViewModel,
+                                               aiManager: StitchAIManager,
+                                               secrets: Secrets) async throws -> String {
+        log("OpenAIResponsesRequest: Performing Claude streaming request", .logToServer)
+        
+        // For now, create a simple Claude API request using existing infrastructure
+        guard let claudeAPIKey = secrets.claudeAPIKey, !claudeAPIKey.isEmpty else {
+            log("ERROR: Claude API key not configured", .logToServer)
+            fatalErrorIfDebug()
+            throw StitchAIManagerError.secretsNotFound
+        }
+        
+        // Create Claude API request manually
+        guard let url = URL(string: "https://api.anthropic.com/v1/messages") else {
+            throw StitchAIStreamingError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(claudeAPIKey, forHTTPHeaderField: "x-api-key")
+        request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+        
+        // Convert to Claude format
+        let instructions = """
+        \(dataGlossaryPrompt)
+        
+        \(assistantPrompt)
+        """
+        
+        var claudeBody: [String: Any] = [
+            "model": "claude-sonnet-4-20250514", // Claude 4 Sonnet model
+            "max_tokens": 4096,
+            "system": instructions
+        ]
+        
+        // Handle text + optional image input
+        if let imageData = base64Image {
+            claudeBody["messages"] = [[
+                "role": "user",
+                "content": [
+                    ["type": "text", "text": textInput],
+                    [
+                        "type": "image",
+                        "source": [
+                            "type": "base64",
+                            "media_type": "image/jpeg",
+                            "data": imageData
+                        ]
+                    ]
+                ]
+            ]]
+        } else {
+            claudeBody["messages"] = [[
+                "role": "user",
+                "content": textInput
+            ]]
+        }
+        
+        request.httpBody = try JSONSerialization.data(withJSONObject: claudeBody)
+        
+        // Set streaming UI state
+        document.isStreamingResponses = true
+        document.streamingReasoningText = "Claude is thinking..."
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            // Reset streaming UI state
+            document.isStreamingResponses = false
+            document.streamingReasoningText = ""
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                log("Claude request: No HTTP response", .logToServer)
+                fatalError("No HTTP response")
+            }
+            
+            if !(200...299).contains(httpResponse.statusCode) {
+                log("Claude request failed with status code: \(httpResponse.statusCode)", .logToServer)
+                log("Claude response headers: \(httpResponse.allHeaderFields)", .logToServer)
+                
+                // Log the error response body for debugging
+                if let errorString = String(data: data, encoding: .utf8) {
+                    log("Claude error response body: \(errorString)", .logToServer)
+                    print("🚨 Claude API Error (\(httpResponse.statusCode)): \(errorString)")
+                } else {
+                    log("Claude error response body: (could not decode as UTF-8)", .logToServer)
+                }
+                
+                fatalErrorIfDebug("Claude request failed with status \(httpResponse.statusCode)")
+            }
+            
+            // Parse Claude response
+            let claudeResponse = try JSONDecoder().decode(ClaudeResponse.self, from: data)
+            let content = claudeResponse.content.compactMap { $0.text }.joined()
+            
+            log("Claude request completed successfully", .logToServer)
+            return content
+            
+        } catch {
+            document.isStreamingResponses = false
+            document.streamingReasoningText = ""
+            
+            log("Claude request failed: \(error)", .logToServer)
+            throw error
+        }
+    }
+    
     private func handleStreamingEvent(json: [String: Any],
                                       streamingResponse: inout String,
                                       accumulatedReasoning: inout String,
@@ -336,7 +461,7 @@ struct OpenAIResponsesRequest {
         case "error":
             if let error = json["error"] as? [String: Any] {
                 // TODO: handle failure
-                fatalError("OpenAI Responses API Error: \(error)")
+                fatalErrorIfDebug("OpenAI Responses API Error: \(error)")
             }
         
         default:

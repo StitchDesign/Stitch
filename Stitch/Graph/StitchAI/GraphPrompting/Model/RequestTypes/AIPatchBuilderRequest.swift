@@ -93,14 +93,9 @@ extension StitchDocumentViewModel {
 extension SwiftSyntaxActionsResult {
     @MainActor
     mutating func applyAIGraph(to document: StitchDocumentViewModel,
-                               viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate],
-                               requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) async {
-        switch requestType {
-        case .userPrompt:
-            // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
-            await self.createAIGraph(document: document)
-        }
-        
+                               viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]) async {
+        // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
+        await self.createAIGraph(document: document)
         document.encodeProjectInBackground()
     }
     

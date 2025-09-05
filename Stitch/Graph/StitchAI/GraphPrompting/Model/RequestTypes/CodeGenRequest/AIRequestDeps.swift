@@ -1,5 +1,5 @@
 //
-//  AICodeGenRequest.swift
+//  AIRequestDeps.swift
 //  Stitch
 //
 //  Created by Elliot Boschwitz on 6/7/25.
@@ -7,9 +7,16 @@
 
 import SwiftUI
 
+/*
+ Some of the dependencies needed to make a request:
+ - the user's prompt
+ - SwiftUI code of the existing graph
+ - any image the user uploaded
+ */
+// fka `AICodeGenRequest`
 // fka `AICodeGenFromGraphRequest`
-struct AICodeGenWithImageRequest: StitchAICodeCreator {
-    static let type = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt
+// fka `AICodeGenWithImageRequest`
+struct AIRequestDeps: StitchAICodeCreator {
     
     let id: UUID
     let userPrompt: String
@@ -19,7 +26,7 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
     @MainActor
     init(prompt: String,
          swiftUICodeOfGraph: String,
-         base64Image: String? = nil) throws {
+         base64Image: String? = nil) {
         
         // The id of the user's inference call; does not change across retries etc.
         self.id = .init()
@@ -32,7 +39,7 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
                     dataGlossaryPrompt: String) async throws -> String {
-        log("AICodeGenWithImageRequest.createCode initial code:\n\(self.swiftUICodeOfGraph)")
+        log("AIRequestDeps.createCode initial code:\n\(self.swiftUICodeOfGraph)")
         
         let editInputs = StitchAIRequestBuilder_V0.EditCodeParams(
             source_code: swiftUICodeOfGraph,
@@ -51,9 +58,8 @@ struct AICodeGenWithImageRequest: StitchAICodeCreator {
         // Use new OpenAI Responses endpoint for streaming
         let responsesRequest = OpenAIResponsesRequest(
             id: self.id,
-            requestType: Self.type,
             dataGlossaryPrompt: dataGlossaryPrompt,
-            assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type, previewWindowSize: document.previewWindowSize, previewWindowBackgroundColor: document.previewWindowBackgroundColor),
+            assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(previewWindowSize: document.previewWindowSize, previewWindowBackgroundColor: document.previewWindowBackgroundColor),
             textInput: try editInputs.encodeToString(),
             base64Image: base64Image, // Handle both image and text-only cases
             model: selectedModel,
@@ -111,8 +117,7 @@ extension StitchAICodeCreator {
                     Task(priority: .high) {
                         await actionsResult
                             .applyAIGraph(to: document,
-                                          viewStatePatchConnections: actionsResult.graphData .viewStatePatchConnections,
-                                          requestType: Self.type)
+                                          viewStatePatchConnections: actionsResult.graphData .viewStatePatchConnections)
                     }
                     
                     document.aiManager?.currentTask = nil

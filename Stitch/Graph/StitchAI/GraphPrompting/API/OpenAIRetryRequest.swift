@@ -119,7 +119,7 @@ extension StitchAIManager {
         // This can somehow fail?
         // assertInDebug(slept.isDefined)
 
-        // TODO: support retries with the new-style of AI ? See `SubmitUserPromptToOpenAI`
+        // TODO: support retries with the new-style of AI ? See `SubmitUserPromptToAIProvider`
         
         document.llmRecording.currentlyInARetryDelay = false
         

@@ -167,16 +167,17 @@ struct InsertNodeSelectionChanged: StitchDocumentEvent {
 
 /// Process search results in the insert node menu sheet
 /// fka `GenerateAINode`
-struct SubmitUserPromptToOpenAI: StitchStoreEvent {
+/// fka `SubmitUserPromptToOpenAI`
+struct SubmitUserPromptToAIProvider: StitchStoreEvent {
     let prompt: String
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        print("🔥 DEBUG: SubmitUserPromptToOpenAI called with prompt: \(prompt)")
-        log("SubmitUserPromptToOpenAI called with prompt: \(prompt)", .logToServer)
+        print("🔥 DEBUG: SubmitUserPromptToAIProvider called with prompt: \(prompt)")
+        log("SubmitUserPromptToAIProvider called with prompt: \(prompt)", .logToServer)
         
         guard let document = store.currentDocument,
               let aiManager = document.aiManager else {
-            log("SubmitUserPromptToOpenAI: missing either document or aiManager", .logToServer)
+            log("SubmitUserPromptToAIProvider: missing either document or aiManager", .logToServer)
             return .noChange
         }
         
@@ -190,17 +191,16 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
                 print("Using dropped image for Vision API")
             }
             
-            // Use vision-capable request that can handle both text and images
-            let requestTask = try AICodeGenWithImageRequest(
+            let aiRequestDeps = AIRequestDeps(
                 prompt: prompt,
                 swiftUICodeOfGraph: swiftUICodeOfGraph,
                 base64Image: base64ImageData)
             
-            aiManager.currentTask = try requestTask
+            aiManager.currentTask = try aiRequestDeps
                 .getRequestTask(userPrompt: prompt,
                                 document: document)
         } catch {
-            log("SubmitUserPromptToOpenAI: had error: \(error.localizedDescription)", .logToServer)
+            log("SubmitUserPromptToAIProvider: had error: \(error.localizedDescription)", .logToServer)
             let _ = StitchStore.displayError(failure: error,
                                              document: document)
         }
