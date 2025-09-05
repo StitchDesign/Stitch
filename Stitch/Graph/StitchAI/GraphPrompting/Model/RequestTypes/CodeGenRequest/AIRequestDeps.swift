@@ -41,39 +41,52 @@ struct AIRequestDeps: StitchAICodeCreator {
                     dataGlossaryPrompt: String) async throws -> String {
         log("AIRequestDeps.createCode initial code:\n\(self.swiftUICodeOfGraph)")
         
+        guard let secrets = try? Secrets() else {
+            log("AIRequestDeps.createCode: No secrets found", .logToServer)
+            throw StitchAIManagerError.secretsNotFound
+        }
+        
         let editInputs = StitchAIRequestBuilder_V0.EditCodeParams(
             source_code: swiftUICodeOfGraph,
             user_prompt: userPrompt)
         
-        // Validate parameters for the selected model
-        let selectedModel = document.openaiModel.asOpenAIModel
+        // Prepare parameters for both providers
+        let openAIModel = document.openaiModel.asOpenAIModel
+        let claudeModel = document.claudeModel.asClaudeModel
         
         let validatedVerbosity = OpenAIModelConstraints.validateVerbosity(
-            for: selectedModel,
+            for: openAIModel,
             requestedVerbosity: document.openaiVerbosity)
     
-        // Debug print OpenAI configuration
-        log("🤖 Responses Request - Model: \(document.openaiModel), Verbosity: \(validatedVerbosity) (requested: \(document.openaiVerbosity)), Reasoning Effort: \(document.openaiReasoningEffort)")
+        // Debug print configuration for both providers
+        let provider = AIProviderConfig.shared.currentProvider
+        log("🤖 AI Request - Provider: \(provider.displayName), OpenAI Model: \(document.openaiModel), Claude Model: \(document.claudeModel), Verbosity: \(validatedVerbosity) (requested: \(document.openaiVerbosity)), Reasoning Effort: \(document.openaiReasoningEffort)")
         
-        // Use new OpenAI Responses endpoint for streaming
-        let responsesRequest = OpenAIResponsesRequest(
+        // Prepare request parameters
+        let params = AIRequestParams(
             id: self.id,
             dataGlossaryPrompt: dataGlossaryPrompt,
             assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(previewWindowSize: document.previewWindowSize, previewWindowBackgroundColor: document.previewWindowBackgroundColor),
             textInput: try editInputs.encodeToString(),
-            base64Image: base64Image, // Handle both image and text-only cases
-            model: selectedModel,
-            verbosity: validatedVerbosity,
-            reasoningEffort: document.openaiReasoningEffort.asOpenAIReasoningEffort)
-            
+            base64Image: base64Image,
+            secrets: secrets
+        )
 
         let startTime = CFAbsoluteTimeGetCurrent()
-        let codeEditResult = try await responsesRequest
-            .request(document: document,
-                     aiManager: aiManager)
+        
+        // Use provider-agnostic orchestrator
+        let codeEditResult = try await makeAIRequest(
+            params: params,
+            openAIModel: openAIModel,
+            claudeModel: claudeModel,
+            verbosity: validatedVerbosity,
+            reasoningEffort: document.openaiReasoningEffort.asOpenAIReasoningEffort,
+            document: document
+        )
+        
         let endTime = CFAbsoluteTimeGetCurrent()
         let duration = endTime - startTime
-        log("⏱️ OpenAI Responses Request completed in \(String(format: "%.2f", duration)) seconds")
+        log("⏱️ AI Request completed in \(String(format: "%.2f", duration)) seconds using \(provider.displayName)")
         
         return codeEditResult
     }
