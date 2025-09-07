@@ -45,8 +45,8 @@ struct OpenAIChatCompletionRequest: StitchAIChatCompletionRequestable {
          verbosity: String? = nil,
          reasoningEffort: String? = nil) throws {
         
-        let verbosity = "medium"
-        let model = "ft:o4-mini-2025-04-16:ve::CCBkySVc" // "ft:o4-mini-2025-04-16:ve::CC7e2R5z" // "ft:o4-mini-2025-04-16:ve::CBmk9ewR" // "ft:o4-mini-2025-04-16:ve::CBkWAgxf" //"ft:o4-mini-2025-04-16:ve::CBaCK4NL" //"ft:o4-mini-2025-04-16:ve::CAMpma9g"
+//        let verbosity = "medium"
+        // let model = "ft:o4-mini-2025-04-16:ve::CCBkySVc" // "ft:o4-mini-2025-04-16:ve::CC7e2R5z" // "ft:o4-mini-2025-04-16:ve::CBmk9ewR" // "ft:o4-mini-2025-04-16:ve::CBkWAgxf" //"ft:o4-mini-2025-04-16:ve::CBaCK4NL" //"ft:o4-mini-2025-04-16:ve::CAMpma9g"
         
         let messages: [OpenAIMessage] = [
             .init(role: .system,
@@ -93,8 +93,8 @@ struct OpenAIVisionChatCompletionRequest: StitchAIChatCompletionRequestable {
          reasoningEffort: String? = nil,
          willStream: Bool = false) throws {
         
-        let verbosity = "medium"
-        let model = "ft:o4-mini-2025-04-16:ve::CCBkySVc" // "ft:o4-mini-2025-04-16:ve::CC7e2R5z" // "ft:o4-mini-2025-04-16:ve::CBmk9ewR" // "ft:o4-mini-2025-04-16:ve::CBkWAgxf" //"ft:o4-mini-2025-04-16:ve::CBaCK4NL" // "ft:o4-mini-2025-04-16:ve::CAMpma9g"
+//        let verbosity = "medium"
+        // let model = "ft:o4-mini-2025-04-16:ve::CCBkySVc" // "ft:o4-mini-2025-04-16:ve::CC7e2R5z" // "ft:o4-mini-2025-04-16:ve::CBmk9ewR" // "ft:o4-mini-2025-04-16:ve::CBkWAgxf" //"ft:o4-mini-2025-04-16:ve::CBaCK4NL" // "ft:o4-mini-2025-04-16:ve::CAMpma9g"
         
         var userContentArray: [OpenAIUserContentItem] = []
         
