@@ -41,11 +41,12 @@ struct StitchApp: App {
         FirebaseApp.configure()
     }
 
-#if FAKE_FLAG
-//#if DEV_DEBUG
+//#if FAKE_FLAG
+#if DEV_DEBUG
     var body: some Scene {
         WindowGroup {
-            ASTExplorerView()
+            ClaudePromptCachingDemoView()
+            // ASTExplorerView()
             
             //                .onAppear {
             //                    let prompt = try! StitchAIManager.aiCodeGenSystemPromptGenerator(
