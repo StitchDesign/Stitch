@@ -93,6 +93,9 @@ enum DerivedLayerInputPortsResult: Equatable, Hashable, Sendable {
     // Vast majority of cases: a single view modifier name corresponds to a single layer input
     case simple(CurrentAIGraphData.LayerInputPort)
     
+    // Special case: position/offset modifiers affect both position AND anchoring
+    case positionWithAnchoring(CurrentAIGraphData.LayerInputPort, anchoring: Anchoring)
+    
     // Special case: .rotation3DEffect modifier corresponds to *three* different layer inputs; .rotation also requires special parsing of its `.degrees(x)` arguments
 //    case rotationScenario
     
@@ -144,20 +147,17 @@ extension SyntaxViewModifierName {
             return .simple(.opacity)
         
         /*
-         TODO: JUNE 26: UI positioning is complicated by VPL anchoring and VPL "offset in VStack/HStack"
+         Position/Offset modifier distinction based on anchoring:
          
-         Rules?:
-         - SwiftUI .position modifier *always* becomes Stitch LayerInputPort.position
-         
-         - SwiftUI .offset modifier becomes Stitch LayerInputPort.offsetInGroup if view's parent is e.g. VStack, else becomes Stitch LayerInputPort.position
+         - SwiftUI .position modifier → position + anchoring(.topLeft)
+         - SwiftUI .offset modifier → position + anchoring(.centerCenter)
          
          */
         case .position:
-            return .simple(.position)
+            return .positionWithAnchoring(.position, anchoring: .topLeft)
 
         case .offset:
-            // TODO: if view's parent is VStack/HStack, return .simple(.offsetInGroup) instead ?
-            return .simple(.position)
+            return .positionWithAnchoring(.position, anchoring: .centerCenter)
         
         // Rotation is a more complicated scenario which we handle with special logic
         case .rotationEffect:

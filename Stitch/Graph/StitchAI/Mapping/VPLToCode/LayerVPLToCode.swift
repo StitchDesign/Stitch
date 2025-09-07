@@ -408,14 +408,54 @@ extension LayerNodeEntity {
     @MainActor
     func getSwiftUIViewModifierStrings(varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String]) throws -> [String] {
         let ports = self.layer.inputDefinitions
+        var results: [String] = []
+        var processedPositionPort = false
         
-        return try ports.compactMap { port -> String? in
-            guard let viewModifier = port.viewModifierString(from: self.layer) else {
-                // log("getSwiftUIViewModifierStrings: no view modifier for \(port) in \(self.layer)")
-                return nil
+        for port in ports {
+            // Special handling for position - combine with anchoring to choose modifier
+            if port == .position && !processedPositionPort {
+                processedPositionPort = true
+                
+                let positionInputData = self[keyPath: port.schemaPortKeyPath]
+                let positionDefault = port.getDefaultValueForAI(for: self.layer)
+                let anchoringInputData = self.anchoringPort
+                let anchoringDefault = LayerInputPort.anchoring.getDefaultValueForAI(for: self.layer)
+                
+                // Only generate position modifier if position value differs from default
+                let positionValue = positionInputData.packedData.inputPort.values?.first
+                guard positionDefault != positionValue else { continue }
+                
+                // Determine modifier type based on anchoring value
+                let anchoringValue = anchoringInputData.packedData.inputPort.values?.first
+                let currentAnchoring = anchoringValue?.getAnchoring ?? .topLeft // Default fallback
+                
+                let viewModifier: SyntaxViewModifierName
+                switch currentAnchoring {
+                case .centerCenter:
+                    viewModifier = .offset
+                case .topLeft:
+                    viewModifier = .position
+                default:
+                    // Fallback to position for any other anchoring
+                    viewModifier = .position
+                }
+                
+                // Generate the modifier string
+                let portValueArgs = try positionInputData.getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
+                results.append(".\(viewModifier.rawValue)(\(portValueArgs))")
+                
+                continue
             }
+            
+            // Skip anchoring port as it's handled above with position
+            if port == .anchoring { continue }
+            
+            // Standard handling for all other ports
+            guard let viewModifier = port.viewModifierString(from: self.layer) else {
+                continue
+            }
+            
             let inputData = self[keyPath: port.schemaPortKeyPath]
-
             let defaultData = port.getDefaultValueForAI(for: self.layer)
             
             switch inputData.mode {
@@ -424,20 +464,21 @@ extension LayerNodeEntity {
                 
                 guard defaultData != firstValue else {
                     // Skip if default data is equal--no view modifier needed in this event
-                    return nil
+                    continue
                 }
                 
                 let portValueArgs = try inputData.getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
-                return ".\(viewModifier.rawValue)(\(portValueArgs))"
+                results.append(".\(viewModifier.rawValue)(\(portValueArgs))")
                 
             case .unpacked:
                 let unpackedArgsString = try inputData
                     .getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
                 
-                return ".\(viewModifier.rawValue)(\(unpackedArgsString))"
+                results.append(".\(viewModifier.rawValue)(\(unpackedArgsString))")
             }
-            
         }
+        
+        return results
     }
     
     /// Creates view modifier callbacks for gesture data.
@@ -534,7 +575,8 @@ extension LayerInputPort {
         case .colorInvert:
             return .colorInvert
         case .position:
-            return .position
+            // Position modifier choice depends on anchoring - handled in getSwiftUIViewModifierStrings
+            return nil // Special case - handled elsewhere
         case .offsetInGroup:
             return .offset
         case .padding:
