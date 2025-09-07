@@ -619,6 +619,20 @@ extension SyntaxViewName {
                 layerType: layerType)
             
             return .layerInputValues(newValues)
+            
+        case .positionWithAnchoring(let port, let anchoring):
+            // Handle position modifier with explicit anchoring
+            var newValues = try Self.derivePortValues(
+                from: modifier.arguments.defaultArgs ?? [],
+                modifierName: modifier.name,
+                port: port,
+                layerType: layerType)
+            
+            // Add the anchoring value as an additional layer port derivation
+            newValues.append(LayerPortDerivation(input: .anchoring, 
+                                               value: .anchoring(anchoring)))
+            
+            return .layerInputValues(newValues)
                         
         case .layerId:
             guard let rawValue = modifier.arguments.defaultArgs?.first?.value.simpleValue else {
