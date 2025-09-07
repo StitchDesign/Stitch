@@ -41,14 +41,14 @@ func makeOpenAIStreamingRequest(
     
     // Build request body using correct Responses API format
     var requestBody: [String: Any] = [
-        "model": model.asOpenAIModel,
+        "model": model.rawValue,
         "stream": true
     ]
     
     // Add reasoning parameters
     requestBody["reasoning"] = [
         "summary": "auto",
-        "effort": reasoningEffort.toReasoningEffort()
+        "effort": reasoningEffort.rawValue
     ]
     
     let instructions = """
