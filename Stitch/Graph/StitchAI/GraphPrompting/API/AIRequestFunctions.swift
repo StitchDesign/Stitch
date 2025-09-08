@@ -215,50 +215,52 @@ func makeClaudeRequest(
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     request.setValue(claudeAPIKey, forHTTPHeaderField: "x-api-key")
     request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
-    request.setValue("output-128k-2025-02-19", forHTTPHeaderField: "anthropic-beta")
+    request.setValue("output-128k-2025-02-19,prompt-caching-2024-07-31", forHTTPHeaderField: "anthropic-beta")
     
-    // Convert to Claude format with prompt caching
-    // Split the system prompts into cacheable segments
-    let cacheableDataGlossary: [String: Any] = [
-        "type": "text",
-        "text": params.dataGlossaryPrompt,
-        "cache_control": ["type": "ephemeral"]
-    ]
-    
-    let cacheableAssistantPrompt: [String: Any] = [
+//    // Convert to Claude format with prompt caching
+//    // Split the system prompts into cacheable segments
+//    // Per Anthropic docs: only the LAST segment should have cache_control
+//    let dataGlossarySegment: [String: Any] = [
+//        "type": "text",
+//        "text": params.dataGlossaryPrompt
+//        // NO cache_control here - only on the last segment
+//    ]
+//    
+    let assistantPromptSegment: [String: Any] = [
         "type": "text", 
-        "text": params.assistantPrompt,
-        "cache_control": ["type": "ephemeral"]
+        "text": "\(params.dataGlossaryPrompt) \n \n \(params.assistantPrompt)",
+        "cache_control": ["type": "ephemeral", "ttl": "1h"] // Cache control ONLY on last system message
     ]
     
     var claudeBody: [String: Any] = [
-        "model": model.rawValue, // Use the actual model parameter
+        "model": "claude-sonnet-4-20250514", //model.rawValue, // Use the actual model parameter
         "max_tokens": 32768, // High limit for complex code generation (with beta header support)
-        "system": [cacheableDataGlossary, cacheableAssistantPrompt]
+//        "system": [dataGlossarySegment, assistantPromptSegment]
+        "system": [assistantPromptSegment]
     ]
     
     // Handle text + optional image input
-    if let imageData = params.base64Image {
-        claudeBody["messages"] = [[
-            "role": "user",
-            "content": [
-                ["type": "text", "text": params.textInput],
-                [
-                    "type": "image",
-                    "source": [
-                        "type": "base64",
-                        "media_type": "image/jpeg",
-                        "data": imageData
-                    ]
-                ]
-            ]
-        ]]
-    } else {
+//    if let imageData = params.base64Image {
+//        claudeBody["messages"] = [[
+//            "role": "user",
+//            "content": [
+//                ["type": "text", "text": params.textInput],
+//                [
+//                    "type": "image",
+//                    "source": [
+//                        "type": "base64",
+//                        "media_type": "image/jpeg",
+//                        "data": imageData
+//                    ]
+//                ]
+//            ]
+//        ]]
+//    } else {
         claudeBody["messages"] = [[
             "role": "user",
             "content": params.textInput
         ]]
-    }
+//    }
     
     request.httpBody = try JSONSerialization.data(withJSONObject: claudeBody)
     
@@ -310,8 +312,6 @@ func makeClaudeRequest(
             fatalError()
         }
         
-        // Monitor cache performance from response headers
-        await monitorClaudeCachePerformance(headers: httpResponse.allHeaderFields)
         
         if !(200...299).contains(httpResponse.statusCode) {
             log("Claude request failed with status code: \(httpResponse.statusCode)", .logToServer)
@@ -330,7 +330,11 @@ func makeClaudeRequest(
         
         // Parse Claude response
         let claudeResponse = try JSONDecoder().decode(ClaudeResponse.self, from: data)
+        log("claudeResponse: \(claudeResponse)")
         let content = claudeResponse.content.compactMap { $0.text }.joined()
+        
+        // Monitor cache performance from response body (not headers)
+        await monitorClaudeCachePerformance(claudeResponse: claudeResponse)
         
         log("Claude request completed successfully", .logToServer)
         return content
@@ -497,64 +501,52 @@ private func handleOpenAIStreamingEvent(
     }
 }
 
-/// Monitor Claude prompt cache performance from response headers
-private func monitorClaudeCachePerformance(headers: [AnyHashable: Any]) async {
-    print("🔍 Claude Response Headers for Cache Analysis:")
+/// Monitor Claude prompt cache performance from response body
+private func monitorClaudeCachePerformance(claudeResponse: ClaudeResponse) async {
+    print("🔍 Claude Response Usage Analysis for Cache Performance:")
+    log("TODO: FIX ME")
+//    fatalError()
     
-    // Look for cache-related headers
-    var cacheCreated = false
-    var cacheHit = false
-    var inputTokens: Int? = nil
-    var outputTokens: Int? = nil
-    var cacheCreationInputTokens: Int? = nil
-    var cacheReadInputTokens: Int? = nil
-    
-    for (key, value) in headers {
-        let keyString = String(describing: key).lowercased()
-        let valueString = String(describing: value)
-        
-        // Log all headers for debugging
-        print("   \(key): \(value)")
-        
-        // Check for usage headers
-        if keyString.contains("anthropic-billing-input-tokens") {
-            inputTokens = Int(valueString)
-        } else if keyString.contains("anthropic-billing-output-tokens") {
-            outputTokens = Int(valueString)
-        } else if keyString.contains("anthropic-billing-cache-creation-input-tokens") {
-            cacheCreationInputTokens = Int(valueString)
-            cacheCreated = true
-        } else if keyString.contains("anthropic-billing-cache-read-input-tokens") {
-            cacheReadInputTokens = Int(valueString)
-            cacheHit = true
-        }
-    }
-    
-    // Analyze cache performance
-    if cacheCreated && cacheHit {
-        print("💾 CACHE PERFORMANCE: Both cache creation and cache hit detected")
-        if let created = cacheCreationInputTokens, let read = cacheReadInputTokens {
-            let savings = created - read
-            let savingsPercent = (Double(savings) / Double(created)) * 100
-            print("   📊 Cache savings: \(savings) tokens (\(String(format: "%.1f", savingsPercent))%)")
-        }
-    } else if cacheCreated {
-        print("🆕 CACHE PERFORMANCE: New cache created")
-        if let tokens = cacheCreationInputTokens {
-            print("   📝 Cache creation tokens: \(tokens)")
-        }
-    } else if cacheHit {
-        print("⚡ CACHE PERFORMANCE: Cache hit! Significant token savings")
-        if let tokens = cacheReadInputTokens {
-            print("   📖 Cache read tokens: \(tokens)")
-        }
-    } else {
-        print("❌ CACHE PERFORMANCE: No cache headers detected - cache may not be working")
-    }
-    
-    // Log overall token usage
-    if let input = inputTokens, let output = outputTokens {
-        print("🎯 Total token usage: \(input) input + \(output) output = \(input + output) total")
-        log("Claude request used \(input + output) total tokens (in: \(input), out: \(output))", .logToServer)
-    }
+//    guard let usage = claudeResponse.usage else {
+//        print("❌ No usage information in Claude response")
+//        return
+//    }
+//    
+//    // Extract cache and usage data from response body
+//    let inputTokens = usage.inputTokens
+//    let outputTokens = usage.outputTokens
+//    let cacheCreationInputTokens = usage.cacheCreationInputTokens ?? 0
+//    let cacheReadInputTokens = usage.cacheReadInputTokens ?? 0
+//    
+//    print("📊 Usage Statistics:")
+//    print("   → Input tokens: \(inputTokens)")
+//    print("   → Output tokens: \(outputTokens)")
+//    print("   → Cache creation tokens: \(cacheCreationInputTokens)")
+//    print("   → Cache read tokens: \(cacheReadInputTokens)")
+//    
+//    // Analyze cache performance
+//    let cacheCreated = cacheCreationInputTokens > 0
+//    let cacheHit = cacheReadInputTokens > 0
+//    
+//    if cacheCreated && cacheHit {
+//        print("💾 CACHE PERFORMANCE: Both cache creation and cache hit detected")
+//        let savings = cacheCreationInputTokens - cacheReadInputTokens
+//        let savingsPercent = (Double(savings) / Double(cacheCreationInputTokens)) * 100
+//        print("   📊 Cache savings: \(savings) tokens (\(String(format: "%.1f", savingsPercent))%)")
+//    } else if cacheCreated {
+//        print("🆕 CACHE PERFORMANCE: New cache created")
+//        print("   📝 Cache creation tokens: \(cacheCreationInputTokens)")
+//    } else if cacheHit {
+//        print("⚡ CACHE PERFORMANCE: Cache hit! Significant token savings")
+//        print("   📖 Cache read tokens: \(cacheReadInputTokens)")
+//    } else {
+//        print("❌ CACHE PERFORMANCE: No cache activity detected")
+//        print("   → This could mean prompt caching is not available for your account")
+//        print("   → Or the system prompt is too small (<1024 tokens for Sonnet)")
+//    }
+//    
+//    // Log overall token usage
+//    let totalTokens = inputTokens + outputTokens
+//    print("🎯 Total token usage: \(inputTokens) input + \(outputTokens) output = \(totalTokens) total")
+//    log("Claude request used \(totalTokens) total tokens (in: \(inputTokens), out: \(outputTokens))", .logToServer)
 }

@@ -14,63 +14,14 @@ struct ClaudePromptCachingDemoView: View {
     @State private var cachePerformance = ""
     @State private var requestCount = 0
     
-    // Large system prompt to ensure it meets the minimum cacheable token requirement (1024+ tokens)
-    private let largeSystemPrompt = """
-    You are Claude, an AI assistant created by Anthropic. You are helpful, harmless, and honest. 
-    
-    Your primary objective is to be as helpful as possible to humans while being safe and truthful. You should provide accurate, relevant, and useful information to the best of your knowledge and abilities.
-    
-    Key principles that guide your responses:
-    1. Accuracy: Provide factual and correct information. If you're uncertain about something, acknowledge your uncertainty.
-    2. Helpfulness: Focus on being genuinely useful to the human asking the question.
-    3. Safety: Avoid providing information that could be used to cause harm.
-    4. Honesty: Be truthful and transparent about your capabilities and limitations.
-    5. Respect: Treat all humans with respect and dignity.
-    
-    When answering questions:
-    - Be clear and concise while being thorough
-    - Use examples when helpful
-    - Break down complex topics into understandable parts
-    - Ask clarifying questions if the request is ambiguous
-    - Provide multiple perspectives on controversial topics
-    - Cite sources when possible and relevant
-    
-    Areas where you excel:
-    - General knowledge and information lookup
-    - Writing assistance and editing
-    - Analysis and reasoning
-    - Mathematical calculations and problem solving
-    - Code writing and debugging in many programming languages
-    - Creative tasks like brainstorming and storytelling
-    - Language translation and learning support
-    - Research assistance and summarization
-    
-    Important limitations to remember:
-    - Your training data has a knowledge cutoff, so very recent information may not be available
-    - You cannot browse the internet or access real-time information
-    - You cannot remember previous conversations unless they're part of the current session
-    - You cannot learn or update your knowledge from conversations
-    - You cannot access external systems, files, or databases
-    - You cannot perform actions in the physical world
-    
-    Communication style:
-    - Adapt your tone to match the context and user's needs
-    - Be professional yet approachable
-    - Use clear, well-structured language
-    - Provide relevant examples and analogies when helpful
-    - Be patient and supportive when helping with learning
-    - Show enthusiasm for interesting topics while remaining balanced
-    
-    Ethics and safety guidelines:
-    - Do not provide instructions for illegal activities
-    - Avoid generating harmful, offensive, or inappropriate content
-    - Respect intellectual property and copyright
-    - Do not pretend to be a human or claim to have human experiences
-    - Be transparent about being an AI
-    - Protect user privacy and confidentiality
-    
-    Remember: Your goal is to be maximally helpful while remaining safe, honest, and respectful. Always strive to provide value to the human you're assisting.
-    """
+    // Load the actual austen_system_prompt.txt from app resources for realistic cache testing
+    private var austenSystemPrompt: String {
+        guard let path = Bundle.main.path(forResource: "austen_system_prompt", ofType: "txt"),
+              let content = try? String(contentsOfFile: path) else {
+            return "Error: Could not load austen_system_prompt.txt from app resources"
+        }
+        return content
+    }
     
     var body: some View {
         VStack(spacing: 20) {
@@ -149,16 +100,15 @@ struct ClaudePromptCachingDemoView: View {
         request.setValue(claudeAPIKey, forHTTPHeaderField: "x-api-key")
         request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
         
-//        // Add beta header for prompt caching support
-//        request.setValue("prompt-caching-2024-07-31", forHTTPHeaderField: "anthropic-beta")
-//        
+        // Add beta header for prompt caching support
+        request.setValue("prompt-caching-2024-07-31", forHTTPHeaderField: "anthropic-beta")
         // Create request body with proper cache control structure
         // Only cache the system prompt (which is large and static)
         // Do NOT cache the user input (which changes between requests)
         let systemPromptWithCache: [String: Any] = [
             "type": "text",
-            "text": largeSystemPrompt,
-            "cache_control": ["type": "ephemeral"]
+            "text": austenSystemPrompt,
+            "cache_control": ["type": "ephemeral", "ttl": "1h"]
         ]
         
         let requestBody: [String: Any] = [
@@ -194,8 +144,8 @@ struct ClaudePromptCachingDemoView: View {
                         return
                     }
                     
-                    // Extract cache performance headers
-                    self.analyzeCachePerformance(headers: httpResponse.allHeaderFields, duration: duration, requestNumber: self.requestCount)
+                    // Extract cache performance from response body (not headers)
+                    self.analyzeCachePerformanceFromData(data: data, duration: duration, requestNumber: self.requestCount)
                     
                     guard let data = data else {
                         self.responseText = "❌ No data received"
@@ -216,62 +166,65 @@ struct ClaudePromptCachingDemoView: View {
         }
     }
     
-    private func analyzeCachePerformance(headers: [AnyHashable: Any], duration: TimeInterval, requestNumber: Int) {
+    private func analyzeCachePerformanceFromData(data: Data?, duration: TimeInterval, requestNumber: Int) {
         var cacheInfo: [String] = []
         
         cacheInfo.append("🔍 Request #\(requestNumber) completed in \(String(format: "%.2f", duration))s")
         
-        // Look for cache-related headers
-        var cacheCreated = false
-        var cacheHit = false
-        var inputTokens: Int? = nil
-        var outputTokens: Int? = nil
-        var cacheCreationInputTokens: Int? = nil
-        var cacheReadInputTokens: Int? = nil
+        guard let data = data else {
+            cacheInfo.append("❌ No response data to analyze")
+            self.cachePerformance = cacheInfo.joined(separator: "\n")
+            return
+        }
         
-        for (key, value) in headers {
-            let keyString = String(describing: key).lowercased()
-            let valueString = String(describing: value)
+        do {
+            // Parse response JSON to extract usage information
+            guard let jsonResponse = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let usage = jsonResponse["usage"] as? [String: Any] else {
+                cacheInfo.append("❌ Could not parse usage data from response")
+                self.cachePerformance = cacheInfo.joined(separator: "\n")
+                return
+            }
             
-            // Check for usage headers
-            if keyString.contains("anthropic-billing-input-tokens") {
-                inputTokens = Int(valueString)
-            } else if keyString.contains("anthropic-billing-output-tokens") {
-                outputTokens = Int(valueString)
-            } else if keyString.contains("anthropic-billing-cache-creation-input-tokens") {
-                cacheCreationInputTokens = Int(valueString)
-                cacheCreated = true
-            } else if keyString.contains("anthropic-billing-cache-read-input-tokens") {
-                cacheReadInputTokens = Int(valueString)
-                cacheHit = true
-            }
-        }
-        
-        // Analyze cache performance
-        if cacheCreated && cacheHit {
-            cacheInfo.append("💾 CACHE: Both creation and hit detected")
-            if let created = cacheCreationInputTokens, let read = cacheReadInputTokens {
-                let savings = created - read
-                let savingsPercent = (Double(savings) / Double(created)) * 100
+            // Extract cache and token data from usage object
+            let inputTokens = usage["input_tokens"] as? Int ?? 0
+            let outputTokens = usage["output_tokens"] as? Int ?? 0
+            let cacheCreationInputTokens = usage["cache_creation_input_tokens"] as? Int ?? 0
+            let cacheReadInputTokens = usage["cache_read_input_tokens"] as? Int ?? 0
+            
+            cacheInfo.append("📊 Usage Data from Response Body:")
+            cacheInfo.append("   → Input tokens: \(inputTokens)")
+            cacheInfo.append("   → Output tokens: \(outputTokens)")
+            cacheInfo.append("   → Cache creation: \(cacheCreationInputTokens)")
+            cacheInfo.append("   → Cache read: \(cacheReadInputTokens)")
+            
+            // Analyze cache performance
+            let cacheCreated = cacheCreationInputTokens > 0
+            let cacheHit = cacheReadInputTokens > 0
+            
+            if cacheCreated && cacheHit {
+                cacheInfo.append("💾 CACHE: Both creation and hit detected")
+                let savings = cacheCreationInputTokens - cacheReadInputTokens
+                let savingsPercent = (Double(savings) / Double(cacheCreationInputTokens)) * 100
                 cacheInfo.append("   📊 Savings: \(savings) tokens (\(String(format: "%.1f", savingsPercent))%)")
+            } else if cacheCreated {
+                cacheInfo.append("🆕 CACHE: New cache created")
+                cacheInfo.append("   📝 Created: \(cacheCreationInputTokens) tokens")
+            } else if cacheHit {
+                cacheInfo.append("⚡ CACHE: Cache hit! Major token savings")
+                cacheInfo.append("   📖 Read: \(cacheReadInputTokens) tokens from cache")
+            } else {
+                cacheInfo.append("❌ CACHE: No cache activity detected")
+                cacheInfo.append("   → Cache may not be available for your account")
+                cacheInfo.append("   → Or system prompt may be too small (<1024 tokens)")
             }
-        } else if cacheCreated {
-            cacheInfo.append("🆕 CACHE: New cache created")
-            if let tokens = cacheCreationInputTokens {
-                cacheInfo.append("   📝 Created: \(tokens) tokens")
-            }
-        } else if cacheHit {
-            cacheInfo.append("⚡ CACHE: Cache hit! Major savings")
-            if let tokens = cacheReadInputTokens {
-                cacheInfo.append("   📖 Read: \(tokens) tokens")
-            }
-        } else {
-            cacheInfo.append("❌ CACHE: No cache headers detected - cache may not be working")
-        }
-        
-        // Log overall token usage
-        if let input = inputTokens, let output = outputTokens {
-            cacheInfo.append("🎯 Tokens: \(input) input + \(output) output = \(input + output) total")
+            
+            // Log overall token usage
+            let totalTokens = inputTokens + outputTokens
+            cacheInfo.append("🎯 Total: \(inputTokens) input + \(outputTokens) output = \(totalTokens) tokens")
+            
+        } catch {
+            cacheInfo.append("❌ Error parsing response JSON: \(error.localizedDescription)")
         }
         
         self.cachePerformance = cacheInfo.joined(separator: "\n")
