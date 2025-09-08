@@ -76,7 +76,8 @@ struct SwiftSyntaxActionsResult: Encodable {
 
 extension SwiftUIViewParserResult {
     @MainActor
-    func deriveStitchActions(bindingDeclarations: [(String, SwiftParserInitializerType)]) -> SwiftSyntaxActionsResult {
+    func deriveStitchActions(bindingDeclarations: [(String, SwiftParserInitializerType)],
+                             document: StitchDocumentViewModel) async -> SwiftSyntaxActionsResult {
         // Extract layer data
         let layerResults = self.viewStack.deriveStitchActions(bindingDeclarations: bindingDeclarations)
         
@@ -84,6 +85,12 @@ extension SwiftUIViewParserResult {
 
         // Prepend view event data for code from `updateLayerInputs`
         let allPatchCode = try! interactionsPatchActionResult + self.bindingDeclarations.getSwiftPatchCodeTypes()
+        
+        let debugPatchStrings = allPatchCode.map { "\($0)" }
+            .joined(separator: "\n")
+        print("PATCH DATA:\n\(debugPatchStrings)")
+        
+        let _ = await allPatchCode.derivePatchNodes(document: document)
         
 //        let patchResults = self.bindingDeclarations.deriveStitchActions(existingData: interactionsPatchActionResult)
         
@@ -703,8 +710,7 @@ extension Array where Element == (String, SwiftParserInitializerType) {
 
 extension Array where Element == (String, SwiftPatchCodeType) {
     @MainActor
-    func derivePatchNodes(document: StitchDocumentViewModel,
-                          varNameToCode: [String: SwiftPatchCodeType]) async -> SwiftSyntaxPatchActionsResult {
+    func derivePatchNodes(document: StitchDocumentViewModel) async -> SwiftSyntaxPatchActionsResult {
         // Create dictionary of self
         let varNameToCode = self.reduce(into: [String: SwiftPatchCodeType]()) { result, data in
             result.updateValue(data.1, forKey: data.0)
@@ -1058,9 +1064,10 @@ extension SyntaxView {
             
             // Parse script
             let scriptResult = SwiftUIViewVisitor.parseSwiftUICode(viewBuilderFn)
-            let result = scriptResult.deriveStitchActions(bindingDeclarations: scriptResult.bindingDeclarations)
+            let result = scriptResult
+                .viewStack.deriveStitchActions(bindingDeclarations: scriptResult.bindingDeclarations)
             
-            let actions = result.graphData.layer_data_list + backgroundLayerData.actions
+            let actions = result.actions + backgroundLayerData.actions
             
             return .init(actions: actions,
                          caughtErrors: result.caughtErrors + silentErrors)

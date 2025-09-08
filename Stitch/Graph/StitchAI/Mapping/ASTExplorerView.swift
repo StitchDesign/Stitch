@@ -255,19 +255,21 @@ struct ASTExplorerView: View {
         
         // Parse code → Syntax
         firstSyntax = codeParserResult.viewStack
-
-        // Syntax → Actions
-        var stitchActionsResult = codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
-        
-        stitchActions = stitchActionsResult
-        silentlyCaughtErrors = stitchActionsResult.caughtErrors
         
         // Apply AI result to fake document
         Task(priority: .high) {
-            await stitchActionsResult
-                .createAIGraph(document: fakeDoc)
+//            await stitchActionsResult
+//                .createAIGraph(document: fakeDoc)
+            
+            // Syntax → Actions
+            let stitchActionsResult = await codeParserResult.deriveStitchActions(
+                bindingDeclarations: codeParserResult.bindingDeclarations,
+                document: fakeDoc)
             
             try await MainActor.run {
+                stitchActions = stitchActionsResult
+                silentlyCaughtErrors = stitchActionsResult.caughtErrors
+    
                 // Updates all errors
                 silentlyCaughtErrors = stitchActionsResult.caughtErrors
                 

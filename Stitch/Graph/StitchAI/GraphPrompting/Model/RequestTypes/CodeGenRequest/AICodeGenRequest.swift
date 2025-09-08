@@ -183,7 +183,9 @@ extension StitchAICodeCreator {
         
         logToServerIfRelease("StitchAICodeCreator codeParserResult:\n\(codeParserResult)")
         
-        let actionsResult = codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
+        let actionsResult = await codeParserResult.deriveStitchActions(
+            bindingDeclarations: codeParserResult.bindingDeclarations,
+            document: document)
         
         print("Derived Stitch layer data:\n\((try? actionsResult.encodeToPrintableString()) ?? "")")
         
