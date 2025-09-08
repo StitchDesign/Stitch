@@ -217,11 +217,12 @@ func makeClaudeRequest(
     request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
     request.setValue("output-128k-2025-02-19,prompt-caching-2024-07-31", forHTTPHeaderField: "anthropic-beta")
     
-    // Note: seems best to combine
+    // Use large austen content for cache testing (ignoring dataGlossaryPrompt and assistantPrompt for now)
+    let austenContent = loadAustenSystemPrompt()
     let fullSystemPrompt: [String: Any] = [
         "type": "text", 
-        "text": "\(params.dataGlossaryPrompt) \n \n \(params.assistantPrompt)",
-        "cache_control": ["type": "ephemeral", "ttl": "1h"] // Cache control ONLY on last system message
+        "text": austenContent,
+        "cache_control": ["type": "ephemeral", "ttl": "1h"] // Cache control on large cacheable content
     ]
     
     var claudeBody: [String: Any] = [
@@ -259,6 +260,13 @@ func makeClaudeRequest(
     if let jsonData = request.httpBody {
         print("🔍 Total Claude request body: \(jsonData.count) bytes (\(jsonData.count/1024)KB)")
         print("📤 Using Claude model: \(model.rawValue)")
+        
+        // Log austen content stats for cache debugging
+        let austenTokenEstimate = austenContent.count / 3 // Rough token estimate
+        print("📚 Austen system prompt stats:")
+        print("   → Characters: \(austenContent.count)")
+        print("   → Estimated tokens: ~\(austenTokenEstimate)")
+        print("   → Cache eligible: \(austenTokenEstimate > 1024 ? "✅ YES" : "❌ NO") (>1024 tokens required)")
     }
     
     // Set streaming UI state
@@ -361,6 +369,15 @@ func makeAIRequest(
 }
 
 // MARK: - Helper Functions
+
+/// Load the austen_system_prompt.txt content from app bundle for cache testing
+private func loadAustenSystemPrompt() -> String {
+    guard let path = Bundle.main.path(forResource: "austen_system_prompt", ofType: "txt"),
+          let content = try? String(contentsOfFile: path) else {
+        return "Error: Could not load austen_system_prompt.txt from app resources"
+    }
+    return content
+}
 
 private func handleOpenAIStreamingEvent(
     json: [String: Any],
