@@ -51,71 +51,75 @@ def fetch_book_content(url):
         print(f"❌ Failed to fetch book content: {e}")
         return None
 
-def analyze_response_headers(response, request_num):
-    """Analyze Claude API response headers for cache performance"""
+def analyze_response_for_cache(response, request_num):
+    """Analyze Claude API response body and metadata for cache performance"""
     print(f"\n📊 Request #{request_num} Analysis:")
     print("=" * 40)
     
-    # Access response metadata
-    if hasattr(response, '_raw_response'):
-        headers = response._raw_response.headers
-    elif hasattr(response, 'headers'):
-        headers = response.headers
-    else:
-        print("❌ Unable to access response headers")
-        return False
+    cache_detected = False
     
-    # Print ALL headers first
-    print("🔍 ALL RESPONSE HEADERS:")
-    for key, value in headers.items():
-        print(f"   {key}: {value}")
+    # Check usage object in response for cache information
+    if hasattr(response, 'usage') and response.usage:
+        print("🔍 USAGE OBJECT:")
+        usage = response.usage
+        print(f"   Raw usage: {usage}")
+        
+        # Check if usage has cache-related fields
+        usage_dict = usage.model_dump() if hasattr(usage, 'model_dump') else usage.__dict__
+        print(f"   Usage fields: {list(usage_dict.keys())}")
+        
+        for key, value in usage_dict.items():
+            if 'cache' in key.lower():
+                print(f"   🎯 CACHE FIELD: {key} = {value}")
+                cache_detected = True
+            else:
+                print(f"   {key} = {value}")
     
-    # Look for cache-related headers
-    cache_headers_found = False
-    cache_creation_tokens = None
-    cache_read_tokens = None
-    input_tokens = None
-    output_tokens = None
+    # Look for cache info in other response fields
+    print(f"\n🔍 CHECKING ALL RESPONSE ATTRIBUTES FOR CACHE INFO:")
+    for attr in dir(response):
+        if not attr.startswith('_') and 'cache' in attr.lower():
+            try:
+                value = getattr(response, attr)
+                print(f"   CACHE ATTRIBUTE: {attr} = {value}")
+                cache_detected = True
+            except:
+                print(f"   CACHE ATTRIBUTE: {attr} (could not access)")
     
-    print(f"\n🔍 Analyzing cache-specific headers:")
-    for key, value in headers.items():
-        key_lower = key.lower()
-        if 'anthropic-billing' in key_lower:
-            print(f"   BILLING HEADER: {key}: {value}")
-            cache_headers_found = True
-            
-            if 'cache-creation-input-tokens' in key_lower:
-                cache_creation_tokens = int(value)
-            elif 'cache-read-input-tokens' in key_lower:
-                cache_read_tokens = int(value)
-            elif 'input-tokens' in key_lower and 'cache' not in key_lower:
-                input_tokens = int(value)
-            elif 'output-tokens' in key_lower:
-                output_tokens = int(value)
+    # Look through the complete response dump for cache-related fields
+    print(f"\n🔍 SEARCHING RESPONSE DUMP FOR CACHE TERMS:")
+    try:
+        response_dict = response.model_dump()
+        response_str = json.dumps(response_dict, indent=2).lower()
+        
+        cache_terms = ['cache', 'cached', 'caching']
+        for term in cache_terms:
+            if term in response_str:
+                print(f"   📍 Found '{term}' in response")
+                cache_detected = True
+        
+        # Look for specific cache fields in nested objects
+        def search_dict(obj, path=""):
+            if isinstance(obj, dict):
+                for key, value in obj.items():
+                    current_path = f"{path}.{key}" if path else key
+                    if 'cache' in key.lower():
+                        print(f"   🎯 CACHE KEY: {current_path} = {value}")
+                        cache_detected = True
+                    search_dict(value, current_path)
+            elif isinstance(obj, list):
+                for i, item in enumerate(obj):
+                    search_dict(item, f"{path}[{i}]")
+        
+        search_dict(response_dict)
+        
+    except Exception as e:
+        print(f"   Could not search response dump: {e}")
     
-    if not cache_headers_found:
-        print("   ❌ No cache-related billing headers found")
+    if not cache_detected:
+        print("   ❌ No cache-related information found in response body")
     
-    # Analyze cache performance
-    print(f"\n💾 Cache Performance:")
-    if cache_creation_tokens is not None:
-        print(f"   🆕 Cache created: {cache_creation_tokens} tokens")
-    
-    if cache_read_tokens is not None:
-        print(f"   ⚡ Cache hit: {cache_read_tokens} tokens")
-        if cache_creation_tokens and cache_read_tokens < cache_creation_tokens:
-            savings = cache_creation_tokens - cache_read_tokens
-            percent = (savings / cache_creation_tokens) * 100
-            print(f"   💰 Token savings: {savings} tokens ({percent:.1f}%)")
-    
-    if input_tokens and output_tokens:
-        total = input_tokens + output_tokens
-        print(f"   🎯 Total usage: {input_tokens} input + {output_tokens} output = {total} tokens")
-    
-    if cache_creation_tokens is None and cache_read_tokens is None:
-        print("   ❌ No cache activity detected")
-    
-    return cache_headers_found
+    return cache_detected
 
 def main():
     print("🔍 Testing Claude Prompt Caching with Python SDK")
@@ -139,13 +143,13 @@ def main():
         print("❌ Failed to fetch book content. Exiting.")
         sys.exit(1)
     
-    # Use only the first fourth of the book
-    book_quarter = book_content[:len(book_content)//4]
-    print(f"📏 Using first fourth of book: {len(book_quarter)} characters")
+    # Use only the first tenth of the book
+    book_tenth = book_content[:len(book_content)//10]
+    print(f"📏 Using first tenth of book: {len(book_tenth)} characters")
     
     # Estimate token count (rough approximation)
-    estimated_tokens = len(book_quarter) // 3  # Very rough estimate
-    print(f"📏 Estimated tokens in first fourth: ~{estimated_tokens:,}")
+    estimated_tokens = len(book_tenth) // 3  # Very rough estimate
+    print(f"📏 Estimated tokens in first tenth: ~{estimated_tokens:,}")
     
     if estimated_tokens < 1024:
         print("⚠️  Warning: Book content may be too small for caching (need >1024 tokens)")
@@ -158,7 +162,7 @@ def main():
         },
         {
             "type": "text", 
-            "text": f"Here is the first fourth of Pride and Prejudice by Jane Austen:\n\n{book_quarter}",
+            "text": f"Here is the first tenth of Pride and Prejudice by Jane Austen:\n\n{book_tenth}",
             "cache_control": {"type": "ephemeral"}
         }
     ]
@@ -204,8 +208,8 @@ def main():
         except Exception as e:
             print(f"Could not serialize to JSON: {e}")
         
-        # Analyze first response
-        cache_detected_1 = analyze_response_headers(response1, 1)
+        # Analyze first response for cache info
+        cache_detected_1 = analyze_response_for_cache(response1, 1)
         
     except Exception as e:
         print(f"❌ First request failed: {e}")
@@ -256,8 +260,8 @@ def main():
         except Exception as e:
             print(f"Could not serialize to JSON: {e}")
         
-        # Analyze second response
-        cache_detected_2 = analyze_response_headers(response2, 2)
+        # Analyze second response for cache info
+        cache_detected_2 = analyze_response_for_cache(response2, 2)
         
     except Exception as e:
         print(f"❌ Second request failed: {e}")
@@ -273,9 +277,9 @@ def main():
         print("⚡ Request 2 was significantly faster - possible cache hit!")
     
     if cache_detected_1 or cache_detected_2:
-        print("✅ Cache headers detected - prompt caching appears to be working!")
+        print("✅ Cache information detected in response - prompt caching appears to be working!")
     else:
-        print("❌ No cache headers detected")
+        print("❌ No cache information detected in response body")
         print("   → Prompt caching may not be available for your account/region")
         print("   → Try contacting Anthropic support about prompt caching access")
     
