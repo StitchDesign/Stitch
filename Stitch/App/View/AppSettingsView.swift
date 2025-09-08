@@ -147,6 +147,7 @@ enum StitchAppSettings: String {
     case OPENAI_VERBOSITY = "OpenAIVerbosity"
     case OPENAI_REASONING_EFFORT = "OpenAIReasoningEffort"
     case CLAUDE_MODEL = "ClaudeModel"
+    case CLAUDE_API_KEY = "ClaudeAPIKey"
 }
 
 struct AppSettingsView: View {
@@ -170,6 +171,8 @@ struct AppSettingsView: View {
     
     @AppStorage(StitchAppSettings.EXPERIMENTAL_NODE_SUMMARIES.rawValue) private var enabledNodeSummaries: Bool = false
     
+    @AppStorage(StitchAppSettings.CLAUDE_API_KEY.rawValue) private var claudeAPIKey: String = ""
+    
     @State private var currentAIProvider = AIProviderConfig.shared.currentProvider
         
     let allCameraChoices = getCameraPickerOptions()
@@ -183,6 +186,7 @@ struct AppSettingsView: View {
             isOptionRequiredForShortcutsPicker
             canShareAIRetriesPicker
             aiProviderPicker
+            claudeAPIKeyField
             
             Divider()
             Text("Experimental Features")
@@ -352,6 +356,21 @@ struct AppSettingsView: View {
         }
     }
     
+    @MainActor
+    var claudeAPIKeyField: some View {
+        VStack(alignment: .leading) {
+            if currentAIProvider == .claude {
+                HStack(alignment: .center) {
+                    Text("Claude API Key").fontWeight(.bold)
+                    SecureField("Enter your Claude API key", text: $claudeAPIKey)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.leading, 10)
+                }
+                StitchCaptionView("Enter your Claude API key from console.anthropic.com. Required for Claude AI features.")
+            }
+        }
+    }
+    
     var experimentalJsNodeCheckbox: some View {
         self.checkboxView(title: "AI Node",
                           caption: "A node that's created using natural language and runs JavaScript code underneath the hood.",
@@ -418,5 +437,10 @@ extension StitchStore {
     
     static var enabledNodeSummaries: Bool {
         UserDefaults.standard.value(forKey: StitchAppSettings.EXPERIMENTAL_NODE_SUMMARIES.rawValue) as? Bool ?? false
+    }
+    
+    static var claudeAPIKey: String? {
+        let key = UserDefaults.standard.string(forKey: StitchAppSettings.CLAUDE_API_KEY.rawValue)
+        return key?.isEmpty == false ? key : nil
     }
 }

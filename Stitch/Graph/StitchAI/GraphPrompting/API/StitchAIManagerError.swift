@@ -159,6 +159,7 @@ enum StitchAIManagerError: Error {
     case firstChoiceNotDecoded
     case functionDecodingFailed
     case toolNotFoundForFunction
+    case claudeAPIKeyNotSet
 }
 
 extension StitchAIManagerError: CustomStringConvertible {
@@ -180,6 +181,8 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "Could not find valid response for functions."
         case .toolNotFoundForFunction:
             return "No tool found for function request."
+        case .claudeAPIKeyNotSet:
+            return "Claude API key not configured. Please set your Claude API key in app settings."
         }
     }
 }

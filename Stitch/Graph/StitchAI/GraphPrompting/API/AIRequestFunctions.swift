@@ -201,9 +201,9 @@ func makeClaudeRequest(
     
     log("Making Claude request with model: \(model.rawValue)", .logToServer)
     
-    guard let claudeAPIKey = params.secrets.claudeAPIKey, !claudeAPIKey.isEmpty else {
-        log("ERROR: Claude API key not configured", .logToServer)
-        throw StitchAIManagerError.secretsNotFound
+    guard let claudeAPIKey = StitchStore.claudeAPIKey, !claudeAPIKey.isEmpty else {
+        log("ERROR: Claude API key not configured in settings", .logToServer)
+        throw StitchAIManagerError.claudeAPIKeyNotSet
     }
     
     guard let url = URL(string: "https://api.anthropic.com/v1/messages") else {
