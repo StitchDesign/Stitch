@@ -37,15 +37,18 @@ struct ClaudeContent: Codable {
     var text: String?
 }
 
-// TODO: expand to include caching information
-/// Tracks token usage metrics for Claude API requests
+/// Tracks token usage metrics for Claude API requests, including caching information
 struct ClaudeUsage: Codable {
     var inputTokens: Int
     var outputTokens: Int
+    var cacheCreationInputTokens: Int?
+    var cacheReadInputTokens: Int?
     
     enum CodingKeys: String, CodingKey {
         case inputTokens = "input_tokens"
         case outputTokens = "output_tokens"
+        case cacheCreationInputTokens = "cache_creation_input_tokens"
+        case cacheReadInputTokens = "cache_read_input_tokens"
     }
 }
 
