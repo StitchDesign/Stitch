@@ -193,7 +193,7 @@ extension SwiftParserPatchData {
         let ports: [SwiftPatchCodeType] = try self.args.map { arg in
             switch arg {
             case .binding(let refName):
-                return .normal(.ref(refName))
+                return .expression(.ref(refName))
                 
                 // TODO: get this working for edge logic
                 //                SwiftParserPatchData
@@ -210,13 +210,13 @@ extension SwiftParserPatchData {
                 guard let result = try SwiftParserInitializerType.subscriptRef(subscriptRef)
                     .getSwiftPatchCodeType() else {
                     fatalErrorIfDebug()
-                    return .subscriptType(.normal(.ref("none")), subscriptRef.portIndex)
+                    return .subscriptType(.expression(.ref("none")), subscriptRef.portIndex)
                 }
                 
                 return .subscriptType(result, subscriptRef.portIndex)
                 
             case .value(let argType):
-                return .normal(.portValuesInit([argType]))
+                return .expression(.portValuesInit([argType]))
 //                let portDataList: [PortValueCodeType] = try argType.derivePortValues().map { portData in
 //                    switch portData {
 //                    case .value(let portValue):
@@ -273,7 +273,8 @@ extension SwiftParserPatchData {
                                         ports: ports))
             
         case .js(let fnName):
-            return .jsRef(fnName, ports)
+            return .jsRef(.init(fnName: fnName,
+                                ports: ports))
         }
     }
 }

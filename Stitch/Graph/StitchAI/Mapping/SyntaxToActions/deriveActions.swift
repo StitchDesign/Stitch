@@ -17,38 +17,39 @@ struct SwiftSyntaxLayerActionsResult: Encodable {
 }
 
 struct SwiftSyntaxPatchActionsResult: Encodable {
-    var actions: CurrentAIGraphData.PatchData
+//    var actions: CurrentAIGraphData.PatchData
+    var nodes: [NodeEntity]
     
     // Tracks any upstream patches that connect to some state
     // Key = state variable name
     // Value = upstream coordinate
-    var viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]
+//    var viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]
     
     var caughtErrors: [SwiftUISyntaxError]
 }
 
 extension SwiftSyntaxPatchActionsResult {
-    init() {
-        self.init(actions: .init(javascript_patches: [],
-                                 native_patches: [],
-                                 native_patch_value_type_settings: [],
-                                 patch_connections: [],
-                                 custom_patch_input_values: []),
-                  viewStatePatchConnections: .init(),
-                  caughtErrors: [])
-    }
+//    init() {
+//        self.init(actions: .init(javascript_patches: [],
+//                                 native_patches: [],
+//                                 native_patch_value_type_settings: [],
+//                                 patch_connections: [],
+//                                 custom_patch_input_values: []),
+//                  viewStatePatchConnections: .init(),
+//                  caughtErrors: [])
+//    }
     
-    static func + (lhs: Self, rhs: Self) -> Self {
-        var lhs = lhs
-        lhs.actions += rhs.actions
-        lhs.viewStatePatchConnections.merge(rhs.viewStatePatchConnections, uniquingKeysWith: { $1 })
-        lhs.caughtErrors += rhs.caughtErrors
-        return lhs
-    }
-    
-    static func += (lhs: inout Self, rhs: Self) {
-        lhs = lhs + rhs
-    }
+//    static func + (lhs: Self, rhs: Self) -> Self {
+//        var lhs = lhs
+//        lhs.actions += rhs.actions
+//        lhs.viewStatePatchConnections.merge(rhs.viewStatePatchConnections, uniquingKeysWith: { $1 })
+//        lhs.caughtErrors += rhs.caughtErrors
+//        return lhs
+//    }
+//    
+//    static func += (lhs: inout Self, rhs: Self) {
+//        lhs = lhs + rhs
+//    }
 }
 
 extension AIGraphData_V0.PatchData {
@@ -254,8 +255,10 @@ enum SwiftPatchClosureType {
 }
 
 indirect enum SwiftPatchCodeType {
-    case normal(SwiftPatchCodeExpression)
+    case expression(SwiftPatchCodeExpression)
     case subscriptType(SwiftPatchCodeType, Int)
+    case swiftFunctionScript(String)
+    case viewBuilderScript(String)
     case error(SwiftUISyntaxError)
 }
 
@@ -265,13 +268,19 @@ enum SwiftPatchCodeExpression {
     case portValuesInit([SyntaxViewModifierArgumentType])
     case ref(String)
     case viewEventArg(SyntaxViewEvent)
-    case jsRef(String, [SwiftPatchCodeType])
+    case jsRef(SwiftJsNodeCode)
 //    case jsNodeDeclaration(AIGraphData_V0.PreprocessedJSPatchNode)
 }
 
 struct SwiftPatchNodeCode {
     let nodeId: UUID
     let patch: Patch
+    let ports: [SwiftPatchCodeType]
+}
+
+struct SwiftJsNodeCode {
+    let nodeId = UUID()
+    let fnName: String
     let ports: [SwiftPatchCodeType]
 }
 
@@ -308,7 +317,7 @@ extension SwiftParserInitializerType {
                 return nil
             }
             
-            return .normal(patchData)
+            return .expression(patchData)
             
         case .subscriptRef(let subscriptData):
             switch subscriptData.subscriptType {
@@ -317,14 +326,14 @@ extension SwiftParserInitializerType {
                     return nil
                 }
                 
-                return .subscriptType(.normal(patchData), subscriptData.portIndex)
+                return .subscriptType(.expression(patchData), subscriptData.portIndex)
                 
             case .ref(let refName):
-                return .subscriptType(.normal(.ref(refName)), subscriptData.portIndex)
+                return .subscriptType(.expression(.ref(refName)), subscriptData.portIndex)
             }
             
         case .patchNodeRef(let string):
-            return .normal(.ref(string))
+            return .expression(.ref(string))
             
         case .stateMutation(let mutationData):
             switch mutationData {
@@ -333,7 +342,7 @@ extension SwiftParserInitializerType {
                     .getSwiftPatchCodeType()
                 
             case .patchNodeRef(let patchNodeRef):
-                return .normal(.ref(patchNodeRef))
+                return .expression(.ref(patchNodeRef))
                 
             case .arraySyntax(let arraySyntax):
                 guard arraySyntax.elements.count == 1,
@@ -363,7 +372,7 @@ extension SwiftParserInitializerType {
                     return nil
                 }
                 
-                return .normal(.portValuesInit(defaultArgs.map(\.value)))
+                return .expression(.portValuesInit(defaultArgs.map(\.value)))
 //                let gestureArg: String?
 //                
 //                // A little hacky--if PortValueDescription of position type, return a packed variable
@@ -408,7 +417,279 @@ extension SwiftParserInitializerType {
                 return nil
             }
             
-        case .jsNodeScript, .viewBuilder, .arraySyntax, .declrRef:
+        case .jsNodeScript(let script):
+            return .swiftFunctionScript(script)
+            
+        case .viewBuilder(let script):
+            return .viewBuilderScript(script)
+                
+        case .arraySyntax, .declrRef:
+            return nil
+        }
+    }
+}
+
+extension Dictionary where Key == String, Value == SwiftPatchCodeType {
+    func getUpstreamPatchPortConnectionType(expr: SwiftPatchCodeExpression,
+                                            portIndex: Int? = nil) throws -> NodeConnectionType {
+        switch expr {
+        case .portValuesInit(let array):
+            guard let pvDescription = array.first else {
+                fatalErrorIfDebug()
+                return .values([.number(.zero)])
+            }
+            
+            let portValuesResults = try pvDescription.derivePortValues()
+            
+            // TODO: bake in the syntax logic from port values into upstream SwiftPatchCode logic
+            switch portValuesResults.first {
+            case .value(let pvDescription):
+                let value = try PortValue(from: pvDescription)
+                return .values([value])
+                
+            case .stateRef(let ref):
+                return try self
+                    .getUpstreamPatchPortConnectionType(varName: ref,
+                                                        portIndex: portIndex)
+                
+            case .none:
+                throw SwiftUISyntaxError.portValueDataDecodingFailure
+            }
+        
+        case .ref(let string):
+            return try self
+                .getUpstreamPatchPortConnectionType(varName: string,
+                                                    portIndex: portIndex)
+        
+        case .patchNodeInit(let patchNodeData):
+            guard let portIndex = portIndex else {
+                fatalErrorIfDebug()
+                return .values([.number(.zero)])
+            }
+            
+            return .upstreamConnection(.init(portId: portIndex,
+                                             nodeId: patchNodeData.nodeId))
+            
+        case .viewEventArg(let viewEvent):
+            // Port index should be provided based on the view event
+            guard let portIndex = portIndex else {
+                fatalErrorIfDebug()
+                return .values([.number(.zero)])
+            }
+            
+            fatalError("come back here, read the expression and use `createConnectedPatchData` for determining unpacked scenarios")
+            
+//            return .upstreamConnection(.init(portId: portIndex,
+//                                             nodeId: viewEvent.nodeId))
+            
+        case .jsRef(let jsNode):
+            guard let portIndex = portIndex else {
+                fatalErrorIfDebug()
+                return .values([.number(.zero)])
+            }
+            
+            return .upstreamConnection(.init(portId: portIndex,
+                                             nodeId: jsNode.nodeId))
+        }
+    }
+    
+    func getUpstreamPatchPortConnectionType(varName: String,
+                                            portIndex: Int? = nil) throws -> NodeConnectionType {
+        guard let value = self.get(varName) else {
+            return .values([.number(.zero)])
+        }
+        
+        return try self
+            .getUpstreamPatchPortConnectionType(value: value,
+                                                portIndex: portIndex)
+    }
+        
+    func getUpstreamPatchPortConnectionType(value: SwiftPatchCodeType,
+                                            portIndex: Int? = nil) throws -> NodeConnectionType {
+        switch value {
+        case .expression(let expr):
+            return try self.getUpstreamPatchPortConnectionType(expr: expr,
+                                                               portIndex: portIndex)
+        
+        case .subscriptType(let swiftPatchCodeType, let int):
+            // Nested port indices (aka a 2D access) not supported
+            assertInDebug(portIndex == nil)
+            
+            switch swiftPatchCodeType {
+            case .expression(let expr):
+                return try self
+                    .getUpstreamPatchPortConnectionType(expr: expr,
+                                                        portIndex: int)
+                
+                
+            case .error(let error):
+                throw error
+                
+            default:
+                fatalErrorIfDebug()
+                return .values([.number(.zero)])
+            }
+        
+        case .error(let swiftUISyntaxError):
+            throw swiftUISyntaxError
+            
+        default:
+            fatalErrorIfDebug()
+            return .values([.number(.zero)])
+        }
+    }
+}
+
+extension Array where Element == SwiftPatchCodeType {
+    func createSchemaList(nodeId: UUID,
+                          varNameToCode: [String: SwiftPatchCodeType]) throws -> [NodePortInputEntity] {
+        try self.enumerated()
+            .map { (portIndex, portData) in
+                let coordinate = NodeIOCoordinate(
+                    portId: portIndex,
+                    nodeId: nodeId)
+                
+                let _portData = try varNameToCode
+                    .getUpstreamPatchPortConnectionType(value: portData)
+                
+                return .init(id: coordinate,
+                             portData: _portData)
+            }
+    }
+}
+
+extension SwiftPatchCodeType {
+    var jsScript: String? {
+        switch self {
+        case .swiftFunctionScript(let string):
+            return string
+            
+        default:
+            return nil
+        }
+    }
+}
+
+extension SwiftPatchCodeType {
+    @MainActor
+    func derivePatchNode(document: StitchDocumentViewModel,
+                         varNameToCode: [String: SwiftPatchCodeType]) async throws -> NodeEntity? {
+        let currentGroupContext = document.groupNodeFocused?.groupNodeId
+        
+        guard let aiManager = document.aiManager else {
+            fatalErrorIfDebug()
+            return nil
+        }
+        
+        switch self {
+        case .expression(let codeType):
+            switch codeType {
+            case .patchNodeInit(let patchNodeData):
+                let defaultType = patchNodeData
+                    .patch
+                    .graphNode?
+                    .defaultUserVisibleType
+                
+                let portEntities: [NodePortInputEntity] = try patchNodeData
+                    .ports
+                    .createSchemaList(nodeId: patchNodeData.nodeId,
+                                      varNameToCode: varNameToCode)
+                
+                let canvasEntity = CanvasNodeEntity(position: .zero,
+                                                    zIndex: .zero,
+                                                    parentGroupNodeId: currentGroupContext)
+                
+                let patchNodeEntity = PatchNodeEntity(
+                    id: patchNodeData.nodeId,
+                    patch: patchNodeData.patch,
+                    inputs: portEntities,
+                    canvasEntity: canvasEntity,
+                    userVisibleType: defaultType,
+                    splitterNode: nil,
+                    mathExpression: nil,
+                    javaScriptNodeSettings: nil)
+                
+                let node = NodeEntity(id: patchNodeData.nodeId,
+                                      nodeTypeEntity: .patch(patchNodeEntity),
+                                      title: "")
+                return node
+            
+            case .ref(let varName):
+                guard let refCode = varNameToCode.get(varName) else {
+                    fatalErrorIfDebug()
+                    return nil
+                }
+                
+                // recursion
+                return try await refCode.derivePatchNode(document: document,
+                                                         varNameToCode: varNameToCode)
+            
+            case .viewEventArg(let viewEventData):
+                let patch = viewEventData.type.patch
+                
+                // Start with default node
+                var nodeEntity = patch.defaultNode(id: viewEventData.interactionPatchNodeId,
+                                                          position: .zero,
+                                                          zIndex: .zero,
+                                                          graphDelegate: document.graph)
+                    .createSchema()
+                
+                guard var patchNodeEntity = nodeEntity.nodeTypeEntity.patchNodeEntity else {
+                    fatalErrorIfDebug()
+                    return nil
+                }
+                
+                patchNodeEntity.inputs[0].portData = .values([.assignedLayer(.init(viewEventData.layerId))])
+                nodeEntity.nodeTypeEntity = .patch(patchNodeEntity)
+                
+                return nodeEntity
+            
+            case .jsRef(let jsData):
+                let jsNodeId = jsData.nodeId
+                let portEntities: [NodePortInputEntity] = try jsData.ports
+                    .createSchemaList(nodeId: jsNodeId,
+                                      varNameToCode: varNameToCode)
+                
+                guard let sourceCode = varNameToCode.get(jsData.fnName)?
+                    .jsScript else {
+                    fatalErrorIfDebug()
+                    return nil
+                }
+                
+                let canvasEntity = CanvasNodeEntity(position: .zero,
+                                                    zIndex: .zero,
+                                                    parentGroupNodeId: currentGroupContext)
+                
+                // Get AI info
+                let jsNodeRequest = AIJSNodeSettingsFromScritptRequest(existingScript: sourceCode)
+                
+                let jsSettings = try await jsNodeRequest
+                    .request(document: document,
+                             aiManager: aiManager)
+                
+                let patchNodeEntity = PatchNodeEntity(
+                    id: jsNodeId,
+                    patch: .javascript,
+                    inputs: portEntities,
+                    canvasEntity: canvasEntity,
+                    userVisibleType: nil,
+                    splitterNode: nil,
+                    mathExpression: nil,
+                    javaScriptNodeSettings: jsSettings)
+                
+                let node = NodeEntity(id: jsNodeId,
+                                      nodeTypeEntity: .patch(patchNodeEntity),
+                                      title: jsSettings.suggestedTitle)
+                
+                return node
+            
+            case .portValuesInit:
+                fatalErrorIfDebug("Was not expected here.")
+                return nil
+            }
+        
+        default:
+            fatalErrorIfDebug("Wasn't expected here")
             return nil
         }
     }
@@ -417,6 +698,42 @@ extension SwiftParserInitializerType {
 extension Array where Element == (String, SwiftParserInitializerType) {
     func get(_ name: String) -> SwiftParserInitializerType? {
         self.first { $0.0 == name }?.1
+    }
+}
+
+extension Array where Element == (String, SwiftPatchCodeType) {
+    @MainActor
+    func derivePatchNodes(document: StitchDocumentViewModel,
+                          varNameToCode: [String: SwiftPatchCodeType]) async -> SwiftSyntaxPatchActionsResult {
+        // Create dictionary of self
+        let varNameToCode = self.reduce(into: [String: SwiftPatchCodeType]()) { result, data in
+            result.updateValue(data.1, forKey: data.0)
+        }
+        
+        // Instantiate dictionary of nodes to return as array later
+        var nodesDict = [UUID: NodeEntity]()
+        
+        var caughtErrors = [SwiftUISyntaxError]()
+        
+        // Create patch nodes and input values
+        for (varName, code) in self {
+            do {
+                guard let node = try await code.derivePatchNode(document: document,
+                                                                varNameToCode: varNameToCode) else {
+                    continue
+                }
+                
+                nodesDict.updateValue(node, forKey: node.id)
+            } catch let error as SwiftUISyntaxError {
+                caughtErrors.append(error)
+            } catch {
+                fatalErrorIfDebug(error.localizedDescription)
+                continue
+            }
+        }
+        
+        return .init(nodes: [NodeEntity](nodesDict.values),
+                     caughtErrors: caughtErrors)
     }
     
 //    @MainActor

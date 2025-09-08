@@ -175,7 +175,7 @@ extension SyntaxViewModifier {
 
 extension SyntaxViewModifierName {
     // Some modifiers have view events that can be extrapolated from.
-    var viewEvent: SyntaxViewEvent? {
+    var viewEvent: SyntaxViewEventType? {
         switch self {
         case .onTapGesture:
             return .tapGesture

@@ -443,15 +443,15 @@ extension LayerNodeEntity {
     /// Creates view modifier callbacks for gesture data.
     func getSwiftUIGestureViewModifierStrings(layerViewEventMap: [String: [LayerDataViewEvent]]) -> [String] {
         // Organize gesture data by each syntax type
-        let gestureDataHere = layerViewEventMap.reduce(into: [SyntaxViewEvent : [LayerDataViewEvent]]()) { result, mapData in
+        let gestureDataHere = layerViewEventMap.reduce(into: [SyntaxViewEventType : [LayerDataViewEvent]]()) { result, mapData in
             let (layerIdString, viewEvents) = mapData
             
             guard layerIdString == self.id.uuidString else { return }
             
             viewEvents.forEach { viewEvent in
-                var layerDataList = result.get(viewEvent.viewEvent) ?? []
+                var layerDataList = result.get(viewEvent.viewEvent.type) ?? []
                 layerDataList.append(viewEvent)
-                result.updateValue(layerDataList, forKey: viewEvent.viewEvent)
+                result.updateValue(layerDataList, forKey: viewEvent.viewEvent.type)
             }
         }
         

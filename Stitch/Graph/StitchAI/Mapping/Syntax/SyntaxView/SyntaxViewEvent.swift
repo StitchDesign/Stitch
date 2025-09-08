@@ -10,7 +10,20 @@ import SwiftSyntax
 import SwiftParser
 import SwiftSyntaxBuilder
 
-enum SyntaxViewEvent: String, Sendable, Encodable {
+struct SyntaxViewEvent {
+    // Used for eventual interaction node ID creation
+    let interactionPatchNodeId = UUID()
+    
+    // Assigned layer id
+    let layerId: UUID
+    
+    let type: SyntaxViewEventType
+    
+    // Expressions should only be read from patch node fn params
+    let gestureArg: String
+}
+
+enum SyntaxViewEventType: String, Sendable, Encodable {
     case dragGesture = "DragGesture"
     case tapGesture = "TapGesture"
 }
@@ -48,7 +61,7 @@ struct LayerDataViewEventsResult {
 //    }
 //}
 
-extension SyntaxViewEvent {
+extension SyntaxViewEventType {
     var patch: Patch {
         switch self {
         case .dragGesture:
@@ -60,7 +73,7 @@ extension SyntaxViewEvent {
 }
 
 extension Patch {
-    var syntaxViewEvent: SyntaxViewEvent? {
+    var syntaxViewEvent: SyntaxViewEventType? {
         switch self {
         case .dragInteraction:
             return .dragGesture
@@ -73,54 +86,54 @@ extension Patch {
 
 extension LayerDataViewEvent {
     /// Determines the connections and intermediary patch nodes to be created between an interaction patch node and some state.
-    func createConnectedPatchData(interactionPatchNodeId: String,
-//                                  createdPatchesAtThisNode: inout [Patch: CurrentAIGraphData
-//        .PatchNode],
-                                  patchConnections: inout [CurrentAIGraphData.PatchConnection]) -> AIGraphData_V0.NodeIndexedCoordinate? {
-        switch self.viewEvent {
-        case .dragGesture:
-            // Packed case: arg == "translation" or "position"
-            if self.gestureArg == "translation" || self.gestureArg == "position" {
-                // position = 0th port, translation = 2nd port
-                let outputPortIndex = self.gestureArg == "position" ? 0 : 2
-                
-                return AIGraphData_V0.NodeIndexedCoordinate(
-                            node_id: interactionPatchNodeId,
-                            port_index: outputPortIndex)
-            }
-            
-            // Unpacked case: need to see the suffix value (i.e. x or y)
-            guard let split = self.gestureArg?.split(separator: "."),
-                  let prefixValue = split[safe: 0],
-                  let suffixValue = split[safe: 1] else {
-                return nil
-            }
-            
-            let outputPortIndex = prefixValue == "position" ? 0 : 2
-            
-//            if suffixValue == "x" || suffixValue == "width" {
-//                return Self._positionUnpackCase(outputInteractionPortIndex: outputPortIndex,
-//                                                 outputUnpackPortIndex: 0,
-//                                                 interactionPatchNodeId: interactionPatchNodeId,
-//                                                 createdPatchesAtThisNode: &createdPatchesAtThisNode,
-//                                                 patchConnections: &patchConnections)
-//            } else if suffixValue == "y" || suffixValue == "height" {
-//                return Self._positionUnpackCase(outputInteractionPortIndex: outputPortIndex,
-//                                                 outputUnpackPortIndex: 1,
-//                                                 interactionPatchNodeId: interactionPatchNodeId,
-//                                                 createdPatchesAtThisNode: &createdPatchesAtThisNode,
-//                                                 patchConnections: &patchConnections)
+//    func createConnectedPatchData(interactionPatchNodeId: String,
+////                                  createdPatchesAtThisNode: inout [Patch: CurrentAIGraphData
+////        .PatchNode],
+//                                  patchConnections: inout [CurrentAIGraphData.PatchConnection]) -> AIGraphData_V0.NodeIndexedCoordinate? {
+//        switch self.viewEvent {
+//        case .dragGesture:
+//            // Packed case: arg == "translation" or "position"
+//            if self.gestureArg == "translation" || self.gestureArg == "position" {
+//                // position = 0th port, translation = 2nd port
+//                let outputPortIndex = self.gestureArg == "position" ? 0 : 2
+//                
+//                return AIGraphData_V0.NodeIndexedCoordinate(
+//                            node_id: interactionPatchNodeId,
+//                            port_index: outputPortIndex)
 //            }
-            
-            return nil
-            
-        case .tapGesture:
-            // Assume 0 until we handle cases with position
-            return AIGraphData_V0.NodeIndexedCoordinate(
-                node_id: interactionPatchNodeId,
-                port_index: 0)
-        }
-    }
+//            
+//            // Unpacked case: need to see the suffix value (i.e. x or y)
+//            guard let split = self.gestureArg?.split(separator: "."),
+//                  let prefixValue = split[safe: 0],
+//                  let suffixValue = split[safe: 1] else {
+//                return nil
+//            }
+//            
+//            let outputPortIndex = prefixValue == "position" ? 0 : 2
+//            
+////            if suffixValue == "x" || suffixValue == "width" {
+////                return Self._positionUnpackCase(outputInteractionPortIndex: outputPortIndex,
+////                                                 outputUnpackPortIndex: 0,
+////                                                 interactionPatchNodeId: interactionPatchNodeId,
+////                                                 createdPatchesAtThisNode: &createdPatchesAtThisNode,
+////                                                 patchConnections: &patchConnections)
+////            } else if suffixValue == "y" || suffixValue == "height" {
+////                return Self._positionUnpackCase(outputInteractionPortIndex: outputPortIndex,
+////                                                 outputUnpackPortIndex: 1,
+////                                                 interactionPatchNodeId: interactionPatchNodeId,
+////                                                 createdPatchesAtThisNode: &createdPatchesAtThisNode,
+////                                                 patchConnections: &patchConnections)
+////            }
+//            
+//            return nil
+//            
+//        case .tapGesture:
+//            // Assume 0 until we handle cases with position
+//            return AIGraphData_V0.NodeIndexedCoordinate(
+//                node_id: interactionPatchNodeId,
+//                port_index: 0)
+//        }
+//    }
     
 //    private static func _positionUnpackCase(outputInteractionPortIndex: Int,
 //                                            outputUnpackPortIndex: Int,
@@ -151,7 +164,7 @@ extension SyntaxViewModifierViewEvent {
     @MainActor
     func deriveViewEventData(layerId: UUID) throws -> [(String, SwiftPatchCodeType)]? {
         // Check for onChange handlers
-        guard let viewName = SyntaxViewEvent(rawValue: self.eventName),
+        guard let viewName = SyntaxViewEventType(rawValue: self.eventName),
               let onChangeHandler = self.eventModifiers.get("onChanged") else {
             return nil
         }
@@ -164,7 +177,10 @@ extension SyntaxViewModifierViewEvent {
         
         // Prepend gesture parameter to code list if used
         if let param = onChangeHandler.paramVars.first {
-            actionsResult.append((param, .normal(.viewEventArg(viewName))))
+            let eventData = SyntaxViewEvent(layerId: layerId,
+                                            type: viewName,
+                                            gestureArg: param)
+            actionsResult.append((param, .expression(.viewEventArg(eventData))))
         }
         
         actionsResult += try parsedData.bindingDeclarations
