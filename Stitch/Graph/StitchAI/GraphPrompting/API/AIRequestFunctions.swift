@@ -233,34 +233,34 @@ func makeClaudeRequest(
     ]
     
     var claudeBody: [String: Any] = [
-        "model": "claude-sonnet-4-20250514", //model.rawValue, // Use the actual model parameter
+        "model": model.rawValue, // Use the actual model parameter
         "max_tokens": 32768, // High limit for complex code generation (with beta header support)
 //        "system": [dataGlossarySegment, assistantPromptSegment]
         "system": [assistantPromptSegment]
     ]
     
     // Handle text + optional image input
-//    if let imageData = params.base64Image {
-//        claudeBody["messages"] = [[
-//            "role": "user",
-//            "content": [
-//                ["type": "text", "text": params.textInput],
-//                [
-//                    "type": "image",
-//                    "source": [
-//                        "type": "base64",
-//                        "media_type": "image/jpeg",
-//                        "data": imageData
-//                    ]
-//                ]
-//            ]
-//        ]]
-//    } else {
+    if let imageData = params.base64Image {
+        claudeBody["messages"] = [[
+            "role": "user",
+            "content": [
+                ["type": "text", "text": params.textInput],
+                [
+                    "type": "image",
+                    "source": [
+                        "type": "base64",
+                        "media_type": "image/jpeg",
+                        "data": imageData
+                    ]
+                ]
+            ]
+        ]]
+    } else {
         claudeBody["messages"] = [[
             "role": "user",
             "content": params.textInput
         ]]
-//    }
+    }
     
     request.httpBody = try JSONSerialization.data(withJSONObject: claudeBody)
     
