@@ -1051,7 +1051,6 @@
 		ECD2124B294D089A00672A3E /* LocationNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD2124A294D089A00672A3E /* LocationNode.swift */; };
 		ECD234E2289C7E470083CF0F /* PackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD234E1289C7E470083CF0F /* PackNode.swift */; };
 		ECD234E4289C802C0083CF0F /* UnpackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD234E3289C802C0083CF0F /* UnpackNode.swift */; };
-		ECD2A0202E6E4DE600242DC9 /* ClaudePromptCachingDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD2A01F2E6E4DE600242DC9 /* ClaudePromptCachingDemoView.swift */; };
 		ECD4C3BB2E4C23A0001F4C7A /* GridCodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD4C3BA2E4C23A0001F4C7A /* GridCodeExamples.swift */; };
 		ECD50AC6285D34790009B564 /* ShortcutViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD50AC5285D34790009B564 /* ShortcutViewUtils.swift */; };
 		ECD50AC8285D34930009B564 /* ShortcutsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD50AC7285D34930009B564 /* ShortcutsUtils.swift */; };
@@ -2220,7 +2219,6 @@
 		ECD2124A294D089A00672A3E /* LocationNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationNode.swift; sourceTree = "<group>"; };
 		ECD234E1289C7E470083CF0F /* PackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackNode.swift; sourceTree = "<group>"; };
 		ECD234E3289C802C0083CF0F /* UnpackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnpackNode.swift; sourceTree = "<group>"; };
-		ECD2A01F2E6E4DE600242DC9 /* ClaudePromptCachingDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudePromptCachingDemoView.swift; sourceTree = "<group>"; };
 		ECD4C3BA2E4C23A0001F4C7A /* GridCodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridCodeExamples.swift; sourceTree = "<group>"; };
 		ECD50AC5285D34790009B564 /* ShortcutViewUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutViewUtils.swift; sourceTree = "<group>"; };
 		ECD50AC7285D34930009B564 /* ShortcutsUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutsUtils.swift; sourceTree = "<group>"; };
@@ -5545,7 +5543,6 @@
 			isa = PBXGroup;
 			children = (
 				ECE963A92E0C5710003420C5 /* ASTExplorerView.swift */,
-				ECD2A01F2E6E4DE600242DC9 /* ClaudePromptCachingDemoView.swift */,
 				EC035BEB2E385E0C0002E109 /* VPLToCode */,
 				EC035BE82E385DE70002E109 /* CodeToVPL */,
 				ECC734722E0DE92F00AC266C /* Examples */,
@@ -6450,7 +6447,6 @@
 				EC3A6C472C20C27300CCBACC /* NodeRowObserverSchemaObserverIdentifiable.swift in Sources */,
 				20308F9F25AD1721008CE3BE /* CircuitLine.swift in Sources */,
 				EC5F51E42BFFBB3300D3DAD7 /* PreviewGridData.swift in Sources */,
-				ECD2A0202E6E4DE600242DC9 /* ClaudePromptCachingDemoView.swift in Sources */,
 				B55500C42C1B9E300081C3F1 /* FieldViewModel.swift in Sources */,
 				EC2256292D407E9500BB7292 /* SpecialPickerFieldValueView.swift in Sources */,
 				ECF01AED264F2151003B5AF2 /* PreviewCommon.swift in Sources */,

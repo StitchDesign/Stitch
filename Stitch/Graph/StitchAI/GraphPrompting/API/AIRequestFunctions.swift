@@ -217,16 +217,8 @@ func makeClaudeRequest(
     request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
     request.setValue("output-128k-2025-02-19,prompt-caching-2024-07-31", forHTTPHeaderField: "anthropic-beta")
     
-//    // Convert to Claude format with prompt caching
-//    // Split the system prompts into cacheable segments
-//    // Per Anthropic docs: only the LAST segment should have cache_control
-//    let dataGlossarySegment: [String: Any] = [
-//        "type": "text",
-//        "text": params.dataGlossaryPrompt
-//        // NO cache_control here - only on the last segment
-//    ]
-//    
-    let assistantPromptSegment: [String: Any] = [
+    // Note: seems best to combine
+    let fullSystemPrompt: [String: Any] = [
         "type": "text", 
         "text": "\(params.dataGlossaryPrompt) \n \n \(params.assistantPrompt)",
         "cache_control": ["type": "ephemeral", "ttl": "1h"] // Cache control ONLY on last system message
@@ -235,8 +227,7 @@ func makeClaudeRequest(
     var claudeBody: [String: Any] = [
         "model": model.rawValue, // Use the actual model parameter
         "max_tokens": 32768, // High limit for complex code generation (with beta header support)
-//        "system": [dataGlossarySegment, assistantPromptSegment]
-        "system": [assistantPromptSegment]
+        "system": [fullSystemPrompt]
     ]
     
     // Handle text + optional image input

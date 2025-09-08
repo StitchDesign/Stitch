@@ -37,6 +37,7 @@ struct ClaudeContent: Codable {
     var text: String?
 }
 
+// TODO: expand to include caching information
 /// Tracks token usage metrics for Claude API requests
 struct ClaudeUsage: Codable {
     var inputTokens: Int
@@ -50,6 +51,8 @@ struct ClaudeUsage: Codable {
 
 /// Extension to convert Claude responses to OpenAI format for compatibility
 extension ClaudeResponse {
+    
+    // TODO: can we just retrieve the content message directly?
     func toOpenAIResponse() -> OpenAIResponse {
         let content = self.content.compactMap { $0.text }.joined()
         let message = OpenAIMessage(
@@ -200,6 +203,7 @@ extension StitchAIManager {
     }
     
     
+    // TODO: CAN WE AVOID THIS?
     /// Convert OpenAI-style request to Claude format
     static func convertToClaudeRequest<AIRequest>(request: AIRequest,
                                                           secrets: Secrets) -> Data? where AIRequest: StitchAIRequestable {
