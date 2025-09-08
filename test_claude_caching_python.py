@@ -163,7 +163,7 @@ def main():
         {
             "type": "text", 
             "text": f"Here is the first tenth of Pride and Prejudice by Jane Austen:\n\n{book_tenth}",
-            "cache_control": {"type": "ephemeral"}
+            "cache_control": {"type": "ephemeral", "ttl": "1h"}
         }
     ]
     
