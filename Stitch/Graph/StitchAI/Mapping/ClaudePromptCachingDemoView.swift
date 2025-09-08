@@ -149,6 +149,9 @@ struct ClaudePromptCachingDemoView: View {
         request.setValue(claudeAPIKey, forHTTPHeaderField: "x-api-key")
         request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
         
+//        // Add beta header for prompt caching support
+//        request.setValue("prompt-caching-2024-07-31", forHTTPHeaderField: "anthropic-beta")
+//        
         // Create request body with proper cache control structure
         // Only cache the system prompt (which is large and static)
         // Do NOT cache the user input (which changes between requests)
