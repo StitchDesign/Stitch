@@ -55,18 +55,21 @@ struct InsertNodeMenuSearchBar: View {
         let searchInput = VStack(spacing: .zero) {
             ZStack(alignment: .leading) {
                 if document.isStreamingResponses {
-                    // Show Text view when streaming for `.contentTransition`
+                    // `.contentTransition` only works on Text view, not TextField view
                     Text(displayText)
                         .contentTransition(.numericText())
                         .animation(.default, value: displayText)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.leading, 16)
-                        .padding(.trailing, 60)
+                        .padding(.trailing, 60) // to keep text from running below the progress view
+                        .padding(.trailing, 28) // to keep text from running below the cancel button
                         .font(.system(size: 24))
                         .multilineTextAlignment(.leading)
                         .lineLimit(1)
                         .foregroundColor(.secondary)
                         .modifier(HybridShimmerModifier(colorScheme: colorScheme, lightModeConfig: lightModeShimmerConfig))
+                    
+                    // TODO: could instead use HStack { Text; Spacer; Button; ProgressView }, but
                         .overlay(alignment: .center) {
                             HStack {
                                 Spacer()
