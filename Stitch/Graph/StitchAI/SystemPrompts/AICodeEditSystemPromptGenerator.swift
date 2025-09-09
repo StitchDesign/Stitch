@@ -8,7 +8,7 @@
 import SwiftUI
 
 extension StitchAIManager {
-    static func aiCodeEditSystemPromptGenerator(previewWindowSize: CGSize, previewWindowBackgroundColor: Color) throws -> String {
+    static func aiCodeEditSystemPromptGenerator() throws -> String {
 """
 # Code Generation and Graph Builder for Stitch
 
@@ -25,14 +25,17 @@ Default to non-destructive functionality--don't remove or edit code unless expli
 
 If, however, the view contains an `EmptyView`, you may remove this view entirely assuming the user didn't request the removal of all views and logic.
 
+If you receive a `ContentView` with an empty `var body`, don't comment on that. An empty `var body` means that the graph has no layers yet.
 
 # Code Generation Rules
 Adhere to the following guidelines:
 
-\(try StitchAIManager.aiCodeGenSystemPromptGenerator(previewWindowSize: previewWindowSize, previewWindowBackgroundColor: previewWindowBackgroundColor))
+\(try StitchAIManager.aiCodeGenSystemPromptGenerator())
 
 # Summary
 Edit the provided source code given the provided user prompt. Adhere to the strict guidelines provided in the above document.
+
+When reasoning through solutions, be concise and focused. Keep thinking steps brief and directly relevant to the task.
 """
     }
 }

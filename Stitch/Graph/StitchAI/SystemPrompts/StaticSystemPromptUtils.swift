@@ -17,17 +17,16 @@ func loadStitchStaticPrompt() throws -> String {
     return content
 }
 
-/// Regenerate the stitch_static_prompt.txt file with current dynamic content
-/// Call this when you want to update the static prompt file with the latest dynamic generation
+/// Regenerate the stitch_static_prompt.txt file with static content only (no preview window info)
+/// Call this when you want to update the static prompt file with the latest data glossary
 @MainActor
-func regenerateStitchStaticPromptFile(graph: GraphState, previewWindowSize: CGSize, previewWindowBackgroundColor: Color) {
+func regenerateStitchStaticPromptFile(graph: GraphState) {
     do {
-        // Generate the current dynamic prompts
+        // Generate only the static content (data glossary + fixed instructions)
         let dataGlossaryPrompt = try StitchAIManager.stitchAIDataGlossarySystemPrompt(graph: graph)
-        let assistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(previewWindowSize: previewWindowSize, previewWindowBackgroundColor: previewWindowBackgroundColor)
         
-        // Combine them the same way we do in Claude requests
-        let combinedPrompt = "\(dataGlossaryPrompt) \n \n \(assistantPrompt)"
+        // The static prompt contains only cacheable, non-dynamic content
+        let staticPrompt = dataGlossaryPrompt
         
         // Try to write to Desktop for easy access
         let desktopURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first
@@ -35,7 +34,7 @@ func regenerateStitchStaticPromptFile(graph: GraphState, previewWindowSize: CGSi
         
         if let outputURL = outputURL {
             do {
-                try combinedPrompt.write(to: outputURL, atomically: true, encoding: .utf8)
+                try staticPrompt.write(to: outputURL, atomically: true, encoding: .utf8)
                 print("✅ Successfully generated stitch_static_prompt_regenerated.txt on Desktop")
                 print("📂 Location: \(outputURL.path)")
                 print("💡 Copy this file to /Stitch/App/Resources/stitch_static_prompt.txt to update the static prompt")
@@ -45,18 +44,19 @@ func regenerateStitchStaticPromptFile(graph: GraphState, previewWindowSize: CGSi
         }
         
         // Always print the content for manual copying
-        print("📊 Generated system prompt stats:")
-        print("   → Characters: \(combinedPrompt.count)")
-        print("   → Estimated tokens: ~\(combinedPrompt.count / 3)")
-        print("   → Lines: \(combinedPrompt.components(separatedBy: .newlines).count)")
+        print("📊 Generated static system prompt stats:")
+        print("   → Characters: \(staticPrompt.count)")
+        print("   → Estimated tokens: ~\(staticPrompt.count / 3)")
+        print("   → Lines: \(staticPrompt.components(separatedBy: .newlines).count)")
+        print("   → Note: Preview window constraints are now handled separately in requests")
         
         print("\n" + String(repeating: "=", count: 80))
-        print("📝 GENERATED SYSTEM PROMPT CONTENT")
+        print("📝 GENERATED STATIC SYSTEM PROMPT CONTENT")
         print("💡 Copy everything between the markers below to stitch_static_prompt.txt")
         print(String(repeating: "=", count: 80))
-        print(combinedPrompt)
+        print(staticPrompt)
         print(String(repeating: "=", count: 80))
-        print("📝 END OF GENERATED SYSTEM PROMPT CONTENT")
+        print("📝 END OF GENERATED STATIC SYSTEM PROMPT CONTENT")
         print(String(repeating: "=", count: 80) + "\n")
         
     } catch {

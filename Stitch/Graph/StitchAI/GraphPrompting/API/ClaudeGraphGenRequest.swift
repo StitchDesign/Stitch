@@ -10,7 +10,9 @@ import SwiftUI
 /// Make a request to Claude's Messages endpoint
 @MainActor
 func makeClaudeStreamingRequest(
-    params: AIRequestParams,
+    previewWindowPrompt: String,
+    userPrompt: String,
+    base64Image: String?,
     model: ClaudeModel,
     document: StitchDocumentViewModel
 ) async throws -> String {
@@ -38,16 +40,24 @@ func makeClaudeStreamingRequest(
     // Use static content for consistent caching (avoids UUID and non-deterministic issues)
     let stitchStaticContent = try loadStitchStaticPrompt()
     
-    let fullSystemPrompt: [String: Any] = [
+    // Static content component (data glossary + fixed instructions)
+    let staticSystemPrompt: [String: Any] = [
         "type": "text",
         "text": stitchStaticContent, // Use static content for consistent caching
         "cache_control": ["type": "ephemeral", "ttl": "1h"] // Cache control on large Stitch static content
     ]
     
+    // Preview window constraints component (cacheable per session)
+    let previewWindowSystemPrompt: [String: Any] = [
+        "type": "text",
+        "text": previewWindowPrompt, // Contains preview window constraints
+        "cache_control": ["type": "ephemeral", "ttl": "1h"] // Cache preview window info for session
+    ]
+    
     var claudeBody: [String: Any] = [
         "model": model.rawValue, // Use the actual model parameter
         "max_tokens": 32768, // High limit for complex code generation (with beta header support)
-        "system": [fullSystemPrompt],
+        "system": [staticSystemPrompt, previewWindowSystemPrompt], // Multi-component cached system prompt
         "stream": true // Enable streaming for better UX
     ]
     
@@ -57,20 +67,19 @@ func makeClaudeStreamingRequest(
     if supportsThinking {
         claudeBody["thinking"] = [
             "type": "enabled",
-            // TODO: how many tokens should we allow for thinking?
-            "budget_tokens": 10000  // Allow up to 10k tokens for thinking
+            "budget_tokens": 3000  // Reduced budget for more concise thinking
         ]
-        log("Extended thinking enabled for model: \(model.rawValue) with 10k token budget")
+        log("Extended thinking enabled for model: \(model.rawValue) with 3k token budget for terse reasoning")
     } else {
         log("Extended thinking not supported for model: \(model.rawValue)")
     }
     
     // Handle text + optional image input
-    if let imageData = params.base64Image {
+    if let imageData = base64Image {
         claudeBody["messages"] = [[
             "role": "user",
             "content": [
-                ["type": "text", "text": params.textInput],
+                ["type": "text", "text": userPrompt],
                 [
                     "type": "image",
                     "source": [
@@ -84,7 +93,7 @@ func makeClaudeStreamingRequest(
     } else {
         claudeBody["messages"] = [[
             "role": "user",
-            "content": params.textInput
+            "content": userPrompt
         ]]
     }
     
@@ -202,13 +211,13 @@ func makeClaudeStreamingRequest(
                         // log("📝 Text delta received: '\(text)' (length: \(text.count))")
                         accumulatedContent += text
                         
-                        // Clear thinking text once content starts
-                        await MainActor.run {
-                            if !document.streamingReasoningText.isEmpty {
-                                document.streamingReasoningText = ""
-                                // log("📱 Cleared thinking text - switching to content")
-                            }
-                        }
+//                        // Clear thinking text once content starts
+//                        await MainActor.run {
+//                            if !document.streamingReasoningText.isEmpty {
+//                                document.streamingReasoningText = ""
+//                                // log("📱 Cleared thinking text - switching to content")
+//                            }
+//                        }
                     } else {
                         //                        log("⚠️  Delta received but no 'thinking' or 'text' field found")
                     }
@@ -223,7 +232,7 @@ func makeClaudeStreamingRequest(
                 
             case "message_stop":
                 // log("Claude stream completed")
-                let totalTime = Date().timeIntervalSince(requestStartTime) * 1000
+                // let totalTime = Date().timeIntervalSince(requestStartTime) * 1000
                 // log("⚡ Total stream time: \(String(format: "%.0f", totalTime))ms")
                 
                 // Monitor cache performance
@@ -249,12 +258,11 @@ func makeClaudeStreamingRequest(
         log("📝 Thinking steps received: \(allThinkingSteps.count)")
         
 #if DEV_DEBUG
-        // Debug: log all thinking steps for debugging
+        // Debug: log all thinking steps as formatted text block
         if !allThinkingSteps.isEmpty {
-            log("🧠 All thinking deltas received:")
-            for (index, step) in allThinkingSteps.enumerated() {
-                log("   Step \(index + 1): '\(step)'")
-            }
+            log("🧠 All thinking deltas received as text block:")
+            let formattedThinking = allThinkingSteps.joined(separator: " ")
+            log("\(formattedThinking)")
         }
 #endif
         

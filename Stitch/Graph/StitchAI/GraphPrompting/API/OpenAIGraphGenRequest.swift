@@ -10,7 +10,9 @@ import SwiftUI
 /// Make a request to OpenAI's Responses endpoint with streaming
 @MainActor
 func makeOpenAIStreamingRequest(
-    params: AIRequestParams,
+    userPrompt: String,
+    base64Image: String?,
+    openAIAPIKey: String,
     model: OpenAIModel,
     verbosity: OpenAIVerbosity,
     reasoningEffort: OpenAIReasoningEffort,
@@ -23,7 +25,7 @@ func makeOpenAIStreamingRequest(
     
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
-    request.setValue("Bearer \(params.secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
+    request.setValue("Bearer \(openAIAPIKey)", forHTTPHeaderField: "Authorization")
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     
     // Build request body using correct Responses API format
@@ -44,7 +46,7 @@ func makeOpenAIStreamingRequest(
     requestBody["instructions"] = instructions
     
     // Build input using correct Responses API format
-    if let imageData = params.base64Image {
+    if let imageData = base64Image {
         // Multimodal request - use array format with role-based messages
         requestBody["input"] = [
             [
@@ -52,7 +54,7 @@ func makeOpenAIStreamingRequest(
                 "content": [
                     [
                         "type": "input_text",
-                        "text": params.textInput
+                        "text": userPrompt
                     ],
                     [
                         "type": "input_image",
@@ -63,7 +65,7 @@ func makeOpenAIStreamingRequest(
         ]
     } else {
         // Text-only request - use simple string format
-        requestBody["input"] = params.textInput
+        requestBody["input"] = userPrompt
     }
     
     // Log request details for debugging
@@ -133,7 +135,7 @@ func makeOpenAIStreamingRequest(
                         responseCompletedTime: &responseCompletedTime,
                         tokenDeltaCount: &tokenDeltaCount,
                         eagerParsingThreshold: eagerParsingThreshold,
-                        originalCodeLength: params.textInput.count
+                        originalCodeLength: userPrompt.count
                     )
                 }
             }
@@ -172,16 +174,17 @@ func makeOpenAIStreamingRequest(
 extension StitchDocumentViewModel {
     
     // SEE NOTE in `InsertNodeMenuSearchBar.displayText`
+    // TODO: need to improve this logic
     @MainActor
     func resetStreamingUIState() {
-                
+            
         // Immediately hide the
-        DispatchQueue.main.asyncAfter(deadline: .now()) {
-            self.isStreamingResponses = false
-        }
+        self.insertNodeMenuState.show = false
+        self.isStreamingResponses = false
 
         // Reset the reasoning text after some delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//            self.isStreamingResponses = false
             self.streamingReasoningText = ""
         }
     }

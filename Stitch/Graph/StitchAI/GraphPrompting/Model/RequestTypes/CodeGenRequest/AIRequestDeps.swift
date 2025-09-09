@@ -63,20 +63,20 @@ struct AIRequestDeps: StitchAICodeCreator {
         log("🤖 AI Request - Provider: \(provider.displayName), OpenAI Model: \(document.openaiModel), Claude Model: \(document.claudeModel), Verbosity: \(validatedVerbosity) (requested: \(document.openaiVerbosity)), Reasoning Effort: \(document.openaiReasoningEffort)")
         
         // Prepare request parameters
-        let params = AIRequestParams(
-            id: self.id,
-            dataGlossaryPrompt: dataGlossaryPrompt,
-            assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(previewWindowSize: document.previewWindowSize, previewWindowBackgroundColor: document.previewWindowBackgroundColor),
-            textInput: try editInputs.encodeToString(),
-            base64Image: base64Image,
-            secrets: secrets
+        let previewWindowPrompt = StitchAIManager.previewWindowInfoPromptGenerator(
+            previewWindowSize: document.previewWindowSize,
+            previewWindowBackgroundColor: document.previewWindowBackgroundColor
         )
+        let userPrompt = try editInputs.encodeToString()
 
         let startTime = CFAbsoluteTimeGetCurrent()
         
         // Use provider-agnostic orchestrator
         let codeEditResult = try await makeAIRequest(
-            params: params,
+            previewWindowPrompt: previewWindowPrompt,
+            userPrompt: userPrompt,
+            base64Image: base64Image,
+            openAIAPIKey: secrets.openAIAPIKey,
             openAIModel: openAIModel,
             claudeModel: claudeModel,
             verbosity: validatedVerbosity,

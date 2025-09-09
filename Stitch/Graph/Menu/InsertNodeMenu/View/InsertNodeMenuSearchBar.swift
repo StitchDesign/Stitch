@@ -47,9 +47,9 @@ struct InsertNodeMenuSearchBar: View {
     
     // TODO: this logic is a bit awkward when stream completes; we switch from the non-empty thinking-stream to the (empty?) query string; really, we need to consolidate "should the menu be open?" logic across regular
     private var displayText: String {
-        if document.isStreamingResponses {
-            return document.streamingReasoningText
-            // return document.streamingReasoningText.isEmpty ? AI_THINKING_TEXT : document.streamingReasoningText
+        if isLoadingAIResult || document.isStreamingResponses || !document.streamingReasoningText.isEmpty {
+//            return document.streamingReasoningText
+         return document.streamingReasoningText.isEmpty ? AI_THINKING_TEXT : document.streamingReasoningText
         }
         return queryString
     }
