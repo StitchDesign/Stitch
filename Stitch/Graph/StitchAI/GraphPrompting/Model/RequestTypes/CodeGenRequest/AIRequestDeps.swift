@@ -42,7 +42,7 @@ struct AIRequestDeps: StitchAICodeCreator {
         log("AIRequestDeps.createCode initial code:\n\(self.swiftUICodeOfGraph)")
         
         guard let secrets = try? Secrets() else {
-            log("AIRequestDeps.createCode: No secrets found", .logToServer)
+            log("AIRequestDeps.createCode: No secrets found")
             throw StitchAIManagerError.secretsNotFound
         }
         
@@ -177,7 +177,7 @@ extension StitchStore {
     @MainActor
     static func displayError(failure: any Error,
                              document: StitchDocumentViewModel) -> any Error {
-        log("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)", .logToServer)
+        log("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)")
         print(failure.localizedDescription)
         document.aiManager?.currentTask = nil
         document.insertNodeMenuState.show = false

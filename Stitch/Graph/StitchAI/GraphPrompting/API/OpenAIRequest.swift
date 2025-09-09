@@ -141,14 +141,14 @@ extension StitchAIManager {
         
         // Check if we've exceeded retry attempts
         guard attempt <= request.config.maxRetries else {
-            log("All StitchAI retry attempts exhausted", .logToServer)
+            log("All StitchAI retry attempts exhausted")
             return .failure(.maxRetriesError(request.config.maxRetries,
                                              lastCapturedError))
         }
         
         guard let urlRequest = Self.getURLRequestForOpenAI(request: request,
                                                            secrets: self.secrets) else {
-            log("StitchAIManager: startOpenAIRequest: could not get request", .logToServer)
+            log("StitchAIManager: startOpenAIRequest: could not get request")
             return .failure(.urlRequestCreationFailure)
         }
         
@@ -173,7 +173,7 @@ extension StitchAIManager {
             
         case .failure(let error):
             // Note: `error` might be a cancellation, which is acceptable and not an error
-            log("StitchAIManager: startOpenAIRequest: streaming error: \(error.localizedDescription)", .logToServer)
+            log("StitchAIManager: startOpenAIRequest: streaming error: \(error.localizedDescription)")
             if let error = handleOpenAIStreamingError(
                 error,
                 attempt: attempt,
@@ -194,7 +194,7 @@ extension StitchAIManager {
             // Retry on rate limit or server errors
             if httpResponse.statusCode == 429 || // Rate limit
                 httpResponse.statusCode >= 500 {  // Server error
-                log("StitchAI Request failed with status code: \(httpResponse.statusCode)", .logToServer)
+                log("StitchAI Request failed with status code: \(httpResponse.statusCode)")
                 log("Retrying in \(request.config.retryDelay) seconds")
                 
                 return .rateLimit
@@ -303,7 +303,7 @@ extension StitchAIRequestable {
     func request(document: StitchDocumentViewModel,
                  aiManager: StitchAIManager) async throws -> Self.FinalDecodedResult {
         print("🔥 DEBUG: StitchAIRequestable.request called for \(String(describing: type(of: self)))")
-        log("StitchAIRequestable.request called for \(String(describing: type(of: self)))", .logToServer)
+        log("StitchAIRequestable.request called for \(String(describing: type(of: self)))")
         
         let result = await aiManager.startAIRequest(self,
                                                     attempt: 0,

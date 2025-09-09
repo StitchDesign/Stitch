@@ -576,7 +576,6 @@
 		EC2DD4C728921A43008766A1 /* NodeTitleActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2DD4C628921A43008766A1 /* NodeTitleActions.swift */; };
 		EC2F62972A0D718600D86A50 /* ShapeCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2F62962A0D718600D86A50 /* ShapeCommand.swift */; };
 		EC2F62992A0DAB2600D86A50 /* PackNodeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2F62982A0DAB2600D86A50 /* PackNodeHelpers.swift */; };
-		EC3030AE2E6F41470090220A /* austen_system_prompt.txt in Resources */ = {isa = PBXBuildFile; fileRef = EC3030AD2E6F41460090220A /* austen_system_prompt.txt */; };
 		EC3030B02E6F93B20090220A /* stitch_static_prompt.txt in Resources */ = {isa = PBXBuildFile; fileRef = EC3030AF2E6F93B20090220A /* stitch_static_prompt.txt */; };
 		EC3127F62BA3B6470087049A /* NodeWirelessBroadcastSubmenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3127F52BA3B6470087049A /* NodeWirelessBroadcastSubmenuView.swift */; };
 		EC31438728189FDF0023DB26 /* ProjectCreatedActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC31438628189FDF0023DB26 /* ProjectCreatedActions.swift */; };
@@ -1768,7 +1767,6 @@
 		EC2DD4C628921A43008766A1 /* NodeTitleActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTitleActions.swift; sourceTree = "<group>"; };
 		EC2F62962A0D718600D86A50 /* ShapeCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeCommand.swift; sourceTree = "<group>"; };
 		EC2F62982A0DAB2600D86A50 /* PackNodeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackNodeHelpers.swift; sourceTree = "<group>"; };
-		EC3030AD2E6F41460090220A /* austen_system_prompt.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = austen_system_prompt.txt; sourceTree = "<group>"; };
 		EC3030AF2E6F93B20090220A /* stitch_static_prompt.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = stitch_static_prompt.txt; sourceTree = "<group>"; };
 		EC3127F52BA3B6470087049A /* NodeWirelessBroadcastSubmenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeWirelessBroadcastSubmenuView.swift; sourceTree = "<group>"; };
 		EC31438628189FDF0023DB26 /* ProjectCreatedActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectCreatedActions.swift; sourceTree = "<group>"; };
@@ -3637,7 +3635,6 @@
 			isa = PBXGroup;
 			children = (
 				EC3030AF2E6F93B20090220A /* stitch_static_prompt.txt */,
-				EC3030AD2E6F41460090220A /* austen_system_prompt.txt */,
 				EC5322972E6A1D4C0081C712 /* stitch_examples_with_generated_code.json */,
 				200BD85E254F66EE00692903 /* Assets.xcassets */,
 				B555013A2C1C081D0081C3F1 /* ML */,
@@ -5843,7 +5840,6 @@
 				ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */,
 				B5849FB82DFBDB5E00D668ED /* VersioningInstructions.md in Resources */,
 				E41850A22E25AD9E0006878E /* TEST_IMAGE.png in Resources */,
-				EC3030AE2E6F41470090220A /* austen_system_prompt.txt in Resources */,
 				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
 				E4E341E62E2ABCBE008FC7F1 /* TEST_IMAGE_6.png in Resources */,
 				E4E341E72E2ABCBE008FC7F1 /* TEST_IMAGE_7.png in Resources */,

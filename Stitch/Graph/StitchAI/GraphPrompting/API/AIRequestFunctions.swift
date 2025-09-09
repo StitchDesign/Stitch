@@ -120,7 +120,7 @@ func makeOpenAIStreamingRequest(
         guard (200...299).contains(httpResponse.statusCode) else {
             let errorData = try await URLSession.shared.data(for: request).0
             let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
-            log("OpenAI request failed with status: \(httpResponse.statusCode), error: \(errorString)", .logToServer)
+            log("OpenAI request failed with status: \(httpResponse.statusCode), error: \(errorString)")
             fatalError("OpenAI request failed with status \(httpResponse.statusCode)")
         }
         
@@ -196,10 +196,10 @@ func makeClaudeRequest(
     document: StitchDocumentViewModel
 ) async throws -> String {
     
-    log("Making Claude request with model: \(model.rawValue)", .logToServer)
+    log("Making Claude request with model: \(model.rawValue)")
     
     guard let claudeAPIKey = StitchStore.claudeAPIKey, !claudeAPIKey.isEmpty else {
-        log("ERROR: Claude API key not configured in settings", .logToServer)
+        log("ERROR: Claude API key not configured in settings")
         throw StitchAIManagerError.claudeAPIKeyNotSet
     }
     
@@ -286,22 +286,22 @@ func makeClaudeRequest(
         document.streamingReasoningText = ""
         
         guard let httpResponse = response as? HTTPURLResponse else {
-            log("Claude request: No HTTP response", .logToServer)
+            log("Claude request: No HTTP response")
             // throw StitchAIManagerError.requestFailed
             fatalError()
         }
         
         
         if !(200...299).contains(httpResponse.statusCode) {
-            log("Claude request failed with status code: \(httpResponse.statusCode)", .logToServer)
-            log("Claude response headers: \(httpResponse.allHeaderFields)", .logToServer)
+            log("Claude request failed with status code: \(httpResponse.statusCode)")
+            log("Claude response headers: \(httpResponse.allHeaderFields)")
             
             // Log the error response body for debugging
             if let errorString = String(data: data, encoding: .utf8) {
-                log("Claude error response body: \(errorString)", .logToServer)
+                log("Claude error response body: \(errorString)")
                 print("🚨 Claude API Error (\(httpResponse.statusCode)): \(errorString)")
             } else {
-                log("Claude error response body: (could not decode as UTF-8)", .logToServer)
+                log("Claude error response body: (could not decode as UTF-8)")
             }
             
             throw StitchAIStreamingError.rateLimit // Assume rate limit for now
@@ -314,10 +314,12 @@ func makeClaudeRequest(
         log("responseStr: \(responseStr)")
         let content = claudeResponse.content.compactMap { $0.text }.joined()
         
+        #if DEV_DEBUG
         // Monitor cache performance from response body (not headers)
         await monitorClaudeCachePerformance(claudeResponse: claudeResponse)
+        #endif
         
-        log("Claude request completed successfully", .logToServer)
+        log("Claude request completed successfully")
         return content
         
     } catch {
@@ -328,7 +330,7 @@ func makeClaudeRequest(
         let failureDuration = Date().timeIntervalSince(requestStartTime)
         print("❌ Claude request failed after \(String(format: "%.2f", failureDuration)) seconds")
         
-        log("Claude request failed: \(error)", .logToServer)
+        log("Claude request failed: \(error)")
         throw error
     }
 }
@@ -346,7 +348,7 @@ func makeAIRequest(
     
     let provider = AIProviderConfig.shared.currentProvider
     print("🔥 DEBUG: makeAIRequest using provider: \(provider.displayName)")
-    log("makeAIRequest: Using provider: \(provider.displayName)", .logToServer)
+    log("makeAIRequest: Using provider: \(provider.displayName)")
     
     switch provider {
     case .openAI:
