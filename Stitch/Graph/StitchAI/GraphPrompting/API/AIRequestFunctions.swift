@@ -51,11 +51,8 @@ func makeOpenAIStreamingRequest(
         "effort": reasoningEffort.rawValue
     ]
     
-    let instructions = """
-    \(params.dataGlossaryPrompt)
-    
-    \(params.assistantPrompt)
-    """
+    // Use static content for consistent behavior (avoids UUID and non-deterministic issues)
+    let instructions = try loadStitchStaticPrompt()
     
     requestBody["instructions"] = instructions
     
@@ -219,10 +216,6 @@ func makeClaudeRequest(
     
     // Use static content for consistent caching (avoids UUID and non-deterministic issues)
     let stitchStaticContent = try loadStitchStaticPrompt()
-    
-    // Compare dynamic prompt with static prompt to identify differences (for debugging)
-    let dynamicPrompt = "\(params.dataGlossaryPrompt) \n \n \(params.assistantPrompt)"
-    comparePromptsAndLogDifferences(dynamic: dynamicPrompt, isStatic: stitchStaticContent)
     
     let fullSystemPrompt: [String: Any] = [
         "type": "text", 
