@@ -7,6 +7,15 @@
 
 import SwiftUI
 
+/// Load the stitch_static_prompt.txt content from app bundle for cache testing
+// Note: very important to use a static prompt, since some of our prompot's code examples include UUIDs which would change upon regeneration (thus defeating prompt caching)
+func loadStitchStaticPrompt() throws -> String {
+    guard let path = Bundle.main.path(forResource: "stitch_static_prompt", ofType: "txt"),
+          let content = try? String(contentsOfFile: path) else {
+        throw StitchAIManagerError.systemPromptNotFound
+    }
+    return content
+}
 
 /// Regenerate the stitch_static_prompt.txt file with current dynamic content
 /// Call this when you want to update the static prompt file with the latest dynamic generation

@@ -35,6 +35,15 @@ enum ClaudeModel: String, CaseIterable, Identifiable {
     }
     
     static var `default`: ClaudeModel { .claude35Haiku }
+    
+    var supportsThinking: Bool {
+        switch self {
+        case .claude4Opus, .claude41Opus, .claude4Sonnet, .claude37Sonnet:
+            return true
+        case .claude35Haiku:
+            return false
+        }
+    }
 }
 
 extension String {

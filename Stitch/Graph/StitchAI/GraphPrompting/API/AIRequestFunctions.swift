@@ -20,6 +20,39 @@ struct AIRequestParams {
     let secrets: Secrets
 }
 
+/// Provider-agnostic orchestrator function
+@MainActor
+func makeAIRequest(
+    params: AIRequestParams,
+    openAIModel: OpenAIModel,
+    claudeModel: ClaudeModel,
+    verbosity: OpenAIVerbosity,
+    reasoningEffort: OpenAIReasoningEffort,
+    document: StitchDocumentViewModel
+) async throws -> String {
+    
+    let provider = AIProviderConfig.shared.currentProvider
+    log("🔥 DEBUG: makeAIRequest using provider: \(provider.displayName)")
+    log("makeAIRequest: Using provider: \(provider.displayName)")
+    
+    switch provider {
+    case .openAI:
+        return try await makeOpenAIStreamingRequest(
+            params: params,
+            model: openAIModel,
+            verbosity: verbosity,
+            reasoningEffort: reasoningEffort,
+            document: document
+        )
+    case .claude:
+        return try await makeClaudeStreamingRequest(
+            params: params,
+            model: claudeModel,
+            document: document
+        )
+    }
+}
+
 /// Make a request to OpenAI's Responses endpoint with streaming
 @MainActor
 func makeOpenAIStreamingRequest(
@@ -81,12 +114,12 @@ func makeOpenAIStreamingRequest(
     
     // Log request details for debugging
     if let jsonData = try? JSONSerialization.data(withJSONObject: requestBody) {
-        print("🔍 Total request body: \(jsonData.count) bytes (\(jsonData.count/1024)KB)")
+        log("🔍 Total request body: \(jsonData.count) bytes (\(jsonData.count/1024)KB)")
         
         // Log readable request structure (truncated)
         if let jsonString = String(data: jsonData, encoding: .utf8) {
             let truncatedRequest = jsonString.count > 2000 ? String(jsonString.prefix(2000)) + "...[TRUNCATED]" : jsonString
-            print("📤 Outgoing OpenAI Request: \(truncatedRequest)")
+            log("📤 Outgoing OpenAI Request: \(truncatedRequest)")
         }
     }
     
@@ -158,23 +191,23 @@ func makeOpenAIStreamingRequest(
             document.streamingReasoningText = ""
         }
         
-        // Print comprehensive timing summary
+        // log comprehensive timing summary
         let totalDuration = Date().timeIntervalSince(requestStartTime)
-        print("⏱️ OpenAI Streaming Request Timing Summary:")
-        print("   → Total request duration: \(String(format: "%.2f", totalDuration)) seconds")
+        log("⏱️ OpenAI Streaming Request Timing Summary:")
+        log("   → Total request duration: \(String(format: "%.2f", totalDuration)) seconds")
         
         if let completionTime = responseCompletedTime {
-            print("   → Response completed: \(String(format: "%.2f", completionTime.timeIntervalSince(requestStartTime))) seconds after start")
+            log("   → Response completed: \(String(format: "%.2f", completionTime.timeIntervalSince(requestStartTime))) seconds after start")
             
             // Calculate phase durations if we have all milestones
             if let firstReasoningTime = firstReasoningTime, let firstCodeTime = firstCodeContentTime {
                 let reasoningPhase = firstCodeTime.timeIntervalSince(firstReasoningTime)
                 let codePhase = completionTime.timeIntervalSince(firstCodeTime)
-                print("   → Reasoning phase duration: \(String(format: "%.2f", reasoningPhase)) seconds (first code - first reasoning)")
-                print("   → Code generation phase duration: \(String(format: "%.2f", codePhase)) seconds (completed - first code)")
+                log("   → Reasoning phase duration: \(String(format: "%.2f", reasoningPhase)) seconds (first code - first reasoning)")
+                log("   → Code generation phase duration: \(String(format: "%.2f", codePhase)) seconds (completed - first code)")
             }
         } else {
-            print("   → Response completed: Not received")
+            log("   → Response completed: Not received")
         }
         
         return streamingResponse
@@ -196,7 +229,7 @@ func makeClaudeStreamingRequest(
     document: StitchDocumentViewModel
 ) async throws -> String {
     
-    log("=== makeClaudeRequest STARTED ===")
+    log("=== makeClaudeStreamingRequest STARTED ===")
     
     log("Making Claude request with model: \(model.rawValue)")
     
@@ -233,15 +266,12 @@ func makeClaudeStreamingRequest(
     ]
     
     // Add extended thinking for supported models
-    let supportsThinking = model.rawValue.contains("sonnet-4") || 
-                         model.rawValue.contains("opus-4") || 
-                         model.rawValue.contains("sonnet-3.7") ||
-                         model.rawValue.contains("claude-4") ||
-                         model.rawValue.contains("claude-3.7")
+    let supportsThinking = model.supportsThinking
     
     if supportsThinking {
         claudeBody["thinking"] = [
             "type": "enabled",
+            // TODO: how many tokens should we allow for thinking?
             "budget_tokens": 10000  // Allow up to 10k tokens for thinking
         ]
         log("Extended thinking enabled for model: \(model.rawValue) with 10k token budget")
@@ -276,15 +306,17 @@ func makeClaudeStreamingRequest(
     
     // Log request details for debugging including cache structure
     if let jsonData = request.httpBody {
-        print("🔍 Total Claude request body: \(jsonData.count) bytes (\(jsonData.count/1024)KB)")
-        print("📤 Using Claude model: \(model.rawValue)")
+        log("🔍 Total Claude request body: \(jsonData.count) bytes (\(jsonData.count/1024)KB)")
+        log("📤 Using Claude model: \(model.rawValue)")
         
+        #if DEV_DEBUG
         // Log stitch static content stats for cache debugging
         let stitchTokenEstimate = stitchStaticContent.count / 3 // Rough token estimate
-        print("📚 Stitch static system prompt stats:")
-        print("   → Characters: \(stitchStaticContent.count)")
-        print("   → Estimated tokens: ~\(stitchTokenEstimate)")
-        print("   → Cache eligible: \(stitchTokenEstimate > 1024 ? "✅ YES" : "❌ NO") (>1024 tokens required)")
+        log("📚 Stitch static system prompt stats:")
+        log("   → Characters: \(stitchStaticContent.count)")
+        log("   → Estimated tokens: ~\(stitchTokenEstimate)")
+        log("   → Cache eligible: \(stitchTokenEstimate > 1024 ? "✅ YES" : "❌ NO") (>1024 tokens required)")
+        #endif
     }
     
     // Set streaming UI state
@@ -339,35 +371,35 @@ func makeClaudeStreamingRequest(
             }
             
             let eventType = json["type"] as? String
-            log("🔄 Claude streaming event: \(eventType ?? "unknown") - JSON keys: \(json.keys.joined(separator: ", "))")
+            //            log("🔄 Claude streaming event: \(eventType ?? "unknown") - JSON keys: \(json.keys.joined(separator: ", "))")
             
             switch eventType {
             case "message_start":
-                log("Claude stream started")
+                //                log("Claude stream started")
                 
             case "content_block_start":
                 if let contentBlock = json["content_block"] as? [String: Any],
                    let type = contentBlock["type"] as? String {
                     if type == "thinking" {
-                        log("🧠 Claude thinking block started")
+                        //                        log("🧠 Claude thinking block started")
                         if firstThinkingTime == nil {
                             firstThinkingTime = Date()
                             let thinkingLatency = Date().timeIntervalSince(requestStartTime) * 1000
-                            log("⚡ Time to first thinking: \(String(format: "%.0f", thinkingLatency))ms")
+                            //                            log("⚡ Time to first thinking: \(String(format: "%.0f", thinkingLatency))ms")
                         }
                     } else if type == "text" {
-                        log("📝 Claude text content block started")
+                        //                        log("📝 Claude text content block started")
                         if firstContentTime == nil {
                             firstContentTime = Date()
                             let contentLatency = Date().timeIntervalSince(requestStartTime) * 1000
-                            log("⚡ Time to first content: \(String(format: "%.0f", contentLatency))ms")
+                            //                            log("⚡ Time to first content: \(String(format: "%.0f", contentLatency))ms")
                         }
                     }
                 }
                 
             case "content_block_delta":
                 if let delta = json["delta"] as? [String: Any] {
-                    log("Delta received: \(delta)")
+                    //                    log("Delta received: \(delta)")
                     if let thinkingText = delta["thinking"] as? String {
                         // This is thinking content
                         // log("🧠 Thinking delta received: '\(thinkingText)' (length: \(thinkingText.count))")
@@ -392,10 +424,10 @@ func makeClaudeStreamingRequest(
                             }
                         }
                     } else {
-                        log("⚠️  Delta received but no 'thinking' or 'text' field found")
+                        //                        log("⚠️  Delta received but no 'thinking' or 'text' field found")
                     }
                 } else {
-                    log("⚠️  content_block_delta event with no delta field")
+                    //                    log("⚠️  content_block_delta event with no delta field")
                 }
                 
             case "message_delta":
@@ -429,13 +461,15 @@ func makeClaudeStreamingRequest(
         log("Total thinking length: \(accumulatedThinking.count) characters")
         log("📝 Thinking steps received: \(allThinkingSteps.count)")
         
-        // Debug: Print all thinking steps for debugging
+        #if DEV_DEBUG
+        // Debug: log all thinking steps for debugging
         if !allThinkingSteps.isEmpty {
             log("🧠 All thinking deltas received:")
             for (index, step) in allThinkingSteps.enumerated() {
                 log("   Step \(index + 1): '\(step)'")
             }
         }
+        #endif
         
         return accumulatedContent
         
@@ -447,56 +481,17 @@ func makeClaudeStreamingRequest(
         
         // Log failure timing
         let failureDuration = Date().timeIntervalSince(requestStartTime)
-        print("❌ Claude request failed after \(String(format: "%.2f", failureDuration)) seconds")
+        log("❌ Claude request failed after \(String(format: "%.2f", failureDuration)) seconds")
         
         log("Claude request failed: \(error)")
         throw error
     }
 }
 
-/// Provider-agnostic orchestrator function
-@MainActor
-func makeAIRequest(
-    params: AIRequestParams,
-    openAIModel: OpenAIModel,
-    claudeModel: ClaudeModel,
-    verbosity: OpenAIVerbosity,
-    reasoningEffort: OpenAIReasoningEffort,
-    document: StitchDocumentViewModel
-) async throws -> String {
-    
-    let provider = AIProviderConfig.shared.currentProvider
-    print("🔥 DEBUG: makeAIRequest using provider: \(provider.displayName)")
-    log("makeAIRequest: Using provider: \(provider.displayName)")
-    
-    switch provider {
-    case .openAI:
-        return try await makeOpenAIStreamingRequest(
-            params: params,
-            model: openAIModel,
-            verbosity: verbosity,
-            reasoningEffort: reasoningEffort,
-            document: document
-        )
-    case .claude:
-        return try await makeClaudeStreamingRequest(
-            params: params,
-            model: claudeModel,
-            document: document
-        )
-    }
-}
+
 
 // MARK: - Helper Functions
 
-/// Load the stitch_static_prompt.txt content from app bundle for cache testing
-private func loadStitchStaticPrompt() throws -> String {
-    guard let path = Bundle.main.path(forResource: "stitch_static_prompt", ofType: "txt"),
-          let content = try? String(contentsOfFile: path) else {
-        throw StitchAIManagerError.systemPromptNotFound
-    }
-    return content
-}
 
 private func handleOpenAIStreamingEvent(
     json: [String: Any],
@@ -521,7 +516,7 @@ private func handleOpenAIStreamingEvent(
             if firstCodeContentTime == nil && !delta.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 firstCodeContentTime = Date()
                 let timeToFirstCode = firstCodeContentTime!.timeIntervalSince(requestStartTime)
-                print("🚀 First code content received after \(String(format: "%.2f", timeToFirstCode)) seconds: \"\(delta.prefix(50))\(delta.count > 50 ? "..." : "")\"")
+                log("🚀 First code content received after \(String(format: "%.2f", timeToFirstCode)) seconds: \"\(delta.prefix(50))\(delta.count > 50 ? "..." : "")\"")
             }
             streamingResponse += delta
             
@@ -533,10 +528,10 @@ private func handleOpenAIStreamingEvent(
         // This indicates a new content part is starting (might be code output)
         if let part = json["part"] as? [String: Any],
            let partType = part["type"] as? String {
-            print("📝 Content part started: \(partType)")
+            log("📝 Content part started: \(partType)")
             if partType == "output_text" && firstCodeContentTime == nil {
                 // This is likely the start of actual code output
-                print("🎯 Output text part detected - code content should start soon")
+                log("🎯 Output text part detected - code content should start soon")
             }
         }
     
@@ -546,7 +541,7 @@ private func handleOpenAIStreamingEvent(
             if firstReasoningTime == nil && !delta.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 firstReasoningTime = Date()
                 let timeToFirstReasoning = firstReasoningTime!.timeIntervalSince(requestStartTime)
-                print("🧠 First reasoning received after \(String(format: "%.2f", timeToFirstReasoning)) seconds: \"\(delta.prefix(50))\(delta.count > 50 ? "..." : "")\"")
+                log("🧠 First reasoning received after \(String(format: "%.2f", timeToFirstReasoning)) seconds: \"\(delta.prefix(50))\(delta.count > 50 ? "..." : "")\"")
             }
             
             accumulatedReasoning += delta
@@ -576,7 +571,7 @@ private func handleOpenAIStreamingEvent(
         // Record completion timing
         responseCompletedTime = Date()
         let totalTime = responseCompletedTime!.timeIntervalSince(requestStartTime)
-        print("✅ Response completed after \(String(format: "%.2f", totalTime)) seconds")
+        log("✅ Response completed after \(String(format: "%.2f", totalTime)) seconds")
         
         await MainActor.run {
             document.isStreamingResponses = false
@@ -593,7 +588,7 @@ private func handleOpenAIStreamingEvent(
             if firstCodeContentTime == nil && !delta.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 firstCodeContentTime = Date()
                 let timeToFirstCode = Date().timeIntervalSince(requestStartTime)
-                print("💻 First code content received: \(String(format: "%.2f", timeToFirstCode)) seconds")
+                log("💻 First code content received: \(String(format: "%.2f", timeToFirstCode)) seconds")
             }
             
             streamingResponse += delta
@@ -603,15 +598,14 @@ private func handleOpenAIStreamingEvent(
     default:
         // Log unhandled reasoning events for debugging
         if eventType.contains("reasoning") {
-            print("🧠 Unhandled reasoning event: \(eventType)")
+            log("🧠 Unhandled reasoning event: \(eventType)")
         } else if eventType.contains("output") || eventType.contains("content") {
-            print("📄 Unhandled content event: \(eventType)")
+            log("📄 Unhandled content event: \(eventType)")
         } else {
-            print("❓ Unhandled event type: \(eventType)")
+            log("❓ Unhandled event type: \(eventType)")
         }
     }
 }
-
 
 /// Monitor Claude prompt cache performance from streaming usage data in AIRequestFunctions
 func monitorClaudeStreamingCachePerformance(usage: ClaudeUsage) async {
@@ -621,40 +615,40 @@ func monitorClaudeStreamingCachePerformance(usage: ClaudeUsage) async {
     let cacheCreationInputTokens = usage.cacheCreationInputTokens ?? 0
     let cacheReadInputTokens = usage.cacheReadInputTokens ?? 0
     
-    print("🔍 Claude Streaming Response Usage Analysis for Cache Performance:")
-    print("📊 Usage Statistics:")
-    print("   → Input tokens: \(inputTokens)")
-    print("   → Output tokens: \(outputTokens)")
+    log("🔍 Claude Streaming Response Usage Analysis for Cache Performance:")
+    log("📊 Usage Statistics:")
+    log("   → Input tokens: \(inputTokens)")
+    log("   → Output tokens: \(outputTokens)")
     
     // Analyze cache performance
-    print("💾 Cache Performance Analysis:")
+    log("💾 Cache Performance Analysis:")
     if cacheCreationInputTokens > 0 {
-        print("   ✅ Cache created with \(cacheCreationInputTokens) tokens")
+        log("   ✅ Cache created with \(cacheCreationInputTokens) tokens")
         
         // Calculate potential savings
         let potentialSavings = Double(cacheCreationInputTokens) * 0.9 // 90% cost reduction for cached tokens
-        print("   💰 Potential future savings: \(String(format: "%.0f", potentialSavings)) token-equivalents per request")
+        log("   💰 Potential future savings: \(String(format: "%.0f", potentialSavings)) token-equivalents per request")
     }
     
     if cacheReadInputTokens > 0 {
         let cachePercentage = (Double(cacheReadInputTokens) / Double(inputTokens)) * 100
-        print("   🚀 Cache hit! \(cacheReadInputTokens) tokens read from cache (\(String(format: "%.1f", cachePercentage))%)")
+        log("   🚀 Cache hit! \(cacheReadInputTokens) tokens read from cache (\(String(format: "%.1f", cachePercentage))%)")
         
         // Calculate actual savings
         let actualSavings = Double(cacheReadInputTokens) * 0.9 // 90% cost reduction for cached tokens
-        print("   💰 Cost savings: ~\(String(format: "%.0f", actualSavings)) token-equivalents")
+        log("   💰 Cost savings: ~\(String(format: "%.0f", actualSavings)) token-equivalents")
     } else if inputTokens >= 1024 {
-        print("   ❓ No cache hits detected")
-        print("   → Cache may still be warming up for future requests")
+        log("   ❓ No cache hits detected")
+        log("   → Cache may still be warming up for future requests")
     } else {
-        print("   📏 Prompt too small for caching (\(inputTokens) < 1024 tokens)")
-        print("   → Claude caching requires ≥1024 tokens")
-        print("   → Consider consolidating static content")
+        log("   📏 Prompt too small for caching (\(inputTokens) < 1024 tokens)")
+        log("   → Claude caching requires ≥1024 tokens")
+        log("   → Consider consolidating static content")
     }
     
     // Log overall token usage
     let totalTokens = inputTokens + outputTokens
-    print("🎯 Total usage: \(inputTokens) input + \(outputTokens) output = \(totalTokens) tokens")
+    log("🎯 Total usage: \(inputTokens) input + \(outputTokens) output = \(totalTokens) tokens")
     
     // Log to server for analytics
     log("Claude streaming cache performance - Created: \(cacheCreationInputTokens), Read: \(cacheReadInputTokens), Total: \(totalTokens)")

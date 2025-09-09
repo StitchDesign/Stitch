@@ -112,33 +112,15 @@ extension StitchAIManager {
         print("🔥 DEBUG: startAIRequest called!")
         log("StitchAIManager: startAIRequest called")
         
-        let provider = AIProviderConfig.shared.currentProvider
+        // TODO: support Claude for AI-JS, AI-Graph-Summary etc. ?
+        let provider: AIProvider = .openAI
         print("🔥 DEBUG: Current provider: \(provider.displayName)")
         log("StitchAIManager: startAIRequest: Using provider: \(provider.displayName)")
-        
-        // Force JavaScript AI nodes to always use OpenAI
-        let isJavaScriptNode = request is AIEditJSNodeRequest
-        if isJavaScriptNode {
-            print("🔥 DEBUG: JavaScript AI node detected - forcing OpenAI")
-            log("StitchAIManager: JavaScript AI node detected - overriding to OpenAI")
-        }
-        
-        let effectiveProvider: AIProvider = isJavaScriptNode ? .openAI : provider
-        
-        switch effectiveProvider {
-        case .openAI:
-            log("StitchAIManager: Routing to OpenAI")
-            return await startOpenAIRequest(request,
-                                            attempt: attempt,
-                                            lastCapturedError: lastCapturedError,
-                                            document: document)
-        case .claude:
-            log("StitchAIManager: Routing to Claude")
-            return await startClaudeRequest(request,
-                                            attempt: attempt,
-                                            lastCapturedError: lastCapturedError,
-                                            document: document)
-        }
+               
+        return await startOpenAIRequest(request,
+                                        attempt: attempt,
+                                        lastCapturedError: lastCapturedError,
+                                        document: document)
     }
     
     /// Execute the OpenAI API request with retry logic
