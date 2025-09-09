@@ -611,6 +611,7 @@
 		EC41FFC32943A74E00BF8671 /* CGPointUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC41FFC22943A74E00BF8671 /* CGPointUtils.swift */; };
 		EC4213A32E62302400C6DE64 /* StitchAITrainingDataInspectionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4213A22E62302300C6DE64 /* StitchAITrainingDataInspectionOverlay.swift */; };
 		EC4281182B76A4F300767AAF /* ReframeResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4281172B76A4F300767AAF /* ReframeResponse.swift */; };
+		EC4351122E6FA8650086BB87 /* AIRequestFunctionsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4351112E6FA8650086BB87 /* AIRequestFunctionsUtils.swift */; };
 		EC4379F32BA4FAF60077493E /* PortValueEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4379F22BA4FAF60077493E /* PortValueEnum.swift */; };
 		EC46AC0926CEE3820062CB26 /* DeviceMotionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46AC0826CEE3820062CB26 /* DeviceMotionHelpers.swift */; };
 		EC46AC0B26CEE3B80062CB26 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46AC0A26CEE3B80062CB26 /* AppState.swift */; };
@@ -1801,6 +1802,7 @@
 		EC41FFC22943A74E00BF8671 /* CGPointUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGPointUtils.swift; sourceTree = "<group>"; };
 		EC4213A22E62302300C6DE64 /* StitchAITrainingDataInspectionOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAITrainingDataInspectionOverlay.swift; sourceTree = "<group>"; };
 		EC4281172B76A4F300767AAF /* ReframeResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReframeResponse.swift; sourceTree = "<group>"; };
+		EC4351112E6FA8650086BB87 /* AIRequestFunctionsUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIRequestFunctionsUtils.swift; sourceTree = "<group>"; };
 		EC4379F22BA4FAF60077493E /* PortValueEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueEnum.swift; sourceTree = "<group>"; };
 		EC46AC0826CEE3820062CB26 /* DeviceMotionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceMotionHelpers.swift; sourceTree = "<group>"; };
 		EC46AC0A26CEE3B80062CB26 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
@@ -4717,6 +4719,7 @@
 				EC2A330C2E4EC82C00482AB7 /* AIProvider.swift */,
 				EC2A330A2E4EC7C300482AB7 /* ClaudeRequest.swift */,
 				EC2B9ED92E6B5B580053F638 /* AIRequestFunctions.swift */,
+				EC4351112E6FA8650086BB87 /* AIRequestFunctionsUtils.swift */,
 				EC86AD562DCC1E7700E9B00E /* OpenAIRequestHelpers.swift */,
 				EC16C66E2E69FC0900491A65 /* OpenAIStreamHelpers.swift */,
 				EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */,
@@ -6867,6 +6870,7 @@
 				ECE5857E2DB6EB5700749ED3 /* InputPortUIViewModel.swift in Sources */,
 				B5EFD5BC2D63EC5D006A68FB /* OpenAIStructuredOutputs.swift in Sources */,
 				B555FB412D59CD3E00E1D349 /* StitchAISchema.swift in Sources */,
+				EC4351122E6FA8650086BB87 /* AIRequestFunctionsUtils.swift in Sources */,
 				ECD887232941494800003B47 /* LayerNodeId.swift in Sources */,
 				ECCF23552D4C6C9300BC2F2F /* Step_V0.swift in Sources */,
 				B55500C62C1B9F9D0081C3F1 /* FieldValueMedia.swift in Sources */,
