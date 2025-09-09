@@ -10,7 +10,9 @@ import SwiftUI
 /// Make a request to Claude's Messages endpoint
 @MainActor
 func makeClaudeStreamingRequest(
-    params: AIRequestParams,
+    previewWindowPrompt: String,
+    userPrompt: String,
+    base64Image: String?,
     model: ClaudeModel,
     document: StitchDocumentViewModel
 ) async throws -> String {
@@ -48,7 +50,7 @@ func makeClaudeStreamingRequest(
     // Preview window constraints component (cacheable per session)
     let previewWindowSystemPrompt: [String: Any] = [
         "type": "text",
-        "text": params.assistantPrompt, // Contains preview window constraints
+        "text": previewWindowPrompt, // Contains preview window constraints
         "cache_control": ["type": "ephemeral", "ttl": "1h"] // Cache preview window info for session
     ]
     
@@ -73,11 +75,11 @@ func makeClaudeStreamingRequest(
     }
     
     // Handle text + optional image input
-    if let imageData = params.base64Image {
+    if let imageData = base64Image {
         claudeBody["messages"] = [[
             "role": "user",
             "content": [
-                ["type": "text", "text": params.textInput],
+                ["type": "text", "text": userPrompt],
                 [
                     "type": "image",
                     "source": [
@@ -91,7 +93,7 @@ func makeClaudeStreamingRequest(
     } else {
         claudeBody["messages"] = [[
             "role": "user",
-            "content": params.textInput
+            "content": userPrompt
         ]]
     }
     

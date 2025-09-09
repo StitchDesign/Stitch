@@ -1162,6 +1162,7 @@
 		ECF387DD280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */; };
 		ECF387DF280B61870075F0E5 /* NodeUIKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387DE280B61860075F0E5 /* NodeUIKind.swift */; };
 		ECF387E1280B61A80075F0E5 /* NodeConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387E0280B61A80075F0E5 /* NodeConstants.swift */; };
+		ECF49C512E70CE8200B1C9B9 /* PreviewWindowInfoPromptGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF49C502E70CE8200B1C9B9 /* PreviewWindowInfoPromptGenerator.swift */; };
 		ECF6394F2E4DA912005E766E /* OpenAIConfigurationPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6394E2E4DA912005E766E /* OpenAIConfigurationPicker.swift */; };
 		ECF639512E4DA955005E766E /* OpenAIConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF639502E4DA955005E766E /* OpenAIConfiguration.swift */; };
 		ECF6AEF5263CB7C70011C679 /* CoreMLClassifyNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6AEF2263CB7C70011C679 /* CoreMLClassifyNode.swift */; };
@@ -2329,6 +2330,7 @@
 		ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemSelectedViewModifier.swift; sourceTree = "<group>"; };
 		ECF387DE280B61860075F0E5 /* NodeUIKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeUIKind.swift; sourceTree = "<group>"; };
 		ECF387E0280B61A80075F0E5 /* NodeConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeConstants.swift; sourceTree = "<group>"; };
+		ECF49C502E70CE8200B1C9B9 /* PreviewWindowInfoPromptGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewWindowInfoPromptGenerator.swift; sourceTree = "<group>"; };
 		ECF6394E2E4DA912005E766E /* OpenAIConfigurationPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIConfigurationPicker.swift; sourceTree = "<group>"; };
 		ECF639502E4DA955005E766E /* OpenAIConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIConfiguration.swift; sourceTree = "<group>"; };
 		ECF6AEF2263CB7C70011C679 /* CoreMLClassifyNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreMLClassifyNode.swift; sourceTree = "<group>"; };
@@ -4625,6 +4627,7 @@
 				B5CD1A282E2AB907009CDF74 /* AIGraphBuilderSystemPromptGenerator.swift */,
 				B5EFD5B02D5D8967006A68FB /* StitchAISystemPromptGenerator.swift */,
 				B5B31CE72E0C6769003EABA2 /* AICodeGenSystemPromptGenerator.swift */,
+				ECF49C502E70CE8200B1C9B9 /* PreviewWindowInfoPromptGenerator.swift */,
 				B5675A922E31A94A00269ABB /* AICodeEditSystemPromptGenerator.swift */,
 				B503B0CD2E0D826A004F5EB8 /* AIPatchBuilderSystemPromptGenerator.swift */,
 			);
@@ -6439,6 +6442,7 @@
 				EC844A682B5F20EF00C79B0B /* StitchFontWeight.swift in Sources */,
 				EC9D16E02808D89000684978 /* CanvasItemTitleView.swift in Sources */,
 				EC3A6C4B2C20C4FD00CCBACC /* NodeRowObserverCachedViewDataExtensions.swift in Sources */,
+				ECF49C512E70CE8200B1C9B9 /* PreviewWindowInfoPromptGenerator.swift in Sources */,
 				EC0FD2DE2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift in Sources */,
 				EC5BC3DF2D681331000DF722 /* JSONCoercionUtils.swift in Sources */,
 				ECB46CDB2DB171B5006EFB93 /* LayerInputFieldBlocking.swift in Sources */,

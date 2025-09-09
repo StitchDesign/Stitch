@@ -8,22 +8,15 @@
 import Foundation
 import SwiftUI
 
-// MARK: - Pure Functions for AI Requests
-
-/// Parameters needed for any AI request
-struct AIRequestParams {
-    let id: UUID
-    let dataGlossaryPrompt: String
-    let assistantPrompt: String
-    let textInput: String
-    let base64Image: String?
-    let secrets: Secrets
-}
+// MARK: - Provider-agnostic AI Request Function
 
 /// Provider-agnostic orchestrator function
 @MainActor
 func makeAIRequest(
-    params: AIRequestParams,
+    previewWindowPrompt: String,
+    userPrompt: String,
+    base64Image: String?,
+    openAIAPIKey: String,
     openAIModel: OpenAIModel,
     claudeModel: ClaudeModel,
     verbosity: OpenAIVerbosity,
@@ -38,7 +31,9 @@ func makeAIRequest(
     switch provider {
     case .openAI:
         return try await makeOpenAIStreamingRequest(
-            params: params,
+            userPrompt: userPrompt,
+            base64Image: base64Image,
+            openAIAPIKey: openAIAPIKey,
             model: openAIModel,
             verbosity: verbosity,
             reasoningEffort: reasoningEffort,
@@ -46,7 +41,9 @@ func makeAIRequest(
         )
     case .claude:
         return try await makeClaudeStreamingRequest(
-            params: params,
+            previewWindowPrompt: previewWindowPrompt,
+            userPrompt: userPrompt,
+            base64Image: base64Image,
             model: claudeModel,
             document: document
         )
