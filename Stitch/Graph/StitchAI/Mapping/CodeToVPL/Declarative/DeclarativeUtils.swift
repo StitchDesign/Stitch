@@ -317,6 +317,29 @@ extension MemberAccessExprSyntax {
         default: return nil
         }
     }
+    
+    var mostNestedBaseName: String {
+        if let nestedMember = self.base?.as(MemberAccessExprSyntax.self) {
+            return nestedMember.mostNestedBaseName
+        }
+        
+        if let decl = self.base?.as(DeclReferenceExprSyntax.self) {
+            return decl.baseName.trimmedDescription
+        }
+        
+        return self.base?.trimmedDescription ?? self.trimmedDescription
+    }
+    
+    func dropInnermostBase() -> MemberAccessExprSyntax {
+        guard let memberBase = self.base?.as(MemberAccessExprSyntax.self) else {
+            return self
+        }
+        
+        // make the decl the new base to omit the prefix
+        var newSelf = self
+        newSelf.base = ExprSyntax(memberBase.declName)
+        return newSelf
+    }
 }
 
 // ---------------------------------------------------------------

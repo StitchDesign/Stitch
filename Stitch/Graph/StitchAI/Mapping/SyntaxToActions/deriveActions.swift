@@ -20,6 +20,8 @@ struct SwiftSyntaxPatchActionsResult: Encodable {
 //    var actions: CurrentAIGraphData.PatchData
     var nodes: [NodeEntity]
     
+    var stateVarConnections: [String: NodeIOCoordinate]
+    
     // Tracks any upstream patches that connect to some state
     // Key = state variable name
     // Value = upstream coordinate
@@ -90,7 +92,9 @@ extension SwiftUIViewParserResult {
             .joined(separator: "\n")
         print("PATCH DATA:\n\(debugPatchStrings)")
         
-        let _ = await allPatchCode.derivePatchNodes(document: document)
+        let patchResult = await allPatchCode.derivePatchNodes(document: document)
+        
+        print(patchResult)
         
 //        let patchResults = self.bindingDeclarations.deriveStitchActions(existingData: interactionsPatchActionResult)
         
@@ -575,60 +579,120 @@ extension SwiftPatchCodeType {
             return nil
         }
     }
+    
+    var viewEvent: SyntaxViewEvent? {
+        switch self {
+        case .expression(let expr):
+            switch expr {
+            case .viewEventArg(let viewEvent):
+                return viewEvent
+                
+            default:
+                return nil
+            }
+            
+        default:
+            return nil
+        }
+    }
+}
+
+// TODO: move
+enum PatchSyntaxResultType {
+    case node(NodeEntity)
+    case upstreamCoordinate(NodeIOCoordinate)
+    case connection(PortEdgeData)
+}
+
+// TODO: move
+extension SwiftPatchNodeCode {
+    @MainActor
+    func defaultNodeEntity(varNameToCode: [String: SwiftPatchCodeType],
+                           groupNodeId: UUID?) throws -> NodeEntity {
+        let portEntities: [NodePortInputEntity] = try self
+            .ports
+            .createSchemaList(nodeId: self.nodeId,
+                              varNameToCode: varNameToCode)
+        
+        return self.patch.defaultNodeEntity(nodeId: self.nodeId,
+                                            ports: portEntities,
+                                            groupNodeId: groupNodeId)
+    }
+}
+
+extension Patch {
+    @MainActor
+    func defaultNodeEntity(nodeId: UUID,
+                           ports: [NodePortInputEntity]? = nil,
+                           groupNodeId: UUID?) -> NodeEntity {
+        assertInDebug(self.graphNode != nil)
+        
+        let graphNode = self.graphNode ?? SplitterPatchNode.self
+        
+        let defaultType = self
+            .graphNode?
+            .defaultUserVisibleType
+        
+        let canvasEntity = CanvasNodeEntity(position: .zero,
+                                            zIndex: .zero,
+                                            parentGroupNodeId: groupNodeId)
+        
+        let ports = ports ?? graphNode.rowDefinitions(for: defaultType)
+            .inputs
+            .enumerated()
+            .map { portIndex, inputDefinition in
+                let id = NodeIOCoordinate(portId: portIndex,
+                                          nodeId: nodeId)
+                return NodePortInputEntity(
+                    id: id,
+                    portData: .values(inputDefinition.defaultValues))
+            }
+        
+        let patchNodeEntity = PatchNodeEntity(
+            id: nodeId,
+            patch: self,
+            inputs: ports,
+            canvasEntity: canvasEntity,
+            userVisibleType: defaultType,
+            splitterNode: nil,
+            mathExpression: nil,
+            javaScriptNodeSettings: nil)
+        
+        let node = NodeEntity(id: nodeId,
+                              nodeTypeEntity: .patch(patchNodeEntity),
+                              title: "")
+        return node
+    }
 }
 
 extension SwiftPatchCodeType {
     @MainActor
-    func derivePatchNode(document: StitchDocumentViewModel,
-                         varNameToCode: [String: SwiftPatchCodeType]) async throws -> NodeEntity? {
+    func derivePatchData(document: StitchDocumentViewModel,
+                         varNameToCode: [String: SwiftPatchCodeType]) async throws -> [PatchSyntaxResultType] {
         let currentGroupContext = document.groupNodeFocused?.groupNodeId
         
         guard let aiManager = document.aiManager else {
             fatalErrorIfDebug()
-            return nil
+            return []
         }
         
         switch self {
         case .expression(let codeType):
             switch codeType {
             case .patchNodeInit(let patchNodeData):
-                let defaultType = patchNodeData
-                    .patch
-                    .graphNode?
-                    .defaultUserVisibleType
-                
-                let portEntities: [NodePortInputEntity] = try patchNodeData
-                    .ports
-                    .createSchemaList(nodeId: patchNodeData.nodeId,
-                                      varNameToCode: varNameToCode)
-                
-                let canvasEntity = CanvasNodeEntity(position: .zero,
-                                                    zIndex: .zero,
-                                                    parentGroupNodeId: currentGroupContext)
-                
-                let patchNodeEntity = PatchNodeEntity(
-                    id: patchNodeData.nodeId,
-                    patch: patchNodeData.patch,
-                    inputs: portEntities,
-                    canvasEntity: canvasEntity,
-                    userVisibleType: defaultType,
-                    splitterNode: nil,
-                    mathExpression: nil,
-                    javaScriptNodeSettings: nil)
-                
-                let node = NodeEntity(id: patchNodeData.nodeId,
-                                      nodeTypeEntity: .patch(patchNodeEntity),
-                                      title: "")
-                return node
+                let node = try patchNodeData
+                    .defaultNodeEntity(varNameToCode: varNameToCode,
+                                       groupNodeId: currentGroupContext)
+                return [.node(node)]
             
             case .ref(let varName):
                 guard let refCode = varNameToCode.get(varName) else {
                     fatalErrorIfDebug()
-                    return nil
+                    return []
                 }
                 
                 // recursion
-                return try await refCode.derivePatchNode(document: document,
+                return try await refCode.derivePatchData(document: document,
                                                          varNameToCode: varNameToCode)
             
             case .viewEventArg(let viewEventData):
@@ -643,13 +707,13 @@ extension SwiftPatchCodeType {
                 
                 guard var patchNodeEntity = nodeEntity.nodeTypeEntity.patchNodeEntity else {
                     fatalErrorIfDebug()
-                    return nil
+                    return []
                 }
                 
                 patchNodeEntity.inputs[0].portData = .values([.assignedLayer(.init(viewEventData.layerId))])
                 nodeEntity.nodeTypeEntity = .patch(patchNodeEntity)
                 
-                return nodeEntity
+                return [.node(nodeEntity)]
             
             case .jsRef(let jsData):
                 let jsNodeId = jsData.nodeId
@@ -660,7 +724,7 @@ extension SwiftPatchCodeType {
                 guard let sourceCode = varNameToCode.get(jsData.fnName)?
                     .jsScript else {
                     fatalErrorIfDebug()
-                    return nil
+                    return []
                 }
                 
                 let canvasEntity = CanvasNodeEntity(position: .zero,
@@ -688,16 +752,32 @@ extension SwiftPatchCodeType {
                                       nodeTypeEntity: .patch(patchNodeEntity),
                                       title: jsSettings.suggestedTitle)
                 
-                return node
+                return [.node(node)]
             
-            case .portValuesInit:
-                fatalErrorIfDebug("Was not expected here.")
-                return nil
+            case .portValuesInit(let args):
+                // Check for member syntax for view event arg, like `g.translation.width`
+                // Interaction nodes are already created with the parameter created from a view event, so this logic is here to determine specific connections and if unpack nodes should be made
+                guard let memberAccess = args.first?.memberAccess else {
+                    return []
+                }
+                
+                let baseString = memberAccess.mostNestedBaseName
+                
+                guard let viewEvent = varNameToCode.get(baseString)?.viewEvent else {
+                    return []
+                }
+                
+                // Drop the argument portion of the argument
+                let trimmedMemberAccess = memberAccess.dropInnermostBase()
+                
+                return viewEvent
+                    .createConnectedPatchData(gestureArg: trimmedMemberAccess,
+                                              groupNodeId: currentGroupContext)
             }
         
         default:
             fatalErrorIfDebug("Wasn't expected here")
-            return nil
+            return []
         }
     }
 }
@@ -719,17 +799,44 @@ extension Array where Element == (String, SwiftPatchCodeType) {
         // Instantiate dictionary of nodes to return as array later
         var nodesDict = [UUID: NodeEntity]()
         
+        // Tracks connections to state variables, used as layer inputs later
+        var stateVarConnections = [String: NodeIOCoordinate]()
+        
         var caughtErrors = [SwiftUISyntaxError]()
         
         // Create patch nodes and input values
         for (varName, code) in self {
             do {
-                guard let node = try await code.derivePatchNode(document: document,
-                                                                varNameToCode: varNameToCode) else {
-                    continue
-                }
+                let events = try await code.derivePatchData(document: document,
+                                                                varNameToCode: varNameToCode)
                 
-                nodesDict.updateValue(node, forKey: node.id)
+                for event in events {
+                    switch event {
+                    case .node(let nodeEntity):
+                        nodesDict.updateValue(nodeEntity,
+                                              forKey: nodeEntity.id)
+                        
+                    case .upstreamCoordinate(let upstreamCoordinate):
+                        stateVarConnections.updateValue(upstreamCoordinate,
+                                                        forKey: varName)
+                        
+                    case .connection(let portEdgeData):
+                        // Update already created node with an upstream connection
+                        guard var toNode = nodesDict.get(portEdgeData.to.nodeId),
+                              let inputPortIndex = portEdgeData.to.portId,
+                              var patchNode = toNode.nodeTypeEntity.patchNodeEntity,
+                              var portToUpdate = patchNode.inputs[safe: inputPortIndex] else {
+                            fatalErrorIfDebug()
+                            continue
+                        }
+                        
+                        portToUpdate.portData = .upstreamConnection(portEdgeData.from)
+                        patchNode.inputs[inputPortIndex] = portToUpdate
+                        toNode.nodeTypeEntity = .patch(patchNode)
+                        nodesDict.updateValue(toNode, forKey: toNode.id)
+                    }
+                }
+
             } catch let error as SwiftUISyntaxError {
                 caughtErrors.append(error)
             } catch {
@@ -739,6 +846,7 @@ extension Array where Element == (String, SwiftPatchCodeType) {
         }
         
         return .init(nodes: [NodeEntity](nodesDict.values),
+                     stateVarConnections: stateVarConnections,
                      caughtErrors: caughtErrors)
     }
     
