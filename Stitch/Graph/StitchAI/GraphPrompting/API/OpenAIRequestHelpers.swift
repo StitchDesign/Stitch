@@ -7,8 +7,6 @@
 
 import Foundation
 
-
-
 extension StitchDocumentViewModel {
     @MainActor func handleStitchAIError(_ error: Error) {
         log("Error generating graph with StitchAI: \(error)", .logToServer)
