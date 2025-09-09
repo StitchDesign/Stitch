@@ -608,7 +608,8 @@ enum PatchSyntaxResultType {
 extension SwiftPatchNodeCode {
     @MainActor
     func defaultNodeEntity(varNameToCode: [String: SwiftPatchCodeType],
-                           groupNodeId: UUID?) throws -> NodeEntity {
+                           groupNodeId: UUID?,
+                           nodesDict: [UUID: NodeEntity]) throws -> NodeEntity {
         let portEntities: [NodePortInputEntity] = try self
             .ports
             .createSchemaList(nodeId: self.nodeId,
@@ -616,44 +617,94 @@ extension SwiftPatchNodeCode {
         
         return self.patch.defaultNodeEntity(nodeId: self.nodeId,
                                             ports: portEntities,
-                                            groupNodeId: groupNodeId)
+                                            groupNodeId: groupNodeId,
+                                            nodesDict: nodesDict)
     }
 }
 
 extension Patch {
     @MainActor
+    func createDefaultIOValues(nodeIO: NodeIO,
+                               nodeType: NodeType? = nil) -> PortValuesList {
+        if let graphNode = self.graphNode {
+            // Create port entities from node definition
+            let definitions = graphNode.rowDefinitions(for: nodeType ?? graphNode.defaultUserVisibleType)
+            
+            switch nodeIO {
+            case .input:
+                return definitions
+                    .inputs
+                    .enumerated()
+                    .map { portIndex, inputDefinition in
+                        return inputDefinition.defaultValues
+                    }
+                
+            case .output:
+                return definitions
+                    .outputs
+                    .enumerated()
+                    .map { portIndex, outputDefinition in
+                        return [outputDefinition.value]
+                    }
+            }
+        } else {
+            // Backup method
+            let defaultNodeViewModel = self
+                .defaultNode(id: .init(),
+                             position: .zero,
+                             zIndex: .zero,
+                             graphDelegate: GraphState())
+            
+            switch nodeIO {
+            case .input:
+                return defaultNodeViewModel.inputsValuesList
+                
+            case .output:
+                return defaultNodeViewModel.outputs
+            }
+        }
+    }
+    
+    @MainActor
     func defaultNodeEntity(nodeId: UUID,
                            ports: [NodePortInputEntity]? = nil,
-                           groupNodeId: UUID?) -> NodeEntity {
-        assertInDebug(self.graphNode != nil)
-        
-        let graphNode = self.graphNode ?? SplitterPatchNode.self
-        
-        let defaultType = self
-            .graphNode?
-            .defaultUserVisibleType
+                           groupNodeId: UUID?,
+                           nodesDict: [UUID: NodeEntity]) -> NodeEntity {
+        var nodeType: NodeType?
+        let portEntities: [NodePortInputEntity]
         
         let canvasEntity = CanvasNodeEntity(position: .zero,
                                             zIndex: .zero,
                                             parentGroupNodeId: groupNodeId)
         
-        let ports = ports ?? graphNode.rowDefinitions(for: defaultType)
-            .inputs
-            .enumerated()
-            .map { portIndex, inputDefinition in
-                let id = NodeIOCoordinate(portId: portIndex,
-                                          nodeId: nodeId)
-                return NodePortInputEntity(
-                    id: id,
-                    portData: .values(inputDefinition.defaultValues))
-            }
+        if let ports = ports {
+            portEntities = ports
+            
+            // Find default node type
+            // Derive node type
+            nodeType = self.deriveNodeValueType(portEntities: ports,
+                                                nodesDict: nodesDict)
+        } else {
+            let inputsValues = self.createDefaultIOValues(nodeIO: .input)
+            
+            // Create port entities from node definition
+            portEntities = inputsValues
+                .enumerated()
+                .map { portIndex, values in
+                    let id = NodeIOCoordinate(portId: portIndex,
+                                              nodeId: nodeId)
+                    return NodePortInputEntity(
+                        id: id,
+                        portData: .values(values))
+                }
+        }
         
         let patchNodeEntity = PatchNodeEntity(
             id: nodeId,
             patch: self,
-            inputs: ports,
+            inputs: portEntities,
             canvasEntity: canvasEntity,
-            userVisibleType: defaultType,
+            userVisibleType: nodeType,
             splitterNode: nil,
             mathExpression: nil,
             javaScriptNodeSettings: nil)
@@ -668,7 +719,8 @@ extension Patch {
 extension SwiftPatchCodeType {
     @MainActor
     func derivePatchData(document: StitchDocumentViewModel,
-                         varNameToCode: [String: SwiftPatchCodeType]) async throws -> [PatchSyntaxResultType] {
+                         varNameToCode: [String: SwiftPatchCodeType],
+                         nodesDict: [UUID: NodeEntity]) async throws -> [PatchSyntaxResultType] {
         let currentGroupContext = document.groupNodeFocused?.groupNodeId
         
         guard let aiManager = document.aiManager else {
@@ -682,7 +734,8 @@ extension SwiftPatchCodeType {
             case .patchNodeInit(let patchNodeData):
                 let node = try patchNodeData
                     .defaultNodeEntity(varNameToCode: varNameToCode,
-                                       groupNodeId: currentGroupContext)
+                                       groupNodeId: currentGroupContext,
+                                       nodesDict: nodesDict)
                 return [.node(node)]
             
             case .ref(let varName):
@@ -693,7 +746,8 @@ extension SwiftPatchCodeType {
                 
                 // recursion
                 return try await refCode.derivePatchData(document: document,
-                                                         varNameToCode: varNameToCode)
+                                                         varNameToCode: varNameToCode,
+                                                         nodesDict: nodesDict)
             
             case .viewEventArg(let viewEventData):
                 let patch = viewEventData.type.patch
@@ -772,7 +826,8 @@ extension SwiftPatchCodeType {
                 
                 return viewEvent
                     .createConnectedPatchData(gestureArg: trimmedMemberAccess,
-                                              groupNodeId: currentGroupContext)
+                                              groupNodeId: currentGroupContext,
+                                              nodesDict: nodesDict)
             }
         
         default:
@@ -808,7 +863,8 @@ extension Array where Element == (String, SwiftPatchCodeType) {
         for (varName, code) in self {
             do {
                 let events = try await code.derivePatchData(document: document,
-                                                                varNameToCode: varNameToCode)
+                                                            varNameToCode: varNameToCode,
+                                                            nodesDict: nodesDict)
                 
                 for event in events {
                     switch event {

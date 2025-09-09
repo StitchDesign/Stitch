@@ -213,7 +213,7 @@ extension SwiftParserPatchData {
                     return .subscriptType(.expression(.ref("none")), subscriptRef.portIndex)
                 }
                 
-                return .subscriptType(result, subscriptRef.portIndex)
+                return result
                 
             case .value(let argType):
                 return .expression(.portValuesInit([argType]))
@@ -341,6 +341,54 @@ extension SwiftUIViewVisitor {
         else {
             fatalError()
         }
+    }
+}
+
+extension Patch {
+    @MainActor
+    func deriveNodeValueType(portEntities: [NodePortInputEntity],
+                             nodesDict: [UUID: NodeEntity]) -> NodeType? {
+        let nodeValueTypeDynamicPortIndices = self.nonStaticTypedInputPorts ?? .init()
+        
+        for (portIndex, portData) in portEntities.enumerated() {
+            // Determine a custom node value type if this node supports value types
+            let checkForValueTypeHere = nodeValueTypeDynamicPortIndices.contains(portIndex)
+            
+            guard checkForValueTypeHere else { continue }
+            
+            switch portData.portData {
+            case .upstreamConnection(let upstreamCoordinate):
+                // First check for some other patch's outputs
+                guard let upstreamNode = nodesDict.get(upstreamCoordinate.nodeId),
+                      let upstreamPatchNode = upstreamNode.nodeTypeEntity.patchNodeEntity else {
+                    fatalErrorIfDebug()
+                    continue
+                }
+                
+                let upstreamPatchOutputValues = upstreamPatchNode.patch
+                    .createDefaultIOValues(nodeIO: .output,
+                                           nodeType: upstreamPatchNode.userVisibleType)
+                
+                guard let upstreamOutputValue = upstreamPatchOutputValues[safe: upstreamCoordinate.portId ?? -1] else {
+                    fatalErrorIfDebug()
+                    continue
+                }
+                
+                return upstreamOutputValue.first?.toNodeType
+                
+                // Second, check if we're reading state for some interaction
+                //                    else if let upstreamInteractionData = stateVarToInteractionOutputsMap
+                //                            .get(refName) {
+                //                        upstreamCoordinate = .init(node_id: upstreamInteractionData.node_id,
+                //                                                   port_index: upstreamInteractionData.port_index)
+                //                    }
+                
+            case .values(let values):
+                return values.first?.toNodeType
+            }
+        }
+        
+        return nil
     }
 }
 

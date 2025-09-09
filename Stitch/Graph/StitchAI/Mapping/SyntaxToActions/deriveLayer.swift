@@ -134,16 +134,14 @@ extension SyntaxViewModifier {
                 return .init()
             }
             
-            fatalError("use new system for view events")
-            
             // Parse script, grab first element with state mutation
-//            let actionsResult = SwiftUIViewVisitor.parseSwiftUICode(closureData.script,
-//                                                                 willParseView: false)
-//                .bindingDeclarations
-//                .deriveStitchActions(existingData: nil,
-//                                     viewEventData: (viewEvent, layerId, nil))
-//            
-//            return actionsResult
+            let actionsResult = try SwiftUIViewVisitor
+                .parseSwiftUICode(closureData.script,
+                                  willParseView: false)
+                .bindingDeclarations
+                .getSwiftPatchCodeTypes()
+                
+            return actionsResult
             
             // Find first line of code with state mutation
             
