@@ -190,11 +190,13 @@ func makeOpenAIStreamingRequest(
 
 /// Make a request to Claude's Messages endpoint
 @MainActor
-func makeClaudeRequest(
+func makeClaudeStreamingRequest(
     params: AIRequestParams,
     model: ClaudeModel,
     document: StitchDocumentViewModel
 ) async throws -> String {
+    
+    log("=== makeClaudeRequest STARTED ===")
     
     log("Making Claude request with model: \(model.rawValue)")
     
@@ -368,25 +370,25 @@ func makeClaudeRequest(
                     log("Delta received: \(delta)")
                     if let thinkingText = delta["thinking"] as? String {
                         // This is thinking content
-                        log("🧠 Thinking delta received: '\(thinkingText)' (length: \(thinkingText.count))")
+                        // log("🧠 Thinking delta received: '\(thinkingText)' (length: \(thinkingText.count))")
                         accumulatedThinking += thinkingText
                         allThinkingSteps.append(thinkingText)
                         
                         // Update UI with thinking progress (just show raw content, no prefix)
                         await MainActor.run {
                             document.streamingReasoningText = accumulatedThinking
-                            log("📱 UI updated with thinking text, total length: \(accumulatedThinking.count)")
+                            // log("📱 UI updated with thinking text, total length: \(accumulatedThinking.count)")
                         }
                     } else if let text = delta["text"] as? String {
                         // This is regular text content
-                        log("📝 Text delta received: '\(text)' (length: \(text.count))")
+                        // log("📝 Text delta received: '\(text)' (length: \(text.count))")
                         accumulatedContent += text
                         
                         // Clear thinking text once content starts
                         await MainActor.run {
                             if !document.streamingReasoningText.isEmpty {
                                 document.streamingReasoningText = ""
-                                log("📱 Cleared thinking text - switching to content")
+                                // log("📱 Cleared thinking text - switching to content")
                             }
                         }
                     } else {
@@ -402,9 +404,9 @@ func makeClaudeRequest(
                 }
                 
             case "message_stop":
-                log("Claude stream completed")
+                // log("Claude stream completed")
                 let totalTime = Date().timeIntervalSince(requestStartTime) * 1000
-                log("⚡ Total stream time: \(String(format: "%.0f", totalTime))ms")
+                // log("⚡ Total stream time: \(String(format: "%.0f", totalTime))ms")
                 
                 // Monitor cache performance
                 if let usage = totalUsage {
@@ -477,7 +479,7 @@ func makeAIRequest(
             document: document
         )
     case .claude:
-        return try await makeClaudeRequest(
+        return try await makeClaudeStreamingRequest(
             params: params,
             model: claudeModel,
             document: document

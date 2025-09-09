@@ -113,17 +113,17 @@ extension StitchAIManager {
         
         // Check if we've exceeded retry attempts
         guard attempt <= request.config.maxRetries else {
-            log("All StitchAI retry attempts exhausted", .logToServer)
+            log("All StitchAI retry attempts exhausted")
             return .failure(.maxRetriesError(request.config.maxRetries,
                                              lastCapturedError))
         }
         
         guard let urlRequest = Self.getURLRequestForClaude(request: request) else {
-            log("StitchAIManager: startClaudeRequest: could not get request - conversion failed", .logToServer)
+            log("StitchAIManager: startClaudeRequest: could not get request - conversion failed")
             return .failure(.urlRequestCreationFailure)
         }
         
-        log("StitchAIManager: startClaudeRequest: Claude request created successfully", .logToServer)
+        log("StitchAIManager: startClaudeRequest: Claude request created successfully")
         
         let streamOpeningResult = await self.makeClaudeRequest(
             for: urlRequest,
@@ -175,8 +175,8 @@ extension StitchAIManager {
             return nil
         }
         
-        log("Claude API Key available: true", .logToServer)
-        log("Claude API Key length: \(claudeAPIKey.count)", .logToServer)
+        log("Claude API Key available: true")
+        log("Claude API Key length: \(claudeAPIKey.count)")
         
         let config = request.config
         let claudeURL = URL(string: AIProvider.claude.baseURL)!
@@ -188,16 +188,16 @@ extension StitchAIManager {
         urlRequest.setValue(claudeAPIKey, forHTTPHeaderField: "x-api-key")
         urlRequest.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
         
-        log("Claude request URL: \(claudeURL)", .logToServer)
-        log("Claude request headers configured", .logToServer)
+        log("Claude request URL: \(claudeURL)")
+        log("Claude request headers configured")
         
         // Convert OpenAI-style request to Claude format
         guard let claudeBodyData = convertToClaudeRequest(request: request) else {
-            log("ERROR: Failed to convert request to Claude format", .logToServer)
+            log("ERROR: Failed to convert request to Claude format")
             return nil
         }
         
-        log("Claude request body created successfully", .logToServer)
+        log("Claude request body created successfully")
         
         urlRequest.httpBody = claudeBodyData
         return urlRequest
@@ -379,6 +379,7 @@ extension StitchAIManager {
         return defaultModel
     }
     
+    // TODO: support non-streaming as well? Always use non-streaming for AI-JS and AI-Graph-Summary? See `makeOpenAIRequest` for comparison.
     /// Make Claude API request with streaming support
     func makeClaudeRequest<AIRequest>(for urlRequest: URLRequest,
                                               with request: AIRequest,
@@ -391,20 +392,19 @@ extension StitchAIManager {
         
         // Claude always uses streaming for better UX and thinking support
         log("Claude request: Routing to streaming implementation")
-        let result = await makeClaudeStreamingRequest(for: urlRequest, with: request, attempt: attempt, document: document)
+        let result = await _makeClaudeRequest(for: urlRequest, with: request, attempt: attempt, document: document)
         log("=== makeClaudeRequest completed ===")
         return result
     }
     
     /// Make streaming Claude API request with thinking support
     @MainActor
-    func makeClaudeStreamingRequest<AIRequest>(for urlRequest: URLRequest,
+    private func _makeClaudeRequest<AIRequest>(for urlRequest: URLRequest,
                                                with request: AIRequest,
                                                attempt: Int,
                                                document: StitchDocumentViewModel) async -> Result<(OpenAIMessage, URLResponse), Error> where AIRequest: StitchAIRequestable {
         
         log("=== makeClaudeStreamingRequest STARTED ===")
-        log("Starting Claude streaming request with extended thinking support")
         
         do {
             let (asyncBytes, response) = try await URLSession.shared.bytes(for: urlRequest)

@@ -116,7 +116,16 @@ extension StitchAIManager {
         print("🔥 DEBUG: Current provider: \(provider.displayName)")
         log("StitchAIManager: startAIRequest: Using provider: \(provider.displayName)")
         
-        switch provider {
+        // Force JavaScript AI nodes to always use OpenAI
+        let isJavaScriptNode = request is AIEditJSNodeRequest
+        if isJavaScriptNode {
+            print("🔥 DEBUG: JavaScript AI node detected - forcing OpenAI")
+            log("StitchAIManager: JavaScript AI node detected - overriding to OpenAI")
+        }
+        
+        let effectiveProvider: AIProvider = isJavaScriptNode ? .openAI : provider
+        
+        switch effectiveProvider {
         case .openAI:
             log("StitchAIManager: Routing to OpenAI")
             return await startOpenAIRequest(request,
@@ -152,7 +161,7 @@ extension StitchAIManager {
             return .failure(.urlRequestCreationFailure)
         }
         
-        let streamOpeningResult = await self.makeRequest(
+        let streamOpeningResult = await self.makeOpenAIRequest(
             for: urlRequest,
             with: request,
             attempt: attempt,
