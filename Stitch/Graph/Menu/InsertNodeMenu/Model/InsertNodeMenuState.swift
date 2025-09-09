@@ -85,6 +85,12 @@ struct InsertNodeMenuState: Hashable {
         }
         return false
     }
+    
+    /// Unified logic for whether the menu should be visible
+    /// Consolidates all the various conditions that can keep the menu open
+    func shouldShowMenu(isLoadingAI: Bool) -> Bool {
+        return show || isLoadingAI
+    }
 }
 
 // Note: The UpdateSearchQuery action can be removed since we're using InsertNodeQuery

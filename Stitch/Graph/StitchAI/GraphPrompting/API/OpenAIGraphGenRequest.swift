@@ -177,16 +177,12 @@ extension StitchDocumentViewModel {
     // TODO: need to improve this logic
     @MainActor
     func resetStreamingUIState() {
-            
-        // Immediately hide the
-        self.insertNodeMenuState.show = false
+        // Clear reasoning text and streaming state together to avoid flash
+        self.streamingReasoningText = ""
         self.isStreamingResponses = false
-
-        // Reset the reasoning text after some delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//            self.isStreamingResponses = false
-            self.streamingReasoningText = ""
-        }
+        self.insertNodeMenuState.show = false
+        // Clear current task so isLoadingAI becomes false and menu closes
+        self.aiManager?.currentTask = nil
     }
 }
 
