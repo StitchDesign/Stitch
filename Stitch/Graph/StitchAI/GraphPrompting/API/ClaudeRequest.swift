@@ -37,19 +37,25 @@ struct ClaudeContent: Codable {
     var text: String?
 }
 
-/// Tracks token usage metrics for Claude API requests
+/// Tracks token usage metrics for Claude API requests, including caching information
 struct ClaudeUsage: Codable {
     var inputTokens: Int
     var outputTokens: Int
+    var cacheCreationInputTokens: Int?
+    var cacheReadInputTokens: Int?
     
     enum CodingKeys: String, CodingKey {
         case inputTokens = "input_tokens"
         case outputTokens = "output_tokens"
+        case cacheCreationInputTokens = "cache_creation_input_tokens"
+        case cacheReadInputTokens = "cache_read_input_tokens"
     }
 }
 
 /// Extension to convert Claude responses to OpenAI format for compatibility
 extension ClaudeResponse {
+    
+    // TODO: can we just retrieve the content message directly?
     func toOpenAIResponse() -> OpenAIResponse {
         let content = self.content.compactMap { $0.text }.joined()
         let message = OpenAIMessage(
@@ -112,8 +118,7 @@ extension StitchAIManager {
                                              lastCapturedError))
         }
         
-        guard let urlRequest = Self.getURLRequestForClaude(request: request,
-                                                           secrets: self.secrets) else {
+        guard let urlRequest = Self.getURLRequestForClaude(request: request) else {
             log("StitchAIManager: startClaudeRequest: could not get request - conversion failed", .logToServer)
             return .failure(.urlRequestCreationFailure)
         }
@@ -163,11 +168,10 @@ extension StitchAIManager {
     }
     
     /// Create a URL request for Claude API
-    static func getURLRequestForClaude<AIRequest>(request: AIRequest,
-                                                  secrets: Secrets) -> URLRequest? where AIRequest: StitchAIRequestable {
+    static func getURLRequestForClaude<AIRequest>(request: AIRequest) -> URLRequest? where AIRequest: StitchAIRequestable {
         
-        guard let claudeAPIKey = secrets.claudeAPIKey, !claudeAPIKey.isEmpty else {
-            log("ERROR: Claude API key not configured", .logToServer)
+        guard let claudeAPIKey = StitchStore.claudeAPIKey, !claudeAPIKey.isEmpty else {
+            log("ERROR: Claude API key not configured in settings", .logToServer)
             return nil
         }
         
@@ -188,7 +192,7 @@ extension StitchAIManager {
         log("Claude request headers configured", .logToServer)
         
         // Convert OpenAI-style request to Claude format
-        guard let claudeBodyData = convertToClaudeRequest(request: request, secrets: secrets) else {
+        guard let claudeBodyData = convertToClaudeRequest(request: request) else {
             log("ERROR: Failed to convert request to Claude format", .logToServer)
             return nil
         }
@@ -200,9 +204,9 @@ extension StitchAIManager {
     }
     
     
+    // TODO: CAN WE AVOID THIS?
     /// Convert OpenAI-style request to Claude format
-    static func convertToClaudeRequest<AIRequest>(request: AIRequest,
-                                                          secrets: Secrets) -> Data? where AIRequest: StitchAIRequestable {
+    static func convertToClaudeRequest<AIRequest>(request: AIRequest) -> Data? where AIRequest: StitchAIRequestable {
         
         guard let payloadData = try? request.getPayloadData(),
               let payloadJSON = try? JSONSerialization.jsonObject(with: payloadData) as? [String: Any] else {
@@ -304,7 +308,7 @@ extension StitchAIManager {
         }
         
         // Get the appropriate Claude model
-        let claudeModel = getClaudeModel(for: request, secrets: secrets)
+        let claudeModel = getClaudeModel(for: request)
         
         var claudeRequest: [String: Any] = [
             "model": claudeModel,
@@ -344,8 +348,7 @@ extension StitchAIManager {
     }
     
     /// Get the appropriate Claude model based on user selection and request type
-    static func getClaudeModel<AIRequest>(for request: AIRequest,
-                                                  secrets: Secrets) -> String where AIRequest: StitchAIRequestable {
+    static func getClaudeModel<AIRequest>(for request: AIRequest) -> String where AIRequest: StitchAIRequestable {
         // First check if user has selected a specific Claude model from the UI
         let userSelectedModel = UserDefaults.standard.string(forKey: StitchAppSettings.CLAUDE_MODEL.rawValue)
         
@@ -353,20 +356,9 @@ extension StitchAIManager {
             log("Using user-selected Claude model: \(selectedModel)", .logToServer)
             return selectedModel
         }
-        
         // Fallback to secrets configuration based on request type
-        let requestTypeName = String(describing: type(of: request))
         let defaultModel = "claude-3-5-sonnet-20241022"
-        
-        if requestTypeName.contains("Graph") {
-            return secrets.claudeModelGraphCreation ?? defaultModel
-        } else if requestTypeName.contains("Js") || requestTypeName.contains("JS") {
-            return secrets.claudeModelJsNode ?? defaultModel
-        } else if requestTypeName.contains("Description") {
-            return secrets.claudeModelGraphDescription ?? defaultModel
-        } else {
-            return secrets.claudeModelGraphCreation ?? defaultModel
-        }
+        return defaultModel
     }
     
     /// Make Claude API request

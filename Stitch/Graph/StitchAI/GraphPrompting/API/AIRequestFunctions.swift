@@ -51,11 +51,8 @@ func makeOpenAIStreamingRequest(
         "effort": reasoningEffort.rawValue
     ]
     
-    let instructions = """
-    \(params.dataGlossaryPrompt)
-    
-    \(params.assistantPrompt)
-    """
+    // Use static content for consistent behavior (avoids UUID and non-deterministic issues)
+    let instructions = try loadStitchStaticPrompt()
     
     requestBody["instructions"] = instructions
     
@@ -123,7 +120,7 @@ func makeOpenAIStreamingRequest(
         guard (200...299).contains(httpResponse.statusCode) else {
             let errorData = try await URLSession.shared.data(for: request).0
             let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
-            log("OpenAI request failed with status: \(httpResponse.statusCode), error: \(errorString)", .logToServer)
+            log("OpenAI request failed with status: \(httpResponse.statusCode), error: \(errorString)")
             fatalError("OpenAI request failed with status \(httpResponse.statusCode)")
         }
         
@@ -199,11 +196,11 @@ func makeClaudeRequest(
     document: StitchDocumentViewModel
 ) async throws -> String {
     
-    log("Making Claude request with model: \(model.rawValue)", .logToServer)
+    log("Making Claude request with model: \(model.rawValue)")
     
-    guard let claudeAPIKey = params.secrets.claudeAPIKey, !claudeAPIKey.isEmpty else {
-        log("ERROR: Claude API key not configured", .logToServer)
-        throw StitchAIManagerError.secretsNotFound
+    guard let claudeAPIKey = StitchStore.claudeAPIKey, !claudeAPIKey.isEmpty else {
+        log("ERROR: Claude API key not configured in settings")
+        throw StitchAIManagerError.claudeAPIKeyNotSet
     }
     
     guard let url = URL(string: "https://api.anthropic.com/v1/messages") else {
@@ -215,18 +212,21 @@ func makeClaudeRequest(
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     request.setValue(claudeAPIKey, forHTTPHeaderField: "x-api-key")
     request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+    request.setValue("output-128k-2025-02-19,prompt-caching-2024-07-31", forHTTPHeaderField: "anthropic-beta")
     
-    // Convert to Claude format
-    let instructions = """
-    \(params.dataGlossaryPrompt)
+    // Use static content for consistent caching (avoids UUID and non-deterministic issues)
+    let stitchStaticContent = try loadStitchStaticPrompt()
     
-    \(params.assistantPrompt)
-    """
+    let fullSystemPrompt: [String: Any] = [
+        "type": "text", 
+        "text": stitchStaticContent, // Use static content for consistent caching
+        "cache_control": ["type": "ephemeral", "ttl": "1h"] // Cache control on large Stitch static content
+    ]
     
     var claudeBody: [String: Any] = [
         "model": model.rawValue, // Use the actual model parameter
-        "max_tokens": 4096,
-        "system": instructions
+        "max_tokens": 32768, // High limit for complex code generation (with beta header support)
+        "system": [fullSystemPrompt]
     ]
     
     // Handle text + optional image input
@@ -254,39 +254,54 @@ func makeClaudeRequest(
     
     request.httpBody = try JSONSerialization.data(withJSONObject: claudeBody)
     
-    // Log request details for debugging
+    // Log request details for debugging including cache structure
     if let jsonData = request.httpBody {
         print("🔍 Total Claude request body: \(jsonData.count) bytes (\(jsonData.count/1024)KB)")
         print("📤 Using Claude model: \(model.rawValue)")
+        
+        // Log stitch static content stats for cache debugging
+        let stitchTokenEstimate = stitchStaticContent.count / 3 // Rough token estimate
+        print("📚 Stitch static system prompt stats:")
+        print("   → Characters: \(stitchStaticContent.count)")
+        print("   → Estimated tokens: ~\(stitchTokenEstimate)")
+        print("   → Cache eligible: \(stitchTokenEstimate > 1024 ? "✅ YES" : "❌ NO") (>1024 tokens required)")
     }
     
     // Set streaming UI state
     document.isStreamingResponses = true
     document.streamingReasoningText = "Claude is thinking..."
     
+    // Track request timing
+    let requestStartTime = Date()
+    
     do {
         let (data, response) = try await URLSession.shared.data(for: request)
+        
+        // Calculate request duration
+        let requestDuration = Date().timeIntervalSince(requestStartTime)
+        print("⏱️ Claude request completed in \(String(format: "%.2f", requestDuration)) seconds")
         
         // Reset streaming UI state
         document.isStreamingResponses = false
         document.streamingReasoningText = ""
         
         guard let httpResponse = response as? HTTPURLResponse else {
-            log("Claude request: No HTTP response", .logToServer)
+            log("Claude request: No HTTP response")
             // throw StitchAIManagerError.requestFailed
             fatalError()
         }
         
+        
         if !(200...299).contains(httpResponse.statusCode) {
-            log("Claude request failed with status code: \(httpResponse.statusCode)", .logToServer)
-            log("Claude response headers: \(httpResponse.allHeaderFields)", .logToServer)
+            log("Claude request failed with status code: \(httpResponse.statusCode)")
+            log("Claude response headers: \(httpResponse.allHeaderFields)")
             
             // Log the error response body for debugging
             if let errorString = String(data: data, encoding: .utf8) {
-                log("Claude error response body: \(errorString)", .logToServer)
+                log("Claude error response body: \(errorString)")
                 print("🚨 Claude API Error (\(httpResponse.statusCode)): \(errorString)")
             } else {
-                log("Claude error response body: (could not decode as UTF-8)", .logToServer)
+                log("Claude error response body: (could not decode as UTF-8)")
             }
             
             throw StitchAIStreamingError.rateLimit // Assume rate limit for now
@@ -294,16 +309,28 @@ func makeClaudeRequest(
         
         // Parse Claude response
         let claudeResponse = try JSONDecoder().decode(ClaudeResponse.self, from: data)
+        log("claudeResponse: \(claudeResponse)")
+        let responseStr = String(data: try! JSONSerialization.data(withJSONObject: try! JSONSerialization.jsonObject(with: data), options: .prettyPrinted), encoding: .utf8)!
+        log("responseStr: \(responseStr)")
         let content = claudeResponse.content.compactMap { $0.text }.joined()
         
-        log("Claude request completed successfully", .logToServer)
+        #if DEV_DEBUG
+        // Monitor cache performance from response body (not headers)
+        await monitorClaudeCachePerformance(claudeResponse: claudeResponse)
+        #endif
+        
+        log("Claude request completed successfully")
         return content
         
     } catch {
         document.isStreamingResponses = false
         document.streamingReasoningText = ""
         
-        log("Claude request failed: \(error)", .logToServer)
+        // Log failure timing
+        let failureDuration = Date().timeIntervalSince(requestStartTime)
+        print("❌ Claude request failed after \(String(format: "%.2f", failureDuration)) seconds")
+        
+        log("Claude request failed: \(error)")
         throw error
     }
 }
@@ -321,7 +348,7 @@ func makeAIRequest(
     
     let provider = AIProviderConfig.shared.currentProvider
     print("🔥 DEBUG: makeAIRequest using provider: \(provider.displayName)")
-    log("makeAIRequest: Using provider: \(provider.displayName)", .logToServer)
+    log("makeAIRequest: Using provider: \(provider.displayName)")
     
     switch provider {
     case .openAI:
@@ -342,6 +369,15 @@ func makeAIRequest(
 }
 
 // MARK: - Helper Functions
+
+/// Load the stitch_static_prompt.txt content from app bundle for cache testing
+private func loadStitchStaticPrompt() throws -> String {
+    guard let path = Bundle.main.path(forResource: "stitch_static_prompt", ofType: "txt"),
+          let content = try? String(contentsOfFile: path) else {
+        throw StitchAIManagerError.systemPromptNotFound
+    }
+    return content
+}
 
 private func handleOpenAIStreamingEvent(
     json: [String: Any],
@@ -455,4 +491,52 @@ private func handleOpenAIStreamingEvent(
             print("❓ Unhandled event type: \(eventType)")
         }
     }
+}
+
+/// Monitor Claude prompt cache performance from response body
+private func monitorClaudeCachePerformance(claudeResponse: ClaudeResponse) async {
+    let usage = claudeResponse.usage
+    
+    // Extract cache and usage data from response body
+    let inputTokens = usage.inputTokens
+    let outputTokens = usage.outputTokens
+    let cacheCreationInputTokens = usage.cacheCreationInputTokens ?? 0
+    let cacheReadInputTokens = usage.cacheReadInputTokens ?? 0
+    
+    print("🔍 Claude Response Usage Analysis for Cache Performance:")
+    print("📊 Usage Statistics:")
+    print("   → Input tokens: \(inputTokens)")
+    print("   → Output tokens: \(outputTokens)")
+    print("   → Cache creation tokens: \(cacheCreationInputTokens)")
+    print("   → Cache read tokens: \(cacheReadInputTokens)")
+    
+    // Analyze cache performance
+    let cacheCreated = cacheCreationInputTokens > 0
+    let cacheHit = cacheReadInputTokens > 0
+    
+    print("💾 Cache Performance Analysis:")
+    if cacheCreated && cacheHit {
+        print("   💾 Both cache creation and hit detected")
+        let savings = cacheCreationInputTokens - cacheReadInputTokens
+        let savingsPercent = (Double(savings) / Double(cacheCreationInputTokens)) * 100
+        print("   📊 Cache savings: \(savings) tokens (\(String(format: "%.1f", savingsPercent))%)")
+    } else if cacheCreated {
+        print("   🆕 Cache created: \(cacheCreationInputTokens) tokens")
+        print("   📝 New cache entry stored for future requests")
+    } else if cacheHit {
+        print("   ⚡ Cache hit! Major token savings")
+        print("   📖 Read: \(cacheReadInputTokens) tokens from cache")
+        print("   💰 Avoided processing large system prompt again")
+    } else {
+        print("   ❌ No cache activity detected")
+        print("   → Cache may not be available for your account")
+        print("   → Or system prompt may be too small (<1024 tokens)")
+    }
+    
+    // Log overall token usage
+    let totalTokens = inputTokens + outputTokens
+    print("🎯 Total usage: \(inputTokens) input + \(outputTokens) output = \(totalTokens) tokens")
+    
+    // Log to server for analytics
+    log("Claude cache performance - Created: \(cacheCreationInputTokens), Read: \(cacheReadInputTokens), Total: \(totalTokens)")
 }

@@ -576,6 +576,7 @@
 		EC2DD4C728921A43008766A1 /* NodeTitleActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2DD4C628921A43008766A1 /* NodeTitleActions.swift */; };
 		EC2F62972A0D718600D86A50 /* ShapeCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2F62962A0D718600D86A50 /* ShapeCommand.swift */; };
 		EC2F62992A0DAB2600D86A50 /* PackNodeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2F62982A0DAB2600D86A50 /* PackNodeHelpers.swift */; };
+		EC3030B02E6F93B20090220A /* stitch_static_prompt.txt in Resources */ = {isa = PBXBuildFile; fileRef = EC3030AF2E6F93B20090220A /* stitch_static_prompt.txt */; };
 		EC3127F62BA3B6470087049A /* NodeWirelessBroadcastSubmenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3127F52BA3B6470087049A /* NodeWirelessBroadcastSubmenuView.swift */; };
 		EC31438728189FDF0023DB26 /* ProjectCreatedActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC31438628189FDF0023DB26 /* ProjectCreatedActions.swift */; };
 		EC3420D82AF9BA1200EBD896 /* CommentBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3420D72AF9BA1200EBD896 /* CommentBoxView.swift */; };
@@ -609,6 +610,7 @@
 		EC41FFC32943A74E00BF8671 /* CGPointUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC41FFC22943A74E00BF8671 /* CGPointUtils.swift */; };
 		EC4213A32E62302400C6DE64 /* StitchAITrainingDataInspectionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4213A22E62302300C6DE64 /* StitchAITrainingDataInspectionOverlay.swift */; };
 		EC4281182B76A4F300767AAF /* ReframeResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4281172B76A4F300767AAF /* ReframeResponse.swift */; };
+		EC4351122E6FA8650086BB87 /* AIRequestFunctionsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4351112E6FA8650086BB87 /* AIRequestFunctionsUtils.swift */; };
 		EC4379F32BA4FAF60077493E /* PortValueEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4379F22BA4FAF60077493E /* PortValueEnum.swift */; };
 		EC46AC0926CEE3820062CB26 /* DeviceMotionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46AC0826CEE3820062CB26 /* DeviceMotionHelpers.swift */; };
 		EC46AC0B26CEE3B80062CB26 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46AC0A26CEE3B80062CB26 /* AppState.swift */; };
@@ -1765,6 +1767,7 @@
 		EC2DD4C628921A43008766A1 /* NodeTitleActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTitleActions.swift; sourceTree = "<group>"; };
 		EC2F62962A0D718600D86A50 /* ShapeCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeCommand.swift; sourceTree = "<group>"; };
 		EC2F62982A0DAB2600D86A50 /* PackNodeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackNodeHelpers.swift; sourceTree = "<group>"; };
+		EC3030AF2E6F93B20090220A /* stitch_static_prompt.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = stitch_static_prompt.txt; sourceTree = "<group>"; };
 		EC3127F52BA3B6470087049A /* NodeWirelessBroadcastSubmenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeWirelessBroadcastSubmenuView.swift; sourceTree = "<group>"; };
 		EC31438628189FDF0023DB26 /* ProjectCreatedActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectCreatedActions.swift; sourceTree = "<group>"; };
 		EC3420D72AF9BA1200EBD896 /* CommentBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentBoxView.swift; sourceTree = "<group>"; };
@@ -1797,6 +1800,7 @@
 		EC41FFC22943A74E00BF8671 /* CGPointUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGPointUtils.swift; sourceTree = "<group>"; };
 		EC4213A22E62302300C6DE64 /* StitchAITrainingDataInspectionOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAITrainingDataInspectionOverlay.swift; sourceTree = "<group>"; };
 		EC4281172B76A4F300767AAF /* ReframeResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReframeResponse.swift; sourceTree = "<group>"; };
+		EC4351112E6FA8650086BB87 /* AIRequestFunctionsUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIRequestFunctionsUtils.swift; sourceTree = "<group>"; };
 		EC4379F22BA4FAF60077493E /* PortValueEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueEnum.swift; sourceTree = "<group>"; };
 		EC46AC0826CEE3820062CB26 /* DeviceMotionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceMotionHelpers.swift; sourceTree = "<group>"; };
 		EC46AC0A26CEE3B80062CB26 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
@@ -3630,6 +3634,7 @@
 		B5617A7C2C175C5500B53DAF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				EC3030AF2E6F93B20090220A /* stitch_static_prompt.txt */,
 				EC5322972E6A1D4C0081C712 /* stitch_examples_with_generated_code.json */,
 				200BD85E254F66EE00692903 /* Assets.xcassets */,
 				B555013A2C1C081D0081C3F1 /* ML */,
@@ -4711,6 +4716,7 @@
 				EC2A330C2E4EC82C00482AB7 /* AIProvider.swift */,
 				EC2A330A2E4EC7C300482AB7 /* ClaudeRequest.swift */,
 				EC2B9ED92E6B5B580053F638 /* AIRequestFunctions.swift */,
+				EC4351112E6FA8650086BB87 /* AIRequestFunctionsUtils.swift */,
 				EC86AD562DCC1E7700E9B00E /* OpenAIRequestHelpers.swift */,
 				EC16C66E2E69FC0900491A65 /* OpenAIStreamHelpers.swift */,
 				EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */,
@@ -5854,6 +5860,7 @@
 				B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */,
 				B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */,
 				E42CFD462D4413F90034CCFF /* secrets.json in Resources */,
+				EC3030B02E6F93B20090220A /* stitch_static_prompt.txt in Resources */,
 				20A71F912552434000553F7E /* connection_removed.mp3 in Resources */,
 				B53E47812894918500A3D060 /* Microphone Recorder.stitch in Resources */,
 			);
@@ -6859,6 +6866,7 @@
 				ECE5857E2DB6EB5700749ED3 /* InputPortUIViewModel.swift in Sources */,
 				B5EFD5BC2D63EC5D006A68FB /* OpenAIStructuredOutputs.swift in Sources */,
 				B555FB412D59CD3E00E1D349 /* StitchAISchema.swift in Sources */,
+				EC4351122E6FA8650086BB87 /* AIRequestFunctionsUtils.swift in Sources */,
 				ECD887232941494800003B47 /* LayerNodeId.swift in Sources */,
 				ECCF23552D4C6C9300BC2F2F /* Step_V0.swift in Sources */,
 				B55500C62C1B9F9D0081C3F1 /* FieldValueMedia.swift in Sources */,

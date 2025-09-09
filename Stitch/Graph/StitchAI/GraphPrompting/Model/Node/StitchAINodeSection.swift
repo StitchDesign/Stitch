@@ -56,7 +56,7 @@ extension NodeSection {
         return self.rawValue
     }
     
-    func getNodesForSection() -> Set<AIGraphData_V0.PatchOrLayer> {
+    func getNodesForSection() -> [AIGraphData_V0.PatchOrLayer] {
         let matchingPatches = AIGraphData_V0.Patch.allCases
             .filter {
                 $0.section == self
@@ -69,7 +69,10 @@ extension NodeSection {
             }
             .map(AIGraphData_V0.PatchOrLayer.layer)
         
-        return Set(matchingPatches + matchingLayers)
+        // Combine patches and layers, remove duplicates, and sort for deterministic order
+        let combined = matchingPatches + matchingLayers
+        let uniqueNodes = Array(Set(combined))
+        return uniqueNodes.sorted { $0.asLLMStepNodeName < $1.asLLMStepNodeName }
     }
 }
 

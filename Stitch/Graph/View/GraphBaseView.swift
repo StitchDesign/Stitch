@@ -34,21 +34,18 @@ struct GraphBaseView: View {
         nodesAndCursor
             .onAppear {
                 
-                // Note: keep around for helpful printing of the structured outputs schema
-                // log("STRUCTURED OUTPUTS: \n \(structuredOutputsSchemaAsString())")
-                
-                //                // NOTE: better for this logic to live here than in the StitchApp onAppear; so that it can be triggered multiple times without having to restart the app
-                //                do {
-                ////                        // For 4o
-                ////                    try StitchAITrainingData.validateTrainingData(from: "gpt4o-fine-tuning-dataset")
-                ////
-                ////                        // For o4-mini
-                ////                        try StitchAIReasoningTrainingData.validateTrainingData(from: "gpt_o4_mini_reasoner_train")
-                ////                        try StitchAIReasoningTrainingData.validateTrainingData(from: "gpt_o4_mini_reasoner_valid")
-                //
-                //                } catch {
-                //                    print("StitchAITrainingData error: \(error)")
+                // MARK: UNCOMMENT TO REGENERATE STATIC SYSTEM PROMPT
+                //                #if DEV_DEBUG || DEBUG
+                //                // Regenerate static prompt file for Claude caching (development only)
+                //                // Wait a bit for the store to initialize, then regenerate static prompt
+                //                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                //                    regenerateStitchStaticPromptFile(
+                //                        graph: graph,
+                //                        previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
+                //                        previewWindowBackgroundColor: .white
+                //                    )
                 //                }
+                //                #endif
                 
                 #if targetEnvironment(macCatalyst)
                 if self.spaceHeld || document.keypressState.isSpacePressed {
