@@ -12928,6 +12928,7 @@ Default to non-destructive functionality--don't remove or edit code unless expli
 
 If, however, the view contains an `EmptyView`, you may remove this view entirely assuming the user didn't request the removal of all views and logic.
 
+If you receive a `ContentView` with an empty `var body`, don't comment on that. An empty `var body` means that the graph has no layers yet.
 
 # Code Generation Rules
 Adhere to the following guidelines:

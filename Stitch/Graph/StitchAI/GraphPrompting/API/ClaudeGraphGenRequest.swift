@@ -211,13 +211,13 @@ func makeClaudeStreamingRequest(
                         // log("📝 Text delta received: '\(text)' (length: \(text.count))")
                         accumulatedContent += text
                         
-                        // Clear thinking text once content starts
-                        await MainActor.run {
-                            if !document.streamingReasoningText.isEmpty {
-                                document.streamingReasoningText = ""
-                                // log("📱 Cleared thinking text - switching to content")
-                            }
-                        }
+//                        // Clear thinking text once content starts
+//                        await MainActor.run {
+//                            if !document.streamingReasoningText.isEmpty {
+//                                document.streamingReasoningText = ""
+//                                // log("📱 Cleared thinking text - switching to content")
+//                            }
+//                        }
                     } else {
                         //                        log("⚠️  Delta received but no 'thinking' or 'text' field found")
                     }
@@ -232,7 +232,7 @@ func makeClaudeStreamingRequest(
                 
             case "message_stop":
                 // log("Claude stream completed")
-                let totalTime = Date().timeIntervalSince(requestStartTime) * 1000
+                // let totalTime = Date().timeIntervalSince(requestStartTime) * 1000
                 // log("⚡ Total stream time: \(String(format: "%.0f", totalTime))ms")
                 
                 // Monitor cache performance
