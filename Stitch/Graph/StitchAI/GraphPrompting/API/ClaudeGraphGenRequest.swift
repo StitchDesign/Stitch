@@ -170,14 +170,14 @@ func makeClaudeStreamingRequest(
                         //                        log("🧠 Claude thinking block started")
                         if firstThinkingTime == nil {
                             firstThinkingTime = Date()
-                            let thinkingLatency = Date().timeIntervalSince(requestStartTime) * 1000
+                            // let thinkingLatency = Date().timeIntervalSince(requestStartTime) * 1000
                             //                            log("⚡ Time to first thinking: \(String(format: "%.0f", thinkingLatency))ms")
                         }
                     } else if type == "text" {
                         //                        log("📝 Claude text content block started")
                         if firstContentTime == nil {
                             firstContentTime = Date()
-                            let contentLatency = Date().timeIntervalSince(requestStartTime) * 1000
+                            // let contentLatency = Date().timeIntervalSince(requestStartTime) * 1000
                             //                            log("⚡ Time to first content: \(String(format: "%.0f", contentLatency))ms")
                         }
                     }
