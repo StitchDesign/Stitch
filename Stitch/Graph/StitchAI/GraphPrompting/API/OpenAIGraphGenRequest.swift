@@ -79,7 +79,7 @@ func makeOpenAIStreamingRequest(
     
     // Set initial streaming state
     document.isStreamingResponses = true
-    document.streamingReasoningText = "Thinking..."
+    document.streamingReasoningText = AI_THINKING_TEXT
     
     // Accumulate response data
     var streamingResponse = ""
@@ -137,13 +137,10 @@ func makeOpenAIStreamingRequest(
                     )
                 }
             }
-        }
+        } // for try await ...
         
         // Reset streaming UI state
-        await MainActor.run {
-            document.isStreamingResponses = false
-            document.streamingReasoningText = ""
-        }
+        document.resetStreamingUIState()
         
         // log comprehensive timing summary
         let totalDuration = Date().timeIntervalSince(requestStartTime)
@@ -167,14 +164,28 @@ func makeOpenAIStreamingRequest(
         return streamingResponse
         
     } catch {
-        await MainActor.run {
-            document.isStreamingResponses = false
-            document.streamingReasoningText = ""
-        }
+        document.resetStreamingUIState()
         throw error
     }
 }
 
+extension StitchDocumentViewModel {
+    
+    // SEE NOTE in `InsertNodeMenuSearchBar.displayText`
+    @MainActor
+    func resetStreamingUIState() {
+                
+        // Immediately hide the
+        DispatchQueue.main.asyncAfter(deadline: .now()) {
+            self.isStreamingResponses = false
+        }
+
+        // Reset the reasoning text after some delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.streamingReasoningText = ""
+        }
+    }
+}
 
 
 // MARK: - Helper Functions

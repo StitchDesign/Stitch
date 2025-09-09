@@ -95,19 +95,19 @@ func makeClaudeStreamingRequest(
         log("🔍 Total Claude request body: \(jsonData.count) bytes (\(jsonData.count/1024)KB)")
         log("📤 Using Claude model: \(model.rawValue)")
         
-        #if DEV_DEBUG
+#if DEV_DEBUG
         // Log stitch static content stats for cache debugging
         let stitchTokenEstimate = stitchStaticContent.count / 3 // Rough token estimate
         log("📚 Stitch static system prompt stats:")
         log("   → Characters: \(stitchStaticContent.count)")
         log("   → Estimated tokens: ~\(stitchTokenEstimate)")
         log("   → Cache eligible: \(stitchTokenEstimate > 1024 ? "✅ YES" : "❌ NO") (>1024 tokens required)")
-        #endif
+#endif
     }
     
     // Set streaming UI state
     document.isStreamingResponses = true
-    document.streamingReasoningText = "Claude is thinking..."
+    document.streamingReasoningText = AI_THINKING_TEXT
     
     // Track request timing
     let requestStartTime = Date()
@@ -161,7 +161,7 @@ func makeClaudeStreamingRequest(
             
             switch eventType {
             case "message_start":
-                //                log("Claude stream started")
+                log("Claude stream started")
                 
             case "content_block_start":
                 if let contentBlock = json["content_block"] as? [String: Any],
@@ -237,17 +237,18 @@ func makeClaudeStreamingRequest(
         }
         
         // Reset streaming UI state
-        await MainActor.run {
-            document.isStreamingResponses = false
-            document.streamingReasoningText = ""
-        }
+//        await MainActor.run {
+//            document.isStreamingResponses = false
+//            document.streamingReasoningText = ""
+//        }
+        document.resetStreamingUIState()
         
         log("Claude streaming completed successfully")
         log("Final content length: \(accumulatedContent.count) characters")
         log("Total thinking length: \(accumulatedThinking.count) characters")
         log("📝 Thinking steps received: \(allThinkingSteps.count)")
         
-        #if DEV_DEBUG
+#if DEV_DEBUG
         // Debug: log all thinking steps for debugging
         if !allThinkingSteps.isEmpty {
             log("🧠 All thinking deltas received:")
@@ -255,15 +256,12 @@ func makeClaudeStreamingRequest(
                 log("   Step \(index + 1): '\(step)'")
             }
         }
-        #endif
+#endif
         
         return accumulatedContent
         
     } catch {
-        await MainActor.run {
-            document.isStreamingResponses = false
-            document.streamingReasoningText = ""
-        }
+        document.resetStreamingUIState()
         
         // Log failure timing
         let failureDuration = Date().timeIntervalSince(requestStartTime)
@@ -277,7 +275,7 @@ func makeClaudeStreamingRequest(
 /// Monitor Claude prompt cache performance from streaming usage data in AIRequestFunctions
 func monitorClaudeStreamingCachePerformance(usage: ClaudeUsage) async {
     
-    #if DEV_DEBUG || DEBUG
+#if DEV_DEBUG || DEBUG
     // Extract cache and usage data
     let inputTokens = usage.inputTokens
     let outputTokens = usage.outputTokens
@@ -321,5 +319,5 @@ func monitorClaudeStreamingCachePerformance(usage: ClaudeUsage) async {
     
     // Log to server for analytics
     log("Claude streaming cache performance - Created: \(cacheCreationInputTokens), Read: \(cacheReadInputTokens), Total: \(totalTokens)")
-    #endif
+#endif
 }
