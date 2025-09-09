@@ -133,8 +133,7 @@ extension StitchAICodeCreator {
                                           viewStatePatchConnections: actionsResult.graphData .viewStatePatchConnections)
                     }
                     
-                    document.aiManager?.currentTask = nil
-                    document.insertNodeMenuState.show = false
+                    // Note: task clearing and menu hiding are handled by resetStreamingUIState() called by AI providers
                 }
                 
                 return .success(actionsResult.graphData)
@@ -177,8 +176,7 @@ extension StitchStore {
                              document: StitchDocumentViewModel) -> any Error {
         log("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)")
         print(failure.localizedDescription)
-        document.aiManager?.currentTask = nil
-        document.insertNodeMenuState.show = false
+        // Note: task clearing and menu hiding are handled by resetStreamingUIState() called by AI providers
         
         // Display error
         document.storeDelegate?.alertState.stitchFileError = .unknownError("\(failure)")

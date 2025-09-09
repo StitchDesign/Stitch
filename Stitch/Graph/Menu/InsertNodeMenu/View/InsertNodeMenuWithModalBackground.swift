@@ -24,7 +24,7 @@ struct InsertNodeMenuWithModalBackground: View {
     static let shownMenuCornerRadius: CGFloat = 20 // per Figma
     
     var showMenu: Bool {
-        insertNodeMenuState.show || self.isLoadingAIRequest
+        insertNodeMenuState.shouldShowMenu(isLoadingAI: self.isLoadingAIRequest)
     }
     
     var menuView: some View {
