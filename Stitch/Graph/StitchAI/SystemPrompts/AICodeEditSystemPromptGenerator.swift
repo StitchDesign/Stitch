@@ -29,7 +29,7 @@ If, however, the view contains an `EmptyView`, you may remove this view entirely
 # Code Generation Rules
 Adhere to the following guidelines:
 
-\(try StitchAIManager.aiCodeGenSystemPromptGenerator(previewWindowSize: previewWindowSize, previewWindowBackgroundColor: previewWindowBackgroundColor))
+\(try StitchAIManager.aiCodeGenSystemPromptGenerator())
 
 # Summary
 Edit the provided source code given the provided user prompt. Adhere to the strict guidelines provided in the above document.

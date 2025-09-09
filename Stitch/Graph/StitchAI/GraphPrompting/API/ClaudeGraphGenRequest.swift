@@ -38,16 +38,24 @@ func makeClaudeStreamingRequest(
     // Use static content for consistent caching (avoids UUID and non-deterministic issues)
     let stitchStaticContent = try loadStitchStaticPrompt()
     
-    let fullSystemPrompt: [String: Any] = [
+    // Static content component (data glossary + fixed instructions)
+    let staticSystemPrompt: [String: Any] = [
         "type": "text",
         "text": stitchStaticContent, // Use static content for consistent caching
         "cache_control": ["type": "ephemeral", "ttl": "1h"] // Cache control on large Stitch static content
     ]
     
+    // Preview window constraints component (cacheable per session)
+    let previewWindowSystemPrompt: [String: Any] = [
+        "type": "text",
+        "text": params.assistantPrompt, // Contains preview window constraints
+        "cache_control": ["type": "ephemeral", "ttl": "1h"] // Cache preview window info for session
+    ]
+    
     var claudeBody: [String: Any] = [
         "model": model.rawValue, // Use the actual model parameter
         "max_tokens": 32768, // High limit for complex code generation (with beta header support)
-        "system": [fullSystemPrompt],
+        "system": [staticSystemPrompt, previewWindowSystemPrompt], // Multi-component cached system prompt
         "stream": true // Enable streaming for better UX
     ]
     

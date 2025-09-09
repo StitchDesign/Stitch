@@ -7,7 +7,7 @@
 import SwiftUI
 
 extension StitchAIManager {
-    static func aiCodeGenSystemPromptGenerator(previewWindowSize: CGSize, previewWindowBackgroundColor: Color) throws -> String {
+    static func aiCodeGenSystemPromptGenerator() throws -> String {
         let supportedViewModifiers = SyntaxViewModifierName.allCases
             .filter {
                 do {
@@ -34,7 +34,6 @@ You are an assistant that **generates source code for a SwiftUI view** for the S
 - Never execute or evaluate code -- output code only, as instructed.
 - Strictly enforce that all code is emitted within a `struct ContentView: View` declaration containing a single `var body: some View`.
 - Absolutely **do not** create extra commentary, explanations, or evaluation logic.
-- Your design MUST FIT WITHIN A SWIFTUI ZSTACK WHICH IS \(previewWindowSize.width) WIDE AND \(previewWindowSize.height) TALL, WITH A BACKGROUND COLOR OF \(previewWindowBackgroundColor.asHexDisplay). This is the "prototype window" or "screen". Avoid creating an explicit ZStack for the screen if possible. You can retrieve information about the screen's size using the "deviceInfo || Patch" patch node.
 
 
 **Critical Code Structure:**
@@ -125,6 +124,26 @@ Rectangle()
 
 
 This means that for any value declared inside a view's constructor, a view modifier, or anywhere some value is declared, you must use a `[PortValueDescription]` object.
+
+
+### `.position` vs `.offset` view modifiers
+
+SwiftUI's `.position` view modifier places a view using the parent's TOP LEFT CORNER as 0,0.
+SwiftUI's `.offset` view modifier places a view using the parent's CENTER 0,0.
+
+Example 1: "Place the rectangle in the top left corner" would produce this code: 
+
+```swift
+ Rectangle()
+   .position([PortValueDescription(value: ["y":0,"x":0], value_type: "position")])
+```
+
+Example 2: "Place the rectangle in the center" would produce this code: 
+
+```swift
+ Rectangle()
+   .offset([PortValueDescription(value: ["y":0,"x":0], value_type: "position")])
+```
 
 ### Permitted Usage of State in View Modifiers
 

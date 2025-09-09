@@ -172,6 +172,7 @@ func makeOpenAIStreamingRequest(
 extension StitchDocumentViewModel {
     
     // SEE NOTE in `InsertNodeMenuSearchBar.displayText`
+    // TODO: need to improve this logic
     @MainActor
     func resetStreamingUIState() {
             
@@ -181,6 +182,7 @@ extension StitchDocumentViewModel {
 
         // Reset the reasoning text after some delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//            self.isStreamingResponses = false
             self.streamingReasoningText = ""
         }
     }

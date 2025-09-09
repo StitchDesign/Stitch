@@ -39,11 +39,7 @@ struct GraphBaseView: View {
                 //                // Regenerate static prompt file for Claude caching (development only)
                 //                // Wait a bit for the store to initialize, then regenerate static prompt
                 //                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                //                    regenerateStitchStaticPromptFile(
-                //                        graph: graph,
-                //                        previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
-                //                        previewWindowBackgroundColor: .white
-                //                    )
+                //                    regenerateStitchStaticPromptFile(graph: graph)
                 //                }
                 //                #endif
                 

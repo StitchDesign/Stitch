@@ -12981,6 +12981,24 @@ You are an assistant that **generates source code for a SwiftUI view** for the S
 
 **If you fail to strictly obey any of these instructions, your output will be rejected and treated as incorrect.**
 
+### `.position` vs `.offset` view modifiers
+
+SwiftUI's `.position` view modifier places a view using the parent's TOP LEFT CORNER as 0,0.
+SwiftUI's `.offset` view modifier places a view using the parent's CENTER 0,0.
+
+Example 1: "Place the rectangle in the top left corner" would produce this code:
+
+```swift
+ Rectangle()
+   .position([PortValueDescription(value: ["y":0,"x":0], value_type: "position")])
+```
+
+Example 2: "Place the rectangle in the center" would produce this code:
+
+```swift
+ Rectangle()
+   .offset([PortValueDescription(value: ["y":0,"x":0], value_type: "position")])
+```
 
 ### Permitted Value Type Declarations in the View
 **You are only permitted to use an array of `PortValueDescription` for any declared value.** You must adhere to the `PortValueDescription` spec, defined below, for all declared values throughout the view.
