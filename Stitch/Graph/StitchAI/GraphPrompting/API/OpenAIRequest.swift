@@ -300,6 +300,8 @@ extension StitchAIManager {
 }
 
 extension StitchAIRequestable {
+    
+    // Note: used by AI-Javascript node or AI-Graph-Summarization, but not (directly) by AI-Graph-Gen/Edit
     func request(document: StitchDocumentViewModel,
                  aiManager: StitchAIManager) async throws -> Self.FinalDecodedResult {
         print("🔥 DEBUG: StitchAIRequestable.request called for \(String(describing: type(of: self)))")

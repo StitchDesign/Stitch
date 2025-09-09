@@ -396,56 +396,6 @@ extension StitchAIManager {
         return result
     }
     
-    /// Make non-streaming Claude API request (existing implementation)
-    private func makeClaudeNonStreamingRequest<AIRequest>(for urlRequest: URLRequest,
-                                                         with request: AIRequest,
-                                                         attempt: Int,
-                                                         document: StitchDocumentViewModel) async -> Result<(OpenAIMessage, URLResponse), Error> where AIRequest: StitchAIRequestable {
-        
-        let result = await Result { @Sendable in
-            try await fetchWithRetries(urlRequest)
-        }
-        
-        switch result {
-        case .success(let success):
-            let jsonResponse = String(data: success.0, encoding: .utf8)
-            log("Claude API Response Status: Success")
-            log("Claude Response Body: \(jsonResponse ?? "none")")
-            
-            if let httpResponse = success.1 as? HTTPURLResponse {
-                log("Claude Response HTTP Status: \(httpResponse.statusCode)")
-                log("Claude Response Headers: \(httpResponse.allHeaderFields)")
-            }
-            
-            do {
-                let claudeResponse = try JSONDecoder().decode(ClaudeResponse.self, from: success.0)
-                log("ClaudeResponse: claudeResponse: \(claudeResponse)")
-                let openAIResponse = claudeResponse.toOpenAIResponse()
-                
-                guard let firstChoice = openAIResponse.choices.first else {
-                    log("ERROR: Claude response has no choices")
-                    return .failure(StitchAIManagerError.firstChoiceNotDecoded)
-                }
-                
-                log("Claude response successfully converted to OpenAI format")
-                return .success((firstChoice.message, success.1))
-            } catch {
-                log("ERROR: Claude response decoding failed: \(error)")
-                log("Raw response for debugging: \(jsonResponse ?? "none")")
-                return .failure(StitchAIManagerError.responseDecodingFailure("\(error)"))
-            }
-            
-        case .failure(let failure):
-            log("Claude API Request Failed: \(failure)")
-            
-            if let httpError = failure as? URLError {
-                log("Claude URLError details: code=\(httpError.code.rawValue), localizedDescription=\(httpError.localizedDescription)")
-            }
-            
-            return .failure(failure)
-        }
-    }
-
     /// Make streaming Claude API request with thinking support
     @MainActor
     func makeClaudeStreamingRequest<AIRequest>(for urlRequest: URLRequest,

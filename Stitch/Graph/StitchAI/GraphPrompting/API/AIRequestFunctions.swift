@@ -610,56 +610,9 @@ private func handleOpenAIStreamingEvent(
     }
 }
 
-/// Monitor Claude prompt cache performance from response body
-private func monitorClaudeCachePerformance(claudeResponse: ClaudeResponse) async {
-    let usage = claudeResponse.usage
-    
-    // Extract cache and usage data from response body
-    let inputTokens = usage.inputTokens
-    let outputTokens = usage.outputTokens
-    let cacheCreationInputTokens = usage.cacheCreationInputTokens ?? 0
-    let cacheReadInputTokens = usage.cacheReadInputTokens ?? 0
-    
-    print("🔍 Claude Response Usage Analysis for Cache Performance:")
-    print("📊 Usage Statistics:")
-    print("   → Input tokens: \(inputTokens)")
-    print("   → Output tokens: \(outputTokens)")
-    print("   → Cache creation tokens: \(cacheCreationInputTokens)")
-    print("   → Cache read tokens: \(cacheReadInputTokens)")
-    
-    // Analyze cache performance
-    let cacheCreated = cacheCreationInputTokens > 0
-    let cacheHit = cacheReadInputTokens > 0
-    
-    print("💾 Cache Performance Analysis:")
-    if cacheCreated && cacheHit {
-        print("   💾 Both cache creation and hit detected")
-        let savings = cacheCreationInputTokens - cacheReadInputTokens
-        let savingsPercent = (Double(savings) / Double(cacheCreationInputTokens)) * 100
-        print("   📊 Cache savings: \(savings) tokens (\(String(format: "%.1f", savingsPercent))%)")
-    } else if cacheCreated {
-        print("   🆕 Cache created: \(cacheCreationInputTokens) tokens")
-        print("   📝 New cache entry stored for future requests")
-    } else if cacheHit {
-        print("   ⚡ Cache hit! Major token savings")
-        print("   📖 Read: \(cacheReadInputTokens) tokens from cache")
-        print("   💰 Avoided processing large system prompt again")
-    } else {
-        print("   ❌ No cache activity detected")
-        print("   → Cache may not be available for your account")
-        print("   → Or system prompt may be too small (<1024 tokens)")
-    }
-    
-    // Log overall token usage
-    let totalTokens = inputTokens + outputTokens
-    print("🎯 Total usage: \(inputTokens) input + \(outputTokens) output = \(totalTokens) tokens")
-    
-    // Log to server for analytics
-    log("Claude cache performance - Created: \(cacheCreationInputTokens), Read: \(cacheReadInputTokens), Total: \(totalTokens)")
-}
 
 /// Monitor Claude prompt cache performance from streaming usage data in AIRequestFunctions
-private func monitorClaudeStreamingCachePerformance(usage: ClaudeUsage) async {
+func monitorClaudeStreamingCachePerformance(usage: ClaudeUsage) async {
     // Extract cache and usage data
     let inputTokens = usage.inputTokens
     let outputTokens = usage.outputTokens
@@ -705,49 +658,3 @@ private func monitorClaudeStreamingCachePerformance(usage: ClaudeUsage) async {
     log("Claude streaming cache performance - Created: \(cacheCreationInputTokens), Read: \(cacheReadInputTokens), Total: \(totalTokens)")
 }
 
-/// Monitor Claude prompt cache performance from usage data (for streaming)
-private func monitorClaudeCachePerformance(usage: ClaudeUsage) async {
-    // Extract cache and usage data
-    let inputTokens = usage.inputTokens
-    let outputTokens = usage.outputTokens
-    let cacheCreationInputTokens = usage.cacheCreationInputTokens ?? 0
-    let cacheReadInputTokens = usage.cacheReadInputTokens ?? 0
-    
-    print("🔍 Claude Response Usage Analysis for Cache Performance:")
-    print("📊 Usage Statistics:")
-    print("   → Input tokens: \(inputTokens)")
-    print("   → Output tokens: \(outputTokens)")
-    
-    // Analyze cache performance
-    print("💾 Cache Performance Analysis:")
-    if cacheCreationInputTokens > 0 {
-        print("   ✅ Cache created with \(cacheCreationInputTokens) tokens")
-        
-        // Calculate potential savings
-        let potentialSavings = Double(cacheCreationInputTokens) * 0.9 // 90% cost reduction for cached tokens
-        print("   💰 Potential future savings: \(String(format: "%.0f", potentialSavings)) token-equivalents per request")
-    }
-    
-    if cacheReadInputTokens > 0 {
-        let cachePercentage = (Double(cacheReadInputTokens) / Double(inputTokens)) * 100
-        print("   🚀 Cache hit! \(cacheReadInputTokens) tokens read from cache (\(String(format: "%.1f", cachePercentage))%)")
-        
-        // Calculate actual savings
-        let actualSavings = Double(cacheReadInputTokens) * 0.9 // 90% cost reduction for cached tokens
-        print("   💰 Cost savings: ~\(String(format: "%.0f", actualSavings)) token-equivalents")
-    } else if inputTokens >= 1024 {
-        print("   ❓ No cache hits detected")
-        print("   → Cache may still be warming up for future requests")
-    } else {
-        print("   📏 Prompt too small for caching (\(inputTokens) < 1024 tokens)")
-        print("   → Claude caching requires ≥1024 tokens")
-        print("   → Consider consolidating static content")
-    }
-    
-    // Log overall token usage
-    let totalTokens = inputTokens + outputTokens
-    print("🎯 Total usage: \(inputTokens) input + \(outputTokens) output = \(totalTokens) tokens")
-    
-    // Log to server for analytics
-    log("Claude cache performance - Created: \(cacheCreationInputTokens), Read: \(cacheReadInputTokens), Total: \(totalTokens)")
-}
