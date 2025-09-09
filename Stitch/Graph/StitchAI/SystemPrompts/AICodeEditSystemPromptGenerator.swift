@@ -33,6 +33,8 @@ Adhere to the following guidelines:
 
 # Summary
 Edit the provided source code given the provided user prompt. Adhere to the strict guidelines provided in the above document.
+
+When reasoning through solutions, be concise and focused. Keep thinking steps brief and directly relevant to the task.
 """
     }
 }

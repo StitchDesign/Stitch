@@ -174,11 +174,10 @@ extension StitchDocumentViewModel {
     // SEE NOTE in `InsertNodeMenuSearchBar.displayText`
     @MainActor
     func resetStreamingUIState() {
-                
+            
         // Immediately hide the
-        DispatchQueue.main.asyncAfter(deadline: .now()) {
-            self.isStreamingResponses = false
-        }
+        self.insertNodeMenuState.show = false
+        self.isStreamingResponses = false
 
         // Reset the reasoning text after some delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

@@ -57,10 +57,9 @@ func makeClaudeStreamingRequest(
     if supportsThinking {
         claudeBody["thinking"] = [
             "type": "enabled",
-            // TODO: how many tokens should we allow for thinking?
-            "budget_tokens": 10000  // Allow up to 10k tokens for thinking
+            "budget_tokens": 3000  // Reduced budget for more concise thinking
         ]
-        log("Extended thinking enabled for model: \(model.rawValue) with 10k token budget")
+        log("Extended thinking enabled for model: \(model.rawValue) with 3k token budget for terse reasoning")
     } else {
         log("Extended thinking not supported for model: \(model.rawValue)")
     }
@@ -249,12 +248,11 @@ func makeClaudeStreamingRequest(
         log("📝 Thinking steps received: \(allThinkingSteps.count)")
         
 #if DEV_DEBUG
-        // Debug: log all thinking steps for debugging
+        // Debug: log all thinking steps as formatted text block
         if !allThinkingSteps.isEmpty {
-            log("🧠 All thinking deltas received:")
-            for (index, step) in allThinkingSteps.enumerated() {
-                log("   Step \(index + 1): '\(step)'")
-            }
+            log("🧠 All thinking deltas received as text block:")
+            let formattedThinking = allThinkingSteps.joined(separator: " ")
+            log("\(formattedThinking)")
         }
 #endif
         
