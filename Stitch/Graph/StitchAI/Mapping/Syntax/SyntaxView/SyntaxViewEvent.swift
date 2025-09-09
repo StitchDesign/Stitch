@@ -123,13 +123,13 @@ extension SyntaxViewEvent {
                                        groupNodeId: groupNodeId)
                 
                 let connection = PortEdgeData(
-                    from: .init(portId: 0,
+                    from: .init(portId: outputPortIndex,
                                 nodeId: interactionPatchNodeId),
                     to: .init(portId: 0, nodeId: unpackPositionNode.id))
                 
                 return [.node(unpackPositionNode),
                         .connection(connection),
-                        .upstreamCoordinate(.init(portId: outputPortIndex,
+                        .upstreamCoordinate(.init(portId: 0,
                                                   nodeId: unpackPositionNode.id)) ]
             } else if suffixValue == "y" || suffixValue == "height" {
                 let unpackPositionNode = Patch.unpack
@@ -137,13 +137,13 @@ extension SyntaxViewEvent {
                                        groupNodeId: groupNodeId)
                 
                 let connection = PortEdgeData(
-                    from: .init(portId: 1,
+                    from: .init(portId: outputPortIndex,
                                 nodeId: interactionPatchNodeId),
                     to: .init(portId: 0, nodeId: unpackPositionNode.id))
                 
                 return [.node(unpackPositionNode),
                         .connection(connection),
-                        .upstreamCoordinate(.init(portId: outputPortIndex,
+                        .upstreamCoordinate(.init(portId: 1,
                                                   nodeId: unpackPositionNode.id)) ]
             }
             
