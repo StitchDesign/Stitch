@@ -284,13 +284,11 @@ enum SwiftPatchCodeExpression {
 }
 
 struct SwiftPatchNodeCode {
-    let nodeId: UUID
     let patch: Patch
     let ports: [SwiftPatchCodeType]
 }
 
 struct SwiftJsNodeCode {
-    let nodeId = UUID()
     let fnName: String
     let ports: [SwiftPatchCodeType]
 }
@@ -459,27 +457,29 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                 return .values([value])
                 
             case .stateRef(let ref):
-                return try self
-                    .getUpstreamPatchPortConnectionType(varName: ref,
-                                                        portIndex: portIndex)
+                let portIndex = portIndex ?? 0
+                return .upstreamConnection(.init(portId: portIndex,
+                                                 nodeId: deterministicUUID(from: ref)))
                 
             case .none:
                 throw SwiftUISyntaxError.portValueDataDecodingFailure
             }
         
-        case .ref(let string):
-            return try self
-                .getUpstreamPatchPortConnectionType(varName: string,
-                                                    portIndex: portIndex)
+        case .ref(let ref):
+            let portIndex = portIndex ?? 0
+            return .upstreamConnection(.init(portId: portIndex,
+                                             nodeId: deterministicUUID(from: ref)))
         
         case .patchNodeInit(let patchNodeData):
-            guard let portIndex = portIndex else {
-                fatalErrorIfDebug()
-                return .values([.number(.zero)])
-            }
-            
-            return .upstreamConnection(.init(portId: portIndex,
-                                             nodeId: patchNodeData.nodeId))
+            fatalErrorIfDebug("Not expected here")
+            return .values([.number(.zero)])
+//            guard let portIndex = portIndex else {
+//                fatalErrorIfDebug()
+//                return .values([.number(.zero)])
+//            }
+//            
+//            return .upstreamConnection(.init(portId: portIndex,
+//                                             nodeId: patchNodeData.nodeId))
             
         case .viewEventArg(let viewEvent):
             // Port index should be provided based on the view event
@@ -494,16 +494,31 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
 //                                             nodeId: viewEvent.nodeId))
             
         case .jsRef(let jsNode):
-            guard let portIndex = portIndex else {
-                fatalErrorIfDebug()
-                return .values([.number(.zero)])
-            }
+            fatalErrorIfDebug("Not expected here")
+            return .values([.number(.zero)])
             
-            return .upstreamConnection(.init(portId: portIndex,
-                                             nodeId: jsNode.nodeId))
+//            guard let portIndex = portIndex else {
+//                fatalErrorIfDebug()
+//                return .values([.number(.zero)])
+//            }
+//            
+//            return .upstreamConnection(.init(portId: portIndex,
+//                                             nodeId: nodeId))
         }
     }
     
+//    func getUpstreamPatchPortConnectionType(varName: String,
+//                                            portIndex: Int? = nil) throws -> NodeConnectionType {
+//        guard let value = self.get(varName) else {
+//            return .values([.number(.zero)])
+//        }
+//        
+//        return try self
+//            .getUpstreamPatchPortConnectionType(varName: varName,
+//                                                value: value,
+//                                                portIndex: portIndex)
+//    }
+        
     func getUpstreamPatchPortConnectionType(varName: String,
                                             portIndex: Int? = nil) throws -> NodeConnectionType {
         guard let value = self.get(varName) else {
@@ -607,18 +622,36 @@ enum PatchSyntaxResultType {
 // TODO: move
 extension SwiftPatchNodeCode {
     @MainActor
-    func defaultNodeEntity(varNameToCode: [String: SwiftPatchCodeType],
+    func defaultNodeEntity(varName: String,
+                           varNameToCode: [String: SwiftPatchCodeType],
                            groupNodeId: UUID?,
                            nodesDict: [UUID: NodeEntity]) throws -> NodeEntity {
+        let nodeId = deterministicUUID(from: varName)
+        
         let portEntities: [NodePortInputEntity] = try self
             .ports
-            .createSchemaList(nodeId: self.nodeId,
+            .createSchemaList(nodeId: nodeId,
                               varNameToCode: varNameToCode)
         
-        return self.patch.defaultNodeEntity(nodeId: self.nodeId,
+        return self.patch.defaultNodeEntity(nodeId: nodeId,
                                             ports: portEntities,
                                             groupNodeId: groupNodeId,
                                             nodesDict: nodesDict)
+    }
+}
+
+// TODO: move
+import CryptoKit
+func deterministicUUID(from name: String) -> UUID {
+    let data = Data(name.precomposedStringWithCanonicalMapping.utf8)
+    let digest = SHA256.hash(data: data)
+    var bytes = Data(digest.prefix(16))
+    // Mark as "random" style with RFC variant (helps tooling)
+    bytes[6] = (bytes[6] & 0x0F) | 0x40  // pretend version 4
+    bytes[8] = (bytes[8] & 0x3F) | 0x80
+    return bytes.withUnsafeBytes { buf in
+        let b = buf.bindMemory(to: UInt8.self)
+        return UUID(uuid: (b[0],b[1],b[2],b[3], b[4],b[5], b[6],b[7], b[8],b[9], b[10],b[11],b[12],b[13],b[14],b[15]))
     }
 }
 
@@ -719,6 +752,7 @@ extension Patch {
 extension SwiftPatchCodeType {
     @MainActor
     func derivePatchData(document: StitchDocumentViewModel,
+                         varName: String,
                          varNameToCode: [String: SwiftPatchCodeType],
                          nodesDict: [UUID: NodeEntity]) async throws -> [PatchSyntaxResultType] {
         let currentGroupContext = document.groupNodeFocused?.groupNodeId
@@ -733,7 +767,8 @@ extension SwiftPatchCodeType {
             switch codeType {
             case .patchNodeInit(let patchNodeData):
                 let node = try patchNodeData
-                    .defaultNodeEntity(varNameToCode: varNameToCode,
+                    .defaultNodeEntity(varName: varName,
+                                       varNameToCode: varNameToCode,
                                        groupNodeId: currentGroupContext,
                                        nodesDict: nodesDict)
                 return [.node(node)]
@@ -746,6 +781,7 @@ extension SwiftPatchCodeType {
                 
                 // recursion
                 return try await refCode.derivePatchData(document: document,
+                                                         varName: varName,
                                                          varNameToCode: varNameToCode,
                                                          nodesDict: nodesDict)
             
@@ -770,7 +806,7 @@ extension SwiftPatchCodeType {
                 return [.node(nodeEntity)]
             
             case .jsRef(let jsData):
-                let jsNodeId = jsData.nodeId
+                let jsNodeId = deterministicUUID(from: varName)
                 let portEntities: [NodePortInputEntity] = try jsData.ports
                     .createSchemaList(nodeId: jsNodeId,
                                       varNameToCode: varNameToCode)
@@ -830,6 +866,35 @@ extension SwiftPatchCodeType {
                                               nodesDict: nodesDict)
             }
         
+            // Return an upstream connection
+        case .subscriptType(let subscriptCodeType, let portIndex):
+            return []
+//            switch subscriptCodeType {
+//            case .expression(let expr):
+//                switch expr {
+//                case .ref(let refName):
+//                    // Find upstream node
+//                    let upstreamNodeId = deterministicUUID(from: refName)
+//                    fatalError()
+//                    
+////                    guard let upstreamNode = varNameToCode.get(refName)?.derivePatchData(document: document,
+//                
+//                default:
+//                    fatalErrorIfDebug("Wasn't expected here")
+//                    return []
+//                }
+//            
+//            case .error(let swiftUISyntaxError):
+//                throw swiftUISyntaxError
+//            
+//            default:
+//                fatalErrorIfDebug("Wasn't expected here")
+//                return []
+//            }
+            
+        case .error(let error):
+            throw error
+            
         default:
             fatalErrorIfDebug("Wasn't expected here")
             return []
@@ -863,6 +928,7 @@ extension Array where Element == (String, SwiftPatchCodeType) {
         for (varName, code) in self {
             do {
                 let events = try await code.derivePatchData(document: document,
+                                                            varName: varName,
                                                             varNameToCode: varNameToCode,
                                                             nodesDict: nodesDict)
                 

@@ -268,8 +268,7 @@ extension SwiftParserPatchData {
                 return nil
             }
             
-            return .patchNodeInit(.init(nodeId: .init(),
-                                        patch: patchName,
+            return .patchNodeInit(.init(patch: patchName,
                                         ports: ports))
             
         case .js(let fnName):
