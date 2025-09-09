@@ -147,26 +147,29 @@ extension StitchAIManager {
         }
     }
     
-    func makeRequest<AIRequest>(for urlRequest: URLRequest,
-                                with request: AIRequest,
-                                attempt: Int,
-                                document: StitchDocumentViewModel) async -> Result<AIRequest.RequestResponsePayload, Error> where AIRequest: StitchAIRequestable {
+    // Note: still relevant for AI-JS and AI-Graph-Summary
+    func makeOpenAIRequest<AIRequest>(for urlRequest: URLRequest,
+                                      with request: AIRequest,
+                                      attempt: Int,
+                                      document: StitchDocumentViewModel) async -> Result<AIRequest.RequestResponsePayload, Error> where AIRequest: StitchAIRequestable {
+        
+        // TODO: does streaming vs non-streaming really matter for user AI-JS and AI-Graph-Summary? ... more relevant for tests?
         if request.willStream {
-            return await self.openStream(for: urlRequest,
-                                         with: request,
-                                         attempt: attempt)
+            return await self.openOpenAIStream(for: urlRequest,
+                                               with: request,
+                                               attempt: attempt)
         } else {
-            return await self.makeNonStreamedRequest(for: urlRequest,
-                                                     with: request,
-                                                     attempt: attempt,
-                                                     document: document)
+            return await self.makeNonStreamedOpenAIRequest(for: urlRequest,
+                                                           with: request,
+                                                           attempt: attempt,
+                                                           document: document)
         }
     }
     
-    private func makeNonStreamedRequest<AIRequest>(for urlRequest: URLRequest,
-                                                   with request: AIRequest,
-                                                   attempt: Int,
-                                                   document: StitchDocumentViewModel) async -> Result<AIRequest.RequestResponsePayload, Error> where AIRequest: StitchAIRequestable {
+    private func makeNonStreamedOpenAIRequest<AIRequest>(for urlRequest: URLRequest,
+                                                         with request: AIRequest,
+                                                         attempt: Int,
+                                                         document: StitchDocumentViewModel) async -> Result<AIRequest.RequestResponsePayload, Error> where AIRequest: StitchAIRequestable {
         let startTime = Date()
         let result = await Result { @Sendable in
             try await fetchWithRetries(urlRequest)
@@ -203,9 +206,9 @@ extension StitchAIManager {
     
     // MARK: - Streaming helpers
     /// Perform an HTTP request and stream back the response, printing each chunk as it arrives.
-    private func openStream<AIRequest>(for urlRequest: URLRequest,
-                                       with request: AIRequest,
-                                       attempt: Int) async -> Result<AIRequest.RequestResponsePayload, Error> where AIRequest: StitchAIRequestable {
+    private func openOpenAIStream<AIRequest>(for urlRequest: URLRequest,
+                                             with request: AIRequest,
+                                             attempt: Int) async -> Result<AIRequest.RequestResponsePayload, Error> where AIRequest: StitchAIRequestable {
         
         var decodedChunks: [AIRequest.TokenDecodedResult] = []
         

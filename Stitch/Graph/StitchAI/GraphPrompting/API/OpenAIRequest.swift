@@ -112,24 +112,15 @@ extension StitchAIManager {
         print("🔥 DEBUG: startAIRequest called!")
         log("StitchAIManager: startAIRequest called")
         
-        let provider = AIProviderConfig.shared.currentProvider
+        // TODO: support Claude for AI-JS, AI-Graph-Summary etc. ?
+        let provider: AIProvider = .openAI
         print("🔥 DEBUG: Current provider: \(provider.displayName)")
         log("StitchAIManager: startAIRequest: Using provider: \(provider.displayName)")
-        
-        switch provider {
-        case .openAI:
-            log("StitchAIManager: Routing to OpenAI")
-            return await startOpenAIRequest(request,
-                                            attempt: attempt,
-                                            lastCapturedError: lastCapturedError,
-                                            document: document)
-        case .claude:
-            log("StitchAIManager: Routing to Claude")
-            return await startClaudeRequest(request,
-                                            attempt: attempt,
-                                            lastCapturedError: lastCapturedError,
-                                            document: document)
-        }
+               
+        return await startOpenAIRequest(request,
+                                        attempt: attempt,
+                                        lastCapturedError: lastCapturedError,
+                                        document: document)
     }
     
     /// Execute the OpenAI API request with retry logic
@@ -152,7 +143,7 @@ extension StitchAIManager {
             return .failure(.urlRequestCreationFailure)
         }
         
-        let streamOpeningResult = await self.makeRequest(
+        let streamOpeningResult = await self.makeOpenAIRequest(
             for: urlRequest,
             with: request,
             attempt: attempt,
@@ -300,6 +291,8 @@ extension StitchAIManager {
 }
 
 extension StitchAIRequestable {
+    
+    // Note: used by AI-Javascript node or AI-Graph-Summarization, but not (directly) by AI-Graph-Gen/Edit
     func request(document: StitchDocumentViewModel,
                  aiManager: StitchAIManager) async throws -> Self.FinalDecodedResult {
         print("🔥 DEBUG: StitchAIRequestable.request called for \(String(describing: type(of: self)))")

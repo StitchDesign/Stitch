@@ -13,6 +13,7 @@ import GameController
 
 let INSERT_NODE_MENU_SEARCH_BAR_HEIGHT: CGFloat = 68
 let INSERT_NODE_MENU_SEARCH_BAR_BUTTON_HEIGHT: CGFloat = 24
+let AI_THINKING_TEXT: String = "Thinking..."
 
 struct InsertNodeMenuSearchBar: View {
     /*
@@ -44,9 +45,11 @@ struct InsertNodeMenuSearchBar: View {
         )
     }
     
+    // TODO: this logic is a bit awkward when stream completes; we switch from the non-empty thinking-stream to the (empty?) query string; really, we need to consolidate "should the menu be open?" logic across regular
     private var displayText: String {
         if document.isStreamingResponses {
-            return document.streamingReasoningText.isEmpty ? "Thinking..." : document.streamingReasoningText
+            return document.streamingReasoningText
+            // return document.streamingReasoningText.isEmpty ? AI_THINKING_TEXT : document.streamingReasoningText
         }
         return queryString
     }
@@ -55,18 +58,21 @@ struct InsertNodeMenuSearchBar: View {
         let searchInput = VStack(spacing: .zero) {
             ZStack(alignment: .leading) {
                 if document.isStreamingResponses {
-                    // Show Text view when streaming for `.contentTransition`
+                    // `.contentTransition` only works on Text view, not TextField view
                     Text(displayText)
                         .contentTransition(.numericText())
                         .animation(.default, value: displayText)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.leading, 16)
-                        .padding(.trailing, 60)
+                        .padding(.trailing, 60) // to keep text from running below the progress view
+                        .padding(.trailing, 28) // to keep text from running below the cancel button
                         .font(.system(size: 24))
                         .multilineTextAlignment(.leading)
                         .lineLimit(1)
                         .foregroundColor(.secondary)
                         .modifier(HybridShimmerModifier(colorScheme: colorScheme, lightModeConfig: lightModeShimmerConfig))
+                    
+                    // TODO: could instead use HStack { Text; Spacer; Button; ProgressView }, but
                         .overlay(alignment: .center) {
                             HStack {
                                 Spacer()

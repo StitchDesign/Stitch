@@ -151,19 +151,17 @@ extension StitchAICodeCreator {
                         aiManager: StitchAIManager,
                         dataGlossaryPrompt: String) async throws -> SwiftSyntaxActionsResult {
 
-        logToServerIfRelease("SUCCESS: userPrompt: \(userPrompt)")
+        log("SUCCESS: userPrompt: \(userPrompt)")
         
         let swiftUICode = try await self
             .createCode(document: document,
                         aiManager: aiManager,
                         dataGlossaryPrompt: dataGlossaryPrompt)
 
-        logToServerIfRelease("userPrompt: \(userPrompt)") // Very helpful to see user-prompt here again
-        logToServerIfRelease("StitchAICodeCreator swiftUICode:\n\(swiftUICode)")
+        log("userPrompt: \(userPrompt)") // Very helpful to see user-prompt here again
+        log("StitchAICodeCreator swiftUICode:\n\(swiftUICode)")
 
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
-        
-        // logToServerIfRelease("StitchAICodeCreator codeParserResult:\n\(codeParserResult)")
         
         let actionsResult = codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
         
