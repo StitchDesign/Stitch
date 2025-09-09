@@ -577,6 +577,7 @@
 		EC2F62972A0D718600D86A50 /* ShapeCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2F62962A0D718600D86A50 /* ShapeCommand.swift */; };
 		EC2F62992A0DAB2600D86A50 /* PackNodeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2F62982A0DAB2600D86A50 /* PackNodeHelpers.swift */; };
 		EC3030AE2E6F41470090220A /* austen_system_prompt.txt in Resources */ = {isa = PBXBuildFile; fileRef = EC3030AD2E6F41460090220A /* austen_system_prompt.txt */; };
+		EC3030B02E6F93B20090220A /* stitch_static_prompt.txt in Resources */ = {isa = PBXBuildFile; fileRef = EC3030AF2E6F93B20090220A /* stitch_static_prompt.txt */; };
 		EC3127F62BA3B6470087049A /* NodeWirelessBroadcastSubmenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3127F52BA3B6470087049A /* NodeWirelessBroadcastSubmenuView.swift */; };
 		EC31438728189FDF0023DB26 /* ProjectCreatedActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC31438628189FDF0023DB26 /* ProjectCreatedActions.swift */; };
 		EC3420D82AF9BA1200EBD896 /* CommentBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3420D72AF9BA1200EBD896 /* CommentBoxView.swift */; };
@@ -1767,6 +1768,7 @@
 		EC2F62962A0D718600D86A50 /* ShapeCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeCommand.swift; sourceTree = "<group>"; };
 		EC2F62982A0DAB2600D86A50 /* PackNodeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackNodeHelpers.swift; sourceTree = "<group>"; };
 		EC3030AD2E6F41460090220A /* austen_system_prompt.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = austen_system_prompt.txt; sourceTree = "<group>"; };
+		EC3030AF2E6F93B20090220A /* stitch_static_prompt.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = stitch_static_prompt.txt; sourceTree = "<group>"; };
 		EC3127F52BA3B6470087049A /* NodeWirelessBroadcastSubmenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeWirelessBroadcastSubmenuView.swift; sourceTree = "<group>"; };
 		EC31438628189FDF0023DB26 /* ProjectCreatedActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectCreatedActions.swift; sourceTree = "<group>"; };
 		EC3420D72AF9BA1200EBD896 /* CommentBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentBoxView.swift; sourceTree = "<group>"; };
@@ -3632,6 +3634,7 @@
 		B5617A7C2C175C5500B53DAF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				EC3030AF2E6F93B20090220A /* stitch_static_prompt.txt */,
 				EC3030AD2E6F41460090220A /* austen_system_prompt.txt */,
 				EC5322972E6A1D4C0081C712 /* stitch_examples_with_generated_code.json */,
 				200BD85E254F66EE00692903 /* Assets.xcassets */,
@@ -5858,6 +5861,7 @@
 				B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */,
 				B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */,
 				E42CFD462D4413F90034CCFF /* secrets.json in Resources */,
+				EC3030B02E6F93B20090220A /* stitch_static_prompt.txt in Resources */,
 				20A71F912552434000553F7E /* connection_removed.mp3 in Resources */,
 				B53E47812894918500A3D060 /* Microphone Recorder.stitch in Resources */,
 			);

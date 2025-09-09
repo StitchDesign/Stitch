@@ -160,6 +160,7 @@ enum StitchAIManagerError: Error {
     case functionDecodingFailed
     case toolNotFoundForFunction
     case claudeAPIKeyNotSet
+    case systemPromptNotFound
 }
 
 extension StitchAIManagerError: CustomStringConvertible {
@@ -183,6 +184,8 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "No tool found for function request."
         case .claudeAPIKeyNotSet:
             return "Claude API key not configured. Please set your Claude API key in app settings."
+        case .systemPromptNotFound:
+            return "Could not load system prompt from app resources."
         }
     }
 }

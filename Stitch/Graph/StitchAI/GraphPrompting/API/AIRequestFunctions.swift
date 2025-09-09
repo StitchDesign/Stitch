@@ -217,12 +217,17 @@ func makeClaudeRequest(
     request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
     request.setValue("output-128k-2025-02-19,prompt-caching-2024-07-31", forHTTPHeaderField: "anthropic-beta")
     
-    // Use large austen content for cache testing (ignoring dataGlossaryPrompt and assistantPrompt for now)
-    let austenContent = loadAustenSystemPrompt()
+    // Use static content for consistent caching (avoids UUID and non-deterministic issues)
+    let stitchStaticContent = try loadStitchStaticPrompt()
+    
+    // Compare dynamic prompt with static prompt to identify differences (for debugging)
+    let dynamicPrompt = "\(params.dataGlossaryPrompt) \n \n \(params.assistantPrompt)"
+    comparePromptsAndLogDifferences(dynamic: dynamicPrompt, isStatic: stitchStaticContent)
+    
     let fullSystemPrompt: [String: Any] = [
         "type": "text", 
-        "text": austenContent,
-        "cache_control": ["type": "ephemeral", "ttl": "1h"] // Cache control on large cacheable content
+        "text": stitchStaticContent, // Use static content for consistent caching
+        "cache_control": ["type": "ephemeral", "ttl": "1h"] // Cache control on large Stitch static content
     ]
     
     var claudeBody: [String: Any] = [
@@ -261,12 +266,12 @@ func makeClaudeRequest(
         print("🔍 Total Claude request body: \(jsonData.count) bytes (\(jsonData.count/1024)KB)")
         print("📤 Using Claude model: \(model.rawValue)")
         
-        // Log austen content stats for cache debugging
-        let austenTokenEstimate = austenContent.count / 3 // Rough token estimate
-        print("📚 Austen system prompt stats:")
-        print("   → Characters: \(austenContent.count)")
-        print("   → Estimated tokens: ~\(austenTokenEstimate)")
-        print("   → Cache eligible: \(austenTokenEstimate > 1024 ? "✅ YES" : "❌ NO") (>1024 tokens required)")
+        // Log stitch static content stats for cache debugging
+        let stitchTokenEstimate = stitchStaticContent.count / 3 // Rough token estimate
+        print("📚 Stitch static system prompt stats:")
+        print("   → Characters: \(stitchStaticContent.count)")
+        print("   → Estimated tokens: ~\(stitchTokenEstimate)")
+        print("   → Cache eligible: \(stitchTokenEstimate > 1024 ? "✅ YES" : "❌ NO") (>1024 tokens required)")
     }
     
     // Set streaming UI state
@@ -370,13 +375,113 @@ func makeAIRequest(
 
 // MARK: - Helper Functions
 
-/// Load the austen_system_prompt.txt content from app bundle for cache testing
-private func loadAustenSystemPrompt() -> String {
-    guard let path = Bundle.main.path(forResource: "austen_system_prompt", ofType: "txt"),
+/// Load the stitch_static_prompt.txt content from app bundle for cache testing
+private func loadStitchStaticPrompt() throws -> String {
+    guard let path = Bundle.main.path(forResource: "stitch_static_prompt", ofType: "txt"),
           let content = try? String(contentsOfFile: path) else {
-        return "Error: Could not load austen_system_prompt.txt from app resources"
+        throw StitchAIManagerError.systemPromptNotFound
     }
     return content
+}
+
+/// Regenerate the stitch_static_prompt.txt file with current dynamic content
+/// Call this when you want to update the static prompt file with the latest dynamic generation
+@MainActor
+func regenerateStitchStaticPromptFile(graph: GraphState, previewWindowSize: CGSize, previewWindowBackgroundColor: Color) {
+    do {
+        // Generate the current dynamic prompts
+        let dataGlossaryPrompt = try StitchAIManager.stitchAIDataGlossarySystemPrompt(graph: graph)
+        let assistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(previewWindowSize: previewWindowSize, previewWindowBackgroundColor: previewWindowBackgroundColor)
+        
+        // Combine them the same way we do in Claude requests
+        let combinedPrompt = "\(dataGlossaryPrompt) \n \n \(assistantPrompt)"
+        
+        // Try to write to Desktop for easy access
+        let desktopURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first
+        let outputURL = desktopURL?.appendingPathComponent("stitch_static_prompt_regenerated.txt")
+        
+        if let outputURL = outputURL {
+            do {
+                try combinedPrompt.write(to: outputURL, atomically: true, encoding: .utf8)
+                print("✅ Successfully generated stitch_static_prompt_regenerated.txt on Desktop")
+                print("📂 Location: \(outputURL.path)")
+                print("💡 Copy this file to /Stitch/App/Resources/stitch_static_prompt.txt to update the static prompt")
+            } catch {
+                print("❌ Could not write to Desktop: \(error)")
+            }
+        }
+        
+        // Always print the content for manual copying
+        print("📊 Generated system prompt stats:")
+        print("   → Characters: \(combinedPrompt.count)")
+        print("   → Estimated tokens: ~\(combinedPrompt.count / 3)")
+        print("   → Lines: \(combinedPrompt.components(separatedBy: .newlines).count)")
+        
+        print("\n" + String(repeating: "=", count: 80))
+        print("📝 GENERATED SYSTEM PROMPT CONTENT")
+        print("💡 Copy everything between the markers below to stitch_static_prompt.txt")
+        print(String(repeating: "=", count: 80))
+        print(combinedPrompt)
+        print(String(repeating: "=", count: 80))
+        print("📝 END OF GENERATED SYSTEM PROMPT CONTENT")
+        print(String(repeating: "=", count: 80) + "\n")
+        
+    } catch {
+        print("❌ Failed to generate system prompt: \(error)")
+    }
+}
+
+/// Compare dynamic prompt generation with static prompt to identify non-deterministic differences
+private func comparePromptsAndLogDifferences(dynamic: String, isStatic: String) {
+    print("🔍 Comparing dynamic vs static prompts for cache debugging...")
+    
+    if dynamic == isStatic {
+        print("✅ Dynamic prompt matches static prompt exactly - cache should work!")
+        return
+    }
+    
+    print("❌ Dynamic prompt differs from static prompt - this breaks caching!")
+    print("📊 Prompt comparison stats:")
+    print("   → Dynamic length: \(dynamic.count) chars")
+    print("   → Static length: \(isStatic.count) chars")
+    print("   → Length difference: \(dynamic.count - isStatic.count)")
+    
+    // Find first difference
+    let dynamicLines = dynamic.components(separatedBy: .newlines)
+    let staticLines = isStatic.components(separatedBy: .newlines)
+    
+    let maxLines = max(dynamicLines.count, staticLines.count)
+    var firstDifference: (line: Int, dynamic: String?, static: String?)? = nil
+    
+    for i in 0..<maxLines {
+        let dynamicLine = i < dynamicLines.count ? dynamicLines[i] : nil
+        let staticLine = i < staticLines.count ? staticLines[i] : nil
+        
+        if dynamicLine != staticLine {
+            firstDifference = (line: i + 1, dynamic: dynamicLine, static: staticLine)
+            break
+        }
+    }
+    
+    if let diff = firstDifference {
+        print("🚨 First difference at line \(diff.line):")
+        if let dynamicLine = diff.dynamic {
+            print("   Dynamic: \"\(dynamicLine.prefix(200))\"")
+        } else {
+            print("   Dynamic: [LINE MISSING]")
+        }
+        if let staticLine = diff.static {
+            print("   Static:  \"\(staticLine.prefix(200))\"")
+        } else {
+            print("   Static:  [LINE MISSING]")
+        }
+    }
+    
+    // Show a small sample of differences for debugging
+    print("📝 First 500 characters of dynamic prompt:")
+    print(String(dynamic.prefix(500)))
+    print("📝 First 500 characters of static prompt:")
+    print(String(isStatic.prefix(500)))
 }
 
 private func handleOpenAIStreamingEvent(
