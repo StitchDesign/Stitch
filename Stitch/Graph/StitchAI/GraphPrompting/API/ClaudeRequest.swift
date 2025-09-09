@@ -330,9 +330,27 @@ extension StitchAIManager {
             claudeRequest["temperature"] = temperature
         }
         
-        // Add streaming if present
-        if let stream = payloadJSON["stream"] as? Bool, stream {
-            claudeRequest["stream"] = true
+        // Always enable streaming for Claude (better UX + thinking support)
+        claudeRequest["stream"] = true
+        log("Claude request - streaming enabled by default")
+        
+        // Add extended thinking for supported models
+        let model = getClaudeModel(for: request)
+        log("Claude request - using model: \(model)")
+        let supportsThinking = model.contains("sonnet-4") || 
+                             model.contains("opus-4") || 
+                             model.contains("sonnet-3.7") ||
+                             model.contains("claude-4") ||
+                             model.contains("claude-3.7")
+        
+        if supportsThinking {
+            claudeRequest["thinking"] = [
+                "type": "enabled",
+                "budget_tokens": 10000  // Allow up to 10k tokens for thinking
+            ]
+            log("Extended thinking enabled for model: \(model) with 10k token budget")
+        } else {
+            log("Extended thinking not supported for model: \(model)")
         }
         
         log("Claude conversion successful for request type: \(String(describing: type(of: request)))")
@@ -356,16 +374,33 @@ extension StitchAIManager {
             log("Using user-selected Claude model: \(selectedModel)", .logToServer)
             return selectedModel
         }
-        // Fallback to secrets configuration based on request type
-        let defaultModel = "claude-3-5-sonnet-20241022"
+        // Fallback to latest Claude model with thinking support
+        let defaultModel = "claude-sonnet-4-20250514"  // Claude Sonnet 4 supports extended thinking
         return defaultModel
     }
     
-    /// Make Claude API request
+    /// Make Claude API request with streaming support
     func makeClaudeRequest<AIRequest>(for urlRequest: URLRequest,
                                               with request: AIRequest,
                                               attempt: Int,
                                               document: StitchDocumentViewModel) async -> Result<(OpenAIMessage, URLResponse), Error> where AIRequest: StitchAIRequestable {
+        
+        log("=== makeClaudeRequest called ===")
+        log("Request type: \(String(describing: type(of: request)))")
+        log("Attempt: \(attempt)")
+        
+        // Claude always uses streaming for better UX and thinking support
+        log("Claude request: Routing to streaming implementation")
+        let result = await makeClaudeStreamingRequest(for: urlRequest, with: request, attempt: attempt, document: document)
+        log("=== makeClaudeRequest completed ===")
+        return result
+    }
+    
+    /// Make non-streaming Claude API request (existing implementation)
+    private func makeClaudeNonStreamingRequest<AIRequest>(for urlRequest: URLRequest,
+                                                         with request: AIRequest,
+                                                         attempt: Int,
+                                                         document: StitchDocumentViewModel) async -> Result<(OpenAIMessage, URLResponse), Error> where AIRequest: StitchAIRequestable {
         
         let result = await Result { @Sendable in
             try await fetchWithRetries(urlRequest)
@@ -409,6 +444,197 @@ extension StitchAIManager {
             
             return .failure(failure)
         }
+    }
+
+    /// Make streaming Claude API request with thinking support
+    @MainActor
+    func makeClaudeStreamingRequest<AIRequest>(for urlRequest: URLRequest,
+                                               with request: AIRequest,
+                                               attempt: Int,
+                                               document: StitchDocumentViewModel) async -> Result<(OpenAIMessage, URLResponse), Error> where AIRequest: StitchAIRequestable {
+        
+        log("=== makeClaudeStreamingRequest STARTED ===")
+        log("Starting Claude streaming request with extended thinking support")
+        
+        do {
+            let (asyncBytes, response) = try await URLSession.shared.bytes(for: urlRequest)
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                log("Claude streaming response status: \(httpResponse.statusCode)")
+                
+                guard 200...299 ~= httpResponse.statusCode else {
+                    log("Claude streaming request failed with status: \(httpResponse.statusCode)")
+                    return .failure(URLError(.badServerResponse))
+                }
+            }
+            
+            var accumulatedContent = ""
+            var accumulatedThinking = ""
+            var currentThinkingBlock: String?
+            var totalUsage: ClaudeUsage?
+            
+            let requestStartTime = Date()
+            var firstThinkingTime: Date?
+            var firstContentTime: Date?
+            
+            for try await line in asyncBytes.lines {
+                // Skip empty lines
+                guard !line.isEmpty else { continue }
+                
+                // Parse SSE format: "data: {json}"
+                let jsonString = line.hasPrefix("data: ") ? String(line.dropFirst(6)) : line
+                
+                // Handle stream completion
+                if jsonString == "[DONE]" {
+                    break
+                }
+                
+                // Parse JSON event
+                guard let data = jsonString.data(using: .utf8),
+                      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                    continue
+                }
+                
+                let eventType = json["type"] as? String
+                
+                switch eventType {
+                case "message_start":
+                    log("Claude stream started")
+                    
+                case "content_block_start":
+                    if let contentBlock = json["content_block"] as? [String: Any],
+                       let type = contentBlock["type"] as? String {
+                        if type == "thinking" {
+                            log("🧠 Claude thinking block started")
+                            currentThinkingBlock = ""
+                            if firstThinkingTime == nil {
+                                firstThinkingTime = Date()
+                                let thinkingLatency = Date().timeIntervalSince(requestStartTime) * 1000
+                                log("⚡ Time to first thinking: \(String(format: "%.0f", thinkingLatency))ms")
+                            }
+                        } else if type == "text" {
+                            log("📝 Claude text content block started")
+                            if firstContentTime == nil {
+                                firstContentTime = Date()
+                                let contentLatency = Date().timeIntervalSince(requestStartTime) * 1000
+                                log("⚡ Time to first content: \(String(format: "%.0f", contentLatency))ms")
+                            }
+                        }
+                    }
+                    
+                case "content_block_delta":
+                    if let delta = json["delta"] as? [String: Any] {
+                        if let thinkingText = delta["thinking"] as? String {
+                            // This is thinking content (thinking_delta)
+                            accumulatedThinking += thinkingText
+                            
+                            // Stream thinking to UI
+                            document.streamingReasoningText = "🧠 Thinking...\n\n\(accumulatedThinking)"
+                        } else if let text = delta["text"] as? String {
+                            // This is regular text content (text_delta)
+                            accumulatedContent += text
+                            
+                            // Stream content to UI (clear reasoning text once content starts)
+                            if document.streamingReasoningText.contains("🧠 Thinking") {
+                                document.streamingReasoningText = ""
+                            }
+                        }
+                    }
+                    
+                case "content_block_stop":
+                    if currentThinkingBlock != nil {
+                        log("🧠 Claude thinking block completed (\(currentThinkingBlock?.count ?? 0) chars)")
+                        currentThinkingBlock = nil
+                    }
+                    
+                case "message_delta":
+                    if let usage = json["usage"] as? [String: Any] {
+                        totalUsage = try? JSONDecoder().decode(ClaudeUsage.self, from: JSONSerialization.data(withJSONObject: usage))
+                    }
+                    
+                case "message_stop":
+                    log("Claude stream completed")
+                    let totalTime = Date().timeIntervalSince(requestStartTime) * 1000
+                    log("⚡ Total stream time: \(String(format: "%.0f", totalTime))ms")
+                    
+                    // Monitor cache performance
+                    if let usage = totalUsage {
+                        await self.monitorClaudeStreamingCachePerformance(usage: usage)
+                    }
+                    
+                default:
+                    continue
+                }
+            }
+            
+            // Create final response
+            let finalMessage = OpenAIMessage(
+                role: .assistant,
+                content: accumulatedContent,
+                tool_calls: nil,
+                tool_call_id: nil,
+                name: nil,
+                refusal: nil,
+                annotations: nil
+            )
+            
+            log("Claude streaming completed successfully")
+            log("Final content length: \(accumulatedContent.count) characters")
+            log("Total thinking length: \(accumulatedThinking.count) characters")
+            
+            return .success((finalMessage, response))
+            
+        } catch {
+            log("Claude streaming error: \(error)")
+            return .failure(error)
+        }
+    }
+    
+    /// Monitor Claude prompt cache performance from streaming usage data
+    private func monitorClaudeStreamingCachePerformance(usage: ClaudeUsage) async {
+        // Extract cache and usage data
+        let inputTokens = usage.inputTokens
+        let outputTokens = usage.outputTokens
+        let cacheCreationInputTokens = usage.cacheCreationInputTokens ?? 0
+        let cacheReadInputTokens = usage.cacheReadInputTokens ?? 0
+        
+        print("🔍 Claude Streaming Response Usage Analysis for Cache Performance:")
+        print("📊 Usage Statistics:")
+        print("   → Input tokens: \(inputTokens)")
+        print("   → Output tokens: \(outputTokens)")
+        
+        // Analyze cache performance
+        print("💾 Cache Performance Analysis:")
+        if cacheCreationInputTokens > 0 {
+            print("   ✅ Cache created with \(cacheCreationInputTokens) tokens")
+            
+            // Calculate potential savings
+            let potentialSavings = Double(cacheCreationInputTokens) * 0.9 // 90% cost reduction for cached tokens
+            print("   💰 Potential future savings: \(String(format: "%.0f", potentialSavings)) token-equivalents per request")
+        }
+        
+        if cacheReadInputTokens > 0 {
+            let cachePercentage = (Double(cacheReadInputTokens) / Double(inputTokens)) * 100
+            print("   🚀 Cache hit! \(cacheReadInputTokens) tokens read from cache (\(String(format: "%.1f", cachePercentage))%)")
+            
+            // Calculate actual savings
+            let actualSavings = Double(cacheReadInputTokens) * 0.9 // 90% cost reduction for cached tokens
+            print("   💰 Cost savings: ~\(String(format: "%.0f", actualSavings)) token-equivalents")
+        } else if inputTokens >= 1024 {
+            print("   ❓ No cache hits detected")
+            print("   → Cache may still be warming up for future requests")
+        } else {
+            print("   📏 Prompt too small for caching (\(inputTokens) < 1024 tokens)")
+            print("   → Claude caching requires ≥1024 tokens")
+            print("   → Consider consolidating static content")
+        }
+        
+        // Log overall token usage
+        let totalTokens = inputTokens + outputTokens
+        print("🎯 Total usage: \(inputTokens) input + \(outputTokens) output = \(totalTokens) tokens")
+        
+        // Log to server for analytics
+        log("Claude streaming cache performance - Created: \(cacheCreationInputTokens), Read: \(cacheReadInputTokens), Total: \(totalTokens)")
     }
     
     /// Handle Claude rate limits
