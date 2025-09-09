@@ -135,6 +135,16 @@ func makeOpenAIStreamingRequest(
                 if let data = jsonString.data(using: .utf8),
                    let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
                     
+                    // Monitor cache performance if usage data is available
+                    #if DEV_DEBUG
+                    // Check if this is a final response chunk with usage data
+                    if let response = json["response"] as? [String: Any],
+                       let usage = response["usage"] as? [String: Any] {
+                        print("✅ Found OpenAI Responses API usage data")
+                        await monitorOpenAICachePerformance(usage: usage, model: model.rawValue)
+                    }
+                    #endif
+                    
                     await handleOpenAIStreamingEvent(
                         json: json,
                         streamingResponse: &streamingResponse,
@@ -539,4 +549,82 @@ private func monitorClaudeCachePerformance(claudeResponse: ClaudeResponse) async
     
     // Log to server for analytics
     log("Claude cache performance - Created: \(cacheCreationInputTokens), Read: \(cacheReadInputTokens), Total: \(totalTokens)")
+}
+
+/// Monitor OpenAI prompt cache performance from response usage data
+private func monitorOpenAICachePerformance(usage: [String: Any], model: String) async {
+    print("🔍 OpenAI Response Usage Analysis for Cache Performance:")
+    print("🤖 Model: \(model)")
+    print("📊 Usage Statistics:")
+    
+    // Extract basic usage data
+    let promptTokens = usage["prompt_tokens"] as? Int ?? 0
+    let completionTokens = usage["completion_tokens"] as? Int ?? 0
+    let totalTokens = usage["total_tokens"] as? Int ?? 0
+    
+    print("   → Input tokens: \(promptTokens)")
+    print("   → Output tokens: \(completionTokens)")
+    print("   → Total tokens: \(totalTokens)")
+    
+    // Extract cache data from prompt_tokens_details
+    var cachedTokens = 0
+    if let promptDetails = usage["prompt_tokens_details"] as? [String: Any],
+       let cached = promptDetails["cached_tokens"] as? Int {
+        cachedTokens = cached
+        print("   → Cached tokens: \(cachedTokens)")
+    }
+    
+    // Model-specific cache guidance
+    print("🎯 Cache Analysis:")
+    if model.contains("gpt-5-mini") || model.contains("gpt-5-nano") {
+        print("   ⚠️  GPT-5 Mini/Nano models may have limited or no prompt caching support")
+        print("   → Try GPT-5 (full) or o4-mini for better caching")
+    } else if model.contains("gpt-5") {
+        print("   ✅ GPT-5 supports automatic prompt caching for prompts ≥1024 tokens")
+    } else if model.contains("o4") {
+        print("   ✅ O4 models support automatic prompt caching for prompts ≥1024 tokens")
+    } else {
+        print("   ❓ Unknown model - caching support unclear")
+    }
+    
+    // Analyze cache performance
+    print("💾 Cache Performance Analysis:")
+    if cachedTokens > 0 {
+        let cacheHitRate = (Double(cachedTokens) / Double(promptTokens)) * 100
+        print("   ⚡ Cache hit! \(cachedTokens) of \(promptTokens) prompt tokens cached")
+        print("   📊 Cache hit rate: \(String(format: "%.1f", cacheHitRate))%")
+        
+        if cacheHitRate >= 80 {
+            print("   🎯 Excellent cache performance!")
+        } else if cacheHitRate >= 50 {
+            print("   👍 Good cache performance")
+        } else {
+            print("   ⚠️ Partial cache hit - consider optimizing prompt structure")
+        }
+        
+        // Estimate cost/latency savings
+        print("   💰 Cost savings: ~\(String(format: "%.0f", Double(cachedTokens) * 0.75))% of cached token cost")
+        print("   ⚡ Latency reduction: Up to 80% for cached portion")
+        
+    } else if promptTokens >= 1024 {
+        print("   ❌ No cache hit detected (prompt ≥1024 tokens)")
+        print("   → First request with this prompt prefix")
+        print("   → Future identical requests should hit cache")
+        print("   → Ensure static content is at the beginning")
+    } else {
+        print("   📏 Prompt too small for caching (\(promptTokens) < 1024 tokens)")
+        print("   → OpenAI caching requires ≥1024 tokens")
+        print("   → Consider consolidating static content")
+    }
+    
+    // Log prompt size analysis
+    let staticPromptSize = (try? loadStitchStaticPrompt().count) ?? 0
+    let estimatedTokens = staticPromptSize / 3 // Rough estimate
+    print("📚 Static prompt analysis:")
+    print("   → Characters: \(staticPromptSize)")
+    print("   → Estimated tokens: ~\(estimatedTokens)")
+    print("   → Cache eligible: \(estimatedTokens >= 1024 ? "✅ YES" : "❌ NO") (≥1024 tokens required)")
+    
+    // Log for analytics
+    log("OpenAI cache performance - Cached: \(cachedTokens)/\(promptTokens) tokens (\(String(format: "%.1f", cachedTokens > 0 ? (Double(cachedTokens) / Double(promptTokens)) * 100 : 0))%)")
 }
