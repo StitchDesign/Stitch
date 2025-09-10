@@ -56,7 +56,7 @@ func makeClaudeStreamingRequest(
     
     var claudeBody: [String: Any] = [
         "model": model.rawValue, // Use the actual model parameter
-        "max_tokens": 32768, // High limit for complex code generation (with beta header support)
+        "max_tokens": model.maxTokens, // Model-specific maximum output tokens
         "system": [staticSystemPrompt, previewWindowSystemPrompt], // Multi-component cached system prompt
         "stream": true // Enable streaming for better UX
     ]
@@ -111,6 +111,32 @@ func makeClaudeStreamingRequest(
         log("   → Characters: \(stitchStaticContent.count)")
         log("   → Estimated tokens: ~\(stitchTokenEstimate)")
         log("   → Cache eligible: \(stitchTokenEstimate > 1024 ? "✅ YES" : "❌ NO") (>1024 tokens required)")
+        
+        // Log request structure for debugging (without sensitive content)
+        log("🔍 Claude request structure:")
+        log("   → Model: \(model.rawValue)")
+        log("   → Max tokens: \(model.maxTokens) (model-specific limit)")
+        log("   → Stream: \(claudeBody["stream"] ?? false)")
+        log("   → Has thinking: \(claudeBody["thinking"] != nil)")
+        if let systemArray = claudeBody["system"] as? [[String: Any]] {
+            log("   → System components: \(systemArray.count)")
+            for (index, component) in systemArray.enumerated() {
+                if let text = component["text"] as? String {
+                    let charCount = text.count
+                    let hasCache = component["cache_control"] != nil
+                    log("     Component \(index + 1): \(charCount) chars, cached: \(hasCache)")
+                }
+            }
+        }
+        if let messages = claudeBody["messages"] as? [[String: Any]] {
+            log("   → Messages: \(messages.count)")
+            for (index, message) in messages.enumerated() {
+                if let role = message["role"] as? String {
+                    let contentType = message["content"] is String ? "text" : "multipart"
+                    log("     Message \(index + 1): \(role) (\(contentType))")
+                }
+            }
+        }
 #endif
     }
     
@@ -132,7 +158,21 @@ func makeClaudeStreamingRequest(
         
         guard 200...299 ~= httpResponse.statusCode else {
             log("Claude streaming request failed with status: \(httpResponse.statusCode)")
-            throw StitchAIStreamingError.other(URLError(.badServerResponse))
+            
+            // Read error response body for detailed error information
+            do {
+                let errorData = try await URLSession.shared.data(for: request).0
+                let errorMessage = await parseClaudeErrorResponse(errorData, statusCode: httpResponse.statusCode)
+                log("Claude API Error Details: \(errorMessage)")
+                throw StitchAIStreamingError.apiError(httpResponse.statusCode, errorMessage)
+            } catch let apiError as StitchAIStreamingError {
+                // Re-throw our custom error
+                throw apiError
+            } catch {
+                // Fallback if we can't read the error response
+                log("Failed to read Claude error response: \(error)")
+                throw StitchAIStreamingError.apiError(httpResponse.statusCode, "HTTP \(httpResponse.statusCode) - Unable to read error details")
+            }
         }
         
         log("Claude streaming response status: \(httpResponse.statusCode)")
@@ -143,30 +183,46 @@ func makeClaudeStreamingRequest(
         
         var firstThinkingTime: Date?
         var firstContentTime: Date?
+        var lineCount = 0
+        var eventCount = 0
         
         // Debug: Track all thinking steps for debugging
         var allThinkingSteps: [String] = []
         
+        log("🔄 Starting to process Claude streaming response...")
+        
         for try await line in asyncBytes.lines {
+            lineCount += 1
+            
             // Skip empty lines
-            guard !line.isEmpty else { continue }
+            guard !line.isEmpty else { 
+                // log("📝 Skipping empty line \(lineCount)")
+                continue 
+            }
+            
+            log("📝 Received line \(lineCount): \(line.prefix(100))\(line.count > 100 ? "..." : "")")
             
             // Parse SSE format: "data: {json}"
             let jsonString = line.hasPrefix("data: ") ? String(line.dropFirst(6)) : line
             
+            log("🔍 Processing JSON string: \(jsonString.prefix(200))\(jsonString.count > 200 ? "..." : "")")
+            
             // Handle stream completion
             if jsonString == "[DONE]" {
+                log("✅ Stream completion marker received")
                 break
             }
             
             // Parse JSON event
             guard let data = jsonString.data(using: .utf8),
                   let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                log("⚠️ Failed to parse JSON from line: \(line)")
                 continue
             }
             
+            eventCount += 1
             let eventType = json["type"] as? String
-            //            log("🔄 Claude streaming event: \(eventType ?? "unknown") - JSON keys: \(json.keys.joined(separator: ", "))")
+            log("🎯 Event \(eventCount): \(eventType ?? "unknown") - JSON keys: \(json.keys.joined(separator: ", "))")
             
             switch eventType {
             case "message_start":
@@ -231,9 +287,7 @@ func makeClaudeStreamingRequest(
                 }
                 
             case "message_stop":
-                // log("Claude stream completed")
-                // let totalTime = Date().timeIntervalSince(requestStartTime) * 1000
-                // log("⚡ Total stream time: \(String(format: "%.0f", totalTime))ms")
+                log("🏁 Claude stream completed - message_stop received")
                 
                 // Monitor cache performance
                 if let usage = totalUsage {
@@ -241,21 +295,25 @@ func makeClaudeStreamingRequest(
                 }
                 
             default:
+                log("❓ Unknown event type: \(eventType ?? "nil")")
                 continue
             }
         }
         
+        log("🔚 Finished processing Claude stream - Total lines: \(lineCount), Events: \(eventCount)")
+        
         // Reset streaming UI state
-//        await MainActor.run {
-//            document.isStreamingResponses = false
-//            document.streamingReasoningText = ""
-//        }
         document.resetStreamingUIState()
         
         log("Claude streaming completed successfully")
         log("Final content length: \(accumulatedContent.count) characters")
         log("Total thinking length: \(accumulatedThinking.count) characters")
         log("📝 Thinking steps received: \(allThinkingSteps.count)")
+        
+        if accumulatedContent.isEmpty && accumulatedThinking.isEmpty {
+            log("⚠️ WARNING: No content or thinking received from Claude!")
+            log("🔍 Stream summary: \(lineCount) lines processed, \(eventCount) events handled")
+        }
         
 #if DEV_DEBUG
         // Debug: log all thinking steps as formatted text block
@@ -278,6 +336,42 @@ func makeClaudeStreamingRequest(
         log("Claude request failed: \(error)")
         throw error
     }
+}
+
+/// Parse Claude API error response to extract detailed error information
+@MainActor
+func parseClaudeErrorResponse(_ errorData: Data, statusCode: Int) async -> String {
+    do {
+        // Try to parse as JSON
+        if let json = try JSONSerialization.jsonObject(with: errorData) as? [String: Any] {
+            // Claude API error format: { "type": "error", "error": { "type": "...", "message": "..." } }
+            if let error = json["error"] as? [String: Any] {
+                let errorType = error["type"] as? String ?? "unknown"
+                let errorMessage = error["message"] as? String ?? "No message provided"
+                return "\(errorType): \(errorMessage)"
+            }
+            
+            // Fallback: look for direct message field
+            if let message = json["message"] as? String {
+                return message
+            }
+            
+            // If we can parse JSON but no recognized structure, return the raw JSON
+            if let jsonString = String(data: errorData, encoding: .utf8) {
+                return "Raw error response: \(jsonString)"
+            }
+        }
+    } catch {
+        // JSON parsing failed
+        log("Failed to parse Claude error JSON: \(error)")
+    }
+    
+    // Last resort: return raw string
+    if let rawString = String(data: errorData, encoding: .utf8) {
+        return "Raw error response: \(rawString)"
+    }
+    
+    return "Unable to parse error response (HTTP \(statusCode))"
 }
 
 /// Monitor Claude prompt cache performance from streaming usage data in AIRequestFunctions

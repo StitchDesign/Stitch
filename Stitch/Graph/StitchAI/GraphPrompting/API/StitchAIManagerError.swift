@@ -63,6 +63,7 @@ enum StitchAIStreamingError: Error {
     case internetConnectionFailed
     case urlRequestCreationFailure
     case markdownNotFound
+    case apiError(Int, String) // HTTP status code and detailed error message
     case other(Error)
 }
 
@@ -71,6 +72,9 @@ extension StitchAIStreamingError {
         switch self {
         case .timeout, .rateLimit:
             return true
+        case .apiError(let statusCode, _):
+            // Retry on 5xx server errors, but not 4xx client errors
+            return statusCode >= 500
         case .maxTimeouts, .maxRetriesError, .currentlyInARetryDelay, .invalidURL, .requestCancelled, .internetConnectionFailed, .urlRequestCreationFailure, .markdownNotFound, .other:
             return false // under these scenarios, we do not re-attempt the request
         }
@@ -101,8 +105,10 @@ extension StitchAIStreamingError: CustomStringConvertible {
         case .markdownNotFound:
             fatalErrorIfDebug()
             return "Markdown file not found"
+        case .apiError(let statusCode, let message):
+            return "API Error \(statusCode): \(message)"
         case .other(let error):
-            return "OpenAI Request error: \(error.localizedDescription)"
+            return "Streaming Request error: \(error.localizedDescription)"
             
         }
     }

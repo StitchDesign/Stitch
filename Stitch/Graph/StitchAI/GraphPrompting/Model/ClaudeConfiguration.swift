@@ -44,6 +44,22 @@ enum ClaudeModel: String, CaseIterable, Identifiable {
             return false
         }
     }
+    
+    /// Maximum output tokens allowed for this model
+    var maxTokens: Int {
+        switch self {
+        case .claude41Opus:
+            return 32000  // Claude 4.1 Opus limit
+        case .claude4Opus:
+            return 32768  // Claude 4 Opus limit
+        case .claude4Sonnet:
+            return 32768  // Claude 4 Sonnet limit  
+        case .claude37Sonnet:
+            return 32768  // Claude 3.7 Sonnet limit
+        case .claude35Haiku:
+            return 8192  // Claude 3.5 Haiku limit
+        }
+    }
 }
 
 extension String {
