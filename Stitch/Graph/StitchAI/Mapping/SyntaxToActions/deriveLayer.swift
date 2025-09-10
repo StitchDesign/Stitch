@@ -884,7 +884,7 @@ extension SyntaxViewName {
         case .stateAccess(let varName):
             return [.stateRef(varName)]
             
-        case .memberAccess, .closure, .viewEvent:
+        case .memberAccess, .closure, .viewEvent, .view:
             throw SwiftUISyntaxError.portValueDecodingError(.portValueDecodingError(describe(argument)))
         }
     }

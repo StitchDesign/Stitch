@@ -155,6 +155,9 @@ indirect enum SyntaxViewModifierArgumentType: Sendable {
     case closure(SyntaxViewModifierClosureData)
     
     case viewEvent(SyntaxViewModifierViewEvent)
+    
+    // SwiftUI view with proper hierarchy (e.g. VStack with children in modifier argument)
+    case view(SyntaxView)
 }
 
 // Non-recursive sub-enum of `SyntaxViewModifierArgumentType` for when we are working in contexts where we have already flattened the nested argument-types like `tuple` and `array`
@@ -165,6 +168,7 @@ enum SyntaxViewModifierArgumentFlatType: Sendable {
     case memberAccess(MemberAccessExprSyntax)
     case closure(SyntaxViewModifierClosureData)
     case viewEvent(SyntaxViewModifierViewEvent)
+    case view(SyntaxView)
     
     var toSyntaxViewModifierArgumentType: SyntaxViewModifierArgumentType {
         switch self {
@@ -180,6 +184,8 @@ enum SyntaxViewModifierArgumentFlatType: Sendable {
             return .closure(x)
         case .viewEvent(let x):
             return .viewEvent(x)
+        case .view(let x):
+            return .view(x)
         }
     }
 }
@@ -203,6 +209,8 @@ extension SyntaxViewModifierArgumentType {
         case .closure(let code):
             return [.closure(code)]
         case .viewEvent(let x):
+            return []
+        case .view(_):
             return []
         }
     }
@@ -525,6 +533,8 @@ extension SyntaxViewModifierArgumentType {
         case .viewEvent:
             fatalError()
 //            return AnyEncodable(x)
+        case .view(_):
+            fatalError()
         }
     }
 }

@@ -277,6 +277,10 @@ extension SyntaxViewModifierArgumentType {
             return nil
         case .viewEvent(let syntaxViewModifierViewEvent):
             return syntaxViewModifierViewEvent.eventConstructorArgs.compactMap { $0.value.firstMemberAccess }.first
+        
+        // TODO: does this even make sense with a view which is used as an argument ?
+        case .view(let view):
+            return nil
         }
     }
     

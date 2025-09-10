@@ -209,6 +209,9 @@ func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) 
     case .viewEvent(let x):
         fatalErrorIfDebug()
         return ""
+    case .view(let x):
+        fatalErrorIfDebug()
+        return ""
     }
 }
 
@@ -310,6 +313,10 @@ func renderArgWithoutPortValueDescription(_ arg: SyntaxViewModifierArgumentType)
             \(viewEvent.eventName)(\(constructorArgsString))
             \(viewEventClosuresString)
             """
+    case .view(let view):
+        // What is this, actually?
+        fatalErrorIfDebug()
+        return "VIEW: \(view.name)"
     }
 }
 
