@@ -537,11 +537,15 @@ extension StitchDocumentViewModel {
                                mediaFiles: [],
                                saveLocation: [])
         
-        return .init(from: doc,
-                     graph: graph,
-                     documentEncoder: encoder,
-                     projectLoader: nil,
-                     store: store,
-                     isDebugMode: false)
+        let docViewModel = StitchDocumentViewModel(
+            from: doc,
+            graph: graph,
+            documentEncoder: encoder,
+            projectLoader: nil,
+            store: store,
+            isDebugMode: true) // disables root URL checks that cause crashes
+        
+        graph.documentDelegate = docViewModel
+        return docViewModel
     }
 }

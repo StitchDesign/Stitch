@@ -41,8 +41,11 @@ struct StitchAIProjectViewer: View {
                 bindingDeclarations: codeParserResult.bindingDeclarations,
                 document: document)
     
-//            await stitchActionsResult
-//                .createAIGraph(document: document)
+            await MainActor.run {
+                var stitchActionsResult = stitchActionsResult
+                stitchActionsResult
+                    .createAIGraph(document: document)
+            }
         }
     }
     

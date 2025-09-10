@@ -39,14 +39,14 @@ extension AIGraphData_V0.GraphData {
             result.updateValue(node, forKey: node.id)
         }
         
-        var jsNodes = [AIGraphData_V0.PreprocessedJSPatchNode]()
-        var nativeNodes = [AIGraphData_V0.PatchNode]()
-        var nodeTypeSettings = [AIGraphData_V0.NativePatchNodeValueTypeSetting]()
-        var patchConnections = [AIGraphData_V0.PatchConnection]()
-        var customPatchInputs = [AIGraphData_V0.CustomPatchInputValue]()
+//        var jsNodes = [AIGraphData_V0.PreprocessedJSPatchNode]()
+//        var nativeNodes = [AIGraphData_V0.PatchNode]()
+//        var nodeTypeSettings = [AIGraphData_V0.NativePatchNodeValueTypeSetting]()
+//        var patchConnections = [AIGraphData_V0.PatchConnection]()
+//        var customPatchInputs = [AIGraphData_V0.CustomPatchInputValue]()
         
         // Maps upstream patch output coordinate to some new created @State var name
-        var viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate] = [:]
+        var viewStatePatchConnections: [String : NodeIOCoordinate] = [:]
         
         // Maps interactions to layers, used to determine gestures to create
         // Key = Patch, Value = Layer
@@ -60,15 +60,15 @@ extension AIGraphData_V0.GraphData {
         for nodeEntity in graphEntity.nodes {
             switch nodeEntity.nodeTypeEntity {
             case .patch(let patchNodeEntity):
-                // JS node scenario
-                if let jsData = patchNodeEntity.javaScriptNodeSettings {
-                    jsNodes.append(.init(node_id: patchNodeEntity.id.uuidString,
-                                         funcName: nodeEntity.title.toCamelCase(),
-                                         sourceCode: jsData.script))
-                }
-                
-                // Native node scenario
-                else {
+//                // JS node scenario
+//                if let jsData = patchNodeEntity.javaScriptNodeSettings {
+//                    jsNodes.append(.init(node_id: patchNodeEntity.id.uuidString,
+//                                         funcName: nodeEntity.title.toCamelCase(),
+//                                         sourceCode: jsData.script))
+//                }
+//                
+//                // Native node scenario
+//                else {
                     // Interactions are handled within layers
                     if patchNodeEntity.patch.isInteractionPatchNode {
                         if let assignedLayer = patchNodeEntity.inputs.first?.portData.values?.first?.getInteractionId {
@@ -76,18 +76,18 @@ extension AIGraphData_V0.GraphData {
                         }
                     }
                     
-                    // Non-interaction cases
-                    else {
-                        nativeNodes.append(.init(node_id: patchNodeEntity.id.uuidString,
-                                                 node_name: .init(value: .patch(patchNodeEntity.patch))))
-                        
-                        // Update node type
-                        if let type = patchNodeEntity.userVisibleType {
-                            nodeTypeSettings.append(.init(node_id: patchNodeEntity.id.description,
-                                                          value_type: .init(value: type)))
-                        }
-                    }
-                }
+//                    // Non-interaction cases
+//                    else {
+//                        nativeNodes.append(.init(node_id: patchNodeEntity.id.uuidString,
+//                                                 node_name: .init(value: .patch(patchNodeEntity.patch))))
+//                        
+//                        // Update node type
+//                        if let type = patchNodeEntity.userVisibleType {
+//                            nodeTypeSettings.append(.init(node_id: patchNodeEntity.id.description,
+//                                                          value_type: .init(value: type)))
+//                        }
+//                    }
+//                }
                 
             default:
                 continue
@@ -102,14 +102,15 @@ extension AIGraphData_V0.GraphData {
                 for (portIndex, inputData) in patchNodeEntity.inputs.enumerated() {
                     switch inputData.portData {
                     case .values(let values):
-                        if let firstValue = values.first {
-                            customPatchInputs.append(
-                                .init(patch_input_coordinate: .init(node_id: patchNodeEntity.id.description,
-                                                                    port_index: portIndex),
-                                      value: firstValue.anyCodable,
-                                      value_type: .init(value: firstValue.nodeType))
-                            )
-                        }
+                        continue
+//                        if let firstValue = values.first {
+//                            customPatchInputs.append(
+//                                .init(patch_input_coordinate: .init(node_id: patchNodeEntity.id.description,
+//                                                                    port_index: portIndex),
+//                                      value: firstValue.anyCodable,
+//                                      value_type: .init(value: firstValue.nodeType))
+//                            )
+//                        }
                         
                     case .upstreamConnection(let upstream):
                         if let upstreamPortIndex = upstream.portId {
@@ -122,14 +123,14 @@ extension AIGraphData_V0.GraphData {
                                                                                           nodeId: patchNodeEntity.id))
                             }
                             
-                            else {
-                                patchConnections.append(
-                                    .init(src_port: .init(node_id: upstream.nodeId.description,
-                                                          port_index: upstreamPortIndex),
-                                          dest_port: .init(node_id: patchNodeEntity.id.description,
-                                                           port_index: portIndex))
-                                )
-                            }
+//                            else {
+//                                patchConnections.append(
+//                                    .init(src_port: .init(node_id: upstream.nodeId.description,
+//                                                          port_index: upstreamPortIndex),
+//                                          dest_port: .init(node_id: patchNodeEntity.id.description,
+//                                                           port_index: portIndex))
+//                                )
+//                            }
                         }
                     }
                 }
@@ -145,11 +146,7 @@ extension AIGraphData_V0.GraphData {
                           viewStatePatchConnections: &viewStatePatchConnections)
         
         self = .init(layer_data_list: aiLayerData,
-                     patch_data: .init(javascript_patches: jsNodes,
-                                       native_patches: nativeNodes,
-                                       native_patch_value_type_settings: nodeTypeSettings,
-                                       patch_connections: patchConnections,
-                                       custom_patch_input_values: customPatchInputs),
+                     patchNodes: graphEntity.nodes.filter { $0.nodeTypeEntity.patchNodeEntity != nil },
                      viewStatePatchConnections: viewStatePatchConnections)
     }
 }
@@ -176,7 +173,7 @@ extension Array where Element == AIGraphData_V0.SidebarLayerData {
     func createAIData(nodesDict: [UUID : AIGraphData_V0.NodeEntity],
                       patchToLayerAssignmentMap: [UUID : UUID],
                       upstreamConnectionToInteraction: inout [NodeIOCoordinate : NodeIOCoordinate],
-                      viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate]) throws -> [AIGraphData_V0.LayerData] {
+                      viewStatePatchConnections: inout [String : NodeIOCoordinate]) throws -> [AIGraphData_V0.LayerData] {
         try self.map { sidebarData in
             try .init(from: sidebarData,
                       nodesDict: nodesDict,
@@ -200,7 +197,7 @@ extension AIGraphData_V0.LayerData {
          nodesDict: [UUID : AIGraphData_V0.NodeEntity],
          patchToLayerAssignmentMap: [UUID : UUID],
          upstreamConnectionToInteraction: inout [NodeIOCoordinate : NodeIOCoordinate],
-         viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate]) throws {
+         viewStatePatchConnections: inout [String : NodeIOCoordinate]) throws {
         guard let node = nodesDict.get(sidebarData.id),
               let layerData = node.layerNodeEntity else {
             throw AICodeGenError.nodeDataNotFound
@@ -258,8 +255,7 @@ extension AIGraphData_V0.LayerData {
                     
                     // Update state dict
                     viewStatePatchConnections
-                        .updateValue(.init(node_id: upstream.nodeId.uuidString,
-                                           port_index: upstream.portId!),
+                        .updateValue(upstream,
                                      forKey: stateVarName)
                     
                     // Track interaction data
@@ -306,8 +302,7 @@ extension AIGraphData_V0.LayerData {
                         
                         // Update state dict
                         viewStatePatchConnections
-                            .updateValue(.init(node_id: upstream.nodeId.uuidString,
-                                               port_index: upstream.portId!),
+                            .updateValue(upstream,
                                          forKey: stateVarName)
                     }
                 }

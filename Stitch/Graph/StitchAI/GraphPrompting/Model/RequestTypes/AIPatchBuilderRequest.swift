@@ -93,18 +93,18 @@ extension StitchDocumentViewModel {
 extension SwiftSyntaxActionsResult {
     @MainActor
     mutating func applyAIGraph(to document: StitchDocumentViewModel,
-                               requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) async {
+                               requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) {
         switch requestType {
         case .userPrompt:
             // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
-            await self.createAIGraph(document: document)
+            self.createAIGraph(document: document)
         }
         
         document.encodeProjectInBackground()
     }
     
     @MainActor
-    mutating func createAIGraph(document: StitchDocumentViewModel) async {
+    mutating func createAIGraph(document: StitchDocumentViewModel) {
         guard let aiManager = document.aiManager else {
             return
         }
@@ -115,9 +115,9 @@ extension SwiftSyntaxActionsResult {
         
         // Track node ID map to create new IDs, fixing ID reusage issue
         // Make sure currently used IDs are tracked so we don't create redundant nodes
-//        var idMap = graph.nodes.keys.reduce(into: [String : UUID]()) { result, nodeId in
-//            result.updateValue(nodeId, forKey: nodeId.description)
-//        }
+        var idMap = graph.nodes.keys.reduce(into: [String : UUID]()) { result, nodeId in
+            result.updateValue(nodeId, forKey: nodeId.description)
+        }
         
         // Tracks all patch input coordinates we either make connections or custom vaues for, used for determining if extra rows need to be created
 //        let allModifiedPatchIds = self.graphData.patch_data.custom_patch_input_values.map(\.patch_input_coordinate) + self.graphData.patch_data.patch_connections.map(\.dest_port)
@@ -321,7 +321,7 @@ extension SwiftSyntaxActionsResult {
                         return
                     }
                     
-                    let newEdgeData = PortEdgeData(from: .init(portId: upstreamPatchCoordinate.port_index,
+                    let newEdgeData = PortEdgeData(from: .init(portId: upstreamPatchCoordinate.portId!,
                                                                nodeId: upstreamPatchCoordinate.nodeId),
                                                    to: inputCoordinate)
                     
@@ -385,17 +385,20 @@ extension SwiftSyntaxActionsResult {
 //                                             document: document)
 //        }
         
+        var graphEntity = document.graph.createSchema()
+        let allNodes = self.graphData.patchNodes + graphEntity.nodes
+        
         // Can't build the depth map from the `patch_data`,
         // since those UUIDs have not been remapped yet
-        positionAIGeneratedNodesDuringApply(
-            nodes: document.visibleGraph.visibleNodesViewModel,
+        let repositionedNodes = allNodes.positionAIGeneratedNodesDuringApply(
             viewPortCenter: document.viewPortCenter,
             graph: document.visibleGraph)
+        graphEntity.nodes = repositionedNodes
         
         // Update topological data--needs to be forced here because of script building using this data
         
         // TODO: explore here?
-        document.graph.updateGraphData(document)
+        document.graph.update(from: graphEntity)
         
         // Report errors
         caughtErrors.displayErrors(document: document)

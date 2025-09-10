@@ -1661,7 +1661,7 @@ extension LayerInputEntity {
                       layerInputPort: LayerInputPort) -> [CanvasItemId] {
         switch self.mode {
         case .packed:
-            if let canvas = self.packedData.canvasItem {
+            if self.packedData.canvasItem != nil {
                 return [.layerInput(.init(node: nodeId,
                                           keyPath: .init(layerInput: layerInputPort,
                                                          portType: .packed)))]
@@ -1669,8 +1669,14 @@ extension LayerInputEntity {
             
             return []
         case .unpacked:
-            return self.unpackedData.compactMap {
-                $0.canvasItem
+            return self.unpackedData.enumerated().compactMap { index, unpackedData in
+                if unpackedData.canvasItem != nil {
+                    return .layerInput(.init(node: nodeId,
+                                             keyPath: .init(layerInput: layerInputPort,
+                                                            portType: .unpacked(.init(rawValue: index)!))))
+                }
+                
+                return nil
             }
         }
     }
