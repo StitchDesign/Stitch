@@ -99,8 +99,8 @@ extension SwiftUIViewParserResult {
 //        let patchResults = self.bindingDeclarations.deriveStitchActions(existingData: interactionsPatchActionResult)
         
         return .init(graphData: .init(layer_data_list: layerResults.actions,
-                                      patch_data: .init(javascript_patches: [], native_patches: [], native_patch_value_type_settings: [], patch_connections: [], custom_patch_input_values: []),
-                                      viewStatePatchConnections: [:]),
+                                      patchNodes: patchResult.nodes,
+                                      viewStatePatchConnections: patchResult.stateVarConnections),
                      caughtErrors: self.caughtErrors + layerResults.caughtErrors)// + patchResults.caughtErrors)
     }
 }

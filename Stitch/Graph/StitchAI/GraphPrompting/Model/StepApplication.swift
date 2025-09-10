@@ -68,10 +68,10 @@ extension StitchDocumentViewModel {
         }
         
         // Only adjust node positions if actions were valid and successfully applied
-        positionAIGeneratedNodes(convertedActions: convertedActions,
-                                 nodes: self.visibleGraph.visibleNodesViewModel,
-                                 viewPortCenter: self.newCanvasItemInsertionLocation,
-                                 graph: graph)
+//        positionAIGeneratedNodes(convertedActions: convertedActions,
+//                                 nodes: self.visibleGraph.visibleNodesViewModel,
+//                                 viewPortCenter: self.newCanvasItemInsertionLocation,
+//                                 graph: graph)
         
         self.graphUpdaterId = .randomId() // NOT NEEDED, ACTUALLY?
         
@@ -219,196 +219,185 @@ extension StitchDocumentViewModel {
     }
 }
 
-@MainActor
-func positionAIGeneratedNodes(convertedActions: [any StepActionable],
-                              nodes: VisibleNodesViewModel,
-                              viewPortCenter: CGPoint,
-                              graph: GraphReader) {
-    
-    // TODO: if we have a chain of nodes, shift our starting point further west
-    //    var viewPortCenter = viewPortCenter
-    //    viewPortCenter.x -= 500 // We actually shift left a little bit, so nodes look like they're crawling from left to right
-    
-    let (depthMap, hasCycle) = convertedActions.calculateAINodesAdjacency()
-    
-    guard let depthMap = depthMap,
-          !hasCycle else {
-        fatalErrorIfDebug("Did not have a cycle but was not able create depth-map")
-        return
+extension Array where Element == NodeEntity {
+    func getNode(_ id: UUID) -> NodeEntity? {
+        self.first { $0.id == id }
     }
     
-    guard !depthMap.isEmpty else {
-//        fatalErrorIfDebug("Depth-map should never be empty")
-        log("Depth-map should never be empty") // can be empty if we have no nodes
-        return
-    }
-                    
-    let depthLevels = depthMap.values.sorted().toOrderedSet
-
-    let createdNodes = convertedActions.nodesCreatedByLLMActions()
+    @MainActor
+    func positionAIGeneratedNodesDuringApply(
+        viewPortCenter: CGPoint,
+        graph: GraphReader
+    ) -> Self {
+        // TODO: if we have a chain of nodes, shift our starting point further west
+        //    var viewPortCenter = viewPortCenter
+        //    viewPortCenter.x -= 500 // We actually shift left a little bit, so nodes look like they're crawling from left to right
         
-    // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
-    depthLevels.forEach { depthLevel in
-
-        // TODO: just rewrite the adjacency logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
-        // Find all the created-nodes at this depth-level,
-        // and adjust their positions
-        let createdNodesAtThisLevel = createdNodes.compactMap {
-            if depthMap.get($0) == depthLevel {
-                return nodes.getNode($0)
-            }
-            log("positionAIGeneratedNodes: Could not get depth level for \($0.debugFriendlyId)")
-            return nil
+        // Horizontal spacing between depth‑columns
+        let horizontalPadding: CGFloat = 120.0
+        
+        let (depthMap, hasCycle) = Stitch.calculateAINodesAdjacency(nodes: self) // patchData.calculateAINodesAdjacency()
+        
+        guard let depthMap = depthMap else {
+            log("DID NOT HAVE A depthMap")
+            return self
         }
         
-        createdNodesAtThisLevel.enumerated().forEach { x in
-            let createdNode = x.element
-            let createdNodeIndexAtThisDepthLevel = x.offset
-            // log("positionAIGeneratedNodes: createdNode.id: \(createdNode.id)")
-            // log("positionAIGeneratedNodes: createdNodeIndexAtThisDepthLevel: \(createdNodeIndexAtThisDepthLevel)")
-            
-            createdNode.getAllCanvasObservers().enumerated().forEach { x in
-                
-                let canvasItem = x.element
-                let canvasItemIndex = x.offset
-                
-                var size: CGSize = canvasItem.getHardcodedSize(graph)
-                ?? CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
-                          height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
-                
-//                log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
-                
-                // Add some 'padding' to the canvas item's size, so items do not end up right next to each other
-                let padding: CGFloat = 36.0
-                size.width += padding
-                size.height += padding
-                               
-                let newPosition =  CGPoint(
-                    x: viewPortCenter.x + (CGFloat(depthLevel) * size.width),
-                    y: viewPortCenter.y + (CGFloat(canvasItemIndex) * size.height) + (CGFloat(createdNodeIndexAtThisDepthLevel) * size.height)
-                )
-                                
-//                 log("positionAIGeneratedNodes: canvasItemAndIndex.element.id: \(canvasItemAndIndex.element.id)")
-//                 log("positionAIGeneratedNodes: newPosition: \(newPosition)")
-                canvasItem.position = newPosition
-                canvasItem.previousPosition = newPosition
-            }
+        guard !hasCycle else {
+            log("HAD A CYCLE for depthMap \(depthMap)")
+            return self
         }
-    }
-}
-
-// TODO: ONLY POSITION THE NEWLY INTRODUCED NODES
-@MainActor
-func positionAIGeneratedNodesDuringApply(
-    nodes: VisibleNodesViewModel,
-    viewPortCenter: CGPoint,
-    graph: GraphReader
-) {
-    // TODO: if we have a chain of nodes, shift our starting point further west
-    //    var viewPortCenter = viewPortCenter
-    //    viewPortCenter.x -= 500 // We actually shift left a little bit, so nodes look like they're crawling from left to right
-
-    // Horizontal spacing between depth‑columns
-    let horizontalPadding: CGFloat = 120.0
-
-    let (depthMap, hasCycle) = calculateAINodesAdjacency(nodes: nodes) // patchData.calculateAINodesAdjacency()
-
-    guard let depthMap = depthMap else {
-        log("DID NOT HAVE A depthMap")
-        return
-    }
-    
-    guard !hasCycle else {
-        log("HAD A CYCLE for depthMap \(depthMap)")
-        return
-    }
-
-    log("positionAIGeneratedNodes: depthMap: \(depthMap)")
-
-    guard !depthMap.isEmpty else {
-//        fatalErrorIfDebug("Depth-map should never be empty")
-        log("Depth-map should never be empty") // can be empty if we have no nodes
-        return
-    }
-
-    let depthLevels = depthMap.values.sorted().toOrderedSet
-
-    let createdNodes: IdSet = nodes.nodes.keys.toSet
-
-    // Determine widest item (incl. padding) for each depth column
-    var columnWidths: [Int: CGFloat] = [:]
-    depthLevels.forEach { depth in
-        let nodesAtLevel = createdNodes.compactMap { depthMap.get($0) == depth ? nodes.getNode($0) : nil }
-        let maxWidth = nodesAtLevel.flatMap { node in
-            node.getAllCanvasObservers().compactMap { obs in
-                (obs.getHardcodedSize(graph)?.width ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER) + horizontalPadding
-            }
-        }.max() ?? (CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER + horizontalPadding)
-        columnWidths[depth] = maxWidth
-    }
-
-    // Build cumulative X offsets so each column starts after the previous one
-    var cumulativeXOffset: [Int: CGFloat] = [:]
-    var runningX: CGFloat = 0
-    depthLevels.sorted().forEach { depth in
-        cumulativeXOffset[depth] = runningX
-        runningX += columnWidths[depth] ?? 0
-    }
-
-    // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
-    depthLevels.forEach { depthLevel in
-
-        log("on depthLevel: \(depthLevel)")
-
-        // ───────── vertical layout helpers ─────────
-        let verticalPadding: CGFloat = 80.0
-        // Tallest observer at this depth
-        let rowHeight: CGFloat = {
-            let maxH = createdNodes.compactMap { depthMap.get($0) == depthLevel ? nodes.getNode($0) : nil }
-                .flatMap { node in
-                    node.getAllCanvasObservers().compactMap { obs in
-                        obs.getHardcodedSize(graph)?.height ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER
-                    }
+        
+        log("positionAIGeneratedNodes: depthMap: \(depthMap)")
+        
+        guard !depthMap.isEmpty else {
+            //        fatalErrorIfDebug("Depth-map should never be empty")
+            log("Depth-map should never be empty") // can be empty if we have no nodes
+            return self
+        }
+        
+        let depthLevels = depthMap.values.sorted().toOrderedSet
+        
+        let createdNodes: IdSet = self.map(\.id).toSet
+        
+        // Determine widest item (incl. padding) for each depth column
+        var columnWidths: [Int: CGFloat] = [:]
+        depthLevels.forEach { depth in
+            let nodesAtLevel = createdNodes.compactMap { depthMap.get($0) == depth ? self.getNode($0) : nil }
+            let maxWidth = nodesAtLevel.flatMap { node in
+                node.canvasIds.compactMap { canvasId in
+                    (canvasId.getHardcodedSize(kind: node.kind,
+                                               nodeType: node.nodeTypeEntity.patchNodeEntity?.userVisibleType)?.width ??
+                     CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER) + horizontalPadding
                 }
-                .max() ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER
-            return maxH + verticalPadding
-        }()
-        var rowIndexForDepth = 0
-
-        // TODO: just rewrite the adjacency logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
-        // Find all the created-nodes at this depth-level,
-        // and adjust their positions
-        let createdNodesAtThisLevel = createdNodes.compactMap {
-            if depthMap.get($0) == depthLevel {
-                return nodes.getNode($0)
-            }
-            // THIS JUST MEANS WE COULD NOT FIND THE NODE AT THIS LEVEL
-            // log("positionAIGeneratedNodes: Could not get depth level for \($0.debugFriendlyId)")
-            return nil
+            }.max() ?? (CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER + horizontalPadding)
+            columnWidths[depth] = maxWidth
         }
+        
+        // Build cumulative X offsets so each column starts after the previous one
+        var cumulativeXOffset: [Int: CGFloat] = [:]
+        var runningX: CGFloat = 0
+        depthLevels.sorted().forEach { depth in
+            cumulativeXOffset[depth] = runningX
+            runningX += columnWidths[depth] ?? 0
+        }
+        
+        // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
+        let updatedNodes = depthLevels.flatMap { depthLevel -> [NodeEntity] in
+            
+            log("on depthLevel: \(depthLevel)")
+            
+            // ───────── vertical layout helpers ─────────
+            let verticalPadding: CGFloat = 80.0
+            // Tallest observer at this depth
+            let rowHeight: CGFloat = {
+                let maxH = createdNodes.compactMap { depthMap.get($0) == depthLevel ? self.getNode($0) : nil }
+                    .flatMap { node in
+                        node.canvasIds
+                            .map { canvasId in
+                                canvasId
+                                    .getHardcodedSize(
+                                        kind: node.kind,
+                                        nodeType: node.nodeTypeEntity.patchNodeEntity?.userVisibleType)?.height ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER
+                            }
+                    }
+                    .max() ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER
+                return maxH + verticalPadding
+            }()
+            var rowIndexForDepth = 0
+            
+            // TODO: just rewrite the adjacency logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
+            // Find all the created-nodes at this depth-level,
+            // and adjust their positions
+            let createdNodesAtThisLevel: [NodeEntity] = createdNodes.compactMap {
+                if depthMap.get($0) == depthLevel {
+                    return self.getNode($0)
+                }
+                // THIS JUST MEANS WE COULD NOT FIND THE NODE AT THIS LEVEL
+                // log("positionAIGeneratedNodes: Could not get depth level for \($0.debugFriendlyId)")
+                return nil
+            }
+            
+            return createdNodesAtThisLevel.map { createdNode in
+                var createdNode = createdNode
+                
+                let updateCanvasPosition = { (canvasId: CanvasItemId) -> CGPoint in
+                    var size: CGSize = canvasId
+                        .getHardcodedSize(kind: createdNode.kind,
+                                          nodeType: createdNode.nodeTypeEntity.patchNodeEntity?.userVisibleType) ?? CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
+                              height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
+                    
+                    // Add horizontal gap only
+                    size.width += horizontalPadding
+                    
+                    let newPosition = CGPoint(
+                        x: viewPortCenter.x + (cumulativeXOffset[depthLevel] ?? 0),
+                        y: viewPortCenter.y + CGFloat(rowIndexForDepth) * rowHeight
+                    )
+                    rowIndexForDepth += 1
+                    
+                    // log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
+                    log("positionAIGeneratedNodes: newPosition: \(newPosition)")
+                    return newPosition
+                }
 
-        createdNodesAtThisLevel.forEach { createdNode in
-            createdNode.getAllCanvasObservers().forEach { canvasItem in
-                var size: CGSize = canvasItem.getHardcodedSize(graph)
-                ?? CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
-                          height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
-
-                // Add horizontal gap only
-                size.width += horizontalPadding
-
-                let newPosition = CGPoint(
-                    x: viewPortCenter.x + (cumulativeXOffset[depthLevel] ?? 0),
-                    y: viewPortCenter.y + CGFloat(rowIndexForDepth) * rowHeight
-                )
-                rowIndexForDepth += 1
-
-                // log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
-                log("positionAIGeneratedNodes: newPosition: \(newPosition)")
-                canvasItem.position = newPosition
-                canvasItem.previousPosition = newPosition
+                switch createdNode.nodeTypeEntity {
+                case .patch(var patchNode):
+                    patchNode.canvasEntity.position = updateCanvasPosition(
+                        .node(createdNode.id)
+                    )
+                    
+                case .layer(var layerNodeEntity):
+                    for inputDefinition in layerNodeEntity.layer.layerGraphNode.inputDefinitions {
+                        var inputDefinition = inputDefinition
+                        var portData = layerNodeEntity[keyPath: inputDefinition.schemaPortKeyPath]
+                        
+                        switch portData.mode {
+                        case .packed:
+                            if var canvas = portData.packedData.canvasItem {
+                                canvas.position = updateCanvasPosition(.layerInput(.init(node: createdNode.id,
+                                                                                         keyPath: .init(layerInput: inputDefinition, portType: .packed))))
+                                
+                                portData.packedData.canvasItem = canvas
+                            }
+                            
+                        case .unpacked:
+                            portData.unpackedData = portData.unpackedData
+                                .enumerated()
+                                .map { (portId, unpackedData) in
+                                    var unpackedData = unpackedData
+                                    unpackedData.canvasItem?.position = updateCanvasPosition(
+                                        .layerInput(.init(node: createdNode.id,
+                                                          keyPath: .init(layerInput: inputDefinition, portType: .unpacked(.init(rawValue: portId)!))))
+                                        )
+                                    return unpackedData
+                                }
+                        }
+                        
+                        layerNodeEntity[keyPath: inputDefinition.schemaPortKeyPath] = portData
+                    }
+                    
+                    createdNode.nodeTypeEntity = .layer(layerNodeEntity)
+                
+                case .group(var canvasEntity):
+                    canvasEntity.position = updateCanvasPosition(
+                        .node(createdNode.id)
+                    )
+                    
+                    createdNode.nodeTypeEntity = .group(canvasEntity)
+                
+                case .component(var component):
+                    component.canvasEntity.position = updateCanvasPosition(
+                        .node(createdNode.id)
+                    )
+                    
+                    createdNode.nodeTypeEntity = .component(component)
+                }
+                
+                return createdNode
             }
         }
+        
+        return updatedNodes
     }
 }
-
-

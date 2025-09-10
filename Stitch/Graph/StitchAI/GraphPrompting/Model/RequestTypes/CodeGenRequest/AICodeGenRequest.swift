@@ -141,7 +141,6 @@ extension StitchAICodeCreator {
                     Task(priority: .high) {
                         await actionsResult
                             .applyAIGraph(to: document,
-                                          viewStatePatchConnections: actionsResult.graphData .viewStatePatchConnections,
                                           requestType: Self.type)
                     }
                     

@@ -1657,6 +1657,24 @@ extension LayerInputEntity {
         }
     }
     
+    func getCanvasIds(nodeId: UUID,
+                      layerInputPort: LayerInputPort) -> [CanvasItemId] {
+        switch self.mode {
+        case .packed:
+            if let canvas = self.packedData.canvasItem {
+                return [.layerInput(.init(node: nodeId,
+                                          keyPath: .init(layerInput: layerInputPort,
+                                                         portType: .packed)))]
+            }
+            
+            return []
+        case .unpacked:
+            return self.unpackedData.compactMap {
+                $0.canvasItem
+            }
+        }
+    }
+    
     var inputConnections: [NodeConnectionType] {
         switch self.mode {
         case .packed:

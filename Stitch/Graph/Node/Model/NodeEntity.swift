@@ -47,6 +47,23 @@ extension NodeEntity {
         }
     }
     
+    @MainActor
+    var canvasIds: [CanvasItemId] {
+        switch self.nodeTypeEntity {
+        case .patch(let patch):
+            return [.node(patch.id)]
+        case .layer(let layer):
+            return layer.layer.layerGraphNode.inputDefinitions.flatMap {
+                layer[keyPath: $0.schemaPortKeyPath].getCanvasIds(nodeId: self.id,
+                                                                  layerInputPort: $0)
+            }
+        case .group(let canvas):
+            return [.node(self.id)]
+        case .component:
+            return []
+        }
+    }
+    
     /// Helper for mutating all canvas entities under some node.
     @MainActor
     func canvasEntityMap(_ callback: @escaping (CanvasNodeEntity) -> CanvasNodeEntity) -> NodeEntity {

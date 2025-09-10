@@ -13,10 +13,10 @@ enum AIGraphData_V0 {
     
     struct GraphData: Codable {
         let layer_data_list: [LayerData]
-        let patch_data: PatchData
+        let patchNodes: [NodeEntity]
 
         // Maps upstream patch output coordinate to some new created @State var name
-        let viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]
+        let viewStatePatchConnections: [String : NodeIOCoordinate]
     }
     
     struct GraphDataSchema: Encodable {

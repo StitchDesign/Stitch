@@ -93,7 +93,6 @@ extension StitchDocumentViewModel {
 extension SwiftSyntaxActionsResult {
     @MainActor
     mutating func applyAIGraph(to document: StitchDocumentViewModel,
-                               viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate],
                                requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) async {
         switch requestType {
         case .userPrompt:
@@ -116,140 +115,140 @@ extension SwiftSyntaxActionsResult {
         
         // Track node ID map to create new IDs, fixing ID reusage issue
         // Make sure currently used IDs are tracked so we don't create redundant nodes
-        var idMap = graph.nodes.keys.reduce(into: [String : UUID]()) { result, nodeId in
-            result.updateValue(nodeId, forKey: nodeId.description)
-        }
+//        var idMap = graph.nodes.keys.reduce(into: [String : UUID]()) { result, nodeId in
+//            result.updateValue(nodeId, forKey: nodeId.description)
+//        }
         
         // Tracks all patch input coordinates we either make connections or custom vaues for, used for determining if extra rows need to be created
-        let allModifiedPatchIds = self.graphData.patch_data.custom_patch_input_values.map(\.patch_input_coordinate) + self.graphData.patch_data.patch_connections.map(\.dest_port)
-        let allModifiedPatchIdsSet = Set(allModifiedPatchIds)
-//        assertInDebug(allModifiedPatchIdsSet.count == allModifiedPatchIds.count)
+//        let allModifiedPatchIds = self.graphData.patch_data.custom_patch_input_values.map(\.patch_input_coordinate) + self.graphData.patch_data.patch_connections.map(\.dest_port)
+//        let allModifiedPatchIdsSet = Set(allModifiedPatchIds)
+////        assertInDebug(allModifiedPatchIdsSet.count == allModifiedPatchIds.count)
+//        
+//        let maxModifiedPortIndex: [String : Int] = allModifiedPatchIdsSet.reduce(into: .init()) { result, patchInputId in
+//            let nodeId = patchInputId.node_id
+//            let existingMaxCount = result.get(nodeId) ?? -1
+//            result.updateValue(max(patchInputId.port_index + 1, existingMaxCount),
+//                               forKey: nodeId)
+//        }
+//        
+//        // new js patches
+//        for newPatch in self.graphData.patch_data.javascript_patches {
+//            let newId = idMap.get(newPatch.node_id) ?? UUID()
+//            idMap.updateValue(newId, forKey: newPatch.node_id)
+//            idMap.updateValue(newId, forKey: newId.description)
+//            
+//            let newNode = graph.nodes.get(newId) ?? graph
+//                .createNode(graphTime: .zero,
+//                            newNodeId: newId,
+//                            highestZIndex: highestZIndex,
+//                            choice: .patch(.javascript),
+//                            center: graphCenter)
+//            
+//            graph.visibleNodesViewModel.nodes.updateValue(newNode, forKey: newId)
+//            
+//            // Initialize delegates for later helpers (like edges)
+//            newNode.initializeDelegate(graph: graph,
+//                                       document: document)
+//            
+//            if let patchNode = newNode.patchNode {
+//                // Get AI info
+//                let jsNodeRequest = AIJSNodeSettingsFromScritptRequest(existingScript: newPatch.sourceCode)
+//                
+//                do {
+//                    let jsSettings = try await jsNodeRequest
+//                        .request(document: document,
+//                                 aiManager: aiManager)
+//                    
+//                    patchNode.processNewJavascript(response: jsSettings,
+//                                                   document: document)
+//                } catch let error as SwiftUISyntaxError {
+//                    caughtErrors.append(error)
+//                } catch {
+//                    fatalErrorIfDebug(error.localizedDescription)
+//                }
+//                
+//                // Check here
+//                assertInDebug(patchNode.javaScriptNodeSettings != nil)
+//            }
+//        }
+//        
+//        // new native patches
+//        for newPatch in self.graphData.patch_data.native_patches {
+//            let oldId = newPatch.node_id
+//            let newId = idMap.get(oldId) ?? UUID()
+//            idMap.updateValue(newId, forKey: oldId)
+//            idMap.updateValue(newId, forKey: newId.description)
+//            
+//            guard let migratedNodeName = try? newPatch.node_name.value.convert(to: PatchOrLayer.self) else {
+//                fatalErrorIfDebug("createAIGraph error: could not migrate patch name of \(newPatch.node_name.value)")
+//                continue
+//            }
+//            
+//            let existingPatchNode = graph.nodes.get(newId)
+//            let needsNewNodeCreation = existingPatchNode?.patch != migratedNodeName.patch
+//            let newNode: NodeViewModel
+//            
+//            if needsNewNodeCreation {
+//                newNode = graph.nodes.get(newId) ?? graph
+//                    .createNode(graphTime: .zero,
+//                                newNodeId: newId,
+//                                highestZIndex: highestZIndex,
+//                                choice: migratedNodeName,
+//                                center: graphCenter)
+//                
+//                graph.visibleNodesViewModel.nodes.updateValue(newNode, forKey: newId)
+//                
+//                // Initialize delegates for later helpers (like edges)
+//                newNode.initializeDelegate(graph: graph,
+//                                           document: document)
+//            }
+//        }
         
-        let maxModifiedPortIndex: [String : Int] = allModifiedPatchIdsSet.reduce(into: .init()) { result, patchInputId in
-            let nodeId = patchInputId.node_id
-            let existingMaxCount = result.get(nodeId) ?? -1
-            result.updateValue(max(patchInputId.port_index + 1, existingMaxCount),
-                               forKey: nodeId)
-        }
-        
-        // new js patches
-        for newPatch in self.graphData.patch_data.javascript_patches {
-            let newId = idMap.get(newPatch.node_id) ?? UUID()
-            idMap.updateValue(newId, forKey: newPatch.node_id)
-            idMap.updateValue(newId, forKey: newId.description)
-            
-            let newNode = graph.nodes.get(newId) ?? graph
-                .createNode(graphTime: .zero,
-                            newNodeId: newId,
-                            highestZIndex: highestZIndex,
-                            choice: .patch(.javascript),
-                            center: graphCenter)
-            
-            graph.visibleNodesViewModel.nodes.updateValue(newNode, forKey: newId)
-            
-            // Initialize delegates for later helpers (like edges)
-            newNode.initializeDelegate(graph: graph,
-                                       document: document)
-            
-            if let patchNode = newNode.patchNode {
-                // Get AI info
-                let jsNodeRequest = AIJSNodeSettingsFromScritptRequest(existingScript: newPatch.sourceCode)
-                
-                do {
-                    let jsSettings = try await jsNodeRequest
-                        .request(document: document,
-                                 aiManager: aiManager)
-                    
-                    patchNode.processNewJavascript(response: jsSettings,
-                                                   document: document)
-                } catch let error as SwiftUISyntaxError {
-                    caughtErrors.append(error)
-                } catch {
-                    fatalErrorIfDebug(error.localizedDescription)
-                }
-                
-                // Check here
-                assertInDebug(patchNode.javaScriptNodeSettings != nil)
-            }
-        }
-        
-        // new native patches
-        for newPatch in self.graphData.patch_data.native_patches {
-            let oldId = newPatch.node_id
-            let newId = idMap.get(oldId) ?? UUID()
-            idMap.updateValue(newId, forKey: oldId)
-            idMap.updateValue(newId, forKey: newId.description)
-            
-            guard let migratedNodeName = try? newPatch.node_name.value.convert(to: PatchOrLayer.self) else {
-                fatalErrorIfDebug("createAIGraph error: could not migrate patch name of \(newPatch.node_name.value)")
-                continue
-            }
-            
-            let existingPatchNode = graph.nodes.get(newId)
-            let needsNewNodeCreation = existingPatchNode?.patch != migratedNodeName.patch
-            let newNode: NodeViewModel
-            
-            if needsNewNodeCreation {
-                newNode = graph.nodes.get(newId) ?? graph
-                    .createNode(graphTime: .zero,
-                                newNodeId: newId,
-                                highestZIndex: highestZIndex,
-                                choice: migratedNodeName,
-                                center: graphCenter)
-                
-                graph.visibleNodesViewModel.nodes.updateValue(newNode, forKey: newId)
-                
-                // Initialize delegates for later helpers (like edges)
-                newNode.initializeDelegate(graph: graph,
-                                           document: document)
-            }
-        }
-        
-        // Set input values for new nodes
-        for (oldId, newId) in idMap {
-            guard let newNode = graph.nodes.get(newId) else {
-                fatalErrorIfDebug()
-                continue
-            }
-            
-            // Set custom value type here
-            if let customValueType = self.graphData.patch_data.native_patch_value_type_settings.first(where: { $0.node_id == oldId })?.value_type,
-               let oldType = newNode.userVisibleType {
-                guard let newType = try? customValueType.value.migrate() else {
-                    fatalErrorIfDebug("createAIGraph error: could not migrate value type of \(customValueType.value)")
-                    continue
-                }
-                
-                let _ = document.graph.changeType(for: newNode,
-                                                  oldType: oldType,
-                                                  newType: newType,
-                                                  activeIndex: document.activeIndex,
-                                                  graphTime: document.graphStepState.graphTime)
-            }
-            
-            // MARK: BEFORE creating edges/inputs, determine if new patch nodes need extra inputs
-            if let patchNode = newNode.patchNodeViewModel {
-                let supportsNewInputs = patchNode.patch.canChangeInputCounts
-                if let maxModifiedInputIndex = maxModifiedPortIndex.get(oldId) {
-                    let missingRowCount = maxModifiedInputIndex - patchNode.inputsObservers.count
-                    
-                    if missingRowCount > 0 {
-                        guard supportsNewInputs else {
-                            caughtErrors.append(
-                                SwiftUISyntaxError.unexpectedPatchInputRowCount(patchNode.patch)
-                            )
-                            
-                            continue
-                        }
-                        
-                        for _ in (0..<missingRowCount) {
-                            newNode.addInputObserver(graph: document.graph,
-                                                     document: document)
-                        }
-                    }
-                }                
-            }
-        }
+//        // Set input values for new nodes
+//        for (oldId, newId) in idMap {
+//            guard let newNode = graph.nodes.get(newId) else {
+//                fatalErrorIfDebug()
+//                continue
+//            }
+//            
+//            // Set custom value type here
+//            if let customValueType = self.graphData.patch_data.native_patch_value_type_settings.first(where: { $0.node_id == oldId })?.value_type,
+//               let oldType = newNode.userVisibleType {
+//                guard let newType = try? customValueType.value.migrate() else {
+//                    fatalErrorIfDebug("createAIGraph error: could not migrate value type of \(customValueType.value)")
+//                    continue
+//                }
+//                
+//                let _ = document.graph.changeType(for: newNode,
+//                                                  oldType: oldType,
+//                                                  newType: newType,
+//                                                  activeIndex: document.activeIndex,
+//                                                  graphTime: document.graphStepState.graphTime)
+//            }
+//            
+//            // MARK: BEFORE creating edges/inputs, determine if new patch nodes need extra inputs
+//            if let patchNode = newNode.patchNodeViewModel {
+//                let supportsNewInputs = patchNode.patch.canChangeInputCounts
+//                if let maxModifiedInputIndex = maxModifiedPortIndex.get(oldId) {
+//                    let missingRowCount = maxModifiedInputIndex - patchNode.inputsObservers.count
+//                    
+//                    if missingRowCount > 0 {
+//                        guard supportsNewInputs else {
+//                            caughtErrors.append(
+//                                SwiftUISyntaxError.unexpectedPatchInputRowCount(patchNode.patch)
+//                            )
+//                            
+//                            continue
+//                        }
+//                        
+//                        for _ in (0..<missingRowCount) {
+//                            newNode.addInputObserver(graph: document.graph,
+//                                                     document: document)
+//                        }
+//                    }
+//                }                
+//            }
+//        }
         
         // create nested layer nodes in graph
         for newLayer in self.graphData.layer_data_list {
@@ -282,21 +281,21 @@ extension SwiftSyntaxActionsResult {
         graph.layersSidebarViewModel.update(from: newSidebarData)
         
         // new constants for patches
-        for newInputValueSetting in self.graphData.patch_data.custom_patch_input_values {
-            do {
-                let inputCoordinate = try NodeIOCoordinate(
-                    from: newInputValueSetting.patch_input_coordinate,
-                    idMap: idMap)
-                try document.updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
-                                                          valueType: newInputValueSetting.value_type.value,
-                                                          data: newInputValueSetting.value,
-                                                          idMap: &idMap)
-            } catch let error as SwiftUISyntaxError {
-                caughtErrors.append(error)
-            } catch {
-                fatalErrorIfDebug(error.localizedDescription)
-            }
-        }
+//        for newInputValueSetting in self.graphData.patch_data.custom_patch_input_values {
+//            do {
+//                let inputCoordinate = try NodeIOCoordinate(
+//                    from: newInputValueSetting.patch_input_coordinate,
+//                    idMap: idMap)
+//                try document.updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
+//                                                          valueType: newInputValueSetting.value_type.value,
+//                                                          data: newInputValueSetting.value,
+//                                                          idMap: &idMap)
+//            } catch let error as SwiftUISyntaxError {
+//                caughtErrors.append(error)
+//            } catch {
+//                fatalErrorIfDebug(error.localizedDescription)
+//            }
+//        }
         
         // new state for layers
         self.graphData.layer_data_list.allNestedCustomInputValues { layerNodeId, newInputValueSetting in
@@ -317,18 +316,17 @@ extension SwiftSyntaxActionsResult {
                 case .stateRef(let varName):
                     // Get upstream patch data from variable name
                     guard let upstreamPatchCoordinate = self.graphData.viewStatePatchConnections
-                        .get(varName),
-                          let upstreamNodeId = idMap.get(upstreamPatchCoordinate.node_id) else {
+                        .get(varName) else {
                         //                    fatalErrorIfDebug()
                         return
                     }
                     
                     let newEdgeData = PortEdgeData(from: .init(portId: upstreamPatchCoordinate.port_index,
-                                                               nodeId: upstreamNodeId),
+                                                               nodeId: upstreamPatchCoordinate.nodeId),
                                                    to: inputCoordinate)
                     
                     // create canvas node
-                    guard let node = graph.getNode(upstreamNodeId),
+                    guard let node = graph.getNode(upstreamPatchCoordinate.nodeId),
                           let fromNodeLocation = node.nonLayerCanvasItem?.position,
                           let destinationNode = document.visibleGraph.getNode(inputCoordinate.nodeId),
                           let layerInputType = inputCoordinate.keyPath else {
@@ -354,38 +352,38 @@ extension SwiftSyntaxActionsResult {
         }
         
         // new edges to downstream patches
-        for newPatchEdge in self.graphData.patch_data.patch_connections {
-            do {
-                let inputPort = try NodeIOCoordinate(
-                    from: newPatchEdge.dest_port,
-                    idMap: idMap)
-                let outputPort = try NodeIOCoordinate(
-                    from: newPatchEdge.src_port,
-                    idMap: idMap)
-                let edge: PortEdgeData = PortEdgeData(
-                    from: outputPort,
-                    to: inputPort)
-                
-                let _ = document.visibleGraph.addEdgeWithoutGraphRecalc(edge: edge)
-            } catch let error as SwiftUISyntaxError {
-                caughtErrors.append(error)
-            } catch {
-                fatalErrorIfDebug(error.localizedDescription)
-            }
-        }
+//        for newPatchEdge in self.graphData.patch_data.patch_connections {
+//            do {
+//                let inputPort = try NodeIOCoordinate(
+//                    from: newPatchEdge.dest_port,
+//                    idMap: idMap)
+//                let outputPort = try NodeIOCoordinate(
+//                    from: newPatchEdge.src_port,
+//                    idMap: idMap)
+//                let edge: PortEdgeData = PortEdgeData(
+//                    from: outputPort,
+//                    to: inputPort)
+//                
+//                let _ = document.visibleGraph.addEdgeWithoutGraphRecalc(edge: edge)
+//            } catch let error as SwiftUISyntaxError {
+//                caughtErrors.append(error)
+//            } catch {
+//                fatalErrorIfDebug(error.localizedDescription)
+//            }
+//        }
         
         // Delete unused nodes
-        let allNewIds = self.graphData.patch_data.javascript_patches.map(\.node_id) +
-        self.graphData.patch_data.native_patches.map(\.node_id) +
-        self.graphData.layer_data_list.allFlattenedItems.map(\.node_id)
-        
-        let allNewMappedIds = allNewIds.compactMap { idMap.get($0) }
-        let nodeIdsToDelete = Set(document.visibleGraph.nodes.keys).subtracting(allNewMappedIds)
-
-        for nodeIdToDelete in nodeIdsToDelete {
-            document.visibleGraph.deleteNode(id: nodeIdToDelete,
-                                             document: document)
-        }
+//        let allNewIds = self.graphData.patch_data.javascript_patches.map(\.node_id) +
+//        self.graphData.patch_data.native_patches.map(\.node_id) +
+//        self.graphData.layer_data_list.allFlattenedItems.map(\.node_id)
+//        
+//        let allNewMappedIds = allNewIds.compactMap { idMap.get($0) }
+//        let nodeIdsToDelete = Set(document.visibleGraph.nodes.keys).subtracting(allNewMappedIds)
+//
+//        for nodeIdToDelete in nodeIdsToDelete {
+//            document.visibleGraph.deleteNode(id: nodeIdToDelete,
+//                                             document: document)
+//        }
         
         // Can't build the depth map from the `patch_data`,
         // since those UUIDs have not been remapped yet
