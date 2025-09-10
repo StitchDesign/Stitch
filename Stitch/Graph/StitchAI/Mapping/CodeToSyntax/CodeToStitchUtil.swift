@@ -11,6 +11,23 @@ import SwiftSyntaxBuilder
 import SwiftUI
 
 extension SwiftUIViewVisitor {
+    /// Check if a type name represents a SwiftUI view
+    static func isSwiftUIViewType(_ typeName: String) -> Bool {
+        let swiftUIViews = [
+            "VStack", "HStack", "ZStack", "LazyVStack", "LazyHStack",
+            "ScrollView", "List", "NavigationView", "NavigationStack",
+            "TabView", "Group", "Section", "Form", "GeometryReader"
+        ]
+        return swiftUIViews.contains(typeName)
+    }
+    
+    /// Parse child views from a closure expression
+    static func parseViewsFromClosure(_ closure: ClosureExprSyntax) -> [SyntaxView] {
+        let visitor = SwiftUIViewVisitor(willParseView: true)
+        visitor.walk(closure)
+        return visitor.viewStack
+    }
+    
     // Parse arguments from function call
     static func parseArguments(from node: FunctionCallExprSyntax) throws -> ViewConstructorType {
         // Default handling for other modifiers
@@ -67,8 +84,23 @@ extension SwiftUIViewVisitor {
                                     eventModifiers: modifierClosures))
         }
         
+        // Check if this is a SwiftUI view with a trailing closure (like VStack, HStack, etc.)
+        let typeName = funcExpr.calledExpression.trimmedDescription
+        if isSwiftUIViewType(typeName), let trailingClosure = funcExpr.trailingClosure {
+            // This is a SwiftUI view with children - parse it as a proper view hierarchy
+            let childViews = parseViewsFromClosure(trailingClosure)
+            let syntaxView = SyntaxView(
+                name: typeName,
+                constructorArguments: complexTypeArgs.isEmpty ? nil : .other(complexTypeArgs),
+                modifiers: [],
+                children: childViews,
+                id: UUID()
+            )
+            return .view(syntaxView)
+        }
+        
         let complexType = SyntaxViewModifierComplexType(
-            typeName: funcExpr.calledExpression.trimmedDescription,
+            typeName: typeName,
             arguments: complexTypeArgs)
         
         return .complex(complexType)

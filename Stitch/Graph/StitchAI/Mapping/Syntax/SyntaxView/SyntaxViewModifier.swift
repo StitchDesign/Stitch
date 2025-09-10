@@ -41,11 +41,11 @@ extension Array where Element == SyntaxViewModifier {
                 return [SyntaxView]()
             }
             
-            // Extract complex type arguments that represent views
+            // Extract view arguments from both complex types (old parsing) and view cases (new parsing)
             return args.compactMap { arg -> SyntaxView? in
                 switch arg.value {
                 case .complex(let complexType):
-                    // Convert complex type argument to SyntaxView
+                    // Handle old parsing that created complex types
                     return SyntaxView(
                         name: complexType.typeName,
                         constructorArguments: complexType.arguments.isEmpty ? nil : .other(complexType.arguments),
@@ -53,6 +53,9 @@ extension Array where Element == SyntaxViewModifier {
                         children: [],
                         id: UUID()
                     )
+                case .view(let syntaxView):
+                    // Handle new parsing that correctly creates view arguments
+                    return syntaxView
                 default:
                     return nil
                 }
@@ -68,11 +71,11 @@ extension Array where Element == SyntaxViewModifier {
                 return [SyntaxView]()
             }
             
-            // Extract complex type arguments that represent views
+            // Extract view arguments from both complex types (old parsing) and view cases (new parsing)
             return args.compactMap { arg -> SyntaxView? in
                 switch arg.value {
                 case .complex(let complexType):
-                    // Convert complex type argument to SyntaxView
+                    // Handle old parsing that created complex types
                     return SyntaxView(
                         name: complexType.typeName,
                         constructorArguments: complexType.arguments.isEmpty ? nil : .other(complexType.arguments),
@@ -80,6 +83,9 @@ extension Array where Element == SyntaxViewModifier {
                         children: [],
                         id: UUID()
                     )
+                case .view(let syntaxView):
+                    // Handle new parsing that correctly creates view arguments
+                    return syntaxView
                 default:
                     return nil
                 }
@@ -155,6 +161,9 @@ indirect enum SyntaxViewModifierArgumentType: Sendable {
     case closure(SyntaxViewModifierClosureData)
     
     case viewEvent(SyntaxViewModifierViewEvent)
+    
+    // SwiftUI view with proper hierarchy (e.g. VStack with children in modifier argument)
+    case view(SyntaxView)
 }
 
 // Non-recursive sub-enum of `SyntaxViewModifierArgumentType` for when we are working in contexts where we have already flattened the nested argument-types like `tuple` and `array`
@@ -165,6 +174,7 @@ enum SyntaxViewModifierArgumentFlatType: Sendable {
     case memberAccess(MemberAccessExprSyntax)
     case closure(SyntaxViewModifierClosureData)
     case viewEvent(SyntaxViewModifierViewEvent)
+    case view(SyntaxView)
     
     var toSyntaxViewModifierArgumentType: SyntaxViewModifierArgumentType {
         switch self {
@@ -180,6 +190,8 @@ enum SyntaxViewModifierArgumentFlatType: Sendable {
             return .closure(x)
         case .viewEvent(let x):
             return .viewEvent(x)
+        case .view(let x):
+            return .view(x)
         }
     }
 }
@@ -204,6 +216,8 @@ extension SyntaxViewModifierArgumentType {
             return [.closure(code)]
         case .viewEvent(let x):
             return []
+        case .view(let x):
+            return [.view(x)]
         }
     }
 }
@@ -525,6 +539,8 @@ extension SyntaxViewModifierArgumentType {
         case .viewEvent:
             fatalError()
 //            return AnyEncodable(x)
+        case .view(_):
+            fatalError()
         }
     }
 }
