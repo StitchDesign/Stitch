@@ -205,6 +205,18 @@ extension LayerInputObserver {
 }
 
 
+extension LayerInputPort {
+    var usesGridArrangementForMultifields: Bool {
+        switch self {
+        case .layerMargin, .layerPadding:
+            return true
+        case .position, .size, .scale, .anchoring, .opacity, .zIndex, .masks, .color, .rotationX, .rotationY, .rotationZ, .lineColor, .lineWidth, .blur, .blendMode, .brightness, .colorInvert, .contrast, .hueRotation, .saturation, .pivot, .enabled, .blurRadius, .backgroundColor, .isClipped, .orientation, .padding, .setupMode, .isAnimating, .cameraDirection, .isCameraEnabled, .isShadowsEnabled, .transform3D, .anchorEntity, .isEntityAnimating, .translation3DEnabled, .rotation3DEnabled, .scale3DEnabled, .size3D, .radius3D, .height3D, .shape, .strokePosition, .strokeWidth, .strokeColor, .strokeStart, .strokeEnd, .strokeLineCap, .strokeLineJoin, .coordinateSystem, .cornerRadius, .isMetallic, .canvasLineColor, .canvasLineWidth, .text, .placeholderText, .fontSize, .textAlignment, .verticalAlignment, .textDecoration, .textFont, .beginEditing, .endEditing, .setText, .textToSet, .isSecureEntry, .isSpellCheckEnabled, .keyboardType, .image, .video, .model3D, .fitStyle, .clipped, .progressIndicatorStyle, .progress, .mapType, .mapLatLong, .mapSpan, .isSwitchToggled, .startColor, .endColor, .startAnchor, .endAnchor, .centerAnchor, .startAngle, .endAngle, .startRadius, .endRadius, .shadowColor, .shadowOpacity, .shadowRadius, .shadowOffset, .sfSymbol, .videoURL, .volume, .spacingBetweenGridColumns, .spacingBetweenGridRows, .itemAlignmentWithinGridCell, .sizingScenario, .widthAxis, .heightAxis, .contentMode, .minSize, .maxSize, .spacing, .isPinned, .pinTo, .pinAnchor, .pinOffset, .offsetInGroup, .layerGroupAlignment, .materialThickness, .deviceAppearance, .scrollContentSize, .isScrollAuto, .scrollXEnabled, .scrollJumpToXStyle, .scrollJumpToX, .scrollJumpToXLocation, .scrollYEnabled, .scrollJumpToYStyle, .scrollJumpToY, .scrollJumpToYLocation:
+            return false
+            
+        }
+    }
+}
+
 extension LayerInputObserver {
     
     // "Does this layer input use multifield fields?"
@@ -222,7 +234,7 @@ extension LayerInputObserver {
     // Currently, spacing
     @MainActor
     func usesGridMultifieldArrangement() -> Bool {
-        self.port.getDefaultValue(for: self.layer).getPadding.isDefined
+        self.port.usesGridArrangementForMultifields
     }
     
     // The overall-label for the port, e.g. "Size" (not "W" or "H") for the size property
