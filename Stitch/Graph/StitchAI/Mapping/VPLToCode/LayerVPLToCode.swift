@@ -468,6 +468,8 @@ extension LayerNodeEntity {
                 let dragBindings = viewEvents.map { viewEvent in
                     // TODO: unpack support
                     
+                    // TODO: But actually!!
+                    
                     guard let gestureProp = viewEvent.gestureArg else {
                         fatalErrorIfDebug()
                         return ""

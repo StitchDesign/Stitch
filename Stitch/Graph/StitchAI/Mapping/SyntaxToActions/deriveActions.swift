@@ -689,7 +689,7 @@ extension Patch {
                            ports: [NodePortInputEntity]? = nil,
                            groupNodeId: UUID?,
                            nodesDict: [UUID: NodeEntity]) -> NodeEntity {
-        var nodeType: NodeType?
+        var nodeType: NodeType? = self.graphNode?.defaultUserVisibleType
         let portEntities: [NodePortInputEntity]
         
         let canvasEntity = CanvasNodeEntity(position: .zero,
