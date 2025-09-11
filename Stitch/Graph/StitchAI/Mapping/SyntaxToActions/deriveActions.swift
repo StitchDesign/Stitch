@@ -932,9 +932,30 @@ extension SwiftPatchCodeType {
                 return []
             }
         
-            // Return an upstream connection
         case .subscriptType(let subscriptCodeType, let portIndex):
-            return []
+            // Return an upstream connection
+            switch subscriptCodeType {
+            case .expression(let expr):
+                guard let upstreamCoordinate = try varNameToCode
+                    .getUpstreamPatchPortConnectionType(
+                        expr: expr,
+                        portIndex: portIndex,
+                        existingStateVarConnections: existingStateVarConnections,
+                        nodesDict: nodesDict).upstreamConnection else {
+                    fatalErrorIfDebug()
+                    return []
+                }
+                
+                return [
+                    .upstreamCoordinate(
+                        upstreamCoordinate)
+                ]
+                
+            default:
+                fatalErrorIfDebug()
+                return []
+            }
+            
 //            switch subscriptCodeType {
 //            case .expression(let expr):
 //                switch expr {
