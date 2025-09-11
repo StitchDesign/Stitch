@@ -38,6 +38,10 @@ extension MappingExamples {
         BackgroundCodeExamples.complexBackgroundWithModifiers,
         BackgroundCodeExamples.nestedBackground,
         
+        // New background examples with modifiers - testing the fix for view modifier parsing
+        BackgroundCodeExamples.backgroundTextWithForegroundColor,
+        BackgroundCodeExamples.backgroundVStackWithModifiers,
+        
         // Overlay examples - testing overlay to ZStack transformation
         OverlayCodeExamples.simpleOverlayFunctionCall,
         OverlayCodeExamples.simpleOverlayClosure,
@@ -45,6 +49,13 @@ extension MappingExamples {
         OverlayCodeExamples.vstackOverlay,
         OverlayCodeExamples.complexOverlayWithModifiers,
         OverlayCodeExamples.nestedOverlay,
+        
+        // New overlay examples with modifiers - testing the fix for view modifier parsing
+        OverlayCodeExamples.overlayTextWithForegroundColor,
+        OverlayCodeExamples.overlayVStackWithModifiers,
+        OverlayCodeExamples.overlayTextWithPortValueDescription,
+        OverlayCodeExamples.overlayWithFrameModifier,
+        OverlayCodeExamples.overlayWithClosureSyntax,
                 
         // OLDER
         ViewModifierCodeExamples.colorInitInFillModifier,
