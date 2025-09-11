@@ -355,6 +355,9 @@ extension SwiftParserInitializerType {
             case .patchNodeRef(let patchNodeRef):
                 return .expression(.ref(patchNodeRef))
                 
+            case .declrRef:
+                return try mutationData.getSwiftPatchCodeType()
+                
             case .arraySyntax(let arraySyntax):
                 guard arraySyntax.elements.count == 1,
                       let firstElem = arraySyntax.elements.first else {
@@ -433,8 +436,11 @@ extension SwiftParserInitializerType {
             
         case .viewBuilder(let script):
             return .viewBuilderScript(script)
+            
+        case .declrRef(let ref):
+            return .expression(.ref(ref))
                 
-        case .arraySyntax, .declrRef:
+        case .arraySyntax:
             return nil
         }
     }

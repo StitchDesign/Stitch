@@ -466,9 +466,7 @@ extension LayerNodeEntity {
             switch viewEventName {
             case .dragGesture:
                 let dragBindings = viewEvents.map { viewEvent in
-                    // TODO: unpack support
-                    
-                    // TODO: But actually!!
+                    // TODO: unpack support needed
                     
                     guard let gestureProp = viewEvent.gestureArg else {
                         fatalErrorIfDebug()
