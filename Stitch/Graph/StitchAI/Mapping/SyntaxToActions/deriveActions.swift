@@ -488,6 +488,36 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
             } else if let upstreamStateVarCoordinate = existingStateVarConnections.get(ref) {
                 // Connection to some interaction patch node
                 return .upstreamConnection(upstreamStateVarCoordinate)
+            } else if let upstreamRef = self.get(ref) {
+                // Fallback explores if this ref points to another ref
+                switch upstreamRef {
+                case .expression(let expr):
+                    return try self
+                        .getUpstreamPatchPortConnectionType(
+                            expr: expr,
+                            portIndex: portIndex,
+                            existingStateVarConnections: existingStateVarConnections,
+                            nodesDict: nodesDict)
+                    
+                case .subscriptType(let subscriptType, let newPortIndex):
+                    switch subscriptType {
+                    case .expression(let subscriptExpr):
+                        return try self
+                            .getUpstreamPatchPortConnectionType(
+                                expr: subscriptExpr,
+                                portIndex: newPortIndex,
+                                existingStateVarConnections: existingStateVarConnections,
+                                nodesDict: nodesDict)
+                        
+                    default:
+                        fatalErrorIfDebug()
+                        return .values([.number(.zero)])
+                    }
+                    
+                default:
+                    fatalErrorIfDebug()
+                    return .values([.number(.zero)])
+                }
             } else {
                 fatalErrorIfDebug()
                 return .values([.number(.zero)])
