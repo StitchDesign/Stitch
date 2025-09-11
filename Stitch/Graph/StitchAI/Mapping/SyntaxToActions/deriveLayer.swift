@@ -96,7 +96,7 @@ extension PortValue {
 
 extension SyntaxViewModifier {
     @MainActor
-    func deriveViewModifierEvents(layerId: UUID) throws -> [(String, SwiftPatchCodeType)]? {
+    func deriveViewModifierEvents(layerId: UUID) throws -> [SwiftPatchViewEvent]? {
         guard self.name.isGestureModifier,
               let defaultArgs = self.arguments.defaultArgs else {
             return nil
@@ -111,12 +111,13 @@ extension SyntaxViewModifier {
             let viewEvents = defaultArgs
                 .compactMap { $0.value.viewEvent }
             
-            let interactionsResults = try viewEvents.reduce(into: [(String, SwiftPatchCodeType)]()) { result, viewEvent in
+            let interactionsResults: [SwiftPatchViewEvent] = try viewEvents
+                .compactMap { viewEvent -> SwiftPatchViewEvent? in
                 guard let actions = try viewEvent.deriveViewEventData(layerId: layerId) else {
-                    return
+                    return nil
                 }
                 
-                result += actions
+                return actions
             }
             
             return interactionsResults
@@ -131,7 +132,7 @@ extension SyntaxViewModifier {
             
             guard let closureData = closureData,
                   let viewEvent = self.name.viewEvent else {
-                return .init()
+                return nil
             }
             
             // Parse script, grab first element with state mutation
@@ -141,7 +142,12 @@ extension SyntaxViewModifier {
                 .bindingDeclarations
                 .getSwiftPatchCodeTypes()
                 
-            return actionsResult
+            return [
+                .init(viewEvent: .init(layerId: layerId,
+                                       type: viewEvent,
+                                       gestureArg: nil),
+                      codeStatements: actionsResult)
+            ]
             
             // Find first line of code with state mutation
             
@@ -361,7 +367,7 @@ extension SyntaxViewName {
         }
         
         // Handle view events like drag gestures
-        let interactionEvents = modifiers.reduce(into: [(String, SwiftPatchCodeType)]()) { result, modifier in
+        let interactionEvents = modifiers.reduce(into: [SwiftPatchViewEvent]()) { result, modifier in
             do {
                 if let actionsResult = try modifier.deriveViewModifierEvents(layerId: id) {
                     result += actionsResult

@@ -119,15 +119,34 @@ extension NodeEntity {
     
     @MainActor
     var inputs: [NodeConnectionType] {
-        switch self.nodeTypeEntity {
-        case .patch(let patch):
-            return patch.inputs.map { $0.portData }
-        case .layer(let layer):
-            return layer.layer.layerGraphNode.inputDefinitions.flatMap {
-                layer[keyPath: $0.schemaPortKeyPath].inputConnections
+        get {
+            switch self.nodeTypeEntity {
+            case .patch(let patch):
+                return patch.inputs.map { $0.portData }
+            case .layer(let layer):
+                return layer.layer.layerGraphNode.inputDefinitions.flatMap {
+                    layer[keyPath: $0.schemaPortKeyPath].inputConnections
+                }
+            case .group, .component:
+                return []
             }
-        case .group, .component:
-            return []
+        }
+        set(newValues) {
+            switch self.nodeTypeEntity {
+            case .patch(var patch):
+                patch.inputs = zip(newValues, patch.inputs).map { newValue, currentInputData in
+                    var currentInputData = currentInputData
+                    currentInputData.portData = newValue
+                    return currentInputData
+                }
+                self.nodeTypeEntity = .patch(patch)
+            
+            case .layer:
+                fatalErrorIfDebug("Unimplemented but can be done...")
+                return
+            case .group, .component:
+                return
+            }
         }
     }
 }

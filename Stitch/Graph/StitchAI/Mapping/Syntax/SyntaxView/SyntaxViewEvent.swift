@@ -10,10 +10,11 @@ import SwiftSyntax
 import SwiftParser
 import SwiftSyntaxBuilder
 
-struct SyntaxViewEvent {
+struct SyntaxViewEvent: Hashable {
     // Creates constant IDs to prevent redundant creation of nodes
+//    let pressPatchNodeId = UUID()
     let interactionPatchNodeId = UUID()
-    let unpackPositionNodeId = UUID()
+//    let unpackPositionNodeId = UUID()
     
     // Assigned layer id
     let layerId: UUID
@@ -21,7 +22,7 @@ struct SyntaxViewEvent {
     let type: SyntaxViewEventType
     
     // Expressions should only be read from patch node fn params
-    let gestureArg: String
+    let gestureArg: String?
 }
 
 enum SyntaxViewEventType: String, Sendable, Encodable {
@@ -88,19 +89,38 @@ extension Patch {
 extension SyntaxViewEvent {
     /// Determines the connections and intermediary patch nodes to be created between an interaction patch node and some state.
     @MainActor
-    func createConnectedPatchData(gestureArg: MemberAccessExprSyntax,
+    func createConnectedPatchData(gestureArg: MemberAccessExprSyntax?,
                                   groupNodeId: UUID?,
+                                  varName: String,
                                   nodesDict: [UUID: NodeEntity]) -> [PatchSyntaxResultType] {
+        let assignedLayerPortValue = PortValue
+            .assignedLayer(.init(self.layerId))
+        
         switch self.type {
         case .dragGesture:
+            guard let gestureArg = gestureArg else {
+                fatalErrorIfDebug()
+                return []
+            }
+            
+            
             // Packed case: arg == "translation" or "position"
             if gestureArg.trimmedDescription == "translation" || gestureArg.trimmedDescription == "position" {
+                var dragNode = Patch.dragInteraction
+                    .defaultNodeEntity(nodeId: deterministicUUID(from: varName),
+                                       groupNodeId: groupNodeId,
+                                       nodesDict: nodesDict)
+                dragNode.inputs[0] = .values([assignedLayerPortValue])
+
                 // position = 0th port, translation = 2nd port
                 let outputPortIndex = gestureArg.trimmedDescription == "position" ? 0 : 2
                 
-                return [.upstreamCoordinate(
+                return [
+                    .node(dragNode),
+                    .upstreamCoordinate(
                     NodeIOCoordinate(portId: outputPortIndex,
-                                     nodeId: self.interactionPatchNodeId))]
+                                     nodeId: self.interactionPatchNodeId))
+                ]
             }
             
             // Unpacked case: need to see the suffix value (i.e. x or y)
@@ -114,9 +134,18 @@ extension SyntaxViewEvent {
                 return []
             }
             
+            var dragNode = Patch.dragInteraction
+                .defaultNodeEntity(nodeId: self.interactionPatchNodeId,
+                                   groupNodeId: groupNodeId,
+                                   nodesDict: nodesDict)
+            
+            dragNode.inputs[0] = .values([assignedLayerPortValue])
+            
             let suffixValue = gestureArg.declName.trimmedDescription
             let outputPortIndex = prefixValue == "position" ? 0 : 2
-            let unpackNodeId = self.unpackPositionNodeId
+            
+            // Most downstream reference used for node ID
+            let unpackNodeId = deterministicUUID(from: varName)
             
             if suffixValue == "x" || suffixValue == "width" {
                 let unpackPositionNode = Patch.unpack
@@ -126,10 +155,11 @@ extension SyntaxViewEvent {
                 
                 let connection = PortEdgeData(
                     from: .init(portId: outputPortIndex,
-                                nodeId: interactionPatchNodeId),
+                                nodeId: self.interactionPatchNodeId),
                     to: .init(portId: 0, nodeId: unpackPositionNode.id))
                 
-                return [.node(unpackPositionNode),
+                return [.node(dragNode),
+                        .node(unpackPositionNode),
                         .connection(connection),
                         .upstreamCoordinate(.init(portId: 0,
                                                   nodeId: unpackPositionNode.id)) ]
@@ -144,7 +174,8 @@ extension SyntaxViewEvent {
                                 nodeId: interactionPatchNodeId),
                     to: .init(portId: 0, nodeId: unpackPositionNode.id))
                 
-                return [.node(unpackPositionNode),
+                return [.node(dragNode),
+                        .node(unpackPositionNode),
                         .connection(connection),
                         .upstreamCoordinate(.init(portId: 1,
                                                   nodeId: unpackPositionNode.id)) ]
@@ -153,10 +184,17 @@ extension SyntaxViewEvent {
             return []
             
         case .tapGesture:
+            let pressNodeId = deterministicUUID(from: varName)
+            let pressNode = Patch.pressInteraction
+                .defaultNodeEntity(nodeId: pressNodeId,
+                                   groupNodeId: groupNodeId,
+                                   nodesDict: nodesDict)
+            
             // Assume 0 until we handle cases with position
             return [
+                .node(pressNode),
                 .upstreamCoordinate(.init(portId: 0,
-                                          nodeId: self.interactionPatchNodeId))
+                                          nodeId: pressNodeId))
             ]
         }
     }
@@ -188,7 +226,7 @@ extension SyntaxViewEvent {
 
 extension SyntaxViewModifierViewEvent {
     @MainActor
-    func deriveViewEventData(layerId: UUID) throws -> [(String, SwiftPatchCodeType)]? {
+    func deriveViewEventData(layerId: UUID) throws -> SwiftPatchViewEvent? {
         // Check for onChange handlers
         guard let viewName = SyntaxViewEventType(rawValue: self.eventName),
               let onChangeHandler = self.eventModifiers.get("onChanged") else {
@@ -201,18 +239,16 @@ extension SyntaxViewModifierViewEvent {
         
         var actionsResult: [(String, SwiftPatchCodeType)] = []
         
-        // Prepend gesture parameter to code list if used
-        if let param = onChangeHandler.paramVars.first {
-            let eventData = SyntaxViewEvent(layerId: layerId,
-                                            type: viewName,
-                                            gestureArg: param)
-            actionsResult.append((param, .expression(.viewEventArg(eventData))))
-        }
+        let param = onChangeHandler.paramVars.first
+        let eventData = SyntaxViewEvent(layerId: layerId,
+                                        type: viewName,
+                                        gestureArg: param)
         
         actionsResult += try parsedData.bindingDeclarations
             .getSwiftPatchCodeTypes()
         
-        return actionsResult
+        return .init(viewEvent: eventData,
+                     codeStatements: actionsResult)
 //        let events = try parsedData.bindingDeclarations.compactMap { keyValue -> LayerDataViewEvent? in
 //            let (refName, assignmentValue) = keyValue
             

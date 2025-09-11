@@ -33,11 +33,10 @@ struct StitchAIProjectViewer: View {
     func validateJSON() {        
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
         
-        
         // Apply AI result to fake document
         Task(priority: .high) {
             // Syntax → Actions
-            let stitchActionsResult = await codeParserResult.deriveStitchActions(
+            let stitchActionsResult = try await codeParserResult.deriveStitchActions(
                 bindingDeclarations: codeParserResult.bindingDeclarations,
                 document: document)
     

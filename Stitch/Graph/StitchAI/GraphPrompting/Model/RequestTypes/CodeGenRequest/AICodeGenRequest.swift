@@ -182,7 +182,7 @@ extension StitchAICodeCreator {
         
         logToServerIfRelease("StitchAICodeCreator codeParserResult:\n\(codeParserResult)")
         
-        let actionsResult = await codeParserResult.deriveStitchActions(
+        let actionsResult = try await codeParserResult.deriveStitchActions(
             bindingDeclarations: codeParserResult.bindingDeclarations,
             document: document)
         

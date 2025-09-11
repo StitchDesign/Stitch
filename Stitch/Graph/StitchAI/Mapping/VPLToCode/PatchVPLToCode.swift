@@ -19,7 +19,7 @@ extension GraphState {
         
         let patchNodeDeclarations = patchData.patchNodeDeclarations
         
-        let flattenedLayerData = aiGraph.layer_data_list.allFlattenedItems
+//        let flattenedLayerData = aiGraph.layer_data_list.allFlattenedItems
         let layerViewEventsMap = aiGraph.layer_data_list.getAllViewEventsMap()
 //        let layerViewEvents = layerViewEventsMap.values
         
@@ -38,9 +38,17 @@ extension GraphState {
         let patchStateVars = Array(aiGraph.viewStatePatchConnections.keys)
         
         // Interaction data updated from gesture callbacks
-        let interactionStateVars = Array(layerViewEventsMap.values)
-            .flatMap { $0 }
-            .map { $0.0 }
+        let layerViewEvents: [[SwiftPatchViewEvent]] = Array(layerViewEventsMap.values)
+        let flattenedLayerViewEvents = layerViewEvents.flatMap { $0 }
+        let interactionStateVars = flattenedLayerViewEvents
+            .map {
+                guard let mutatedVar = $0.codeStatements.first?.0 else {
+                    fatalErrorIfDebug()
+                    return ""
+                }
+                
+                return mutatedVar
+            }
         
         let allStateVarNames = Set(patchStateVars + interactionStateVars)
         let stateVarDeclarations = allStateVarNames.map { stateVarName in

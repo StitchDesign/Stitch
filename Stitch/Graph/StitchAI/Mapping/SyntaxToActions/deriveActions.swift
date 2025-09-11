@@ -31,27 +31,23 @@ struct SwiftSyntaxPatchActionsResult: Encodable {
 }
 
 extension SwiftSyntaxPatchActionsResult {
-//    init() {
-//        self.init(actions: .init(javascript_patches: [],
-//                                 native_patches: [],
-//                                 native_patch_value_type_settings: [],
-//                                 patch_connections: [],
-//                                 custom_patch_input_values: []),
-//                  viewStatePatchConnections: .init(),
-//                  caughtErrors: [])
-//    }
+    init() {
+        self.init(nodes: [],
+                  stateVarConnections: .init(),
+                  caughtErrors: [])
+    }
     
-//    static func + (lhs: Self, rhs: Self) -> Self {
-//        var lhs = lhs
-//        lhs.actions += rhs.actions
-//        lhs.viewStatePatchConnections.merge(rhs.viewStatePatchConnections, uniquingKeysWith: { $1 })
-//        lhs.caughtErrors += rhs.caughtErrors
-//        return lhs
-//    }
-//    
-//    static func += (lhs: inout Self, rhs: Self) {
-//        lhs = lhs + rhs
-//    }
+    static func + (lhs: Self, rhs: Self) -> Self {
+        var lhs = lhs
+        lhs.nodes += rhs.nodes
+        lhs.stateVarConnections.merge(rhs.stateVarConnections, uniquingKeysWith: { $1 })
+        lhs.caughtErrors += rhs.caughtErrors
+        return lhs
+    }
+    
+    static func += (lhs: inout Self, rhs: Self) {
+        lhs = lhs + rhs
+    }
 }
 
 extension AIGraphData_V0.PatchData {
@@ -79,18 +75,20 @@ struct SwiftSyntaxActionsResult: Encodable {
 extension SwiftUIViewParserResult {
     @MainActor
     func deriveStitchActions(bindingDeclarations: [(String, SwiftParserInitializerType)],
-                             document: StitchDocumentViewModel) async -> SwiftSyntaxActionsResult {
+                             document: StitchDocumentViewModel) async throws -> SwiftSyntaxActionsResult {
         // Extract layer data
         let layerResults = self.viewStack.deriveStitchActions(bindingDeclarations: bindingDeclarations)
         
         let interactionsPatchActionResult = layerResults.actions.getPatchResultsFromViewEvents()
+        
+        let patchCodeStatements = try SwiftPatchClosureType.swiftPatchLogic(self.bindingDeclarations.getSwiftPatchCodeTypes())
 
         // Prepend view event data for code from `updateLayerInputs`
-        let allPatchCode = try! interactionsPatchActionResult + self.bindingDeclarations.getSwiftPatchCodeTypes()
+        let allPatchCode: [SwiftPatchClosureType] = interactionsPatchActionResult.map { .viewEvent($0) } + [patchCodeStatements]
         
-        let debugPatchStrings = allPatchCode.map { "\($0)" }
-            .joined(separator: "\n")
-        print("PATCH DATA:\n\(debugPatchStrings)")
+//        let debugPatchStrings = allPatchCode.map { "\($0)" }
+//            .joined(separator: "\n")
+//        print("PATCH DATA:\n\(debugPatchStrings)")
         
         let patchResult = await allPatchCode.derivePatchNodes(document: document)
         
@@ -122,8 +120,8 @@ extension Array where Element == SyntaxView {
 }
 
 extension Array where Element == AIGraphData_V0.LayerData {
-    func getPatchResultsFromViewEvents() -> [(String, SwiftPatchCodeType)] {
-        self.reduce(into: [(String, SwiftPatchCodeType)]()) { result, layerData in
+    func getPatchResultsFromViewEvents() -> [SwiftPatchViewEvent] {
+        self.reduce(into: [SwiftPatchViewEvent]()) { result, layerData in
             if let actionsResult = layerData.view_events {
                 result += actionsResult
             }
@@ -198,7 +196,7 @@ extension Array where Element == AIGraphData_V0.LayerData {
     /// Recursively gathers all view event data
     /// * key = layer id
     /// * value = view event data
-    func getAllViewEventsMap(into dict: [UUID: [(String, SwiftPatchCodeType)]]? = nil) -> [UUID: [(String, SwiftPatchCodeType)]] {
+    func getAllViewEventsMap(into dict: [UUID: [SwiftPatchViewEvent]]? = nil) -> [UUID: [SwiftPatchViewEvent]] {
         self.reduce(into: dict ?? .init()) { result, layerData in
             if let id = UUID(layerData.node_id),
                let viewEvents = layerData.view_events {
@@ -260,8 +258,14 @@ extension Array where Element == AIGraphData_V0.LayerData {
 
 // Closures expected in patch Swift code
 enum SwiftPatchClosureType {
-    case swiftPatchLogic([String: SwiftPatchCodeType])
-    case jsNodeDeclaration(AIGraphData_V0.PreprocessedJSPatchNode)
+    case swiftPatchLogic([(String, SwiftPatchCodeType)])
+//    case jsNodeDeclaration(AIGraphData_V0.PreprocessedJSPatchNode)
+    case viewEvent(SwiftPatchViewEvent)
+}
+
+struct SwiftPatchViewEvent {
+    let viewEvent: SyntaxViewEvent
+    let codeStatements: [(String, SwiftPatchCodeType)]
 }
 
 indirect enum SwiftPatchCodeType {
@@ -277,7 +281,6 @@ enum SwiftPatchCodeExpression {
     case patchNodeInit(SwiftPatchNodeCode)
     case portValuesInit([SyntaxViewModifierArgumentType])
     case ref(String)
-    case viewEventArg(SyntaxViewEvent)
     case jsRef(SwiftJsNodeCode)
 //    case jsNodeDeclaration(AIGraphData_V0.PreprocessedJSPatchNode)
 }
@@ -480,18 +483,6 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
 //            return .upstreamConnection(.init(portId: portIndex,
 //                                             nodeId: patchNodeData.nodeId))
             
-        case .viewEventArg(let viewEvent):
-            // Port index should be provided based on the view event
-            guard let portIndex = portIndex else {
-                fatalErrorIfDebug()
-                return .values([.number(.zero)])
-            }
-            
-            fatalError("come back here, read the expression and use `createConnectedPatchData` for determining unpacked scenarios")
-            
-//            return .upstreamConnection(.init(portId: portIndex,
-//                                             nodeId: viewEvent.nodeId))
-            
         case .jsRef(let jsNode):
             fatalErrorIfDebug("Not expected here")
             return .values([.number(.zero)])
@@ -593,17 +584,13 @@ extension SwiftPatchCodeType {
             return nil
         }
     }
-    
+}
+
+extension SwiftPatchClosureType {
     var viewEvent: SyntaxViewEvent? {
         switch self {
-        case .expression(let expr):
-            switch expr {
-            case .viewEventArg(let viewEvent):
-                return viewEvent
-                
-            default:
-                return nil
-            }
+        case .viewEvent(let viewEvent):
+            return viewEvent.viewEvent
             
         default:
             return nil
@@ -753,6 +740,7 @@ extension SwiftPatchCodeType {
     func derivePatchData(document: StitchDocumentViewModel,
                          varName: String,
                          varNameToCode: [String: SwiftPatchCodeType],
+                         viewEvent: SyntaxViewEvent?,
                          nodesDict: [UUID: NodeEntity]) async throws -> [PatchSyntaxResultType] {
         let currentGroupContext = document.groupNodeFocused?.groupNodeId
         
@@ -782,27 +770,8 @@ extension SwiftPatchCodeType {
                 return try await refCode.derivePatchData(document: document,
                                                          varName: varName,
                                                          varNameToCode: varNameToCode,
+                                                         viewEvent: viewEvent,
                                                          nodesDict: nodesDict)
-            
-            case .viewEventArg(let viewEventData):
-                let patch = viewEventData.type.patch
-                
-                // Start with default node
-                var nodeEntity = patch.defaultNode(id: viewEventData.interactionPatchNodeId,
-                                                          position: .zero,
-                                                          zIndex: .zero,
-                                                          graphDelegate: document.graph)
-                    .createSchema()
-                
-                guard var patchNodeEntity = nodeEntity.nodeTypeEntity.patchNodeEntity else {
-                    fatalErrorIfDebug()
-                    return []
-                }
-                
-                patchNodeEntity.inputs[0].portData = .values([.assignedLayer(.init(viewEventData.layerId))])
-                nodeEntity.nodeTypeEntity = .patch(patchNodeEntity)
-                
-                return [.node(nodeEntity)]
             
             case .jsRef(let jsData):
                 let jsNodeId = deterministicUUID(from: varName)
@@ -844,25 +813,46 @@ extension SwiftPatchCodeType {
                 return [.node(node)]
             
             case .portValuesInit(let args):
+                // Check for PortValueDescription
+                guard let firstArg = args.first else {
+                    fatalErrorIfDebug()
+                    return []
+                }
+                
+                
                 // Check for member syntax for view event arg, like `g.translation.width`
                 // Interaction nodes are already created with the parameter created from a view event, so this logic is here to determine specific connections and if unpack nodes should be made
-                guard let memberAccess = args.first?.memberAccess else {
-                    return []
+                if let memberAccess = args.first?.memberAccess {
+                    guard let viewEvent = viewEvent else {
+                        return []
+                    }
+                    
+                    // Drop the argument portion of the argument
+                    let trimmedMemberAccess = memberAccess.dropInnermostBase()
+                    
+                    return viewEvent
+                        .createConnectedPatchData(gestureArg: trimmedMemberAccess,
+                                                  groupNodeId: currentGroupContext,
+                                                  varName: varName,
+                                                  nodesDict: nodesDict)
                 }
                 
-                let baseString = memberAccess.mostNestedBaseName
-                
-                guard let viewEvent = varNameToCode.get(baseString)?.viewEvent else {
-                    return []
+                // Check for tap case
+                else if firstArg.stateAccess == "STITCH_GRAPH_TIME" {
+                    guard let viewEvent = viewEvent else {
+                        return []
+                    }
+                    
+                    let result = viewEvent
+                        .createConnectedPatchData(gestureArg: nil,
+                                                  groupNodeId: currentGroupContext,
+                                                  varName: varName,
+                                                  nodesDict: nodesDict)
+                    return result
                 }
                 
-                // Drop the argument portion of the argument
-                let trimmedMemberAccess = memberAccess.dropInnermostBase()
-                
-                return viewEvent
-                    .createConnectedPatchData(gestureArg: trimmedMemberAccess,
-                                              groupNodeId: currentGroupContext,
-                                              nodesDict: nodesDict)
+                fatalErrorIfDebug()
+                return []
             }
         
             // Return an upstream connection
@@ -907,9 +897,61 @@ extension Array where Element == (String, SwiftParserInitializerType) {
     }
 }
 
-extension Array where Element == (String, SwiftPatchCodeType) {
+extension Array where Element == SwiftPatchClosureType {
     @MainActor
     func derivePatchNodes(document: StitchDocumentViewModel) async -> SwiftSyntaxPatchActionsResult {
+        var result = SwiftSyntaxPatchActionsResult(nodes: [],
+                                                    stateVarConnections: [:],
+                                                    caughtErrors: [])
+        
+        for closureType in self {
+            switch closureType {
+            case .swiftPatchLogic(let codeStatements):
+                let patchResult = await codeStatements
+                    .derivePatchNodes(document: document,
+                                      viewEvent: nil)
+                result += patchResult
+            
+            case .viewEvent(let swiftPatchViewEvent):
+                // Create node for view event
+                let viewEventData = swiftPatchViewEvent.viewEvent
+//                let patch = viewEventData.type.patch
+//                
+//                // Start with default node
+//                var nodeEntity = patch.defaultNode(id: viewEventData.interactionPatchNodeId,
+//                                                          position: .zero,
+//                                                          zIndex: .zero,
+//                                                          graphDelegate: document.graph)
+//                    .createSchema()
+//                
+//                guard var patchNodeEntity = nodeEntity.nodeTypeEntity.patchNodeEntity else {
+//                    fatalErrorIfDebug()
+//                    continue
+//                }
+//                
+//                patchNodeEntity.inputs[0].portData = .values([.assignedLayer(.init(viewEventData.layerId))])
+//                nodeEntity.nodeTypeEntity = .patch(patchNodeEntity)
+                
+                // Get data from closure actions
+                let closureActionsResult = await swiftPatchViewEvent
+                    .codeStatements
+                    .derivePatchNodes(document: document,
+                                      viewEvent: viewEventData)
+                
+//                closureActionsResult.nodes = [nodeEntity] + closureActionsResult.nodes
+
+                result += closureActionsResult
+            }
+        }
+        
+        return result
+    }
+}
+
+extension Array where Element == (String, SwiftPatchCodeType) {
+    @MainActor
+    func derivePatchNodes(document: StitchDocumentViewModel,
+                          viewEvent: SyntaxViewEvent?) async -> SwiftSyntaxPatchActionsResult {
         // Create dictionary of self
         let varNameToCode = self.reduce(into: [String: SwiftPatchCodeType]()) { result, data in
             result.updateValue(data.1, forKey: data.0)
@@ -929,6 +971,7 @@ extension Array where Element == (String, SwiftPatchCodeType) {
                 let events = try await code.derivePatchData(document: document,
                                                             varName: varName,
                                                             varNameToCode: varNameToCode,
+                                                            viewEvent: viewEvent,
                                                             nodesDict: nodesDict)
                 
                 for event in events {

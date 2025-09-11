@@ -18,7 +18,7 @@ extension LayerNodeEntity {
     func createSwiftUIViewBuilderCode(children: [LayerNodeEntity],
                                       orderedLayerEntities: [LayerNodeEntity],
                                       varIdNameMap: [NodeIOCoordinate: String],
-                                      layerViewEventMap: [UUID: [(String, SwiftPatchCodeType)]]) throws -> String? {
+                                      layerViewEventMap: [UUID: [SwiftPatchViewEvent]]) throws -> String? {
         switch self.layer {
             
             // ───────── Shapes (no-arg) ─────────
@@ -111,7 +111,7 @@ extension LayerNodeEntity {
     func createNestedGroupSwiftUICode(children: [LayerNodeEntity],
                                       orderedLayerEntities: [LayerNodeEntity],
                                       varIdNameMap: [NodeIOCoordinate: String],
-                                      layerViewEventMap: [UUID: [(String, SwiftPatchCodeType)]]) throws -> String? {
+                                      layerViewEventMap: [UUID: [SwiftPatchViewEvent]]) throws -> String? {
         assertInDebug(self.layer == .group)
         
         let childrenContents = try children
@@ -190,7 +190,7 @@ extension LayerNodeEntity {
     func createLazyVGridCode(children: [LayerNodeEntity],
                              orderedLayerEntities: [LayerNodeEntity],
                              varIdNameMap: [NodeIOCoordinate: String],
-                             layerViewEventMap: [UUID: [(String, SwiftPatchCodeType)]]) throws -> String? {
+                             layerViewEventMap: [UUID: [SwiftPatchViewEvent]]) throws -> String? {
         assertInDebug(self.layer == .group)
         
         let childrenContents = try children
@@ -238,7 +238,7 @@ extension LayerNodeEntity {
     @MainActor
     func createSwiftUICode(orderedLayerEntities: [LayerNodeEntity],
                            varIdNameMap: [NodeIOCoordinate: String],
-                           layerViewEventMap: [UUID: [(String, SwiftPatchCodeType)]]) throws -> String? {
+                           layerViewEventMap: [UUID: [SwiftPatchViewEvent]]) throws -> String? {
         let childrenLayerEntities = orderedLayerEntities.filter {
             $0.layerGroupId == self.id
         }
@@ -303,7 +303,7 @@ extension Array where Element == LayerNodeEntity {
     @MainActor
     func createSwiftUICode(orderedLayerEntities: [LayerNodeEntity],
                            varIdNameMap: [NodeIOCoordinate: String],
-                           layerViewEventMap: [UUID: [(String, SwiftPatchCodeType)]]) throws -> String {
+                           layerViewEventMap: [UUID: [SwiftPatchViewEvent]]) throws -> String {
         var droppedLayers: [LayerNodeEntity] = []
         
         let strings = try self.compactMap { layerEntity -> String? in
@@ -441,7 +441,7 @@ extension LayerNodeEntity {
     }
     
     /// Creates view modifier callbacks for gesture data.
-    func getSwiftUIGestureViewModifierStrings(layerViewEventMap: [UUID: [(String, SwiftPatchCodeType)]]) -> [String] {
+    func getSwiftUIGestureViewModifierStrings(layerViewEventMap: [UUID: [SwiftPatchViewEvent]]) -> [String] {
         // Organize gesture data by each syntax type
         let gestureDataHere = layerViewEventMap.reduce(into: [SyntaxViewEventType : [LayerDataViewEvent]]()) { result, mapData in
             let (layerId, viewEvents) = mapData
@@ -449,13 +449,15 @@ extension LayerNodeEntity {
             guard layerId == self.id else { return }
             
             viewEvents.forEach { viewEvent in
-                if let viewEventData = viewEvent.1.viewEvent {
-                    var layerDataList = result.get(viewEventData.type) ?? []
-                    layerDataList.append(.init(viewEvent: viewEventData,
-                                               gestureArg: viewEventData.gestureArg,
-                                               mutatedStateVar: viewEvent.0))
-                    result.updateValue(layerDataList, forKey: viewEventData.type)
-                }
+                let viewEventData = viewEvent.viewEvent
+                var layerDataList = result.get(viewEventData.type) ?? []
+                
+                // change the "put someting here"
+                fatalError()
+                layerDataList.append(.init(viewEvent: viewEventData,
+                                           gestureArg: viewEventData.gestureArg,
+                                           mutatedStateVar: "PUT SOMETHING HERE"))
+                result.updateValue(layerDataList, forKey: viewEventData.type)
             }
         }
         

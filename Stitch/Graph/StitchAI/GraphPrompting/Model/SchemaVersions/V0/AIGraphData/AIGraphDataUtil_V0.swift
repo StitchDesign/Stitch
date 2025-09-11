@@ -310,11 +310,13 @@ extension AIGraphData_V0.LayerData {
         }
         
         // Determine view events
-        let viewEvents: [(String, SwiftPatchCodeType)] = patchToLayerAssignmentMap.flatMap { interactionToLayer -> [(String, SwiftPatchCodeType)] in
+        let viewEvents: [SwiftPatchViewEvent] = patchToLayerAssignmentMap.flatMap { interactionToLayer -> [SwiftPatchViewEvent] in
             let (patchInteractionId, layerId) = interactionToLayer
             
             // Ensure that interactions are only for this layer
-            guard layerId == sidebarData.id else { return [] }
+            guard layerId == sidebarData.id else {
+                return []
+            }
             
             let outputPortIdsUsedFromInteraction = upstreamConnectionToInteraction.values
                 .compactMap { upstreamInteractionCoordinate -> Int? in
@@ -351,11 +353,10 @@ extension AIGraphData_V0.LayerData {
                     }
                     
                     // MARK: definitely misisng arg info
-                    return (stateVarName, .expression(.viewEventArg(
-                        .init(layerId: layerData.id,
-                              type: viewEventName,
-                              gestureArg: "g"))
-                    ))
+                    return .init(viewEvent: .init(layerId: layerData.id,
+                                                  type: viewEventName,
+                                                  gestureArg: "g"),
+                                 codeStatements: [(stateVarName, .expression(.ref("dummy expr")))])
                     
 //                    return .init(viewEvent: .init(layerId: layerData.id,
 //                                                  type: viewEventName,

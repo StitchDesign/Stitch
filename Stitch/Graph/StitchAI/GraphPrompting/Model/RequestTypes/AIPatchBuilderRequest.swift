@@ -29,7 +29,7 @@ extension StitchDocumentViewModel {
     func createLayerNodeFromAI(newLayer: CurrentAIGraphData.LayerData,
                                existingGraph: GraphState,
                                idMap: inout [String : UUID]) throws {
-        let newId = idMap.get(newLayer.node_id) ?? UUID()
+        let newId = idMap.get(newLayer.node_id) ?? UUID(newLayer.node_id) ?? UUID()
         idMap.updateValue(newId, forKey: newLayer.node_id)
         idMap.updateValue(newId, forKey: newId.description)
         let graph = self.visibleGraph

@@ -259,7 +259,7 @@ struct ASTExplorerView: View {
         // Apply AI result to fake document
         Task(priority: .high) {
             // Syntax → Actions
-            var stitchActionsResult = await codeParserResult.deriveStitchActions(
+            var stitchActionsResult = try await codeParserResult.deriveStitchActions(
                 bindingDeclarations: codeParserResult.bindingDeclarations,
                 document: fakeDoc)
             
