@@ -257,10 +257,10 @@ func makeClaudeStreamingRequest(
                         accumulatedThinking += thinkingText
                         allThinkingSteps.append(thinkingText)
                         
-                        // Update UI with thinking progress (just show raw content, no prefix)
+                        // Update UI with latest thinking sentence instead of raw content
                         await MainActor.run {
-                            document.streamingReasoningText = accumulatedThinking
-                            // log("📱 UI updated with thinking text, total length: \(accumulatedThinking.count)")
+                            document.streamingReasoningText = getLatestThinkingSentence(from: accumulatedThinking)
+                            // log("📱 UI updated with latest sentence: \(document.streamingReasoningText)")
                         }
                     } else if let text = delta["text"] as? String {
                         // This is regular text content
@@ -336,6 +336,39 @@ func makeClaudeStreamingRequest(
         log("Claude request failed: \(error)")
         throw error
     }
+}
+
+/// Extracts the most recent complete sentence from thinking content
+private func getLatestThinkingSentence(from thinking: String) -> String {
+    // Split by newlines and get lines with meaningful content
+    let lines = thinking.components(separatedBy: .newlines)
+        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        .filter { !$0.isEmpty && $0.count > 10 } // Filter out very short lines
+    
+    // Look for the most recent line that looks like a complete sentence
+    for line in lines.reversed() {
+        // Check if it ends with sentence-ending punctuation or looks complete
+        if line.hasSuffix(".") || line.hasSuffix("!") || line.hasSuffix("?") || 
+           line.contains(":") || line.count > 30 {
+            // Truncate if too long for display
+            let maxLength = 80
+            if line.count > maxLength {
+                return String(line.prefix(maxLength)) + "..."
+            }
+            return line
+        }
+    }
+    
+    // Fallback: get the most recent non-empty line
+    if let lastLine = lines.last {
+        let maxLength = 80
+        if lastLine.count > maxLength {
+            return String(lastLine.prefix(maxLength)) + "..."
+        }
+        return lastLine
+    }
+    
+    return "🤔 Thinking..."
 }
 
 /// Parse Claude API error response to extract detailed error information
