@@ -396,7 +396,8 @@ extension SyntaxView {
             guard let initializer = bindingDeclarations.get(self.name),
                   let viewBuilderFn = initializer.viewBuilderScript else {
                 silentErrors.append(SwiftUISyntaxError.unsupportedSyntaxViewName(self.name))
-                fatalErrorIfDebug()
+//                fatalErrorIfDebug()
+                log("Could not derive?")
                 return nil
             }
             
