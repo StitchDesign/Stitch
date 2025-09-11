@@ -452,11 +452,12 @@ extension LayerNodeEntity {
                 let viewEventData = viewEvent.viewEvent
                 var layerDataList = result.get(viewEventData.type) ?? []
                 
-                // change the "put someting here"
-                fatalError()
+                // Assuming that our code gen only makes 1 statement, allowing us to assum a state var mutation
+                assertInDebug(viewEvent.codeStatements.count == 1)
+                
                 layerDataList.append(.init(viewEvent: viewEventData,
                                            gestureArg: viewEventData.gestureArg,
-                                           mutatedStateVar: "PUT SOMETHING HERE"))
+                                           mutatedStateVar: viewEvent.codeStatements.first?.0 ?? ""))
                 result.updateValue(layerDataList, forKey: viewEventData.type)
             }
         }
@@ -483,10 +484,12 @@ extension LayerNodeEntity {
                     """
             case .tapGesture:
                 // Tap gesture closure is constant so no need to iterate over the full list
-                    
+                assertInDebug(viewEvents.first != nil)
+                let mutatedStateVar = viewEvents.first?.mutatedStateVar ?? "rectPulse"
+                
                 return """
                     .onTapGesture {
-                        rectPulse = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
+                        \(mutatedStateVar) = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
                     }
                     """
             }
