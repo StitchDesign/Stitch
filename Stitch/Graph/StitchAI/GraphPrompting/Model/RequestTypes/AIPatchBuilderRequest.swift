@@ -396,9 +396,8 @@ extension SwiftSyntaxActionsResult {
         graphEntity.nodes = repositionedNodes
         
         // Update topological data--needs to be forced here because of script building using this data
-        
-        // TODO: explore here?
         document.graph.update(from: graphEntity)
+        document.graph.updateGraphData(document)
         
         // Report errors
         caughtErrors.displayErrors(document: document)
