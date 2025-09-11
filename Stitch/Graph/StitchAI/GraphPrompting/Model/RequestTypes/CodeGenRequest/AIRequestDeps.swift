@@ -50,17 +50,24 @@ struct AIRequestDeps: StitchAICodeCreator {
             source_code: swiftUICodeOfGraph,
             user_prompt: userPrompt)
         
-        // Prepare parameters for both providers
-        let openAIModel = document.openaiModel.asOpenAIModel
-        let claudeModel = document.claudeModel.asClaudeModel
-        
-        let validatedVerbosity = OpenAIModelConstraints.validateVerbosity(
-            for: openAIModel,
-            requestedVerbosity: document.openaiVerbosity)
-    
-        // Debug print configuration for both providers
+        // Determine which model to use based on current provider
         let provider = AIProviderConfig.shared.currentProvider
-        log("🤖 AI Request - Provider: \(provider.displayName), OpenAI Model: \(document.openaiModel), Claude Model: \(document.claudeModel), Verbosity: \(validatedVerbosity) (requested: \(document.openaiVerbosity)), Reasoning Effort: \(document.openaiReasoningEffort)")
+        let model: AIModel = switch provider {
+        case .openAI: 
+            .openAI(document.openaiModel.asOpenAIModel)
+        case .claude: 
+            .claude(document.claudeModel.asClaudeModel)
+        }
+        
+        let validatedVerbosity = switch model {
+        case .openAI(let openAIModel):
+            OpenAIModelConstraints.validateVerbosity(for: openAIModel, requestedVerbosity: document.openaiVerbosity)
+        case .claude:
+            OpenAIVerbosity.medium // Claude doesn't use verbosity but we need to pass something
+        }
+        
+        // Debug print configuration
+        log("🤖 AI Request - Model: \(model.displayName), Verbosity: \(validatedVerbosity) (requested: \(document.openaiVerbosity)), Reasoning Effort: \(document.openaiReasoningEffort)")
         
         // Prepare request parameters
         let previewWindowPrompt = StitchAIManager.previewWindowInfoPromptGenerator(
@@ -77,8 +84,7 @@ struct AIRequestDeps: StitchAICodeCreator {
             userPrompt: userPrompt,
             base64Image: base64Image,
             openAIAPIKey: secrets.openAIAPIKey,
-            openAIModel: openAIModel,
-            claudeModel: claudeModel,
+            model: model,
             verbosity: validatedVerbosity,
             reasoningEffort: document.openaiReasoningEffort.asOpenAIReasoningEffort,
             document: document
@@ -86,7 +92,7 @@ struct AIRequestDeps: StitchAICodeCreator {
         
         let endTime = CFAbsoluteTimeGetCurrent()
         let duration = endTime - startTime
-        log("⏱️ AI Request completed in \(String(format: "%.2f", duration)) seconds using \(provider.displayName)")
+        log("⏱️ AI Request completed in \(String(format: "%.2f", duration)) seconds using \(model.displayName)")
         
         return codeEditResult
     }
