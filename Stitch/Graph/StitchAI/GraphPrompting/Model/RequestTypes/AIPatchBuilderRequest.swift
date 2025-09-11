@@ -113,6 +113,14 @@ extension SwiftSyntaxActionsResult {
         let graphCenter = document.viewPortCenter
         let highestZIndex = document.visibleGraph.highestZIndex
         
+        // Sync patch graph nodes in document before parsing layers, which may need data from there
+        var graphEntity = document.graph.createSchema()
+        graphEntity.nodes = self.graphData.patchNodes
+        
+        // Update topological data--needs to be forced here because of script building using this data
+        document.graph.update(from: graphEntity)
+        document.graph.updateGraphData(document)
+        
         // Track node ID map to create new IDs, fixing ID reusage issue
         // Make sure currently used IDs are tracked so we don't create redundant nodes
         var idMap = graph.nodes.keys.reduce(into: [String : UUID]()) { result, nodeId in
@@ -385,18 +393,18 @@ extension SwiftSyntaxActionsResult {
 //                                             document: document)
 //        }
         
-        var graphEntity = document.graph.createSchema()
-        let allNodes = self.graphData.patchNodes + graphEntity.nodes
+        var newGraphEntity = document.graph.createSchema()
+        let allNodes = newGraphEntity.nodes
         
         // Can't build the depth map from the `patch_data`,
         // since those UUIDs have not been remapped yet
         let repositionedNodes = allNodes.positionAIGeneratedNodesDuringApply(
             viewPortCenter: document.viewPortCenter,
             graph: document.visibleGraph)
-        graphEntity.nodes = repositionedNodes
+        newGraphEntity.nodes = repositionedNodes
         
         // Update topological data--needs to be forced here because of script building using this data
-        document.graph.update(from: graphEntity)
+        document.graph.update(from: newGraphEntity)
         document.graph.updateGraphData(document)
         
         // Report errors
