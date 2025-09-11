@@ -80,4 +80,29 @@ Rectangle()
     }
 """
     )
+    
+    // New background examples with modifiers - testing the fix for Text with .foregroundColor
+    static let backgroundTextWithForegroundColor = MappingCodeExample(
+        title: "Background Text with ForegroundColor",
+        code: """
+        Ellipse()
+            .background(
+                Text("A")
+                    .foregroundColor(.blue)
+            )
+        """
+    )
+    
+    static let backgroundVStackWithModifiers = MappingCodeExample(
+        title: "Background VStack with Frame Modifier",
+        code: """
+        Ellipse()
+            .background(
+                VStack {
+                    Text("A")
+                        .foregroundColor(.blue)
+                }.frame(width: 100, height: 200)
+            )
+        """
+    )
 }

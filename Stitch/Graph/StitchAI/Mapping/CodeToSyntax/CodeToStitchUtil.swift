@@ -16,9 +16,20 @@ extension SwiftUIViewVisitor {
         let swiftUIViews = [
             "VStack", "HStack", "ZStack", "LazyVStack", "LazyHStack",
             "ScrollView", "List", "NavigationView", "NavigationStack",
-            "TabView", "Group", "Section", "Form", "GeometryReader"
+            "TabView", "Group", "Section", "Form", "GeometryReader",
+            "Text", "Image", "Button", "Rectangle", "Circle", "Ellipse"
         ]
         return swiftUIViews.contains(typeName)
+    }
+    
+    /// Check if a type name represents a SwiftUI event/gesture (not a regular view)
+    static func isViewEventType(_ typeName: String) -> Bool {
+        let eventTypes = [
+            "TapGesture", "LongPressGesture", "PanGesture", "DragGesture",
+            "MagnificationGesture", "RotationGesture", "ExclusiveGesture",
+            "SimultaneousGesture", "SequenceGesture"
+        ]
+        return eventTypes.contains(typeName)
     }
     
     /// Parse child views from a closure expression
@@ -26,6 +37,13 @@ extension SwiftUIViewVisitor {
         let visitor = SwiftUIViewVisitor(willParseView: true)
         visitor.walk(closure)
         return visitor.viewStack
+    }
+    
+    /// Parse a single view expression using the existing SwiftUIViewVisitor
+    static func parseViewFromExpression(_ funcExpr: FunctionCallExprSyntax) -> SyntaxView? {
+        let visitor = SwiftUIViewVisitor(willParseView: true)
+        visitor.walk(funcExpr)
+        return visitor.viewStack.first
     }
     
     // Parse arguments from function call
@@ -71,8 +89,10 @@ extension SwiftUIViewVisitor {
                 try Self.parseArgument(expr)
             }
         
+        // Check if this is an actual event/gesture (not a regular view)
         if let memberAccessExpr = funcExpr.calledExpression.as(MemberAccessExprSyntax.self),
-           let viewEventName = funcExpr.getViewEventName() {
+           let viewEventName = funcExpr.getViewEventName(),
+           isViewEventType(viewEventName) {
             
             var modifierClosures = [String: SyntaxViewModifierClosureData]()
             try funcExpr.reduceModifierClosureData(funcExpr: funcExpr,
@@ -82,6 +102,17 @@ extension SwiftUIViewVisitor {
             return .viewEvent(.init(eventName: viewEventName,
                                     eventConstructorArgs: complexTypeArgs,
                                     eventModifiers: modifierClosures))
+        }
+        
+        // Check if this is a regular SwiftUI view with modifiers
+        if let memberAccessExpr = funcExpr.calledExpression.as(MemberAccessExprSyntax.self),
+           let baseViewName = funcExpr.getViewEventName(),
+           isSwiftUIViewType(baseViewName) {
+            
+            // Use existing SwiftUIViewVisitor to parse the entire expression properly
+            if let syntaxView = parseViewFromExpression(funcExpr) {
+                return .view(syntaxView)
+            }
         }
         
         // Check if this is a SwiftUI view with a trailing closure (like VStack, HStack, etc.)
