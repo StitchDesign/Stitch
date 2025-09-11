@@ -185,10 +185,12 @@ extension SyntaxViewEvent {
             
         case .tapGesture:
             let pressNodeId = deterministicUUID(from: varName)
-            let pressNode = Patch.pressInteraction
+            var pressNode = Patch.pressInteraction
                 .defaultNodeEntity(nodeId: pressNodeId,
                                    groupNodeId: groupNodeId,
                                    nodesDict: nodesDict)
+            
+            pressNode.inputs[0] = .values([assignedLayerPortValue])
             
             // Assume 0 until we handle cases with position
             return [
