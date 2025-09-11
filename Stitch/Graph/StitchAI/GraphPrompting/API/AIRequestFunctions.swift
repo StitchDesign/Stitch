@@ -8,6 +8,32 @@
 import Foundation
 import SwiftUI
 
+// MARK: - Unified AI Model Enum
+
+/// Unified enum that represents both OpenAI and Claude models
+enum AIModel {
+    case openAI(OpenAIModel)
+    case claude(ClaudeModel)
+    
+    var displayName: String {
+        switch self {
+        case .openAI(let model):
+            return model.displayName
+        case .claude(let model):
+            return model.displayName
+        }
+    }
+    
+    var provider: AIProvider {
+        switch self {
+        case .openAI:
+            return .openAI
+        case .claude:
+            return .claude
+        }
+    }
+}
+
 // MARK: - Provider-agnostic AI Request Function
 
 /// Provider-agnostic orchestrator function
@@ -17,19 +43,13 @@ func makeAIRequest(
     userPrompt: String,
     base64Image: String?,
     openAIAPIKey: String,
-    openAIModel: OpenAIModel,
-    claudeModel: ClaudeModel,
+    model: AIModel,
     verbosity: OpenAIVerbosity,
     reasoningEffort: OpenAIReasoningEffort,
     document: StitchDocumentViewModel
 ) async throws -> String {
-    
-    let provider = AIProviderConfig.shared.currentProvider
-    log("🔥 DEBUG: makeAIRequest using provider: \(provider.displayName)")
-    log("makeAIRequest: Using provider: \(provider.displayName)")
-    
-    switch provider {
-    case .openAI:
+    switch model {
+    case .openAI(let openAIModel):
         return try await makeOpenAIStreamingRequest(
             userPrompt: userPrompt,
             base64Image: base64Image,
@@ -39,7 +59,7 @@ func makeAIRequest(
             reasoningEffort: reasoningEffort,
             document: document
         )
-    case .claude:
+    case .claude(let claudeModel):
         return try await makeClaudeStreamingRequest(
             previewWindowPrompt: previewWindowPrompt,
             userPrompt: userPrompt,
