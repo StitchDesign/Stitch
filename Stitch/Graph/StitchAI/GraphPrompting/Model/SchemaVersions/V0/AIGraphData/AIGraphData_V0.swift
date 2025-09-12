@@ -294,6 +294,7 @@ extension LayerPortDerivation: Encodable {
         case value
         case value_type
         case state_ref
+        case state_ref_member_access
     }
     
 //    init(from decoder: any Decoder) throws {
@@ -326,6 +327,9 @@ extension LayerPortDerivation: Encodable {
 
         case .stateRef(let refName):
             try container.encode(refName, forKey: .state_ref)
+            
+        case .stateRefInViewEvent(let memberAccess):
+            try container.encode(memberAccess.memberAccess.trimmedDescription, forKey: .state_ref_member_access)
         }
     }
 }

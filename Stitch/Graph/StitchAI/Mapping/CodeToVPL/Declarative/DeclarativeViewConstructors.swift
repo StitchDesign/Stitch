@@ -1147,6 +1147,7 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
             // Fall back to generic complex type handling
             return try handleComplexArgumentType(
                 complexType,
+                viewEvent: nil,
                 context: nil)
             .map { pv in
                 LayerPortDerivation(input: .scrollYEnabled,

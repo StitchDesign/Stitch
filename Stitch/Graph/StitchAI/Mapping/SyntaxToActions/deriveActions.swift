@@ -457,15 +457,18 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
     func getUpstreamPatchPortConnectionType(expr: SwiftPatchCodeExpression,
                                             portIndex: Int? = nil,
                                             existingStateVarConnections: [String: NodeIOCoordinate],
-                                            nodesDict: [UUID: NodeEntity]) throws -> NodeConnectionType {
+                                            nodesDict: [UUID: NodeEntity],
+                                            viewEvent: SyntaxViewEvent?) throws -> NodeConnectionType {
         switch expr {
         case .portValuesInit(let array):
+            // TODO: look here for handling args
+            
             guard let pvDescription = array.first else {
                 fatalErrorIfDebug()
                 return .values([.number(.zero)])
             }
             
-            let portValuesResults = try pvDescription.derivePortValues()
+            let portValuesResults = try pvDescription.derivePortValues(viewEvent: viewEvent)
             
             // TODO: bake in the syntax logic from port values into upstream SwiftPatchCode logic
             switch portValuesResults.first {
@@ -478,8 +481,12 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                     .getUpstreamPatchPortConnectionType(
                         expr: .ref(ref),
                         portIndex: portIndex, existingStateVarConnections: existingStateVarConnections,
-                        nodesDict: nodesDict)
+                        nodesDict: nodesDict,
+                        viewEvent: viewEvent)
                 
+            case .stateRefInViewEvent(let memberAccessData):
+                fatalError("come back here and provide member access")
+            
             case .none:
                 throw SwiftUISyntaxError.portValueDataDecodingFailure
             }
@@ -504,7 +511,8 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                             expr: expr,
                             portIndex: portIndex,
                             existingStateVarConnections: existingStateVarConnections,
-                            nodesDict: nodesDict)
+                            nodesDict: nodesDict,
+                            viewEvent: viewEvent)
                     
                 case .subscriptType(let subscriptType, let newPortIndex):
                     switch subscriptType {
@@ -514,7 +522,8 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                                 expr: subscriptExpr,
                                 portIndex: newPortIndex,
                                 existingStateVarConnections: existingStateVarConnections,
-                                nodesDict: nodesDict)
+                                nodesDict: nodesDict,
+                                viewEvent: viewEvent)
                         
                     default:
                         fatalErrorIfDebug()
@@ -528,7 +537,10 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
             } else {
                 // Return upstream connection
                 let nodeId = deterministicUUID(from: ref)
+                
+                // A node wasn't made that should have if this fails
                 assertInDebug(nodesDict.keys.contains(nodeId))
+                
                 return .upstreamConnection(.init(portId: portIndex,
                                                  nodeId: nodeId))
             }
@@ -573,7 +585,8 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
     func getUpstreamPatchPortConnectionType(varName: String,
                                             portIndex: Int? = nil,
                                             existingStateVarConnections: [String: NodeIOCoordinate],
-                                            nodesDict: [UUID: NodeEntity]) throws -> NodeConnectionType {
+                                            nodesDict: [UUID: NodeEntity],
+                                            viewEvent: SyntaxViewEvent?) throws -> NodeConnectionType {
         guard let value = self.get(varName) else {
             return .values([.number(.zero)])
         }
@@ -582,20 +595,23 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
             .getUpstreamPatchPortConnectionType(value: value,
                                                 portIndex: portIndex,
                                                 existingStateVarConnections: existingStateVarConnections,
-                                                nodesDict: nodesDict)
+                                                nodesDict: nodesDict,
+                                                viewEvent: viewEvent)
     }
         
     func getUpstreamPatchPortConnectionType(value: SwiftPatchCodeType,
                                             portIndex: Int? = nil,
                                             existingStateVarConnections: [String: NodeIOCoordinate],
-                                            nodesDict: [UUID: NodeEntity]) throws -> NodeConnectionType {
+                                            nodesDict: [UUID: NodeEntity],
+                                            viewEvent: SyntaxViewEvent?) throws -> NodeConnectionType {
         switch value {
         case .expression(let expr):
             return try self.getUpstreamPatchPortConnectionType(
                 expr: expr,
                 portIndex: portIndex,
                 existingStateVarConnections: existingStateVarConnections,
-                nodesDict: nodesDict)
+                nodesDict: nodesDict,
+                viewEvent: viewEvent)
         
         case .subscriptType(let swiftPatchCodeType, let int):
             // Nested port indices (aka a 2D access) not supported
@@ -608,7 +624,8 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                         expr: expr,
                         portIndex: int,
                         existingStateVarConnections: existingStateVarConnections,
-                        nodesDict: nodesDict)
+                        nodesDict: nodesDict,
+                        viewEvent: viewEvent)
                 
                 
             case .error(let error):
@@ -633,7 +650,8 @@ extension Array where Element == SwiftPatchCodeType {
     func createSchemaList(nodeId: UUID,
                           varNameToCode: [String: SwiftPatchCodeType],
                           existingStateVarConnections: [String: NodeIOCoordinate],
-                          nodesDict: [UUID: NodeEntity]) throws -> [NodePortInputEntity] {
+                          nodesDict: [UUID: NodeEntity],
+                          viewEvent: SyntaxViewEvent?) throws -> [NodePortInputEntity] {
         try self.enumerated()
             .map { (portIndex, portData) in
                 let coordinate = NodeIOCoordinate(
@@ -644,7 +662,8 @@ extension Array where Element == SwiftPatchCodeType {
                     .getUpstreamPatchPortConnectionType(
                         value: portData,
                         existingStateVarConnections: existingStateVarConnections,
-                        nodesDict: nodesDict)
+                        nodesDict: nodesDict,
+                        viewEvent: viewEvent)
                 
                 return .init(id: coordinate,
                              portData: _portData)
@@ -690,7 +709,8 @@ extension SwiftPatchNodeCode {
                            varNameToCode: [String: SwiftPatchCodeType],
                            groupNodeId: UUID?,
                            existingStateVarConnections: [String: NodeIOCoordinate],
-                           nodesDict: [UUID: NodeEntity]) throws -> NodeEntity {
+                           nodesDict: [UUID: NodeEntity],
+                           viewEvent: SyntaxViewEvent?) throws -> NodeEntity {
         let nodeId = deterministicUUID(from: varName)
         
         let portEntities: [NodePortInputEntity] = try self
@@ -698,7 +718,8 @@ extension SwiftPatchNodeCode {
             .createSchemaList(nodeId: nodeId,
                               varNameToCode: varNameToCode,
                               existingStateVarConnections: existingStateVarConnections,
-                              nodesDict: nodesDict)
+                              nodesDict: nodesDict,
+                              viewEvent: viewEvent)
         
         return self.patch.defaultNodeEntity(nodeId: nodeId,
                                             ports: portEntities,
@@ -840,7 +861,8 @@ extension SwiftPatchCodeType {
                                        varNameToCode: varNameToCode,
                                        groupNodeId: currentGroupContext,
                                        existingStateVarConnections: existingStateVarConnections,
-                                       nodesDict: nodesDict)
+                                       nodesDict: nodesDict,
+                                       viewEvent: viewEvent)
                 return [.node(node)]
             
             case .ref(let varName):
@@ -864,7 +886,8 @@ extension SwiftPatchCodeType {
                     .createSchemaList(nodeId: jsNodeId,
                                       varNameToCode: varNameToCode,
                                       existingStateVarConnections: existingStateVarConnections,
-                                      nodesDict: nodesDict)
+                                      nodesDict: nodesDict,
+                                      viewEvent: viewEvent)
                 
                 guard let sourceCode = varNameToCode.get(jsData.fnName)?
                     .jsScript else {
@@ -950,7 +973,8 @@ extension SwiftPatchCodeType {
                         expr: expr,
                         portIndex: portIndex,
                         existingStateVarConnections: existingStateVarConnections,
-                        nodesDict: nodesDict).upstreamConnection else {
+                        nodesDict: nodesDict,
+                        viewEvent: viewEvent).upstreamConnection else {
                     fatalErrorIfDebug()
                     return []
                 }

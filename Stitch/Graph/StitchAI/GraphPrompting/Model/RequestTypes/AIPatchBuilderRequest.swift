@@ -351,6 +351,10 @@ extension SwiftSyntaxActionsResult {
                                                  position: position)
                     
                     graph.addEdgeWithoutGraphRecalc(edge: newEdgeData)
+                    
+                case .stateRefInViewEvent(let memberAccessData):
+                    // TODO: come back here
+                    fatalErrorIfDebug()
                 }
             } catch let error as SwiftUISyntaxError {
                 caughtErrors.append(error)

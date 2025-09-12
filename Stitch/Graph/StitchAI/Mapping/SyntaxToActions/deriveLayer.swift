@@ -8,6 +8,7 @@
 import Foundation
 import StitchSchemaKit
 import SwiftUI
+import SwiftSyntax
 
 struct LayerDerivationResult {
     let layerData: CurrentAIGraphData.LayerData
@@ -27,6 +28,13 @@ struct LayerPortDerivation {
 enum LayerPortDerivationType {
     case value(PortValueDescription)
     case stateRef(String)
+    case stateRefInViewEvent(ViewEventStateRefPortValue)
+}
+
+struct ViewEventStateRefPortValue {
+    let memberAccess: MemberAccessExprSyntax
+    let valueType: NodeType
+    let viewEvent: SyntaxViewEvent
 }
 
 extension LayerPortDerivationType {
@@ -34,7 +42,7 @@ extension LayerPortDerivationType {
         switch self {
         case .value(let portValueDescription):
             return portValueDescription
-        case .stateRef:
+        case .stateRef, .stateRefInViewEvent:
             return nil
         }
     }
@@ -844,6 +852,7 @@ extension SyntaxViewName {
         default:
             let values = try Self
                 .derivePortValues(from: argument,
+                                  viewEvent: nil,
                                   context: context)
             
             return values.map {
@@ -854,6 +863,7 @@ extension SyntaxViewName {
     }
 
     static func derivePortValues(from argument: SyntaxViewModifierArgumentType,
+                                 viewEvent: SyntaxViewEvent?,
                                  context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivationType] {
         
         switch argument {
@@ -861,12 +871,14 @@ extension SyntaxViewName {
         // Handles types like PortValueDescription
         case .complex(let complexType):
             return try handleComplexArgumentType(complexType,
+                                                 viewEvent: viewEvent,
                                                  context: context)
             
         case .tuple(let tupleArgs):
             // Recursively determine PortValue of each arg
             return try tupleArgs.flatMap {
                 try Self.derivePortValues(from: $0.value,
+                                          viewEvent: viewEvent,
                                           context: context)
             }
             
@@ -877,6 +889,7 @@ extension SyntaxViewName {
                 log("SyntaxViewName: derivePortValue: had array: $0: \($0)")
                 log("SyntaxViewName: derivePortValue: had array: context: \(context)")
                 return try Self.derivePortValues(from: $0,
+                                                 viewEvent: viewEvent,
                                                  context: context)
             }
             
@@ -906,7 +919,11 @@ extension SyntaxViewName {
         case .stateAccess(let varName):
             return [.stateRef(varName)]
             
-        case .memberAccess, .closure, .viewEvent:
+        case .memberAccess(let memberAccess):
+            fatalError("come back here to see if we can get value type")
+//            return [.stateRefMemberAccess(memberAccess)]
+            
+        case .closure, .viewEvent:
             throw SwiftUISyntaxError.portValueDecodingError(.portValueDecodingError(describe(argument)))
         }
     }
@@ -972,6 +989,7 @@ extension SyntaxViewName {
 }
 
 func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
+                               viewEvent: SyntaxViewEvent?,
                                context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivationType] {
     
     let complexTypeName = SyntaxValueName(rawValue: complexType.typeName)
@@ -986,16 +1004,43 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
         // Search for simple value recursively
         return try SyntaxViewName
             .derivePortValues(from: firstArg.value,
+                              viewEvent: viewEvent,
                               context: context)
         
     case .portValueDescription:
-        do {
-            let aiPortValue = try complexType.arguments.decode(CurrentAIGraphData.StitchAIPortValue.self)
-            return [.value(.init(aiPortValue.value))]
-        } catch {
-            log("PortValue decoding error: \(error)")
-            // fatalErrorIfDevDebug()
-            throw error
+        guard let firstArg = complexType.arguments.first else {
+            fatalErrorIfDebug()
+            return []
+        }
+        
+        switch firstArg.value {
+        case .simple:
+            // Only decode PortValue directly if first arg is detected as a simple type
+            do {
+                let aiPortValue = try complexType.arguments.decode(CurrentAIGraphData.StitchAIPortValue.self)
+                return [.value(.init(aiPortValue.value))]
+            } catch {
+                log("PortValue decoding error: \(error)")
+                // fatalErrorIfDevDebug()
+                throw error
+            }
+            
+        case .memberAccess(let memberAccess):
+            guard let viewEvent = viewEvent,
+                  let secondArg = complexType.arguments[safe: 1],
+                  let nodeType = NodeType(secondArg.value.simpleValue?.stripQuotes() ?? "") else {
+                fatalErrorIfDebug()
+                return []
+            }
+            
+            return [
+                .stateRefInViewEvent(.init(memberAccess: memberAccess,
+                                           valueType: nodeType,
+                                           viewEvent: viewEvent))
+            ]
+            
+        default:
+            return try firstArg.value.derivePortValues(viewEvent: viewEvent)
         }
     
     case .binding, .color:
@@ -1044,8 +1089,10 @@ enum SyntaxArgumentConstructorContext {
 }
 
 extension SyntaxViewModifierArgumentType {
-    func derivePortValues(_ context: SyntaxArgumentConstructorContext? = nil) throws -> [LayerPortDerivationType] {
+    func derivePortValues(_ context: SyntaxArgumentConstructorContext? = nil,
+                          viewEvent: SyntaxViewEvent? = nil) throws -> [LayerPortDerivationType] {
         try SyntaxViewName.derivePortValues(from: self,
+                                            viewEvent: viewEvent,
                                             context: context)
     }
 }
