@@ -681,14 +681,31 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
     }
 }
 
+// Result type for patch node declaration in Swift, which could contain nested patch data within its input variables.
+struct SwiftPatchNodeInputsResult {
+    let ports: [NodePortInputEntity]
+    
+    // Separated data that's inferred from ports, i.e. separate patch node creation
+    let otherData: [PatchSyntaxResultType]
+}
+
+//struct SwiftPatchNodeResult {
+//    let node: NodeEntity
+//    
+//    // Separated data that's inferred from ports, i.e. separate patch node creation
+//    let otherData: [PatchSyntaxResultType]
+//}
+
 extension Array where Element == SwiftPatchCodeType {
     @MainActor
     func createSchemaList(nodeId: UUID,
                           varNameToCode: [String: SwiftPatchCodeType],
                           existingStateVarConnections: [String: NodeIOCoordinate],
                           nodesDict: [UUID: NodeEntity],
-                          viewEvent: SyntaxViewEvent?) throws -> [NodePortInputEntity] {
-        try self.enumerated()
+                          viewEvent: SyntaxViewEvent?) throws -> SwiftPatchNodeInputsResult {
+        var otherData = [PatchSyntaxResultType]()
+        
+        let portData: [NodePortInputEntity] = try self.enumerated()
             .map { (portIndex, portData) in
                 let coordinate = NodeIOCoordinate(
                     portId: portIndex,
@@ -703,37 +720,42 @@ extension Array where Element == SwiftPatchCodeType {
                         nodesDict: nodesDict,
                         viewEvent: viewEvent)
                 
-                guard let connectionType = portDataResult.portData else {
+                // We always expect the relevant port data to be at the end
+                guard let lastItem = portDataResult.last,
+                      let connectionType = lastItem.portData else {
                     fatalErrorIfDebug()
                     return .init(id: coordinate,
                                  portData: .values([.number(0)]))
                 }
                 
-                assertInDebug(portDataResult.count == 1)
+                otherData += portDataResult.dropLast()
                 
                 return .init(id: coordinate,
                              portData: connectionType)
             }
+        
+        return .init(ports: portData,
+                     otherData: otherData)
     }
 }
 
-extension Array where Element == PatchSyntaxResultType {
-    var portData: NodeConnectionType? {
-        guard let firstResult = self.first else {
-            return nil
-        }
-        
-        assertInDebug(self.count == 1)
-        
-        switch firstResult {
-        case .portData(let connectionType):
-            return connectionType
-            
-        default:
-            return nil
-        }
-    }
-}
+//extension Array where Element == PatchSyntaxResultType {
+//    var portData: NodeConnectionType? {
+//        guard let firstResult = self.first else {
+//            return nil
+//        }
+//        
+//        assertInDebug(self.count == 1)
+//        
+//        switch firstResult {
+//        case .portData(let connectionType):
+//            return connectionType
+//            
+//        default:
+//            return nil
+//        }
+//    }
+//}
 
 extension SwiftPatchCodeType {
     var jsScript: String? {
@@ -766,18 +788,31 @@ enum PatchSyntaxResultType {
     case connection(PortEdgeData)
 }
 
+extension PatchSyntaxResultType {
+    var portData: NodeConnectionType? {
+        switch self {
+        case .portData(let connectionType):
+            return connectionType
+            
+        default:
+            return nil
+        }
+    }
+}
+
 // TODO: move
 extension SwiftPatchNodeCode {
     @MainActor
-    func defaultNodeEntity(varName: String,
-                           varNameToCode: [String: SwiftPatchCodeType],
-                           groupNodeId: UUID?,
-                           existingStateVarConnections: [String: NodeIOCoordinate],
-                           nodesDict: [UUID: NodeEntity],
-                           viewEvent: SyntaxViewEvent?) throws -> NodeEntity {
+    func defaultNodeEntityData(varName: String,
+                               varNameToCode: [String: SwiftPatchCodeType],
+                               groupNodeId: UUID?,
+                               existingStateVarConnections: [String: NodeIOCoordinate],
+                               nodesDict: [UUID: NodeEntity],
+                               viewEvent: SyntaxViewEvent?,
+                               jsSettings: JavaScriptNodeSettings? = nil) throws -> [PatchSyntaxResultType] {
         let nodeId = deterministicUUID(from: varName)
         
-        let portEntities: [NodePortInputEntity] = try self
+        let portData = try self
             .ports
             .createSchemaList(nodeId: nodeId,
                               varNameToCode: varNameToCode,
@@ -785,10 +820,15 @@ extension SwiftPatchNodeCode {
                               nodesDict: nodesDict,
                               viewEvent: viewEvent)
         
-        return self.patch.defaultNodeEntity(nodeId: nodeId,
-                                            ports: portEntities,
-                                            groupNodeId: groupNodeId,
-                                            nodesDict: nodesDict)
+        let node = self.patch.defaultNodeEntity(nodeId: nodeId,
+                                                ports: portData.ports,
+                                                groupNodeId: groupNodeId,
+                                                nodesDict: nodesDict,
+                                                jsSettings: jsSettings)
+        
+        var actionsList = portData.otherData
+        actionsList.append(.node(node))
+        return actionsList
     }
 }
 
@@ -854,7 +894,8 @@ extension Patch {
     func defaultNodeEntity(nodeId: UUID,
                            ports: [NodePortInputEntity]? = nil,
                            groupNodeId: UUID?,
-                           nodesDict: [UUID: NodeEntity]) -> NodeEntity {
+                           nodesDict: [UUID: NodeEntity],
+                           jsSettings: JavaScriptNodeSettings? = nil) -> NodeEntity {
         var nodeType: NodeType? = self.graphNode?.defaultUserVisibleType
         let portEntities: [NodePortInputEntity]
         
@@ -892,11 +933,11 @@ extension Patch {
             userVisibleType: nodeType,
             splitterNode: nil,
             mathExpression: nil,
-            javaScriptNodeSettings: nil)
+            javaScriptNodeSettings: jsSettings)
         
         let node = NodeEntity(id: nodeId,
                               nodeTypeEntity: .patch(patchNodeEntity),
-                              title: "")
+                              title: jsSettings?.suggestedTitle ?? "")
         return node
     }
 }
@@ -920,14 +961,14 @@ extension SwiftPatchCodeType {
         case .expression(let codeType):
             switch codeType {
             case .patchNodeInit(let patchNodeData):
-                let node = try patchNodeData
-                    .defaultNodeEntity(varName: varName,
+                let list = try patchNodeData
+                    .defaultNodeEntityData(varName: varName,
                                        varNameToCode: varNameToCode,
                                        groupNodeId: currentGroupContext,
                                        existingStateVarConnections: existingStateVarConnections,
                                        nodesDict: nodesDict,
                                        viewEvent: viewEvent)
-                return [.node(node)]
+                return list
             
             case .ref(let varName):
                 guard let refCode = varNameToCode.get(varName) else {
@@ -945,24 +986,12 @@ extension SwiftPatchCodeType {
                     nodesDict: nodesDict)
             
             case .jsRef(let jsData):
-                let jsNodeId = deterministicUUID(from: varName)
-                let portEntities: [NodePortInputEntity] = try jsData.ports
-                    .createSchemaList(nodeId: jsNodeId,
-                                      varNameToCode: varNameToCode,
-                                      existingStateVarConnections: existingStateVarConnections,
-                                      nodesDict: nodesDict,
-                                      viewEvent: viewEvent)
-                
                 guard let sourceCode = varNameToCode.get(jsData.fnName)?
                     .jsScript else {
                     fatalErrorIfDebug()
                     return []
                 }
-                
-                let canvasEntity = CanvasNodeEntity(position: .zero,
-                                                    zIndex: .zero,
-                                                    parentGroupNodeId: currentGroupContext)
-                
+
                 // Get AI info
                 let jsNodeRequest = AIJSNodeSettingsFromScritptRequest(existingScript: sourceCode)
                 
@@ -970,21 +999,17 @@ extension SwiftPatchCodeType {
                     .request(document: document,
                              aiManager: aiManager)
                 
-                let patchNodeEntity = PatchNodeEntity(
-                    id: jsNodeId,
-                    patch: .javascript,
-                    inputs: portEntities,
-                    canvasEntity: canvasEntity,
-                    userVisibleType: nil,
-                    splitterNode: nil,
-                    mathExpression: nil,
-                    javaScriptNodeSettings: jsSettings)
-                
-                let node = NodeEntity(id: jsNodeId,
-                                      nodeTypeEntity: .patch(patchNodeEntity),
-                                      title: jsSettings.suggestedTitle)
-                
-                return [.node(node)]
+                // TODO: double check empty list below
+
+                return try SwiftPatchNodeCode(patch: .javascript,
+                                              ports: [])
+                .defaultNodeEntityData(varName: varName,
+                                       varNameToCode: varNameToCode,
+                                       groupNodeId: currentGroupContext,
+                                       existingStateVarConnections: existingStateVarConnections,
+                                       nodesDict: nodesDict,
+                                       viewEvent: viewEvent,
+                                       jsSettings: jsSettings)
             
             case .portValuesInit(let args):
                 // Check for PortValueDescription
@@ -1029,7 +1054,7 @@ extension SwiftPatchCodeType {
             // Return an upstream connection
             switch subscriptCodeType {
             case .expression(let expr):
-                guard let portData = try varNameToCode
+                let result = try varNameToCode
                     .getUpstreamPatchPortConnectionData(
                         expr: expr,
                         varName: varName,
@@ -1037,16 +1062,12 @@ extension SwiftPatchCodeType {
                         existingStateVarConnections: existingStateVarConnections,
                         groupNodeId: currentGroupContext,
                         nodesDict: nodesDict,
-                        viewEvent: viewEvent).portData else {
-                    fatalErrorIfDebug()
-                    return []
-                }
+                        viewEvent: viewEvent)
                 
-                assertInDebug(portData.upstreamConnection != nil)
+                let firstResult = result.first
+                assertInDebug(firstResult?.portData?.upstreamConnection != nil)
                 
-                return [
-                    .portData(portData)
-                ]
+                return result
                 
             default:
                 fatalErrorIfDebug()
