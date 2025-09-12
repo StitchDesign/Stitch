@@ -121,9 +121,12 @@ extension PortValuesList {
             var outputsLoop = PortValues()
 
             for output in self {
-                outputsLoop.append(output[loopIndex])
+//                outputsLoop.append(output[loopIndex])
+                if let valueAtIndex = output[safe: loopIndex] {
+                    outputsLoop.append(valueAtIndex)
+                }
             }
-
+            
             valuesList.append(outputsLoop)
         }
 
