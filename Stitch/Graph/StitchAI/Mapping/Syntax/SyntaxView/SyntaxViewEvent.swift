@@ -117,9 +117,10 @@ extension SyntaxViewEvent {
                 
                 return [
                     .node(dragNode),
-                    .upstreamCoordinate(
-                    NodeIOCoordinate(portId: outputPortIndex,
-                                     nodeId: self.interactionPatchNodeId))
+                    .portData(
+                        .upstreamConnection(NodeIOCoordinate(portId: outputPortIndex,
+                                                             nodeId: self.interactionPatchNodeId))
+                    )
                 ]
             }
             
@@ -158,11 +159,15 @@ extension SyntaxViewEvent {
                                 nodeId: self.interactionPatchNodeId),
                     to: .init(portId: 0, nodeId: unpackPositionNode.id))
                 
-                return [.node(dragNode),
-                        .node(unpackPositionNode),
-                        .connection(connection),
-                        .upstreamCoordinate(.init(portId: 0,
-                                                  nodeId: unpackPositionNode.id)) ]
+                return [
+                    .node(dragNode),
+                    .node(unpackPositionNode),
+                    .connection(connection),
+                    .portData(
+                        .upstreamConnection(.init(portId: 0,
+                                                  nodeId: unpackPositionNode.id))
+                    )
+                ]
             } else if suffixValue == "y" || suffixValue == "height" {
                 let unpackPositionNode = Patch.unpack
                     .defaultNodeEntity(nodeId: unpackNodeId,
@@ -174,11 +179,15 @@ extension SyntaxViewEvent {
                                 nodeId: interactionPatchNodeId),
                     to: .init(portId: 0, nodeId: unpackPositionNode.id))
                 
-                return [.node(dragNode),
-                        .node(unpackPositionNode),
-                        .connection(connection),
-                        .upstreamCoordinate(.init(portId: 1,
-                                                  nodeId: unpackPositionNode.id)) ]
+                return [
+                    .node(dragNode),
+                    .node(unpackPositionNode),
+                    .connection(connection),
+                    .portData(
+                        .upstreamConnection(.init(portId: 1,
+                                                  nodeId: unpackPositionNode.id))
+                    )
+                ]
             }
             
             return []
@@ -195,8 +204,10 @@ extension SyntaxViewEvent {
             // Assume 0 until we handle cases with position
             return [
                 .node(pressNode),
-                .upstreamCoordinate(.init(portId: 0,
-                                          nodeId: pressNodeId))
+                .portData(
+                    .upstreamConnection(.init(portId: 0,
+                                              nodeId: pressNodeId))
+                )
             ]
         }
     }

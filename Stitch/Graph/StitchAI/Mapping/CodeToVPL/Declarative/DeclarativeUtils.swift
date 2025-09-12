@@ -340,6 +340,22 @@ extension MemberAccessExprSyntax {
         newSelf.base = ExprSyntax(memberBase.declName)
         return newSelf
     }
+    
+    /// Returns patch data needed for supporting a reference to a view event.
+    @MainActor
+    func createConnectedPatchData(viewEvent: SyntaxViewEvent,
+                                  groupNodeId: UUID?,
+                                  varName: String,
+                                  nodesDict: [UUID: NodeEntity]) -> [PatchSyntaxResultType] {
+        // Drop the argument portion of the argument
+        let trimmedMemberAccess = self.dropInnermostBase()
+        
+        return viewEvent
+            .createConnectedPatchData(gestureArg: trimmedMemberAccess,
+                                      groupNodeId: groupNodeId,
+                                      varName: varName,
+                                      nodesDict: nodesDict)
+    }
 }
 
 // ---------------------------------------------------------------
