@@ -368,7 +368,14 @@ extension SwiftParserInitializerType {
                 
                 // Find what we're parsing
                 guard let funcExpr = firstElem.expression.as(FunctionCallExprSyntax.self) else {
-                    return nil
+                    // Check if nested array
+                    guard let nestedArrayExpr = firstElem.expression.as(ArrayExprSyntax.self) else {
+                        return nil
+                    }
+                    
+                    return try SwiftParserInitializerType
+                        .stateMutation(.arraySyntax(nestedArrayExpr))
+                        .getSwiftPatchCodeType()
                 }
                 
                 let args: ViewConstructorType
@@ -519,8 +526,11 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                     return .values([.number(.zero)])
                 }
             } else {
-                fatalErrorIfDebug()
-                return .values([.number(.zero)])
+                // Return upstream connection
+                let nodeId = deterministicUUID(from: ref)
+                assertInDebug(nodesDict.keys.contains(nodeId))
+                return .upstreamConnection(.init(portId: portIndex,
+                                                 nodeId: nodeId))
             }
         
         case .patchNodeInit(let patchNodeData):
@@ -896,7 +906,6 @@ extension SwiftPatchCodeType {
                     return []
                 }
                 
-                
                 // Check for member syntax for view event arg, like `g.translation.width`
                 // Interaction nodes are already created with the parameter created from a view event, so this logic is here to determine specific connections and if unpack nodes should be made
                 if let memberAccess = args.first?.memberAccess {
@@ -928,7 +937,7 @@ extension SwiftPatchCodeType {
                     return result
                 }
                 
-                fatalErrorIfDebug()
+                fatalErrorIfDebug("Uncaught cases for PortValues would be caught here.")
                 return []
             }
         
