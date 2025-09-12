@@ -458,6 +458,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
     func getUpstreamPatchPortConnectionData(expr: SwiftPatchCodeExpression,
                                             varName: String,
                                             portIndex: Int? = nil,
+                                            varNameToCode: [String: SwiftPatchCodeType],
                                             existingStateVarConnections: [String: NodeIOCoordinate],
                                             groupNodeId: UUID?,
                                             nodesDict: [UUID: NodeEntity],
@@ -489,6 +490,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                         expr: .ref(ref),
                         varName: varName,
                         portIndex: portIndex,
+                        varNameToCode: varNameToCode,
                         existingStateVarConnections: existingStateVarConnections,
                         groupNodeId: groupNodeId,
                         nodesDict: nodesDict,
@@ -529,6 +531,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                             expr: expr,
                             varName: varName,
                             portIndex: portIndex,
+                            varNameToCode: varNameToCode,
                             existingStateVarConnections: existingStateVarConnections,
                             groupNodeId: groupNodeId,
                             nodesDict: nodesDict,
@@ -542,6 +545,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                                 expr: subscriptExpr,
                                 varName: varName,
                                 portIndex: newPortIndex,
+                                varNameToCode: varNameToCode,
                                 existingStateVarConnections: existingStateVarConnections,
                                 groupNodeId: groupNodeId,
                                 nodesDict: nodesDict,
@@ -570,17 +574,29 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
             }
         
         case .patchNodeInit(let patchNodeData):
-            fatalErrorIfDebug("Not expected here")
-            return [.portData(.values([.number(.zero)]))]
-//            guard let portIndex = portIndex else {
-//                fatalErrorIfDebug()
-//                return .values([.number(.zero)])
-//            }
-//            
-//            return .upstreamConnection(.init(portId: portIndex,
-//                                             nodeId: patchNodeData.nodeId))
+            guard let portIndex = portIndex else {
+                fatalErrorIfDebug()
+                return []
+            }
             
-        case .jsRef(let jsNode):
+            // If a subscript is accessing a patch node instantiation then we need to:
+            // 1. create the node, and
+            // 2. set a output coordinate at this variable statement
+            var patchNodeResult = try patchNodeData
+                .defaultNodeEntityData(varName: varName,
+                                       varNameToCode: varNameToCode,
+                                       groupNodeId: groupNodeId,
+                                       existingStateVarConnections: existingStateVarConnections,
+                                       nodesDict: nodesDict,
+                                       viewEvent: viewEvent)
+            
+            let outputCoordinate = NodeIOCoordinate(portId: portIndex,
+                                                    nodeId: deterministicUUID(from: varName))
+            
+            patchNodeResult.append(.portData(.upstreamConnection(outputCoordinate)))
+            return patchNodeResult
+            
+        case .jsRef:
             fatalErrorIfDebug("Not expected here")
             return [.portData(.values([.number(.zero)]))]
             
@@ -606,31 +622,34 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
 //                                                portIndex: portIndex)
 //    }
        
-    @MainActor
-    func getUpstreamPatchPortConnectionData(varName: String,
-                                            portIndex: Int? = nil,
-                                            existingStateVarConnections: [String: NodeIOCoordinate],
-                                            groupNodeId: UUID?,
-                                            nodesDict: [UUID: NodeEntity],
-                                            viewEvent: SyntaxViewEvent?) throws -> [PatchSyntaxResultType] {
-        guard let value = self.get(varName) else {
-            return [.portData(.values([.number(.zero)]))]
-        }
-        
-        return try self
-            .getUpstreamPatchPortConnectionData(value: value,
-                                                varName: varName,
-                                                portIndex: portIndex,
-                                                existingStateVarConnections: existingStateVarConnections,
-                                                groupNodeId: groupNodeId,
-                                                nodesDict: nodesDict,
-                                                viewEvent: viewEvent)
-    }
+//    @MainActor
+//    func getUpstreamPatchPortConnectionData(varName: String,
+//                                            portIndex: Int? = nil,
+//                                            varNameToCode: [String: SwiftPatchCodeType],
+//                                            existingStateVarConnections: [String: NodeIOCoordinate],
+//                                            groupNodeId: UUID?,
+//                                            nodesDict: [UUID: NodeEntity],
+//                                            viewEvent: SyntaxViewEvent?) throws -> [PatchSyntaxResultType] {
+//        guard let value = self.get(varName) else {
+//            return [.portData(.values([.number(.zero)]))]
+//        }
+//        
+//        return try self
+//            .getUpstreamPatchPortConnectionData(value: value,
+//                                                varName: varName,
+//                                                portIndex: portIndex,
+//                                                varNameToCode: varNameToCode,
+//                                                existingStateVarConnections: existingStateVarConnections,
+//                                                groupNodeId: groupNodeId,
+//                                                nodesDict: nodesDict,
+//                                                viewEvent: viewEvent)
+//    }
      
     @MainActor
     func getUpstreamPatchPortConnectionData(value: SwiftPatchCodeType,
                                             varName: String,
                                             portIndex: Int? = nil,
+                                            varNameToCode: [String: SwiftPatchCodeType],
                                             existingStateVarConnections: [String: NodeIOCoordinate],
                                             groupNodeId: UUID?,
                                             nodesDict: [UUID: NodeEntity],
@@ -641,6 +660,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                 expr: expr,
                 varName: varName,
                 portIndex: portIndex,
+                varNameToCode: varNameToCode,
                 existingStateVarConnections: existingStateVarConnections,
                 groupNodeId: groupNodeId,
                 nodesDict: nodesDict,
@@ -657,6 +677,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                         expr: expr,
                         varName: varName,
                         portIndex: int,
+                        varNameToCode: varNameToCode,
                         existingStateVarConnections: existingStateVarConnections,
                         groupNodeId: groupNodeId,
                         nodesDict: nodesDict,
@@ -715,6 +736,7 @@ extension Array where Element == SwiftPatchCodeType {
                     .getUpstreamPatchPortConnectionData(
                         value: portData,
                         varName: "",    // can ignore
+                        varNameToCode: varNameToCode,
                         existingStateVarConnections: existingStateVarConnections,
                         groupNodeId: nil,   // can ignore
                         nodesDict: nodesDict,
@@ -1059,14 +1081,12 @@ extension SwiftPatchCodeType {
                         expr: expr,
                         varName: varName,
                         portIndex: portIndex,
+                        varNameToCode: varNameToCode,
                         existingStateVarConnections: existingStateVarConnections,
                         groupNodeId: currentGroupContext,
                         nodesDict: nodesDict,
                         viewEvent: viewEvent)
-                
-                let firstResult = result.first
-                assertInDebug(firstResult?.portData?.upstreamConnection != nil)
-                
+
                 return result
                 
             default:
