@@ -354,6 +354,12 @@ func positionAIGeneratedNodesDuringApply(
         cumulativeXOffset[depth] = runningX
         runningX += columnWidths[depth] ?? 0
     }
+    
+    // Solution 1: Center the chain midpoint instead of starting at viewport center
+    // Calculate total chain width
+    let totalChainWidth = runningX
+    // Shift starting point west by half the chain width to center it
+    let startX = viewPortCenter.x - (totalChainWidth / 2)
 
     // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
     depthLevels.forEach { depthLevel in
@@ -397,7 +403,7 @@ func positionAIGeneratedNodesDuringApply(
                 size.width += horizontalPadding
 
                 let newPosition = CGPoint(
-                    x: viewPortCenter.x + (cumulativeXOffset[depthLevel] ?? 0),
+                    x: startX + (cumulativeXOffset[depthLevel] ?? 0),
                     y: viewPortCenter.y + CGFloat(rowIndexForDepth) * rowHeight
                 )
                 rowIndexForDepth += 1
