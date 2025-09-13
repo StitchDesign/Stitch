@@ -160,12 +160,12 @@ struct iPadGraphTopBarButtons: View {
             #if DEBUG || DEV_DEBUG || STITCH_AI_TESTING
             OpenAIConfigurationPicker(document: document)
             
-            // AI Examples button
-            iPadNavBarButton(action: { 
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    document.showAITrainingExamplesOverlay.toggle()
-                }
-            }, iconName: .sfSymbol("list.bullet.rectangle"))
+//            // AI Examples button
+//            iPadNavBarButton(action: { 
+//                withAnimation(.easeInOut(duration: 0.3)) {
+//                    document.showAITrainingExamplesOverlay.toggle()
+//                }
+//            }, iconName: .sfSymbol("list.bullet.rectangle"))
             #endif
             
             iPadNavBarButton(action: { dispatch(ToggleInsertNodeMenu()) },
