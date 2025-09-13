@@ -17,37 +17,47 @@ struct ProjectSettingsView: View {
     @Bindable var document: StitchDocumentViewModel
 
     var body: some View {
+    
+        ScrollView {
+            VStack(alignment: .leading) {
+                HStack(alignment: .center) {
+                    canvasDimensionInputs
+                    swapImage
+                        .padding(.all)
+                    #if !targetEnvironment(macCatalyst)
+                    .offset(y: 6)
+                    #endif
 
-        VStack(alignment: .leading) {
-            HStack(alignment: .center) {
-                canvasDimensionInputs
-                swapImage
-                    .padding(.all)
-                #if !targetEnvironment(macCatalyst)
-                .offset(y: 6)
-                #endif
-
-                canvasSizePicker
-                    .padding(.leading)
-                #if targetEnvironment(macCatalyst)
-                // why is this necessary just on Catalyst? why does SwiftUI Menu mess up vertical alignment?
-                .offset(y: 12)
-                #endif
-            }
-            StitchCaptionView("Set the size of the prototype's Canvas.")
-            HStack(alignment: .center) {
-                Text("Preview Window Color")
-                    .fontWeight(.bold)
-                    .frame(maxHeight: previewWindowColorPickerHeight)
-                previewWindowColorBackgroundPicker
+                    canvasSizePicker
+                        .padding(.leading)
+                    #if targetEnvironment(macCatalyst)
+                    // why is this necessary just on Catalyst? why does SwiftUI Menu mess up vertical alignment?
+                    .offset(y: 12)
+                    #endif
+                }
+                StitchCaptionView("Set the size of the prototype's Canvas.")
+                HStack(alignment: .center) {
+                    Text("Preview Window Color")
+                        .fontWeight(.bold)
+                        .frame(maxHeight: previewWindowColorPickerHeight)
+                    previewWindowColorBackgroundPicker
+                }
+                
+                Divider()
+                    .padding(.vertical)
+                
+                // Drop in app settings
+                AppSettingsView()
             }
             
-            Divider()
-                .padding(.vertical)
-            
-            // Drop in app settings
-            AppSettingsView()
+            .padding(.horizontal)
         }
+//        .scrollClipDisabled()
+        #if targetEnvironment(macCatalyst)
+        .frame(minWidth: 500, minHeight: 600)
+        #else
+        .frame(minWidth: 300, minHeight: 300)
+        #endif
     }
         
     @ViewBuilder
