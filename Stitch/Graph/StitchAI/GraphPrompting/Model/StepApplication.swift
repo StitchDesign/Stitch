@@ -346,10 +346,11 @@ extension Array where Element == NodeEntity {
                     patchNode.canvasEntity.position = updateCanvasPosition(
                         .node(createdNode.id)
                     )
+                    createdNode.nodeTypeEntity = .patch(patchNode)
                     
                 case .layer(var layerNodeEntity):
                     for inputDefinition in layerNodeEntity.layer.layerGraphNode.inputDefinitions {
-                        var inputDefinition = inputDefinition
+                        let inputDefinition = inputDefinition
                         var portData = layerNodeEntity[keyPath: inputDefinition.schemaPortKeyPath]
                         
                         switch portData.mode {
