@@ -93,15 +93,15 @@ extension OutputNodeRowObserver {
         // MARK: no longer seems necessary, removing for fixing flashing media on restart
 //        self.allLoopedValues = []
   
-//        let containsMedia = self.allLoopedValues.first?.asyncMedia.isDefined ?? false
-//        if !containsMedia {
-//            self.allLoopedValues = []
-//        }
-        
-        // TODO: better to only reset based on pulses, since some nodes may still look at old-style previous outputs?
-        let containsPulse = self.allLoopedValues.first?.getPulse.isDefined ?? false
-        if containsPulse {
+        let containsMedia = self.allLoopedValues.first?.asyncMedia.isDefined ?? false
+        if !containsMedia {
             self.allLoopedValues = []
         }
+        
+        //        // TODO: better to only reset based on pulses, since some nodes may still look at old-style previous outputs?
+        //        let containsPulse = self.allLoopedValues.first?.getPulse.isDefined ?? false
+        //        if containsPulse {
+        //            self.allLoopedValues = []
+        //        }
     }
 }
