@@ -215,8 +215,11 @@ extension SwiftUIViewVisitor {
                                  willParseView: Bool = true) -> SwiftUIViewParserResult {
 //        log("\n==== PARSING CODE ====\n\(swiftUICode)\n=====================\n")
         
+        // First extract the struct from mixed text (handles LLM responses with explanations)
+        let extractedCode = extractStructContentView(from: swiftUICode)
+        
         // Preprocess the code to ensure single root view in var body
-        let preprocessedCode = preprocessSwiftUICode(swiftUICode, context: context)
+        let preprocessedCode = preprocessSwiftUICode(extractedCode, context: context)
         
         // log("DEBUG: swiftUICode: \n\(swiftUICode)")
         // log("DEBUG: preprocessedCode: \n\(preprocessedCode)")
@@ -238,6 +241,114 @@ extension SwiftUIViewVisitor {
         return .init(viewStack: visitor.viewStack,
                      bindingDeclarations: visitor.bindingDeclarations,
                      caughtErrors: visitor.caughtErrors)
+    }
+    
+    /// Extracts struct ContentView from mixed text (handles LLM responses with explanatory text)
+    private static func extractStructContentView(from text: String) -> String {
+        // If the text already looks like clean Swift code (starts with struct), return as-is
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.hasPrefix("struct ContentView: View") {
+            return text
+        }
+        
+        // Look for struct ContentView: View pattern
+        guard let structRange = text.range(of: "struct ContentView: View") else {
+            // No struct found, return original text (backward compatibility)
+            return text
+        }
+        
+        // Find the opening brace after "struct ContentView: View"
+        let afterStruct = text[structRange.upperBound...]
+        guard let openBraceRange = afterStruct.range(of: "{") else {
+            return text
+        }
+        
+        // Start extracting from "struct ContentView: View"
+        let structStart = structRange.lowerBound
+        let braceStart = openBraceRange.upperBound
+        
+        // Count braces to find the matching closing brace
+        var braceCount = 1
+        var inString = false
+        var inSingleLineComment = false
+        var inMultiLineComment = false
+        var escapeNext = false
+        
+        var currentIndex = braceStart
+        
+        while currentIndex < text.endIndex && braceCount > 0 {
+            let char = text[currentIndex]
+            let nextIndex = text.index(after: currentIndex)
+            
+            // Handle escape sequences in strings
+            if escapeNext {
+                escapeNext = false
+                currentIndex = nextIndex
+                continue
+            }
+            
+            // Check for comments and strings (ignore braces inside them)
+            if !inString && !inSingleLineComment && !inMultiLineComment {
+                // Check for comment starts
+                if char == "/" && nextIndex < text.endIndex {
+                    let nextChar = text[nextIndex]
+                    if nextChar == "/" {
+                        inSingleLineComment = true
+                        currentIndex = text.index(after: nextIndex)
+                        continue
+                    } else if nextChar == "*" {
+                        inMultiLineComment = true
+                        currentIndex = text.index(after: nextIndex)
+                        continue
+                    }
+                }
+                
+                // Check for string start
+                if char == "\"" {
+                    inString = true
+                    currentIndex = nextIndex
+                    continue
+                }
+                
+                // Count braces
+                if char == "{" {
+                    braceCount += 1
+                } else if char == "}" {
+                    braceCount -= 1
+                }
+            } else if inString {
+                // Handle string content
+                if char == "\\" {
+                    escapeNext = true
+                } else if char == "\"" {
+                    inString = false
+                }
+            } else if inSingleLineComment {
+                // End single line comment at newline
+                if char == "\n" {
+                    inSingleLineComment = false
+                }
+            } else if inMultiLineComment {
+                // End multi-line comment at */
+                if char == "*" && nextIndex < text.endIndex && text[nextIndex] == "/" {
+                    inMultiLineComment = false
+                    currentIndex = text.index(after: nextIndex)
+                    continue
+                }
+            }
+            
+            currentIndex = nextIndex
+        }
+        
+        // If we found the matching brace, extract the complete struct
+        if braceCount == 0 {
+            let structEnd = currentIndex
+            let extractedStruct = String(text[structStart..<structEnd])
+            return extractedStruct
+        }
+        
+        // If brace matching failed, return original text
+        return text
     }
     
     /// Preprocesses SwiftUI code to wrap multiple top-level views in var body with VStack
