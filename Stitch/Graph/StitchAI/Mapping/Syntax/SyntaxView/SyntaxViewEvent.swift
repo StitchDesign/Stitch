@@ -90,7 +90,6 @@ extension SyntaxViewEvent {
     /// Determines the connections and intermediary patch nodes to be created between an interaction patch node and some state.
     @MainActor
     func createConnectedPatchData(gestureArg: MemberAccessExprSyntax?,
-                                  groupNodeId: UUID?,
                                   varName: String,
                                   nodesDict: [UUID: NodeEntity]) -> [PatchSyntaxResultType] {
         let assignedLayerPortValue = PortValue

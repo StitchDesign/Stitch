@@ -507,6 +507,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                         viewEvent: viewEvent)
                 
             case .stateRefInViewEvent(let memberAccessData):
+                // TODO: this is how we handle member access data in state ref
                 return memberAccessData.memberAccess
                     .createConnectedPatchData(viewEvent: memberAccessData.viewEvent,
                                               groupNodeId: groupNodeId,
@@ -829,6 +830,7 @@ enum PatchSyntaxResultType {
     case node(NodeEntity)
     case portData(NodeConnectionType)
     case connection(PortEdgeData)
+    case connectionToLayerInput(String)
 }
 
 extension PatchSyntaxResultType {
@@ -840,6 +842,14 @@ extension PatchSyntaxResultType {
         default:
             return nil
         }
+    }
+    
+    var portValues: [PortValue]? {
+        self.portData?.values
+    }
+    
+    var value: PortValue? {
+        self.portValues?.first
     }
 }
 
@@ -988,7 +998,7 @@ extension Patch {
 extension SwiftPatchCodeType {
     @MainActor
     func derivePatchData(document: StitchDocumentViewModel,
-                         varName: String,
+                         varName: String?,
                          varNameToCode: [String: SwiftPatchCodeType],
                          viewEvent: SyntaxViewEvent?,
                          existingStateVarConnections: [String: NodeIOCoordinate],
@@ -1004,17 +1014,24 @@ extension SwiftPatchCodeType {
         case .expression(let codeType):
             switch codeType {
             case .patchNodeInit(let patchNodeData):
+                guard let varName = varName else {
+                    fatalErrorIfDebug()
+                    return []
+                }
+                
                 let list = try patchNodeData
                     .defaultNodeEntityData(varName: varName,
-                                       varNameToCode: varNameToCode,
-                                       groupNodeId: currentGroupContext,
-                                       existingStateVarConnections: existingStateVarConnections,
-                                       nodesDict: nodesDict,
-                                       viewEvent: viewEvent)
+                                           varNameToCode: varNameToCode,
+                                           groupNodeId: currentGroupContext,
+                                           existingStateVarConnections: existingStateVarConnections,
+                                           nodesDict: nodesDict,
+                                           viewEvent: viewEvent)
                 return list
             
             case .ref(let varName):
                 guard let refCode = varNameToCode.get(varName) else {
+                    // TODO: will likely fail with port value if used
+                    
                     fatalErrorIfDebug()
                     return []
                 }
@@ -1030,7 +1047,8 @@ extension SwiftPatchCodeType {
             
             case .jsRef(let jsData):
                 guard let sourceCode = varNameToCode.get(jsData.fnName)?
-                    .jsScript else {
+                    .jsScript,
+                      let varName = varName else {
                     fatalErrorIfDebug()
                     return []
                 }
@@ -1061,39 +1079,19 @@ extension SwiftPatchCodeType {
                     return []
                 }
                 
-                // Check for member syntax for view event arg, like `g.translation.width`
-                // Interaction nodes are already created with the parameter created from a view event, so this logic is here to determine specific connections and if unpack nodes should be made
-                if let memberAccess = args.first?.memberAccess {
-                    guard let viewEvent = viewEvent else {
-                        return []
-                    }
-                    
-                    return memberAccess
-                        .createConnectedPatchData(viewEvent: viewEvent,
-                                                  groupNodeId: currentGroupContext,
-                                                  varName: varName,
-                                                  nodesDict: nodesDict)
-                }
-                
-                // Check for tap case
-                else if firstArg.stateAccess == "STITCH_GRAPH_TIME" {
-                    guard let viewEvent = viewEvent else {
-                        return []
-                    }
-                    
-                    let result = viewEvent
-                        .createConnectedPatchData(gestureArg: nil,
-                                                  groupNodeId: currentGroupContext,
-                                                  varName: varName,
-                                                  nodesDict: nodesDict)
-                    return result
-                }
-                
-                fatalErrorIfDebug("Uncaught cases for PortValues would be caught here.")
-                return []
+                return try SyntaxViewName
+                    .derivePortValues(from: firstArg,
+                                      varName: varName,
+                                      viewEvent: viewEvent,
+                                      nodesDict: nodesDict)
             }
         
         case .subscriptType(let subscriptCodeType, let portIndex):
+            guard let varName = varName else {
+                fatalErrorIfDebug()
+                return []
+            }
+            
             // Return an upstream connection
             switch subscriptCodeType {
             case .expression(let expr):
