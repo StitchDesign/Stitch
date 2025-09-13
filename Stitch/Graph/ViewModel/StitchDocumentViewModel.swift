@@ -164,9 +164,10 @@ final class StitchDocumentViewModel: Sendable {
     // AI Examples overlay panel state
     @MainActor var showAITrainingExamplesOverlay = false
     
-#if !targetEnvironment(macCatalyst)
-    @MainActor var selectedTab = ProjectTab.patch
-#endif
+// COMMENTED OUT: Tab selection for switching between Patches/Layers views
+// #if !targetEnvironment(macCatalyst)
+//     @MainActor var selectedTab = ProjectTab.patch
+// #endif
     
     @MainActor weak var storeDelegate: StitchStore?
     @MainActor weak var projectLoader: ProjectLoader?
