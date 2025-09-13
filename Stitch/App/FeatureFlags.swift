@@ -26,7 +26,8 @@ struct FeatureFlags {
     // TODO: remove before proper release
     // TODO: put this behind a different compiler flag? ... Want to make available for Adam as well.
 #if STITCH_AI_REASONING || DEBUG || DEV_DEBUG
-    static let SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON = true
+//    static let SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON = true
+    static let SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON = false
 #else
     static let SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON = false
 #endif

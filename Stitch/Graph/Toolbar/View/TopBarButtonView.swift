@@ -171,12 +171,14 @@ struct iPadGraphTopBarButtons: View {
             iPadNavBarButton(action: { dispatch(ToggleInsertNodeMenu()) },
                              iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME))
             
-            if isDebugMode,
-               FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
-                iPadNavBarButton(action: {
-                    dispatch(ShowCreateTrainingDataFromExistingGraphModal())
-                }, iconName: .sfSymbol(.DEBUG_SUBMIT_EXISTING_GRAPH_AS_TRAINING_DATA_SF_SYMBOL_NAME))
-            }
+            //            if isDebugMode,
+            //               FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
+            //
+            ////                iPadNavBarButton(action: {
+            ////                    dispatch(ShowCreateTrainingDataFromExistingGraphModal())
+            ////                }, iconName: .sfSymbol(.DEBUG_SUBMIT_EXISTING_GRAPH_AS_TRAINING_DATA_SF_SYMBOL_NAME))
+            //
+            //            }
             
             // toggle preview window
             iPadNavBarButton(
