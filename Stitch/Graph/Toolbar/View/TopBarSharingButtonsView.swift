@@ -162,6 +162,18 @@ Platform: \(Self.platform)
         }
     }
     
+    func recordPrototypeButton(document: StitchDocumentViewModel) -> some View {
+        StitchButton {
+            document.isScreenRecording = true
+            document.isFullScreenMode = true
+        } label: {
+            Text("Record Prototype")
+            // TODO: why does this label icon seem slightly too far to the right? and .offset(x: -n) to push it to the left doesn't work?
+            Image(systemName: "inset.filled.rectangle.badge.record")
+                //.offset(x: -4)
+        }
+    }
+    
     var emailButton: some View {
         // Opens the user’s default mail client with a pre-filled address
         StitchButton {
@@ -228,6 +240,7 @@ Platform: \(Self.platform)
     var menuContent: some View {
         if let document = self.document {
             shareWithDocumentButton(document: document)
+            recordPrototypeButton(document: document)
         }
         emailButton
         gitHubButton
