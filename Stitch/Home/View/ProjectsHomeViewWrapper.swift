@@ -44,14 +44,14 @@ struct ProjectsHomeViewWrapper: View {
                     } else {
 #if targetEnvironment(macCatalyst)
 
-                        if FeatureFlags.SHOW_AI_TABLE_ROWS_VIEWER {
-                            CatalystNavBarButton("tablecells",
-                                                 toolTip: "Open AI Table Viewer") { [weak store] in
-                                store?.navPath = [.graphGenerationTableView]
-                            }
-                            // Resolves issue where hover was still active after entering newly created project and then exiting
-                            .id(UUID())
-                        }
+//                        if FeatureFlags.SHOW_AI_TABLE_ROWS_VIEWER {
+//                            CatalystNavBarButton("tablecells",
+//                                                 toolTip: "Open AI Table Viewer") { [weak store] in
+//                                store?.navPath = [.graphGenerationTableView]
+//                            }
+//                            // Resolves issue where hover was still active after entering newly created project and then exiting
+//                            .id(UUID())
+//                        }
                         
 #if STITCH_AI_REASONING || DEV_DEBUG
                         CatalystNavBarButton("document.viewfinder.fill",
@@ -102,10 +102,10 @@ struct ProjectsHomeViewWrapper: View {
                         
                         
 #if STITCH_AI_REASONING || DEV_DEBUG
-                        iPadNavBarButton(action: { [weak store] in
-                            store?.navPath = [.graphGenerationTableView]
-                        },
-                                         iconName: .sfSymbol("tablecells"))
+//                        iPadNavBarButton(action: { [weak store] in
+//                            store?.navPath = [.graphGenerationTableView]
+//                        },
+//                                         iconName: .sfSymbol("tablecells"))
 #endif
                         
                         iPadNavBarButton(action: { [weak store] in
