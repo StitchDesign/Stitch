@@ -326,6 +326,7 @@ extension AIGraphData_V0.LayerData {
                     
                     return upstreamInteractionCoordinate.portId
                 }
+                .toSet
 
             switch nodesDict.get(patchInteractionId)?.kind {
             case .patch(let patch):
