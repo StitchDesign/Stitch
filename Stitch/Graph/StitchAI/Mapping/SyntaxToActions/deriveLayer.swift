@@ -718,14 +718,14 @@ extension SyntaxViewName {
                                       context: .viewModifier(port))
         }
         
-        let portValuesFromArgs = portDataFromArgs.compactMap {
-            switch $0.inputData {
-            case .value(let value):
-                return value
-            default:
-                return nil
-            }
-        }
+//        let portValuesFromArgs = portDataFromArgs.compactMap {
+//            switch $0.inputData {
+//            case .value(let value):
+//                return value
+//            default:
+//                return nil
+//            }
+//        }
         
         // Scenarios where we assumed packed value or connection
         if arguments.count == 1,
