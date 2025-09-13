@@ -29,6 +29,11 @@ final class StitchDocumentViewModel: Sendable {
     let rootId: UUID // Previously was just `UUID`, taken from StitchDocument.id which was from
     
     let isDebugMode: Bool
+    
+    // Disables encoding logic and used by debugging views
+    // isDebugMode is a user-facing feature which we may not want here
+    @MainActor var isLocalOnly: Bool = false
+    
     let graph: GraphState
     let graphStepManager = GraphStepManager()
     let graphMovement = GraphMovementObserver()
@@ -543,7 +548,10 @@ extension StitchDocumentViewModel {
             documentEncoder: encoder,
             projectLoader: nil,
             store: store,
-            isDebugMode: true) // disables root URL checks that cause crashes
+            isDebugMode: false)
+        
+        // disables root URL checks that cause crashes
+        docViewModel.isLocalOnly = true
         
         graph.documentDelegate = docViewModel
         return docViewModel
