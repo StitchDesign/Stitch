@@ -46,8 +46,7 @@ struct StitchProjectOverlayView: View {
             // Show empty state view so long as debug mode isn't on and no canvas nodes
             if document.visibleGraph.visibleNodesViewModel.allViewModels.isEmpty &&
                 document.llmRecording.modal != .editBeforeSubmit &&
-                !document.isDebugMode &&
-                !(store.navPath.first == .graphGenerationTableView) {
+                !document.isDebugMode {
                 PatchCanvasEmptyStateView(document: document)
             }
             

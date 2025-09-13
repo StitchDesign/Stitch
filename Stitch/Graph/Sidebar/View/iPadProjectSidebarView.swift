@@ -24,10 +24,7 @@ struct StitchSidebarView: View {
                                syncStatus: syncStatus)
 
         } else {
-            if !(store.navPath.first == .graphGenerationTableView) {
-                ProjectSidebarEmptyView(document: nil)
-            }
-            
+            ProjectSidebarEmptyView(document: nil)
         }
     }
 }

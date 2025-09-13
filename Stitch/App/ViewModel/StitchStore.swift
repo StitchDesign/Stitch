@@ -76,8 +76,6 @@ extension StitchStore {
     var isShowingAIPreviewer: Bool {
         self.navPath.contains {
             switch $0 {
-            case .graphGenerationTableView:
-                return true
             default:
                 return false
             }
@@ -130,9 +128,6 @@ extension StitchStore {
 
     @MainActor
     var currentDocument: StitchDocumentViewModel? {
-        if self.navPath.first == .graphGenerationTableView {
-            return self.graphTableLoadedRow
-        }
         return self.navPath.first?.document
     }
     

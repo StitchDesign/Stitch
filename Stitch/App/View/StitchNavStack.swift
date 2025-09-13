@@ -13,7 +13,6 @@ enum StitchAppRouter {
     
     // Document encoder needs strong reference and enables nodse to appear in viewer
     case aiPreviewer(StitchDocumentViewModel, DocumentEncoder)
-    case graphGenerationTableView
 }
 
 extension StitchAppRouter: Identifiable, Hashable {
@@ -25,8 +24,6 @@ extension StitchAppRouter: Identifiable, Hashable {
             hasher.combine(projectLoader.hashValue)
         case .aiPreviewer(let stitchDocumentViewModel, _):
             hasher.combine(stitchDocumentViewModel.rootId)
-        case .graphGenerationTableView:
-            hasher.combine("graphGenerationTableView")
         }
     }
     
@@ -40,8 +37,6 @@ extension StitchAppRouter: Identifiable, Hashable {
             return projectLoader.url.absoluteString
         case .aiPreviewer:
             return Self.aiID
-        case .graphGenerationTableView:
-            return "graphGenerationTableView"
         }
     }
     
@@ -49,7 +44,7 @@ extension StitchAppRouter: Identifiable, Hashable {
         switch self {
         case .project(let projectLoader):
             return projectLoader
-        case .aiPreviewer, .graphGenerationTableView:
+        case .aiPreviewer:
             return nil
         }
     }
@@ -61,8 +56,6 @@ extension StitchAppRouter: Identifiable, Hashable {
             return projectLoader.documentViewModel
         case .aiPreviewer(let stitchDocumentViewModel, _):
             return stitchDocumentViewModel
-        case .graphGenerationTableView:
-            return nil
         }
     }
 }
@@ -103,9 +96,6 @@ struct StitchNavStack: View {
                     case .aiPreviewer(let document, _):
                         StitchAIProjectViewer(store: store,
                                               document: document)
-                        
-                    case .graphGenerationTableView:
-                        GraphGenerationTableView(store: store)
                     }
                     
                 }

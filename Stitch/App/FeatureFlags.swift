@@ -19,9 +19,6 @@ struct FeatureFlags {
     // TODO: set false for
     static let USE_SWIFTUI_IMPLEMENTATION: Bool = true
     
-    // TODO: SET FALSE BEFORE NEXT RELEASE / just use Stitch AI Reasoning ?
-    static let SHOW_AI_TABLE_ROWS_VIEWER = true
-
     // TODO: why did the `Stitch AI Reasoning` build-scheme
     // TODO: remove before proper release
     // TODO: put this behind a different compiler flag? ... Want to make available for Adam as well.
