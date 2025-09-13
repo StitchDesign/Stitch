@@ -228,8 +228,8 @@ struct iPadGraphTopBarMiscMenu: View {
                              iconName: FILE_IMPORT_ICON_NAME,
                              label: FILE_IMPORT_LABEL)
             
-            TopBarSharingButtonsView(document: document)
-                .modifier(iPadTopBarButtonStyle())
+//            TopBarSharingButtonsView(document: document)
+//                .modifier(iPadTopBarButtonStyle())
 
             TopBarFeedbackButtonsView(document: self.document)
                 .modifier(iPadTopBarButtonStyle())

@@ -131,8 +131,8 @@ struct CatalystTopBarGraphButtons: View {
                 }
             }
             
-            TopBarSharingButtonsView(document: document)
-                .modifier(CatalystTopBarButtonStyle())
+//            TopBarSharingButtonsView(document: document)
+//                .modifier(CatalystTopBarButtonStyle())
             
             TopBarFeedbackButtonsView(document: self.document)
                 .modifier(CatalystTopBarButtonStyle())
