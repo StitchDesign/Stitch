@@ -92,8 +92,6 @@ extension SwiftUIViewParserResult {
         
         let patchResult = await allPatchCode.derivePatchNodes(document: document)
         
-        print(patchResult)
-        
 //        let patchResults = self.bindingDeclarations.deriveStitchActions(existingData: interactionsPatchActionResult)
         
         return .init(graphData: .init(layer_data_list: layerResults.actions,
@@ -127,7 +125,7 @@ extension Array where Element == AIGraphData_V0.LayerData {
             }
             
             if let children = layerData.children {
-                result = children.getPatchResultsFromViewEvents()
+                result += children.getPatchResultsFromViewEvents()
             }
         }
     }
@@ -576,7 +574,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                 // Return upstream connection
                 let nodeId = deterministicUUID(from: ref)
                 
-                // A node wasn't made that should have if this fails
+                // If this fails--a node wasn't made that should have been created
                 assertInDebug(nodesDict.keys.contains(nodeId))
                 
                 return [
