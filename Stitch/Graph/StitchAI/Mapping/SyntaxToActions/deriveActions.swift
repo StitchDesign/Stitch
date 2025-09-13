@@ -285,6 +285,18 @@ enum SwiftPatchCodeExpression {
 //    case jsNodeDeclaration(AIGraphData_V0.PreprocessedJSPatchNode)
 }
 
+extension SwiftPatchCodeExpression {
+    func createSwiftUICode() -> String {
+        switch self {
+        case .ref(let string):
+            return string
+        default:
+            fatalErrorIfDebug("not yet supported")
+            return ""
+        }
+    }
+}
+
 struct SwiftPatchNodeCode {
     let patch: Patch
     let ports: [SwiftPatchCodeType]
@@ -780,6 +792,17 @@ extension Array where Element == SwiftPatchCodeType {
 //}
 
 extension SwiftPatchCodeType {
+    func createSwiftUICode() -> String {
+        switch self {
+        case .expression(let expr):
+            return expr.createSwiftUICode()
+        
+        default:
+            fatalErrorIfDebug("not yet supported")
+            return ""
+        }
+    }
+    
     var jsScript: String? {
         switch self {
         case .swiftFunctionScript(let string):

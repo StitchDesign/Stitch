@@ -356,7 +356,7 @@ extension AIGraphData_V0.LayerData {
                     return .init(viewEvent: .init(layerId: layerData.id,
                                                   type: viewEventName,
                                                   gestureArg: "g"),
-                                 codeStatements: [(stateVarName, .expression(.ref("dummy expr")))])
+                                 codeStatements: [(stateVarName, .expression(.ref("g.\(gestureProperty)")))])
                     
 //                    return .init(viewEvent: .init(layerId: layerData.id,
 //                                                  type: viewEventName,

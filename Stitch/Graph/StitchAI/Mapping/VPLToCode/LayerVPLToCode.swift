@@ -443,7 +443,7 @@ extension LayerNodeEntity {
     /// Creates view modifier callbacks for gesture data.
     func getSwiftUIGestureViewModifierStrings(layerViewEventMap: [UUID: [SwiftPatchViewEvent]]) -> [String] {
         // Organize gesture data by each syntax type
-        let gestureDataHere = layerViewEventMap.reduce(into: [SyntaxViewEventType : [LayerDataViewEvent]]()) { result, mapData in
+        let gestureDataHere = layerViewEventMap.reduce(into: [SyntaxViewEventType : [SwiftPatchViewEvent]]()) { result, mapData in
             let (layerId, viewEvents) = mapData
             
             guard layerId == self.id else { return }
@@ -455,9 +455,7 @@ extension LayerNodeEntity {
                 // Assuming that our code gen only makes 1 statement, allowing us to assum a state var mutation
                 assertInDebug(viewEvent.codeStatements.count == 1)
                 
-                layerDataList.append(.init(viewEvent: viewEventData,
-                                           gestureArg: viewEventData.gestureArg,
-                                           mutatedStateVar: viewEvent.codeStatements.first?.0 ?? ""))
+                layerDataList.append(viewEvent)
                 result.updateValue(layerDataList, forKey: viewEventData.type)
             }
         }
@@ -465,15 +463,14 @@ extension LayerNodeEntity {
         return gestureDataHere.map { (viewEventName, viewEvents) -> String in
             switch viewEventName {
             case .dragGesture:
-                let dragBindings = viewEvents.map { viewEvent in
-                    // TODO: unpack support needed
-                    
-                    guard let gestureProp = viewEvent.gestureArg else {
-                        fatalErrorIfDebug()
-                        return ""
+                let dragBindings = viewEvents.flatMap { viewData -> [String] in
+                    let viewEvent = viewData.viewEvent
+
+                    return viewData.codeStatements.map { codeData in
+                        let expressionCode = codeData.1.createSwiftUICode()
+                        
+                        return "\(codeData.0) = [PortValueDescription(value: \(expressionCode), value_type: \"position\")]"
                     }
-                    
-                    return "\(viewEvent.mutatedStateVar) = [PortValueDescription(value: \(gestureProp), value_type: \"position\")]"
                 }
                     .joined(separator: "\n")
                 
@@ -485,7 +482,8 @@ extension LayerNodeEntity {
             case .tapGesture:
                 // Tap gesture closure is constant so no need to iterate over the full list
                 assertInDebug(viewEvents.first != nil)
-                let mutatedStateVar = viewEvents.first?.mutatedStateVar ?? "rectPulse"
+                let mutatedStateVar = viewEvents.first?
+                    .codeStatements.first?.0 ?? "rectPulse"
                 
                 return """
                     .onTapGesture {

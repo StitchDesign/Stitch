@@ -40,16 +40,16 @@ struct SyntaxViewModifierViewEvent: Sendable {
     let eventModifiers: [String: SyntaxViewModifierClosureData]
 }
 
-struct LayerDataViewEvent {
-    let viewEvent: SyntaxViewEvent
-    
-    // If relevant, the argument data that's read from the view event's closure.
-    // i.e. `translation.width`
-    let gestureArg: String?
-    
-    // Tracks which state variable is mutated
-    let mutatedStateVar: String
-}
+//struct LayerDataViewEvent {
+//    let viewEvent: SyntaxViewEvent
+//    
+//    // If relevant, the argument data that's read from the view event's closure.
+//    // i.e. `translation.width`
+//    let gestureArg: String?
+//    
+//    // Tracks which state variable is mutated
+//    let mutatedStateVar: String
+//}
 
 struct LayerDataViewEventsResult {
     let viewEvent: SyntaxViewEvent
