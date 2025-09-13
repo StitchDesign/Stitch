@@ -24,7 +24,15 @@ struct OpenAIConfigurationPicker: View {
     private var claudeModel: String = "claude-3-5-sonnet-20241022"
     
     @State private var currentProvider = AIProviderConfig.shared.currentProvider
-    
+
+    var currentModelDisplayName: String {
+        if currentProvider == .openAI {
+            return OpenAIModel(rawValue: openaiModel)?.displayName ?? "GPT-5"
+        } else {
+            return ClaudeModel(rawValue: claudeModel)?.displayName ?? "Claude"
+        }
+    }
+
     var body: some View {
         Menu {
             if currentProvider == .openAI {
@@ -98,7 +106,10 @@ struct OpenAIConfigurationPicker: View {
             }
         } label: {
             Button(action: { }) {
-                Image(systemName: "gear")
+                Text(currentModelDisplayName)
+                    .lineLimit(1)
+//                    .frame(width: 300)
+                    .frame(width: 180)
             }
         }
         .modifier(iPadTopBarButtonStyle())
@@ -108,5 +119,7 @@ struct OpenAIConfigurationPicker: View {
         .onReceive(NotificationCenter.default.publisher(for: .init("AIProviderChanged"))) { _ in
             currentProvider = AIProviderConfig.shared.currentProvider
         }
+//        .frame(width: 300)
+        .frame(width: 180)
     }
 }

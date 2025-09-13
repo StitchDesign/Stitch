@@ -83,7 +83,6 @@ struct CatalystTopBarGraphButtons: View {
             // OpenAI Configuration Picker - only show in debug builds
             #if DEBUG || DEV_DEBUG || STITCH_AI_TESTING
             OpenAIConfigurationPicker(document: document)
-                .modifier(CatalystTopBarButtonStyle())
             
 //            // AI Examples button
 //            CatalystNavBarButton("list.bullet.rectangle",
@@ -99,19 +98,21 @@ struct CatalystTopBarGraphButtons: View {
                 dispatch(ToggleInsertNodeMenu())
             }
             
-            if FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
-                CatalystNavBarButton("document.badge.arrow.up",
-                                     toolTip: "Submit graph as AI training example") {
-                    dispatch(ShowCreateTrainingDataFromExistingGraphModal())
-                }
-            }
+//            if FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
+//                CatalystNavBarButton("document.badge.arrow.up",
+//                                     toolTip: "Submit graph as AI training example") {
+//                    dispatch(ShowCreateTrainingDataFromExistingGraphModal())
+//                }
+//            }
                         
+            #if DEV_DEBUG
             // TODO: only show when no nodes are on-screen?
             // and so should be placed on the far left?
             CatalystNavBarButton(.FIND_NODE_ON_GRAPH,
                                  toolTip: "Find Node") {
                 dispatch(FindSomeCanvasItemOnGraph())
             }
+            #endif
             
             if !isDebugMode {
                 CatalystNavBarButton(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME,
