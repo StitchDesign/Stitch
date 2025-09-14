@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+// Estimate token count from character count (roughly 4 chars per token for Claude)
+private func estimateTokenCount(from text: String) -> Int {
+    return max(1, text.count / 4)
+}
+
 /// Make a request to Claude's Messages endpoint
 @MainActor
 func makeClaudeStreamingRequest(
@@ -14,7 +19,8 @@ func makeClaudeStreamingRequest(
     userPrompt: String,
     base64Image: String?,
     model: ClaudeModel,
-    document: StitchDocumentViewModel
+    document: StitchDocumentViewModel,
+    codeCreator: StitchAICodeCreator
 ) async throws -> String {
     
     log("=== makeClaudeStreamingRequest STARTED ===")
@@ -188,7 +194,13 @@ func makeClaudeStreamingRequest(
         
         // Debug: Track all thinking steps for debugging
         var allThinkingSteps: [String] = []
-        
+
+        // Eager parsing state
+        var tokenDeltaCount = 0
+        let eagerParsingThreshold = 30  // Parse every ~30 tokens
+        var lastSuccessfulParseLength = 0  // Track what we've successfully parsed
+        var hasAttemptedParsing = false    // Track if we've done any successful parsing
+
         log("🔄 Starting to process Claude streaming response...")
         
         for try await line in asyncBytes.lines {
@@ -250,37 +262,77 @@ func makeClaudeStreamingRequest(
                 
             case "content_block_delta":
                 if let delta = json["delta"] as? [String: Any] {
-                    //                    log("Delta received: \(delta)")
                     if let thinkingText = delta["thinking"] as? String {
-                        // This is thinking content
-                        // log("🧠 Thinking delta received: '\(thinkingText)' (length: \(thinkingText.count))")
+                        // Thinking updates immediately for UI feedback
                         accumulatedThinking += thinkingText
                         allThinkingSteps.append(thinkingText)
-                        
-                        // Update UI with thinking progress (just show raw content, no prefix)
+
+                        // Update UI immediately with thinking
                         await MainActor.run {
                             document.streamingReasoningText = accumulatedThinking
-                            // log("📱 UI updated with thinking text, total length: \(accumulatedThinking.count)")
                         }
+
                     } else if let text = delta["text"] as? String {
-                        // This is regular text content
-                        // log("📝 Text delta received: '\(text)' (length: \(text.count))")
+                        // Accumulate content
                         accumulatedContent += text
-                        
-//                        // Clear thinking text once content starts
-//                        await MainActor.run {
-//                            if !document.streamingReasoningText.isEmpty {
-//                                document.streamingReasoningText = ""
-//                                // log("📱 Cleared thinking text - switching to content")
-//                            }
-//                        }
-                    } else {
-                        //                        log("⚠️  Delta received but no 'thinking' or 'text' field found")
+
+                        // Track tokens for eager parsing
+                        tokenDeltaCount += estimateTokenCount(from: text)
+
+                        // Attempt parsing at threshold if we have new substantial content
+                        if tokenDeltaCount >= eagerParsingThreshold &&
+                           accumulatedContent.count > lastSuccessfulParseLength + 100 {
+
+                            // Reset counter first
+                            tokenDeltaCount = 0
+
+                            // Only attempt if we have the AI manager
+                            if let aiManager = document.aiManager,
+                               let aiRequestDeps = codeCreator as? AIRequestDeps {
+
+                                // Attempt partial parsing using the passed-in codeCreator
+                                let parseSuccess = await AIRequestDeps.attemptPartialParsing(
+                                    accumulatedCode: accumulatedContent,
+                                    userPrompt: aiRequestDeps.userPrompt,
+                                    document: document,
+                                    aiManager: aiManager,
+                                    existingSwiftUICode: aiRequestDeps.swiftUICodeOfGraph
+                                )
+
+                                if parseSuccess {
+                                    lastSuccessfulParseLength = accumulatedContent.count
+                                    hasAttemptedParsing = true
+                                    log("🎯 Eager parsing successful at \(accumulatedContent.count) chars")
+                                }
+                            }
+                        }
                     }
                 } else {
-                    //                    log("⚠️  content_block_delta event with no delta field")
+                    //log("⚠️  content_block_delta event with no delta field")
                 }
-                
+
+            case "content_block_stop":
+                // Try one more parse when content block ends
+                if accumulatedContent.count > lastSuccessfulParseLength,
+                   let aiManager = document.aiManager,
+                   let aiRequestDeps = codeCreator as? AIRequestDeps {
+
+                    let parseSuccess = await AIRequestDeps.attemptPartialParsing(
+                        accumulatedCode: accumulatedContent,
+                        userPrompt: aiRequestDeps.userPrompt,
+                        document: document,
+                        aiManager: aiManager,
+                        existingSwiftUICode: aiRequestDeps.swiftUICodeOfGraph
+                    )
+
+                    if parseSuccess {
+                        lastSuccessfulParseLength = accumulatedContent.count
+                        hasAttemptedParsing = true
+                    }
+                }
+                tokenDeltaCount = 0
+                log("📝 Content block stopped")
+
             case "message_delta":
                 if let usage = json["usage"] as? [String: Any] {
                     totalUsage = try? JSONDecoder().decode(ClaudeUsage.self, from: JSONSerialization.data(withJSONObject: usage))
@@ -309,6 +361,9 @@ func makeClaudeStreamingRequest(
         log("Final content length: \(accumulatedContent.count) characters")
         log("Total thinking length: \(accumulatedThinking.count) characters")
         log("📝 Thinking steps received: \(allThinkingSteps.count)")
+        if hasAttemptedParsing {
+            log("📊 Eager parsing was performed, last successful at \(lastSuccessfulParseLength) chars")
+        }
         
         if accumulatedContent.isEmpty && accumulatedThinking.isEmpty {
             log("⚠️ WARNING: No content or thinking received from Claude!")

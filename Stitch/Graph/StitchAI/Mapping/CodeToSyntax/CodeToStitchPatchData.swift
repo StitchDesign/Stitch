@@ -120,7 +120,7 @@ extension SwiftUIViewVisitor {
         }
         
         guard let elements = node.arguments.first?.expression.as(ArrayExprSyntax.self)?.elements else {
-            fatalErrorIfDebug()
+            // fatalErrorIfDebug()
             return nil
         }
         
@@ -133,7 +133,7 @@ extension SwiftUIViewVisitor {
                     let argData = try Self.parseArgumentType(from: innerFirstElem)
                     return .value(argData)
                 } catch {
-                    fatalErrorIfDebug(error.localizedDescription)
+//                    fatalErrorIfDebug(error.localizedDescription)
                     log("visitPatchData: had error \(error.localizedDescription) for arg \(arg)")
                     return nil
                 }
@@ -154,8 +154,8 @@ extension SwiftUIViewVisitor {
             }
             
             else {
-                fatalErrorIfDebug()
-                log("visitPatchData: had problem")
+                // fatalErrorIfDebug()
+                log("visitPatchData: had problem: else")
                 return nil
             }
         }
@@ -179,7 +179,7 @@ extension SwiftUIViewVisitor {
             // Assumed to be patch node
             guard let patchNode = self.visitPatchData(patchFn,
                                                       varName: nil) else {
-                fatalErrorIfDebug()
+//                fatalErrorIfDebug()
                 log("visitSubscriptData: HAD MAJOR ERROR")
                 return nil
             }
@@ -259,8 +259,8 @@ extension SwiftUIViewVisitor {
               let portIndex = Int(labeledExpr.literal.text) else {
             // Check if it's a subscript call for a stitch function
             guard let patchNodeName = subscriptCallExpr.getPatchNodeName() else {
-                 fatalErrorIfDebug()
-                log("deriveSubscriptData: HAD MAJOR ERROR")
+                 // fatalErrorIfDebug()
+                log("deriveSubscriptData: HAD MAJOR ERROR: labeledExpr")
                 return nil
             }
             
@@ -272,8 +272,8 @@ extension SwiftUIViewVisitor {
             guard let patchNode = self.visitPatchData(funcExpr,
                                                       // no var name from subscript
                                                       varName: nil) else {
-                fatalErrorIfDebug()
-                log("deriveSubscriptData: HAD MAJOR ERROR")
+                // fatalErrorIfDebug()
+                log("deriveSubscriptData: HAD MAJOR ERROR: funcExpr")
                 return nil
             }
             
@@ -293,8 +293,8 @@ extension SwiftUIViewVisitor {
         }
         
         else {
-             fatalErrorIfDebug()
-            log("deriveSubscriptData: HAD MAJOR ERROR")
+             // fatalErrorIfDebug()
+            log("deriveSubscriptData: HAD MAJOR ERROR: else")
             return nil
         }
     }
@@ -307,7 +307,7 @@ extension SwiftParserInitializerType {
     func parseStitchActions(varName: String,
                             varNameIdMap: [String : String],
                             varNameOutputPortMap: [String : SwiftParserSubscript],
-    customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue],
+                            customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue],
                             varNamePatchNodeRefMap: [String : String],
                             stateVarToInteractionOutputsMap: [String: CurrentAIGraphData.NodeIndexedCoordinate],
                             nativePatchNodes: [String: CurrentAIGraphData.PatchNode],
@@ -321,7 +321,8 @@ extension SwiftParserInitializerType {
         case .patchNode(let patchNodeData):
             // Marks an input port to check for a custom node type, if supported by this node
             guard let patch = nativePatchNodes.get(patchNodeData.id)?.node_name.value.patch else {
-                fatalErrorIfDebug()
+                //                fatalErrorIfDebug()
+                log("parseStitchActions: MAJOR ERROR: case .patchNode")
                 return
             }
             
@@ -403,8 +404,8 @@ extension SwiftParserInitializerType {
                                                         subscriptParentInfo: .init(node_id: patchNodeData.id,
                                                                                    port_index: portIndex))
                             } else {
-                                fatalErrorIfDebug("Expected to find subscript data")
-                                log("Expected to find subscript data")
+                                // fatalErrorIfDebug("Expected to find subscript data")
+                                log("parseStitchActions: MAJOR ERROR: Expected to find subscript data")
                             }
                         }
                     }

@@ -87,7 +87,8 @@ struct AIRequestDeps: StitchAICodeCreator {
             model: model,
             verbosity: validatedVerbosity,
             reasoningEffort: document.openaiReasoningEffort.asOpenAIReasoningEffort,
-            document: document
+            document: document,
+            codeCreator: self
         )
         
         let endTime = CFAbsoluteTimeGetCurrent()
@@ -173,6 +174,70 @@ extension StitchAICodeCreator {
         print("Derived Stitch layer data:\n\((try? actionsResult.encodeToPrintableString()) ?? "")")
         
         return actionsResult
+    }
+}
+
+extension AIRequestDeps {
+    /// Attempts to parse potentially incomplete Swift code during streaming
+    @MainActor
+    static func attemptPartialParsing(
+        accumulatedCode: String,
+        userPrompt: String,
+        document: StitchDocumentViewModel,
+        aiManager: StitchAIManager,
+        existingSwiftUICode: String
+    ) async -> Bool {
+        // Quick validation - need at least a complete struct declaration
+        guard accumulatedCode.contains("struct ContentView: View") &&
+              accumulatedCode.contains("var body: some View {") else {
+            return false
+        }
+
+        // Try to balance braces to see if we have parseable content
+        let openBraces = accumulatedCode.filter { $0 == "{" }.count
+        let closeBraces = accumulatedCode.filter { $0 == "}" }.count
+
+        // Need at least some content to parse
+        guard closeBraces >= 2 else {  // At least body and one view
+            return false
+        }
+
+        // Attempt to close any unclosed braces for parsing
+        var codeToparse = accumulatedCode
+        let braceDifference = openBraces - closeBraces
+        if braceDifference > 0 {
+            codeToparse += String(repeating: "}", count: braceDifference)
+        }
+
+        // Try parsing
+        do {
+            let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(codeToparse)
+
+            // Check if we got meaningful results
+            guard !codeParserResult.viewStack.isEmpty ||
+                  !codeParserResult.bindingDeclarations.isEmpty else {
+                return false
+            }
+
+            // Derive actions from partial parse
+            var actionsResult = codeParserResult.deriveStitchActions(
+                bindingDeclarations: codeParserResult.bindingDeclarations
+            )
+
+            // Apply partial graph update
+            await actionsResult.applyAIGraph(
+                to: document,
+                viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections
+            )
+
+            let nodeCount = actionsResult.graphData.layer_data_list.count
+            log("✅ Eager parsing succeeded with \(nodeCount) layers")
+            return true
+
+        } catch {
+            // Parsing failed, which is expected for incomplete code
+            return false
+        }
     }
 }
 

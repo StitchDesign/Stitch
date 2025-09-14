@@ -46,7 +46,8 @@ func makeAIRequest(
     model: AIModel,
     verbosity: OpenAIVerbosity,
     reasoningEffort: OpenAIReasoningEffort,
-    document: StitchDocumentViewModel
+    document: StitchDocumentViewModel,
+    codeCreator: StitchAICodeCreator
 ) async throws -> String {
     switch model {
     case .openAI(let openAIModel):
@@ -65,7 +66,8 @@ func makeAIRequest(
             userPrompt: userPrompt,
             base64Image: base64Image,
             model: claudeModel,
-            document: document
+            document: document,
+            codeCreator: codeCreator
         )
     }
 }
