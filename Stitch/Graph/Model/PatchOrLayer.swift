@@ -112,6 +112,24 @@ extension PatchOrLayer {
             return layer
         }
     }
+
+    var isPatch: Bool {
+        switch self {
+        case .patch:
+            return true
+        case .layer:
+            return false
+        }
+    }
+
+    var isLayer: Bool {
+        switch self {
+        case .patch:
+            return false
+        case .layer:
+            return true
+        }
+    }
 }
 
 extension Patch {
