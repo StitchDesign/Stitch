@@ -107,7 +107,6 @@ extension SyntaxViewEvent {
             if gestureArg.trimmedDescription == "translation" || gestureArg.trimmedDescription == "position" {
                 var dragNode = Patch.dragInteraction
                     .defaultNodeEntity(nodeId: deterministicUUID(from: varName),
-                                       groupNodeId: nil,
                                        nodesDict: nodesDict)
                 dragNode.inputs[0] = .values([assignedLayerPortValue])
 

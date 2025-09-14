@@ -66,16 +66,13 @@ extension NodeEntity {
     
     /// Helper for mutating all canvas entities under some node.
     @MainActor
-    func canvasEntityMap(_ callback: @escaping (CanvasNodeEntity) -> CanvasNodeEntity) -> NodeEntity {
-    
-        var nodeEntity = self
+    mutating func canvasEntityMutator(_ callback: @escaping (CanvasNodeEntity) -> CanvasNodeEntity) {
         
-        switch nodeEntity.nodeTypeEntity {
+        switch self.nodeTypeEntity {
         
         case .patch(var patch):
             patch.canvasEntity = callback(patch.canvasEntity)
-            nodeEntity.nodeTypeEntity = .patch(patch)
-            return nodeEntity
+            self.nodeTypeEntity = .patch(patch)
             
         case .layer(var layer):
             layer.layer.layerGraphNode.inputDefinitions.forEach { layerInput in
@@ -91,20 +88,17 @@ extension NodeEntity {
                 
                 layer[keyPath: layerInput.schemaPortKeyPath] = inputPortSchema
             }
-            nodeEntity.nodeTypeEntity = .layer(layer)
-            return nodeEntity
+            self.nodeTypeEntity = .layer(layer)
             
         case .group(let canvas):
             let newCanvas = callback(canvas)
-            nodeEntity.nodeTypeEntity = .group(newCanvas)
-            return nodeEntity
+            self.nodeTypeEntity = .group(newCanvas)
         
         case .component(let component):
             var component = component
             let newCanvas = callback(component.canvasEntity)
             component.canvasEntity = newCanvas
-            nodeEntity.nodeTypeEntity = .component(component)
-            return nodeEntity
+            self.nodeTypeEntity = .component(component)
         }
     }
     

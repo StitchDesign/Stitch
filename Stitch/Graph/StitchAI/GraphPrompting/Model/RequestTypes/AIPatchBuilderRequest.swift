@@ -300,6 +300,17 @@ extension SwiftSyntaxActionsResult {
             graph: document.visibleGraph)
         graphEntity.nodes = repositionedNodes
         
+        // Make group Id map current context
+        graphEntity.nodes = graphEntity.nodes.map { nodeEntity in
+            var nodeEntity = nodeEntity
+            nodeEntity.canvasEntityMutator { canvasEntity in
+                var canvasEntity = canvasEntity
+                canvasEntity.parentGroupNodeId = document.groupNodeFocused?.groupNodeId
+                return canvasEntity
+            }
+            return nodeEntity
+        }
+        
         // Update topological data--needs to be forced here because of script building using this data
         document.graph.update(from: graphEntity)
         document.graph.updateGraphData(document)
