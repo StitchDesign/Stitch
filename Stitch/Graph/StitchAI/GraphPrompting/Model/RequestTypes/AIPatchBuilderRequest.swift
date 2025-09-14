@@ -257,6 +257,9 @@ extension SwiftSyntaxActionsResult {
         let previousSidebarSelection = graph.layersSidebarViewModel.primary
         let previousLastFocused = graph.layersSidebarViewModel.lastFocused
 
+        // Capture canvas selection state before modifications
+        let previousCanvasSelection = graph.selection.selectedCanvasItems
+
         // Create node matcher for preserving existing nodes
         let oldNodesList = Array(graph.nodes.values)
         let nodeMatcher = NodeSimilarityMatcher(oldNodes: oldNodesList, graph: graph)
@@ -466,6 +469,26 @@ extension SwiftSyntaxActionsResult {
                 graph.layersSidebarViewModel.lastFocused = previousFocus
             }
             log("Restored sidebar selection for \(newSelection.count) preserved nodes")
+        }
+
+        // Restore canvas selection for matched nodes
+        var canvasItemsToSelect = Set<CanvasItemId>()
+        for canvasItemId in previousCanvasSelection {
+            // Find the node that owns this canvas item
+            let nodeId = canvasItemId.associatedNodeId
+            if matchedExistingNodeIds.contains(nodeId) {
+                // This canvas item belongs to a preserved node, keep it selected
+                canvasItemsToSelect.insert(canvasItemId)
+            }
+        }
+
+        // Apply the restored canvas selection
+        for canvasItemId in canvasItemsToSelect {
+            graph.selectCanvasItem(canvasItemId)
+        }
+
+        if !canvasItemsToSelect.isEmpty {
+            log("Restored canvas selection for \(canvasItemsToSelect.count) preserved canvas items")
         }
 
         // new constants for patches
