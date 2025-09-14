@@ -872,7 +872,6 @@ extension SyntaxViewName {
         }
     }
 
-    @MainActor
     static func derivePortValues(from argument: SyntaxViewModifierArgumentType,
                                  varName: String?,
                                  viewEvent: SyntaxViewEvent?,
@@ -886,7 +885,7 @@ extension SyntaxViewName {
                                                  viewEvent: viewEvent,
                                                  nodesDict: nodesDict)
             
-        case .tuple(let tupleArgs):            
+        case .tuple(let tupleArgs):
             // Recursively determine PortValue of each arg
             return try tupleArgs.flatMap {
                 try Self.derivePortValues(from: $0.value,
@@ -895,7 +894,7 @@ extension SyntaxViewName {
                                           nodesDict: nodesDict)
             }
             
-        case .array(let arrayArgs):            
+        case .array(let arrayArgs):
             // Recursively determine PortValue of each arg
             log("SyntaxViewName: derivePortValue: had array: arrayArgs: \(arrayArgs)")
             return try arrayArgs.flatMap {
@@ -1031,7 +1030,6 @@ extension SyntaxViewName {
     }
 }
 
-@MainActor
 func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
                                varName: String?,
                                viewEvent: SyntaxViewEvent?,
@@ -1135,7 +1133,6 @@ enum SyntaxArgumentConstructorContext {
 }
 
 extension SyntaxViewModifierArgumentType {
-    @MainActor
     func derivePortValues(viewEvent: SyntaxViewEvent? = nil) throws -> [PatchSyntaxResultType] {
         try SyntaxViewName.derivePortValues(from: self,
                                             varName: nil,

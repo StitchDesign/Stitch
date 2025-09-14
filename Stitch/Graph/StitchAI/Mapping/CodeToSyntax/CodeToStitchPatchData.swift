@@ -344,7 +344,6 @@ extension SwiftUIViewVisitor {
 }
 
 extension Patch {
-    @MainActor
     func deriveNodeValueType(portEntities: [NodePortInputEntity],
                              nodesDict: [UUID: NodeEntity]) -> NodeType? {
         let nodeValueTypeDynamicPortIndices = self.nonStaticTypedInputPorts ?? .init()

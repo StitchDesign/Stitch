@@ -65,7 +65,6 @@ enum StrictViewConstructor {
 
 /// Runs every `…ViewConstructor.from(node)` helper once. If an enum is
 /// returned, attach it to the *current* SyntaxView.
-@MainActor
 func createKnownViewConstructor(from node: FunctionCallExprSyntax,
                                                arguments: [SyntaxViewArgumentData]) -> StrictViewConstructor? {
     
@@ -299,7 +298,6 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
     }
     
     // Factory that infers the correct overload from a `FunctionCallExprSyntax`
-    @MainActor
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> ImageViewConstructor? {
         guard let first = args.first else { return nil }
@@ -1744,7 +1742,6 @@ enum StrictViewModifier {
 protocol FromSwiftUIViewModifierToStitch {
     associatedtype T
     
-    @MainActor
     static func from(_ args: [SyntaxViewArgumentData],
                      modifierName: SyntaxViewModifierName) -> T?
     

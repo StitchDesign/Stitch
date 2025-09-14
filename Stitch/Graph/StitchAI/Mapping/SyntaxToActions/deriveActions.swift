@@ -464,13 +464,11 @@ extension SwiftParserInitializerType {
 }
 
 extension Dictionary where Key == String, Value == SwiftPatchCodeType {
-    @MainActor
     func getUpstreamPatchPortConnectionData(expr: SwiftPatchCodeExpression,
                                             varName: String,
                                             portIndex: Int? = nil,
                                             varNameToCode: [String: SwiftPatchCodeType],
                                             existingStateVarConnections: [String: NodeIOCoordinate],
-                                            groupNodeId: UUID?,
                                             nodesDict: [UUID: NodeEntity],
                                             viewEvent: SyntaxViewEvent?) throws -> [PatchSyntaxResultType] {
         switch expr {
@@ -502,7 +500,6 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                         portIndex: portIndex,
                         varNameToCode: varNameToCode,
                         existingStateVarConnections: existingStateVarConnections,
-                        groupNodeId: groupNodeId,
                         nodesDict: nodesDict,
                         viewEvent: viewEvent)
                 
@@ -510,7 +507,6 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                 // TODO: this is how we handle member access data in state ref
                 return memberAccessData.memberAccess
                     .createConnectedPatchData(viewEvent: memberAccessData.viewEvent,
-                                              groupNodeId: groupNodeId,
                                               varName: varName,
                                               nodesDict: nodesDict)
             
@@ -875,7 +871,6 @@ extension SwiftPatchNodeCode {
         
         let node = self.patch.defaultNodeEntity(nodeId: nodeId,
                                                 ports: portData.ports,
-                                                groupNodeId: groupNodeId,
                                                 nodesDict: nodesDict,
                                                 jsSettings: jsSettings)
         
@@ -923,7 +918,6 @@ extension Layer {
 }
 
 extension Patch {
-    @MainActor
     func createDefaultIOValues(nodeIO: NodeIO,
                                nodeType: NodeType? = nil) -> PortValuesList {
         if let graphNode = self.graphNode {
@@ -965,7 +959,6 @@ extension Patch {
         }
     }
     
-    @MainActor
     func defaultNodeEntity(nodeId: UUID,
                            ports: [NodePortInputEntity]? = nil,
                            nodesDict: [UUID: NodeEntity],

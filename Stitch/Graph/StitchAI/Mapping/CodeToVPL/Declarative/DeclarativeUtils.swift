@@ -342,7 +342,6 @@ extension MemberAccessExprSyntax {
     }
     
     /// Returns patch data needed for supporting a reference to a view event.
-    @MainActor
     func createConnectedPatchData(viewEvent: SyntaxViewEvent,
                                   varName: String,
                                   nodesDict: [UUID: NodeEntity]) -> [PatchSyntaxResultType] {

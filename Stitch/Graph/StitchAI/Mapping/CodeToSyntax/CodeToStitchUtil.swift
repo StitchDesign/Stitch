@@ -12,7 +12,6 @@ import SwiftUI
 
 extension SwiftUIViewVisitor {
     // Parse arguments from function call
-    @MainActor
     static func parseArguments(from node: FunctionCallExprSyntax) throws -> ViewConstructorType {
         // Default handling for other modifiers
         var arguments = try node.arguments.map { (argument) -> SyntaxViewArgumentData in

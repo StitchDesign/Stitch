@@ -17,7 +17,6 @@ protocol FromSwiftUIViewToStitch {
     //        [ValueOrEdge]
     //    )? { get }
     
-    @MainActor
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> T?
     
