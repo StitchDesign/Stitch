@@ -135,7 +135,6 @@ extension SyntaxViewEvent {
             
             var dragNode = Patch.dragInteraction
                 .defaultNodeEntity(nodeId: self.interactionPatchNodeId,
-                                   groupNodeId: nil,
                                    nodesDict: nodesDict)
             
             dragNode.inputs[0] = .values([assignedLayerPortValue])
@@ -149,7 +148,6 @@ extension SyntaxViewEvent {
             if suffixValue == "x" || suffixValue == "width" {
                 let unpackPositionNode = Patch.unpack
                     .defaultNodeEntity(nodeId: unpackNodeId,
-                                       groupNodeId: nil,
                                        nodesDict: nodesDict)
                 
                 let connection = PortEdgeData(
@@ -169,7 +167,6 @@ extension SyntaxViewEvent {
             } else if suffixValue == "y" || suffixValue == "height" {
                 let unpackPositionNode = Patch.unpack
                     .defaultNodeEntity(nodeId: unpackNodeId,
-                                       groupNodeId: nil,
                                        nodesDict: nodesDict)
                 
                 let connection = PortEdgeData(
@@ -194,7 +191,6 @@ extension SyntaxViewEvent {
             let pressNodeId = deterministicUUID(from: varName)
             var pressNode = Patch.pressInteraction
                 .defaultNodeEntity(nodeId: pressNodeId,
-                                   groupNodeId: nil,
                                    nodesDict: nodesDict)
             
             pressNode.inputs[0] = .values([assignedLayerPortValue])
