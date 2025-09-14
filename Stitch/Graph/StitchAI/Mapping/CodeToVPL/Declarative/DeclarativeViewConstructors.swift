@@ -537,7 +537,7 @@ enum HStackViewConstructor: FromSwiftUIViewToStitch {
                               value: .anchoring(vertAlignment.toAnchoring)))
             
         case .some(let alignmentArg):
-            guard let value = try alignmentArg.derivePortValues().first else {
+            guard let value = try alignmentArg.derivePortValues().first?.value else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: alignmentArg)
             }
             
@@ -546,7 +546,7 @@ enum HStackViewConstructor: FromSwiftUIViewToStitch {
         }
         
         if let spacingArg = spacingArg {
-            guard let value = try spacingArg.derivePortValues().first else {
+            guard let value = try spacingArg.derivePortValues().first?.value else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: spacingArg)
             }
             
@@ -1058,6 +1058,7 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
     }
     
     // Helper method to generate just the port derivations (used by createLayerWithChildrenWrapping)
+    @MainActor
     private func generateScrollPortDerivations() throws -> [LayerPortDerivation] {
         guard case let .parameters(axesArg, _) = self else { return [] }
 
@@ -1162,14 +1163,14 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
             }
             
             // Fall back to generic complex type handling
-            return try handleComplexArgumentType(
+            let inputData = try handleComplexArgumentType(
                 complexType,
+                varName: nil,
                 viewEvent: nil,
-                context: nil)
-            .map { pv in
-                LayerPortDerivation(input: .scrollYEnabled,
-                                    inputData: pv.inputData)
-            }
+                nodesDict: [:])
+
+            return [LayerPortDerivation(input: .scrollYEnabled,
+                                        inputData: inputData)]
 
         default:
             throw SwiftUISyntaxError
@@ -1223,6 +1224,7 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
     
     /// Handles ScrollView-specific child wrapping logic similar to createScrollGroupLayer
     /// Creates appropriate layer structure with child wrapping when needed
+    @MainActor
     func createLayerWithChildrenWrapping(
         childrenLayers: [CurrentAIGraphData.LayerData],
         nodeId: String
@@ -2752,6 +2754,7 @@ func getDefaultWeightForFontChoice(_ fontChoice: StitchFontChoice) -> StitchFont
 }
 
 /// Factory function to create ViewModifierConstructor from parsed SwiftUI syntax
+@MainActor
 func createKnownViewModifier(modifierName: SyntaxViewModifierName,
                            arguments: [SyntaxViewArgumentData]) -> StrictViewModifier? {
     

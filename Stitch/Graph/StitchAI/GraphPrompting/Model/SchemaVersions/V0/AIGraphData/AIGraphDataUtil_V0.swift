@@ -250,7 +250,7 @@ extension AIGraphData_V0.LayerData {
                     
                     customInputValues.append(
                         .init(input: port,
-                              inputData: .stateRef(stateVarName))
+                              inputData: [.connectionToLayerInput(stateVarName)])
                     )
                     
                     // Update state dict
@@ -287,7 +287,7 @@ extension AIGraphData_V0.LayerData {
                             coordinate: .init(
                                 layerInput: port,
                                 portType: .unpacked(unpackedPortType)),
-                            inputData: .value(.init(firstValue))
+                            inputData: [.portData(.values([firstValue]))]
                         ))
                         
                     case .upstreamConnection(let upstream):                        
@@ -297,7 +297,7 @@ extension AIGraphData_V0.LayerData {
                         
                         customInputValues.append(
                             .init(input: port,
-                                  inputData: .stateRef(stateVarName))
+                                  inputData: [.connectionToLayerInput(stateVarName)])
                         )
                         
                         // Update state dict

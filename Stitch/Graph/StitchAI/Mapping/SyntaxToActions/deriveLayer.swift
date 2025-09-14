@@ -403,6 +403,7 @@ extension SyntaxViewName {
 //        return customInputValues
 //    }
     
+    @MainActor
     func deriveInputValuesData(args: [SyntaxViewArgumentData],
                                id: UUID,
                                layerType: CurrentAIGraphData.Layer) throws -> LayerInputValuesDerivationResult {
@@ -881,38 +882,29 @@ extension SyntaxViewName {
         // Handles types like PortValueDescription
         case .complex(let complexType):
             return try handleComplexArgumentType(complexType,
-                                                 viewEvent: viewEvent)
+                                                 varName: varName,
+                                                 viewEvent: viewEvent,
+                                                 nodesDict: nodesDict)
             
-        case .tuple(let tupleArgs):
-            var result: [PatchSyntaxResultType] = []
-            
+        case .tuple(let tupleArgs):            
             // Recursively determine PortValue of each arg
             return try tupleArgs.flatMap {
                 try Self.derivePortValues(from: $0.value,
+                                          varName: varName,
                                           viewEvent: viewEvent,
-                                          context: context)
+                                          nodesDict: nodesDict)
             }
             
-            return result
-            
-        case .array(let arrayArgs):
-            var result: [PatchSyntaxResultType] = []
-            
+        case .array(let arrayArgs):            
             // Recursively determine PortValue of each arg
             log("SyntaxViewName: derivePortValue: had array: arrayArgs: \(arrayArgs)")
             return try arrayArgs.flatMap {
                 log("SyntaxViewName: derivePortValue: had array: $0: \($0)")
-                log("SyntaxViewName: derivePortValue: had array: context: \(context)")
                 return try Self.derivePortValues(from: $0,
+                                                 varName: varName,
                                                  viewEvent: viewEvent,
-                                                 context: context)
-                    from: arg,
-                    varName: varName,
-                    viewEvent: viewEvent,
-                    nodesDict: nodesDict)
+                                                 nodesDict: nodesDict)
             }
-            
-            return result
             
         case .simple(let data):
             switch data.syntaxKind {
@@ -969,7 +961,6 @@ extension SyntaxViewName {
             
             return memberAccess
                 .createConnectedPatchData(viewEvent: viewEvent,
-                                          groupNodeId: nil,
                                           varName: varName,
                                           nodesDict: nodesDict)
             
@@ -1040,9 +1031,11 @@ extension SyntaxViewName {
     }
 }
 
+@MainActor
 func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
+                               varName: String?,
                                viewEvent: SyntaxViewEvent?,
-                               context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivation] {
+                               nodesDict: [UUID: NodeEntity]) throws -> [PatchSyntaxResultType] {
     
     let complexTypeName = SyntaxValueName(rawValue: complexType.typeName)
     switch complexTypeName {
@@ -1056,8 +1049,9 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
         // Search for simple value recursively
         return try SyntaxViewName
             .derivePortValues(from: firstArg.value,
+                              varName: varName,
                               viewEvent: viewEvent,
-                              context: context)
+                              nodesDict: nodesDict)
         
     case .portValueDescription:
         guard let firstArg = complexType.arguments.first else {
@@ -1070,7 +1064,7 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
             // Only decode PortValue directly if first arg is detected as a simple type
             do {
                 let aiPortValue = try complexType.arguments.decode(CurrentAIGraphData.StitchAIPortValue.self)
-                return [.value(.init(aiPortValue.value))]
+                return [.portData(.values([aiPortValue.value]))]
             } catch {
                 log("PortValue decoding error: \(error)")
                 // fatalErrorIfDevDebug()
@@ -1079,17 +1073,17 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
             
         case .memberAccess(let memberAccess):
             guard let viewEvent = viewEvent,
+                  let varName = varName,
                   let secondArg = complexType.arguments[safe: 1],
                   let nodeType = NodeType(secondArg.value.simpleValue?.stripQuotes() ?? "") else {
                 fatalErrorIfDebug()
                 return []
             }
             
-            return [
-                .stateRefInViewEvent(.init(memberAccess: memberAccess,
-                                           valueType: nodeType,
-                                           viewEvent: viewEvent))
-            ]
+            return memberAccess
+                .createConnectedPatchData(viewEvent: viewEvent,
+                                          varName: varName,
+                                          nodesDict: nodesDict)
             
         default:
             return try firstArg.value.derivePortValues(viewEvent: viewEvent)

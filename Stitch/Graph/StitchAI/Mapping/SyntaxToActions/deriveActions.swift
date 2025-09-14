@@ -946,7 +946,6 @@ extension Patch {
     @MainActor
     func defaultNodeEntity(nodeId: UUID,
                            ports: [NodePortInputEntity]? = nil,
-                           groupNodeId: UUID?,
                            nodesDict: [UUID: NodeEntity],
                            jsSettings: JavaScriptNodeSettings? = nil) -> NodeEntity {
         var nodeType: NodeType? = self.graphNode?.defaultUserVisibleType
@@ -954,7 +953,7 @@ extension Patch {
         
         let canvasEntity = CanvasNodeEntity(position: .zero,
                                             zIndex: .zero,
-                                            parentGroupNodeId: groupNodeId)
+                                            parentGroupNodeId: nil)
         
         if let ports = ports {
             portEntities = ports
