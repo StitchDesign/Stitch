@@ -185,14 +185,45 @@ The AI generates nodes in a specific order:
 2. **Secondary**: Node type alphabetical (semantic meaning)
 3. **Tertiary**: UUID string (deterministic fallback)
 
-## Next Steps
+## Implementation Complete ✅
 
-1. **Fix deterministic positioning** first - this solves position-based matching issues
-2. Prototype `NodeSimilarityMatcher` with basic type + value matching
-3. Test with provided examples (rectangle color change, size change, etc.)
-4. Iterate on matching criteria based on results
-5. Consider caching similarity scores for performance
-6. Add configuration for matching strictness
+### Phase 1: Deterministic Positioning ✅
+- **Added nodeCreationOrder tracking** - All nodes (JS patches, native patches, layers) are assigned creation order
+- **Enhanced positionAIGeneratedNodesDuringApply** - Sorts nodes at same depth level by creation order + fallback to UUID
+- **Deterministic layout** - Identical graphs now produce consistent positioning
+
+### Phase 2: Smart Node Matching System ✅
+- **Created NodeSimilarityMatcher** with sophisticated scoring:
+  - Type match (3.0 points) - Exact patch/layer type matching
+  - Input values (2.5 points) - Value structure and content comparison
+  - Connection patterns (2.0 points) - Upstream/downstream connection analysis
+  - Category match (0.5 points) - Both patches or both layers
+- **Enhanced matching logic** with proper PortValue comparison using Equatable
+- **Selective preservation** - Only deletes truly unmatched nodes
+
+### Phase 3: Complete Selection Preservation ✅
+- **Sidebar selection** - Preserves LayersSidebarViewModel.primary and lastFocused
+- **Canvas selection** - Preserves GraphUISelectionState.selectedCanvasItems (orange borders)
+- **Intelligent mapping** - Maps canvas items to their owner nodes for preservation
+
+### Phase 4: Helper Methods ✅
+- **Added isPatch/isLayer** to PatchOrLayer enum for cleaner type checking
+
+## Final Results
+
+The system now provides:
+1. **No visual jumps** - Similar nodes keep positions through deterministic sorting
+2. **Smart preservation** - Nodes are reused when appropriate based on sophisticated similarity scoring
+3. **Complete state preservation** - Both sidebar and canvas selections maintained
+4. **Robust matching** - Connection patterns and input values improve accuracy
+
+## Test Cases Handled
+- ✅ "Make rectangle bigger" - Rectangle preserved, size updated
+- ✅ "Switch from blue to green" - Same nodes, different values
+- ✅ "Oval to rectangle" - May preserve position if similarity high enough
+- ✅ Complex restructuring - Creates new nodes as needed, preserves what's similar
+
+The implementation successfully eliminates jarring UX issues during AI graph updates.
 
 ## Notes for Future Implementation
 
