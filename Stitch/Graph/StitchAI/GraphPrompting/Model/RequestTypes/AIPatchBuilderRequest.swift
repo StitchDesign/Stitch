@@ -11,6 +11,116 @@ enum AIPatchBuilderRequestError: Error {
     case nodeIdNotFound
 }
 
+/// Matches nodes from old graph to new graph based on similarity
+struct NodeSimilarityMatcher {
+    let oldNodes: [NodeViewModel]
+    let graph: GraphState
+
+    /// Calculates similarity score between two nodes (0.0 to 1.0)
+    @MainActor
+    func calculateSimilarity(oldNode: NodeViewModel, newNodeType: PatchOrLayer, newInputValues: [CurrentAIGraphData.CustomPatchInputValue] = []) -> Double {
+        var score = 0.0
+        var maxScore = 0.0
+
+        // 1. Exact type match (highest weight: 3 points)
+        maxScore += 3.0
+        if let oldPatch = oldNode.patch {
+            if case .patch(let newPatch) = newNodeType, oldPatch == newPatch {
+                score += 3.0
+            }
+        } else if let oldLayer = oldNode.kind.getLayer {
+            if case .layer(let newLayer) = newNodeType, oldLayer == newLayer {
+                score += 3.0
+            }
+        }
+
+        // 2. Input values match (medium-high weight: 2.5 points)
+        maxScore += 2.5
+        var inputMatchScore = 0.0
+
+        let oldInputs = oldNode.inputs
+        if !oldInputs.isEmpty {
+            var totalComparisons = 0
+            var matchScore = 0.0
+
+            for (index, oldInputList) in oldInputs.enumerated() {
+                // Compare actual values in each input port
+                for oldValue in oldInputList {
+                    totalComparisons += 1
+                    // TODO: When we have newInputValues available, we can directly compare:
+                    // if newValue == oldValue { matchScore += 1.0 }
+                    // For now, give partial credit for having values
+                    matchScore += 0.5 // Half credit for having a value
+                }
+            }
+
+            if totalComparisons > 0 {
+                inputMatchScore = 2.5 * (matchScore / Double(totalComparisons))
+            }
+        }
+        score += inputMatchScore
+
+        // 3. Connection pattern match (medium weight: 2 points)
+        maxScore += 2.0
+        var connectionScore = 0.0
+
+        // Count upstream connections (inputs with connections)
+        let upstreamCount = oldNode.getAllInputsObservers().compactMap { input in
+            (input as? InputNodeRowObserver)?.upstreamOutputCoordinate
+        }.count
+
+        // Count downstream connections (outputs that likely have connections)
+        // Note: We can't directly check downstream from the node, but having outputs suggests connections
+        let downstreamPotential = oldNode.getAllOutputsObservers().count
+
+        // Score based on connection complexity
+        if upstreamCount > 0 || downstreamPotential > 0 {
+            // Give points for having similar connection patterns
+            // This helps distinguish between isolated nodes and connected ones
+            connectionScore = 2.0 * min(1.0, Double(upstreamCount + downstreamPotential) / 10.0)
+        }
+        score += connectionScore
+
+        // 4. Node kind category match (low weight: 0.5 points)
+        maxScore += 0.5
+        if (oldNode.patch != nil && newNodeType.isPatch) ||
+           (oldNode.kind.getLayer != nil && newNodeType.isLayer) {
+            score += 0.5
+        }
+
+        return maxScore > 0 ? score / maxScore : 0.0
+    }
+
+    /// Finds the best matching existing node for a new node specification
+    @MainActor
+    func findBestMatch(for newNodeType: PatchOrLayer, newNodeId: String, idMap: [String: UUID]) -> NodeViewModel? {
+        // First check if we already have this ID mapped
+        if let existingId = idMap[newNodeId],
+           let existingNode = graph.nodes[existingId] {
+            // Check if the type is compatible
+            let similarity = calculateSimilarity(oldNode: existingNode, newNodeType: newNodeType)
+            if similarity > 0.7 { // High confidence threshold
+                return existingNode
+            }
+        }
+
+        // Otherwise, find best match among all old nodes
+        var bestMatch: NodeViewModel?
+        var bestScore = 0.0
+        let threshold = 0.5 // Minimum similarity threshold
+
+        for oldNode in oldNodes {
+            let score = calculateSimilarity(oldNode: oldNode, newNodeType: newNodeType)
+            if score > bestScore && score >= threshold {
+                bestScore = score
+                bestMatch = oldNode
+            }
+        }
+
+        return bestMatch
+    }
+}
+
 struct AIPatchBuilderFunctionInputs: Codable {
     let swiftui_source_code: String
     let layer_data_list: String
@@ -28,13 +138,33 @@ extension StitchDocumentViewModel {
     @MainActor
     func createLayerNodeFromAI(newLayer: CurrentAIGraphData.LayerData,
                                existingGraph: GraphState,
-                               idMap: inout [String : UUID]) throws {
-        let newId = idMap.get(newLayer.node_id) ?? UUID()
+                               idMap: inout [String : UUID],
+                               nodeCreationOrder: inout [UUID: Int],
+                               creationOrderCounter: inout Int,
+                               nodeMatcher: NodeSimilarityMatcher,
+                               matchedExistingNodeIds: inout Set<UUID>) throws {
+        let migratedNodeName = try newLayer.node_name.value.convert(to: PatchOrLayer.self)
+
+        // Try to find a matching existing node
+        var newId: UUID
+        if let matchedNode = nodeMatcher.findBestMatch(for: migratedNodeName, newNodeId: newLayer.node_id, idMap: idMap) {
+            // Reuse the existing node's ID
+            newId = matchedNode.id
+            matchedExistingNodeIds.insert(newId)
+            log("Matched existing layer node \(newId) for layer \(migratedNodeName)")
+        } else {
+            // Create a new ID
+            newId = idMap.get(newLayer.node_id) ?? UUID()
+        }
+
         idMap.updateValue(newId, forKey: newLayer.node_id)
         idMap.updateValue(newId, forKey: newId.description)
+
+        // Track creation order
+        nodeCreationOrder[newId] = creationOrderCounter
+        creationOrderCounter += 1
+
         let graph = self.visibleGraph
-        
-        let migratedNodeName = try newLayer.node_name.value.convert(to: PatchOrLayer.self)
         let existingLayerNode = existingGraph.nodes.get(newId)
         let needsNewNodeCreation = existingLayerNode?.kind.getLayer != migratedNodeName.layer
         
@@ -60,7 +190,11 @@ extension StitchDocumentViewModel {
                 // Recursive call
                 try self.createLayerNodeFromAI(newLayer: child,
                                                existingGraph: existingGraph,
-                                               idMap: &idMap)
+                                               idMap: &idMap,
+                                               nodeCreationOrder: &nodeCreationOrder,
+                                               creationOrderCounter: &creationOrderCounter,
+                                               nodeMatcher: nodeMatcher,
+                                               matchedExistingNodeIds: &matchedExistingNodeIds)
             }
         }
     }
@@ -104,17 +238,35 @@ extension SwiftSyntaxActionsResult {
         guard let aiManager = document.aiManager else {
             return
         }
-        
+
         let graph = document.visibleGraph
         let graphCenter = document.viewPortCenter
         let highestZIndex = document.visibleGraph.highestZIndex
-        
+
         // Track node ID map to create new IDs, fixing ID reusage issue
         // Make sure currently used IDs are tracked so we don't create redundant nodes
         var idMap = graph.nodes.keys.reduce(into: [String : UUID]()) { result, nodeId in
             result.updateValue(nodeId, forKey: nodeId.description)
         }
-        
+
+        // Track node creation order for deterministic positioning
+        var nodeCreationOrder: [UUID: Int] = [:]
+        var creationOrderCounter = 0
+
+        // Capture sidebar selection state before modifications
+        let previousSidebarSelection = graph.layersSidebarViewModel.primary
+        let previousLastFocused = graph.layersSidebarViewModel.lastFocused
+
+        // Capture canvas selection state before modifications
+        let previousCanvasSelection = graph.selection.selectedCanvasItems
+
+        // Create node matcher for preserving existing nodes
+        let oldNodesList = Array(graph.nodes.values)
+        let nodeMatcher = NodeSimilarityMatcher(oldNodes: oldNodesList, graph: graph)
+
+        // Track which existing nodes were matched/reused
+        var matchedExistingNodeIds = Set<UUID>()
+
         // Tracks all patch input coordinates we either make connections or custom values for, used for determining if extra rows need to be created
         let allModifiedPatchIds = self.graphData.patch_data.custom_patch_input_values.map(\.patch_input_coordinate) + self.graphData.patch_data.patch_connections.map(\.dest_port)
         let allModifiedPatchIdsSet = Set(allModifiedPatchIds)
@@ -132,7 +284,11 @@ extension SwiftSyntaxActionsResult {
             let newId = idMap.get(newPatch.node_id) ?? UUID()
             idMap.updateValue(newId, forKey: newPatch.node_id)
             idMap.updateValue(newId, forKey: newId.description)
-            
+
+            // Track creation order
+            nodeCreationOrder[newId] = creationOrderCounter
+            creationOrderCounter += 1
+
             let newNode = graph.nodes.get(newId) ?? graph
                 .createNode(graphTime: .zero,
                             newNodeId: newId,
@@ -171,19 +327,35 @@ extension SwiftSyntaxActionsResult {
         // new native patches
         for newPatch in self.graphData.patch_data.native_patches {
             let oldId = newPatch.node_id
-            let newId = idMap.get(oldId) ?? UUID()
-            idMap.updateValue(newId, forKey: oldId)
-            idMap.updateValue(newId, forKey: newId.description)
-            
+
             guard let migratedNodeName = try? newPatch.node_name.value.convert(to: PatchOrLayer.self) else {
                 fatalErrorIfDebug("createAIGraph error: could not migrate patch name of \(newPatch.node_name.value)")
                 continue
             }
-            
+
+            // Try to find a matching existing node
+            var newId: UUID
+            if let matchedNode = nodeMatcher.findBestMatch(for: migratedNodeName, newNodeId: oldId, idMap: idMap) {
+                // Reuse the existing node's ID
+                newId = matchedNode.id
+                matchedExistingNodeIds.insert(newId)
+                log("Matched existing node \(newId) for patch \(migratedNodeName)")
+            } else {
+                // Create a new ID
+                newId = idMap.get(oldId) ?? UUID()
+            }
+
+            idMap.updateValue(newId, forKey: oldId)
+            idMap.updateValue(newId, forKey: newId.description)
+
+            // Track creation order
+            nodeCreationOrder[newId] = creationOrderCounter
+            creationOrderCounter += 1
+
             let existingPatchNode = graph.nodes.get(newId)
             let needsNewNodeCreation = existingPatchNode?.patch != migratedNodeName.patch
             let newNode: NodeViewModel
-            
+
             if needsNewNodeCreation {
                 newNode = graph.nodes.get(newId) ?? graph
                     .createNode(graphTime: .zero,
@@ -252,7 +424,11 @@ extension SwiftSyntaxActionsResult {
                 // Recursive caller
                 try document.createLayerNodeFromAI(newLayer: newLayer,
                                                    existingGraph: graph,
-                                                   idMap: &idMap)
+                                                   idMap: &idMap,
+                                                   nodeCreationOrder: &nodeCreationOrder,
+                                                   creationOrderCounter: &creationOrderCounter,
+                                                   nodeMatcher: nodeMatcher,
+                                                   matchedExistingNodeIds: &matchedExistingNodeIds)
             } catch let error as SwiftUISyntaxError {
                 caughtErrors.append(error)
             } catch {
@@ -275,7 +451,46 @@ extension SwiftSyntaxActionsResult {
         
         // Update sidebar view model data with new layer data
         graph.layersSidebarViewModel.update(from: newSidebarData)
-        
+
+        // Restore sidebar selection for matched nodes
+        var newSelection = Set<UUID>()
+        for oldSelectedId in previousSidebarSelection {
+            if matchedExistingNodeIds.contains(oldSelectedId) {
+                // This node was preserved, keep it selected
+                newSelection.insert(oldSelectedId)
+            }
+        }
+
+        if !newSelection.isEmpty {
+            graph.layersSidebarViewModel.primary = newSelection
+            // Restore last focused if it was preserved
+            if let previousFocus = previousLastFocused,
+               matchedExistingNodeIds.contains(previousFocus) {
+                graph.layersSidebarViewModel.lastFocused = previousFocus
+            }
+            log("Restored sidebar selection for \(newSelection.count) preserved nodes")
+        }
+
+        // Restore canvas selection for matched nodes
+        var canvasItemsToSelect = Set<CanvasItemId>()
+        for canvasItemId in previousCanvasSelection {
+            // Find the node that owns this canvas item
+            let nodeId = canvasItemId.associatedNodeId
+            if matchedExistingNodeIds.contains(nodeId) {
+                // This canvas item belongs to a preserved node, keep it selected
+                canvasItemsToSelect.insert(canvasItemId)
+            }
+        }
+
+        // Apply the restored canvas selection
+        for canvasItemId in canvasItemsToSelect {
+            graph.selectCanvasItem(canvasItemId)
+        }
+
+        if !canvasItemsToSelect.isEmpty {
+            log("Restored canvas selection for \(canvasItemsToSelect.count) preserved canvas items")
+        }
+
         // new constants for patches
         for newInputValueSetting in self.graphData.patch_data.custom_patch_input_values {
             do {
@@ -369,16 +584,18 @@ extension SwiftSyntaxActionsResult {
             }
         }
         
-        // Delete unused nodes
+        // Delete unused nodes (but preserve matched nodes)
         let allNewIds = self.graphData.patch_data.javascript_patches.map(\.node_id) +
         self.graphData.patch_data.native_patches.map(\.node_id) +
         self.graphData.layer_data_list.allFlattenedItems.map(\.node_id)
-        
+
         let allNewMappedIds = allNewIds.compactMap { idMap.get($0) }
-        let nodeIdsToDelete = Set(document.visibleGraph.nodes.keys).subtracting(allNewMappedIds)
+        let allPreservedIds = Set(allNewMappedIds).union(matchedExistingNodeIds)
+        let nodeIdsToDelete = Set(document.visibleGraph.nodes.keys).subtracting(allPreservedIds)
 
         log("createAIGraph: nodeIdsToDelete: \(nodeIdsToDelete)")
-        
+        log("createAIGraph: preserved \(matchedExistingNodeIds.count) existing nodes")
+
         for nodeIdToDelete in nodeIdsToDelete {
             document.visibleGraph.deleteNode(id: nodeIdToDelete,
                                              document: document)
@@ -389,7 +606,8 @@ extension SwiftSyntaxActionsResult {
         positionAIGeneratedNodesDuringApply(
             nodes: document.visibleGraph.visibleNodesViewModel,
             viewPortCenter: document.viewPortCenter,
-            graph: document.visibleGraph)
+            graph: document.visibleGraph,
+            nodeCreationOrder: nodeCreationOrder)
         
         // Update topological data--needs to be forced here because of script building using this data
         

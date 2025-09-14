@@ -302,7 +302,8 @@ func positionAIGeneratedNodes(convertedActions: [any StepActionable],
 func positionAIGeneratedNodesDuringApply(
     nodes: VisibleNodesViewModel,
     viewPortCenter: CGPoint,
-    graph: GraphReader
+    graph: GraphReader,
+    nodeCreationOrder: [UUID: Int] = [:]
 ) {
     // TODO: if we have a chain of nodes, shift our starting point further west
     //    var viewPortCenter = viewPortCenter
@@ -384,13 +385,24 @@ func positionAIGeneratedNodesDuringApply(
         // TODO: just rewrite the adjacency logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
         // Find all the created-nodes at this depth-level,
         // and adjust their positions
-        let createdNodesAtThisLevel = createdNodes.compactMap {
+        let nodesAtThisDepth = createdNodes.compactMap {
             if depthMap.get($0) == depthLevel {
                 return nodes.getNode($0)
             }
             // THIS JUST MEANS WE COULD NOT FIND THE NODE AT THIS LEVEL
             // log("positionAIGeneratedNodes: Could not get depth level for \($0.debugFriendlyId)")
             return nil
+        }
+
+        // Sort nodes at this depth level by creation order for deterministic positioning
+        let createdNodesAtThisLevel = nodesAtThisDepth.sorted { node1, node2 in
+            let order1 = nodeCreationOrder[node1.id] ?? Int.max
+            let order2 = nodeCreationOrder[node2.id] ?? Int.max
+            if order1 != order2 {
+                return order1 < order2
+            }
+            // Fallback to UUID string comparison for stability
+            return node1.id.uuidString < node2.id.uuidString
         }
 
         createdNodesAtThisLevel.forEach { createdNode in
