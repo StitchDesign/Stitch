@@ -388,29 +388,27 @@ extension AIGraphData_V0.PortValue {
     }
 }
 
-extension Array where Element == AIGraphData_V0.LayerData {
-    func allNestedCustomInputValues(callback: (String, LayerPortDerivation) -> ()) {
-        for layerData in self {
-            for customInputValue in layerData.custom_layer_input_values {
-                callback(layerData.node_id, customInputValue)
-            }
-            
-            layerData.children?.allNestedCustomInputValues(callback: callback)
-        }
-    }
-}
+//extension Array where Element == AIGraphData_V0.LayerData {
+//    func allNestedCustomInputValues(callback: (String, LayerPortDerivation) -> ()) {
+//        for layerData in self {
+//            for customInputValue in layerData.custom_layer_input_values {
+//                callback(layerData.node_id, customInputValue)
+//            }
+//            
+//            layerData.children?.allNestedCustomInputValues(callback: callback)
+//        }
+//    }
+//}
 
 extension AIGraphData_V0.LayerData {
-    func createSidebarLayerData(idMap: [String : UUID]) throws -> SidebarLayerData {
-        guard let newId = idMap.get(self.node_id) else {
-            throw SwiftUISyntaxError.viewNodeNotFound
+    func createSidebarLayerData() -> SidebarLayerData {
+        let children = self.children?.map {
+            $0.createSidebarLayerData()
         }
         
-        let children = try self.children?.map {
-            try $0.createSidebarLayerData(idMap: idMap)
-        }
+        assertInDebug(UUID(self.node_id) != nil)
         
-        return SidebarLayerData(id: newId,
+        return SidebarLayerData(id: UUID(self.node_id) ?? UUID(),
                                 children: children)
     }
 }

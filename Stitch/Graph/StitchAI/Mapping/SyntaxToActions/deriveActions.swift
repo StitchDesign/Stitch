@@ -900,6 +900,28 @@ func deterministicUUID(from name: String) -> UUID {
     }
 }
 
+extension Layer {
+    @MainActor
+    func createDefaultLayerNodeEntity(nodeId: UUID,
+                                      layerGroupId: UUID?) -> LayerNodeEntity {
+        let graphNode = self.layerGraphNode
+        var layerNodeEntity = LayerNodeEntity(nodeId: nodeId,
+                                              layer: self,
+                                              hasSidebarVisibility: true,
+                                              layerGroupId: layerGroupId)
+        
+        graphNode.inputDefinitions.forEach { inputDefinition in
+            let defaultValue = inputDefinition.getDefaultValue(for: self)
+            layerNodeEntity[keyPath: inputDefinition.schemaPortKeyPath] = .init(
+                packedData: .init(inputPort: .values([defaultValue])),
+                unpackedData: []
+            )
+        }
+        
+        return layerNodeEntity
+    }
+}
+
 extension Patch {
     @MainActor
     func createDefaultIOValues(nodeIO: NodeIO,
@@ -1211,6 +1233,86 @@ extension Array where Element == SwiftPatchClosureType {
     }
 }
 
+extension Dictionary where Key == UUID, Value == NodeEntity {
+    mutating func updateWithEventData(_ event: PatchSyntaxResultType,
+                                      varName: String?,
+                                      stateVarConnections: inout [String: NodeIOCoordinate]) {
+        switch event {
+        case .node(let nodeEntity):
+            self.updateValue(nodeEntity,
+                             forKey: nodeEntity.id)
+            
+        case .portData(let portData):
+            switch portData {
+            case .upstreamConnection(let upstreamCoordinate):
+                guard let varName = varName else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                stateVarConnections.updateValue(upstreamCoordinate,
+                                                forKey: varName)
+                
+            case .values:
+                fatalErrorIfDebug("Unexpectedly found values here.")
+                return
+            }
+            
+        case .connection(let portEdgeData):
+            // Update already created node with an upstream connection
+            guard var toNode = self.get(portEdgeData.to.nodeId),
+                  let inputPortIndex = portEdgeData.to.portId,
+                  var patchNode = toNode.nodeTypeEntity.patchNodeEntity,
+                  var portToUpdate = patchNode.inputs[safe: inputPortIndex] else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            portToUpdate.portData = .upstreamConnection(portEdgeData.from)
+            patchNode.inputs[inputPortIndex] = portToUpdate
+            toNode.nodeTypeEntity = .patch(patchNode)
+            self.updateValue(toNode, forKey: toNode.id)
+        
+        case .connectionToLayerInput(let stateName):
+            // TODO: need to pass in state var connections here once helper is made
+            
+            // TODO: pass in layer input and create canvas item like below
+            
+//            // Get upstream patch data from variable name
+//            guard let upstreamPatchCoordinate = self.graphData.viewStatePatchConnections
+//                .get(varName) else {
+//                //                    fatalErrorIfDebug()
+//                return
+//            }
+//            
+//            let newEdgeData = PortEdgeData(from: .init(portId: upstreamPatchCoordinate.portId!,
+//                                                       nodeId: upstreamPatchCoordinate.nodeId),
+//                                           to: inputCoordinate)
+//            
+//            // create canvas node
+//            guard let node = graph.getNode(upstreamPatchCoordinate.nodeId),
+//                  let fromNodeLocation = node.nonLayerCanvasItem?.position,
+//                  let destinationNode = document.visibleGraph.getNode(inputCoordinate.nodeId),
+//                  let layerInputType = inputCoordinate.keyPath else {
+//                throw SwiftUISyntaxError.layerEdgeDataFailure(varName)
+//            }
+//            
+//            var position = fromNodeLocation
+//            position.x += 200
+//            
+//            document.addCanvasLayerInput(node: destinationNode,
+//                                         layerInputType: layerInputType,
+//                                         draggedOutput: nil,
+//                                         canvasHeightOffset: nil,
+//                                         position: position)
+//            
+//            graph.addEdgeWithoutGraphRecalc(edge: newEdgeData)
+            
+            fatalError()
+        }
+    }
+}
+
 extension Array where Element == (String, SwiftPatchCodeType) {
     @MainActor
     func derivePatchNodes(document: StitchDocumentViewModel,
@@ -1247,37 +1349,9 @@ extension Array where Element == (String, SwiftPatchCodeType) {
                     nodesDict: mergedNodesDict)
                 
                 for event in events {
-                    switch event {
-                    case .node(let nodeEntity):
-                        nodesDict.updateValue(nodeEntity,
-                                              forKey: nodeEntity.id)
-                        
-                    case .portData(let portData):
-                        switch portData {
-                        case .upstreamConnection(let upstreamCoordinate):
-                            stateVarConnections.updateValue(upstreamCoordinate,
-                                                            forKey: varName)
-                            
-                        case .values:
-                            fatalErrorIfDebug("Unexpectedly found values here.")
-                            continue
-                        }
-                        
-                    case .connection(let portEdgeData):
-                        // Update already created node with an upstream connection
-                        guard var toNode = nodesDict.get(portEdgeData.to.nodeId),
-                              let inputPortIndex = portEdgeData.to.portId,
-                              var patchNode = toNode.nodeTypeEntity.patchNodeEntity,
-                              var portToUpdate = patchNode.inputs[safe: inputPortIndex] else {
-                            fatalErrorIfDebug()
-                            continue
-                        }
-                        
-                        portToUpdate.portData = .upstreamConnection(portEdgeData.from)
-                        patchNode.inputs[inputPortIndex] = portToUpdate
-                        toNode.nodeTypeEntity = .patch(patchNode)
-                        nodesDict.updateValue(toNode, forKey: toNode.id)
-                    }
+                    nodesDict.updateWithEventData(event,
+                                                  varName: varName,
+                                                  stateVarConnections: &stateVarConnections)
                 }
 
             } catch let error as SwiftUISyntaxError {

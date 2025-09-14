@@ -107,7 +107,7 @@ extension SyntaxViewEvent {
             if gestureArg.trimmedDescription == "translation" || gestureArg.trimmedDescription == "position" {
                 var dragNode = Patch.dragInteraction
                     .defaultNodeEntity(nodeId: deterministicUUID(from: varName),
-                                       groupNodeId: groupNodeId,
+                                       groupNodeId: nil,
                                        nodesDict: nodesDict)
                 dragNode.inputs[0] = .values([assignedLayerPortValue])
 
@@ -136,7 +136,7 @@ extension SyntaxViewEvent {
             
             var dragNode = Patch.dragInteraction
                 .defaultNodeEntity(nodeId: self.interactionPatchNodeId,
-                                   groupNodeId: groupNodeId,
+                                   groupNodeId: nil,
                                    nodesDict: nodesDict)
             
             dragNode.inputs[0] = .values([assignedLayerPortValue])
@@ -150,7 +150,7 @@ extension SyntaxViewEvent {
             if suffixValue == "x" || suffixValue == "width" {
                 let unpackPositionNode = Patch.unpack
                     .defaultNodeEntity(nodeId: unpackNodeId,
-                                       groupNodeId: groupNodeId,
+                                       groupNodeId: nil,
                                        nodesDict: nodesDict)
                 
                 let connection = PortEdgeData(
@@ -170,7 +170,7 @@ extension SyntaxViewEvent {
             } else if suffixValue == "y" || suffixValue == "height" {
                 let unpackPositionNode = Patch.unpack
                     .defaultNodeEntity(nodeId: unpackNodeId,
-                                       groupNodeId: groupNodeId,
+                                       groupNodeId: nil,
                                        nodesDict: nodesDict)
                 
                 let connection = PortEdgeData(
@@ -195,7 +195,7 @@ extension SyntaxViewEvent {
             let pressNodeId = deterministicUUID(from: varName)
             var pressNode = Patch.pressInteraction
                 .defaultNodeEntity(nodeId: pressNodeId,
-                                   groupNodeId: groupNodeId,
+                                   groupNodeId: nil,
                                    nodesDict: nodesDict)
             
             pressNode.inputs[0] = .values([assignedLayerPortValue])
