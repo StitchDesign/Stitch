@@ -227,14 +227,15 @@ extension StitchDocumentViewModel {
 extension SwiftSyntaxActionsResult {
     @MainActor
     mutating func applyAIGraph(to document: StitchDocumentViewModel,
-                               viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]) async {
+                               viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate],
+                               isEagerParsing: Bool = false) async {
         // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
-        await self.createAIGraph(document: document)
+        await self.createAIGraph(document: document, isEagerParsing: isEagerParsing)
         document.encodeProjectInBackground()
     }
     
     @MainActor
-    mutating func createAIGraph(document: StitchDocumentViewModel) async {
+    mutating func createAIGraph(document: StitchDocumentViewModel, isEagerParsing: Bool = false) async {
         guard let aiManager = document.aiManager else {
             return
         }
@@ -596,18 +597,35 @@ extension SwiftSyntaxActionsResult {
         log("createAIGraph: nodeIdsToDelete: \(nodeIdsToDelete)")
         log("createAIGraph: preserved \(matchedExistingNodeIds.count) existing nodes")
 
-        for nodeIdToDelete in nodeIdsToDelete {
-            document.visibleGraph.deleteNode(id: nodeIdToDelete,
-                                             document: document)
+        if isEagerParsing {
+            // ADDITIVE-ONLY MODE: Never delete nodes during eager parsing
+            log("Eager parsing: preserving all existing nodes, only adding new ones")
+        } else {
+            // FINAL PARSE: Full deletion and reconciliation (current behavior)
+            for nodeIdToDelete in nodeIdsToDelete {
+                document.visibleGraph.deleteNode(id: nodeIdToDelete,
+                                                 document: document)
+            }
         }
         
         // Can't build the depth map from the `patch_data`,
         // since those UUIDs have not been remapped yet
-        positionAIGeneratedNodesDuringApply(
-            nodes: document.visibleGraph.visibleNodesViewModel,
-            viewPortCenter: document.viewPortCenter,
-            graph: document.visibleGraph,
-            nodeCreationOrder: nodeCreationOrder)
+        if isEagerParsing {
+            positionAIGeneratedNodesDuringApply(
+                nodes: document.visibleGraph.visibleNodesViewModel,
+                viewPortCenter: document.viewPortCenter,
+                graph: document.visibleGraph,
+                nodeCreationOrder: nodeCreationOrder,
+                onlyPositionNewNodes: true
+            )
+        } else {
+            positionAIGeneratedNodesDuringApply(
+                nodes: document.visibleGraph.visibleNodesViewModel,
+                viewPortCenter: document.viewPortCenter,
+                graph: document.visibleGraph,
+                nodeCreationOrder: nodeCreationOrder
+            )
+        }
         
         // Update topological data--needs to be forced here because of script building using this data
         

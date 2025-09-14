@@ -297,13 +297,24 @@ func positionAIGeneratedNodes(convertedActions: [any StepActionable],
     }
 }
 
+// Helper function to identify newly created nodes that need positioning
+@MainActor
+private func isNewlyCreatedNode(_ canvasItem: CanvasItemViewModel) -> Bool {
+    // A node is considered "newly created" if it's at or very close to the origin
+    let position = canvasItem.position
+    let threshold: CGFloat = 10.0  // Small threshold to account for minor positioning
+
+    return abs(position.x) < threshold && abs(position.y) < threshold
+}
+
 // TODO: ONLY POSITION THE NEWLY INTRODUCED NODES
 @MainActor
 func positionAIGeneratedNodesDuringApply(
     nodes: VisibleNodesViewModel,
     viewPortCenter: CGPoint,
     graph: GraphReader,
-    nodeCreationOrder: [UUID: Int] = [:]
+    nodeCreationOrder: [UUID: Int] = [:],
+    onlyPositionNewNodes: Bool = false
 ) {
     // TODO: if we have a chain of nodes, shift our starting point further west
     //    var viewPortCenter = viewPortCenter
@@ -334,7 +345,24 @@ func positionAIGeneratedNodesDuringApply(
 
     let depthLevels = depthMap.values.sorted().toOrderedSet
 
-    let createdNodes: IdSet = nodes.nodes.keys.toSet
+    let allNodes: IdSet = nodes.nodes.keys.toSet
+
+    // Filter nodes based on positioning mode
+    let createdNodes: IdSet = if onlyPositionNewNodes {
+        // Only position nodes that are at origin or close to origin (newly created)
+        allNodes.filter { nodeId in
+            guard let node = nodes.getNode(nodeId) else { return false }
+            return node.getAllCanvasObservers().contains { canvasItem in
+                isNewlyCreatedNode(canvasItem)
+            }
+        }
+    } else {
+        allNodes
+    }
+
+    if onlyPositionNewNodes {
+        log("Eager parsing: positioning only \(createdNodes.count) new nodes out of \(allNodes.count) total nodes")
+    }
 
     // Determine widest item (incl. padding) for each depth column
     var columnWidths: [Int: CGFloat] = [:]

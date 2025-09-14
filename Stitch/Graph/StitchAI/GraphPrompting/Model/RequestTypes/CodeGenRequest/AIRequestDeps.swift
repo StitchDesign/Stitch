@@ -227,7 +227,8 @@ extension AIRequestDeps {
             // Apply partial graph update
             await actionsResult.applyAIGraph(
                 to: document,
-                viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections
+                viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
+                isEagerParsing: true
             )
 
             let nodeCount = actionsResult.graphData.layer_data_list.count
