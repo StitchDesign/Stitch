@@ -522,9 +522,9 @@ class EvalTests: XCTestCase {
         
         let expectedOutput: PortValues = [.number(0), .number(2)]
         
-        let node = addPatchNode(nodeId: TestIds._1,
-                                n1Loop: n1,
-                                n2Loop: n2)
+        let node = AddPatchNode
+            .createViewModel()
+        node.updateAllInputs([n1, n2])
         
         let result = outputsOnlyEval(addEval)(node).outputsValues.first!
         
@@ -545,10 +545,9 @@ class EvalTests: XCTestCase {
             .number(6.7)
         ]
         
-        let node: PatchNode = addPatchNode(
-            nodeId: .fakeNodeId,
-            n1Loop: n1,
-            n2Loop: n2)
+        let node = AddPatchNode
+            .createViewModel()
+        node.updateAllInputs([n1, n2])
         
         // convert: Number -> String
         // node =
@@ -587,10 +586,9 @@ class EvalTests: XCTestCase {
             .number(1.0)
         ]
         
-        let node: PatchNode = addPatchNode(
-            nodeId: .fakeNodeId,
-            n1Loop: n1,
-            n2Loop: n2)
+        let node = AddPatchNode
+            .createViewModel()
+        node.updateAllInputs([n1, n2])
         
         // convert: Number -> Point3D
         // node =

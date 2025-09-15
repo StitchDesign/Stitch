@@ -38,15 +38,15 @@ final class OpenAIRequestTests: XCTestCase {
             return
         }
         
-        let requestTest = try AICodeGenRequest(prompt: "testing")
-        let result = await requestTest.request(document: mockDocument,
-                                               aiManager: aiManager)
-        switch result {
-        case .success:
-            break
-        case .failure(let failure):
-            XCTFail(failure.description)
-        }
+        let requestTest = try OpenAIVisionChatCompletionRequest(id: .init(),
+                                                                requestType: .userPrompt,
+                                                                dataGlossaryPrompt: "testing",
+                                                                assistantPrompt: "testing",
+                                                                textInput: "",
+                                                                base64Image: nil)
+        
+        let _ = try await requestTest.request(document: mockDocument,
+                                              aiManager: aiManager)
     }
     
     /// Tests conversions to and from decoded state. StitchAI sometimes uses different types, this ensures types are compatible.
