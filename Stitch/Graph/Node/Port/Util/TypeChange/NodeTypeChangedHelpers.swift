@@ -17,7 +17,7 @@ extension PatchOrLayer {
                          portId: Int) -> Bool {
         // Note: whether a row is type-static or not does not depend on node type,
         // but node type determines how many rows there are.
-        self.rowDefinitionsOldOrNewStyle(for: nodeType)
+        self.rowDefinitions(for: nodeType)
             .inputs[safe: portId]?
             .isTypeStatic ?? false
     }

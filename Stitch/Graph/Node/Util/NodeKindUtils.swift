@@ -209,7 +209,7 @@ extension NodeKind {
 extension PatchOrLayer {
     @MainActor
     func defaultInputs(for type: UserVisibleType?) -> PortValuesList {
-        self.rowDefinitionsOldOrNewStyle(for: type).inputs.map { $0.defaultValues }
+        self.rowDefinitions(for: type).inputs.map { $0.defaultValues }
     }
     
     // Some inputs don't need to coerce PortValues and can instead copy values directly

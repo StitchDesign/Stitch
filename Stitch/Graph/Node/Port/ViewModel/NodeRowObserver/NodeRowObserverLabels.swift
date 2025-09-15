@@ -92,7 +92,7 @@ func getLabelForOutput(portId: Int,
     }
     
     let outputs = node.patchOrLayer
-        .rowDefinitionsOldOrNewStyle(for: node.patchNode?.userVisibleType)
+        .rowDefinitions(for: node.patchNode?.userVisibleType)
         .outputs
     
     return outputs[safe: portId]?.label ?? ""
@@ -117,7 +117,7 @@ func getLabelForPatchInput(portId: Int,
         return inputDefinition.label
     }
     
-    let rowDefinitions = patch.patchOrLayer.rowDefinitionsOldOrNewStyle(for: patch.userVisibleType)
+    let rowDefinitions = patch.patchOrLayer.rowDefinitions(for: patch.userVisibleType)
     return rowDefinitions.inputs[safe: portId]?.label ?? ""
 }
 
@@ -125,6 +125,6 @@ func getLabelForPatchInput(portId: Int,
 func getLabelForPatchOutput(portId: Int,
                             patch: PatchNodeViewModel) -> String {
     
-    let rowDefinitions = patch.patchOrLayer.rowDefinitionsOldOrNewStyle(for: patch.userVisibleType)
+    let rowDefinitions = patch.patchOrLayer.rowDefinitions(for: patch.userVisibleType)
     return rowDefinitions.outputs[safe: portId]?.label ?? ""
 }

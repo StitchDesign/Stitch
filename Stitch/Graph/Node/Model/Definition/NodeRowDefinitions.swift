@@ -64,24 +64,7 @@ extension NodeRowDefinitions {
 // row-definitions are only for Patches and Layers, never Groups or Components
 extension PatchOrLayer {
     @MainActor
-    func rowDefinitionsOldOrNewStyle(for nodeType: UserVisibleType?) -> NodeRowDefinitions {
-
-        // TODO: Most GraphNodes' input and output counts do not vary by nodeType, so we can just coerce the inputs like we do for `legacyRowDefinitions`
-        if let rowDefinitions = self.rowDefinitions(for: nodeType) {
-            return rowDefinitions
-        }
-
-        let rowDefinitions = self.legacyRowDefinitions
-        if let nodeType = nodeType {
-            return .init(inputs: rowDefinitions.inputs.coerce(to: nodeType),
-                         outputs: rowDefinitions.outputs)
-        } else {
-            return rowDefinitions
-        }
-    }
-    
-    @MainActor
-    func rowDefinitions(for nodeType: UserVisibleType?) -> NodeRowDefinitions? {
+    func rowDefinitions(for nodeType: UserVisibleType?) -> NodeRowDefinitions {
         switch self {
         case .layer(let x):
             return x.rowDefinitions()

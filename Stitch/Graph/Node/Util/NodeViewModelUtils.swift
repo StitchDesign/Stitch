@@ -19,7 +19,7 @@ extension NodeViewModel {
         let kind = T.graphKind.kind
         let userVisibleType = kind.graphNode.graphKind.patch?.defaultUserVisibleType
         
-        let defaultInputs = kind.rowDefinitionsOldOrNewStyle(for: userVisibleType).inputs
+        let defaultInputs = kind.rowDefinitions(for: userVisibleType).inputs
             .enumerated()
             .map { portId, inputData in
                 var coordinate: NodeIOCoordinate
