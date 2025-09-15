@@ -951,7 +951,7 @@ extension SyntaxViewName {
                                           varName: varName,
                                           nodesDict: nodesDict)
             
-        case .closure, .viewEvent:
+        case .closure, .viewEvent, .view:
             throw SwiftUISyntaxError.portValueDecodingError(.portValueDecodingError(describe(argument)))
         }
     }
