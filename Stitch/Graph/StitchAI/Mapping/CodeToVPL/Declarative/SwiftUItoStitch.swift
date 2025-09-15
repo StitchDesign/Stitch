@@ -24,7 +24,6 @@ protocol FromSwiftUIViewToStitch {
     var layer: AIGraphData_V0.Layer { get }
     
     // Creates complete LayerData with children and custom value events
-    @MainActor
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
         nodeId: String
@@ -43,7 +42,6 @@ protocol PortValuesPackModifiable: FromSwiftUIViewModifierToStitch {
 }
 
 extension PortValuesPackModifiable {
-    @MainActor
     func createCustomValueEvents() throws -> [LayerPortDerivation] {
         // Handle each argument argument
         let layerPortEvents: [PatchSyntaxResultType] = try self.args.flatMap {
