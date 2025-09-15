@@ -248,9 +248,9 @@ extension Array where Element == AIGraphData_V0.LayerData {
 extension SwiftSyntaxActionsResult {
     @MainActor
     mutating func applyAIGraph(to document: StitchDocumentViewModel,
-                               viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]) async {
+                               viewStatePatchConnections: [String : NodeIOCoordinate]) async {
         // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
-        await self.createAIGraph(document: document)
+        self.createAIGraph(document: document)
         document.encodeProjectInBackground()
     }
     
