@@ -465,7 +465,6 @@
 		EC1213D528873BF10012234C /* AnimationEvaluationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1213D428873BF10012234C /* AnimationEvaluationHelpers.swift */; };
 		EC1224A32B98F1E20011D687 /* StitchBlendMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1224A22B98F1E20011D687 /* StitchBlendMode.swift */; };
 		EC1318C52B8801CF00F74E93 /* CoercerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1318C42B8801CF00F74E93 /* CoercerUtils.swift */; };
-		EC1318C92B8806E200F74E93 /* NodeRowLegacyDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1318C82B8806E200F74E93 /* NodeRowLegacyDefinitions.swift */; };
 		EC135E142BBC460E003AB96F /* SpringHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC135E132BBC460E003AB96F /* SpringHelpers.swift */; };
 		EC1374EE2B61B9C80039B108 /* InsertNodeMenuSizeReadingData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1374ED2B61B9C80039B108 /* InsertNodeMenuSizeReadingData.swift */; };
 		EC14B1D129F84CEA002FDA4F /* inputEditTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC14B1D029F84CEA002FDA4F /* inputEditTests.swift */; };
@@ -1654,7 +1653,6 @@
 		EC1213D428873BF10012234C /* AnimationEvaluationHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationEvaluationHelpers.swift; sourceTree = "<group>"; };
 		EC1224A22B98F1E20011D687 /* StitchBlendMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchBlendMode.swift; sourceTree = "<group>"; };
 		EC1318C42B8801CF00F74E93 /* CoercerUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoercerUtils.swift; sourceTree = "<group>"; };
-		EC1318C82B8806E200F74E93 /* NodeRowLegacyDefinitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowLegacyDefinitions.swift; sourceTree = "<group>"; };
 		EC135E132BBC460E003AB96F /* SpringHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpringHelpers.swift; sourceTree = "<group>"; };
 		EC1374ED2B61B9C80039B108 /* InsertNodeMenuSizeReadingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuSizeReadingData.swift; sourceTree = "<group>"; };
 		EC14B1D029F84CEA002FDA4F /* inputEditTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = inputEditTests.swift; sourceTree = "<group>"; };
@@ -3727,7 +3725,6 @@
 			isa = PBXGroup;
 			children = (
 				B59C01332B4552F6001CDF87 /* NodeRowDefinitions.swift */,
-				EC1318C82B8806E200F74E93 /* NodeRowLegacyDefinitions.swift */,
 				EC4121902BAD53F200B24000 /* PatchNodeDefinitionKinds.swift */,
 				EC41218E2BAD53E200B24000 /* LayerNodeDefinitionKinds.swift */,
 				B569E58A2B06A8B100C7435B /* NodeInfo.swift */,
@@ -6512,7 +6509,6 @@
 				ECFAB3D62BB75ED8007B569A /* SpringAnimationState.swift in Sources */,
 				EC98130F2AB247C700828A20 /* DrawnEdge.swift in Sources */,
 				ECC2BCCD2B9B72B700D5F942 /* SidebarFooterView.swift in Sources */,
-				EC1318C92B8806E200F74E93 /* NodeRowLegacyDefinitions.swift in Sources */,
 				EC4213A32E62302400C6DE64 /* StitchAITrainingDataInspectionOverlay.swift in Sources */,
 				ECC1758A2A43D9440017815D /* LayerDescription.swift in Sources */,
 				ECABB55F269C9E5A00AC9931 /* NetworkRequest.swift in Sources */,
