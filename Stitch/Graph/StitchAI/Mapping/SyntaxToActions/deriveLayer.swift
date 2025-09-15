@@ -103,7 +103,6 @@ extension PortValue {
 }
 
 extension SyntaxViewModifier {
-    @MainActor
     func deriveViewModifierEvents(layerId: UUID) throws -> [SwiftPatchViewEvent]? {
         guard self.name.isGestureModifier,
               let defaultArgs = self.arguments.defaultArgs else {
@@ -290,7 +289,6 @@ extension SyntaxViewModifierName {
 
 extension SyntaxViewName {
     /// Leaf-level mapping for **this** node only
-    @MainActor
     func deriveLayerData(id: UUID,
                          args: ViewConstructorType?,
                          modifiers: [SyntaxViewModifier],
@@ -383,7 +381,6 @@ extension SyntaxViewName {
 //        return customInputValues
 //    }
     
-    @MainActor
     func deriveInputValuesData(args: [SyntaxViewArgumentData],
                                id: UUID,
                                layerType: CurrentAIGraphData.Layer) throws -> LayerInputValuesDerivationResult {
@@ -589,7 +586,6 @@ extension SyntaxViewName {
         return (layerType, layerNode)
     }
     
-    @MainActor
     func deriveCustomValuesFromConstructorArgument(layerType: CurrentAIGraphData.Layer,
                                                    arg: SyntaxViewArgumentData
     ) throws -> [LayerPortDerivation] {
@@ -628,7 +624,6 @@ extension SyntaxViewName {
         return result
     }
     
-    @MainActor
     private static func deriveCustomValuesFromViewModifier(id: UUID,
                                                            layerType: CurrentAIGraphData.Layer,
                                                            modifier: SyntaxViewModifier) throws -> LayerInputViewModification? {
@@ -679,8 +674,7 @@ extension SyntaxViewName {
 //            throws SwiftUISyntaxError.unsupportedViewModifier(<#T##SyntaxViewModifierName#>)
         }
     }
-        
-    @MainActor
+
     private static func derivePortValues(
         from arguments: [SyntaxViewArgumentData],
         modifierName: SyntaxViewModifierName,
@@ -759,7 +753,6 @@ extension SyntaxViewName {
 
     // TODO: we should not actually need `context` when calling `derivePortValues` from within the `createCustomValueEvents` method of an explicitly supported view-constructors and view-modifiers (which *just is* the "context");
     // in practice, this function is mostly helpful for handling the PortValueDescriptions returned by our LLM
-    @MainActor
     static func derivePortValues(from argument: SyntaxViewModifierArgumentType,
                                  port: LayerInputPort,
                                  context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivation] {
