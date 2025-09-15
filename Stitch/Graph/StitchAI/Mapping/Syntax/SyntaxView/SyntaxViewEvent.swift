@@ -231,7 +231,6 @@ extension SyntaxViewEvent {
 }
 
 extension SyntaxViewModifierViewEvent {
-    @MainActor
     func deriveViewEventData(layerId: UUID) throws -> SwiftPatchViewEvent? {
         // Check for onChange handlers
         guard let viewName = SyntaxViewEventType(rawValue: self.eventName),
