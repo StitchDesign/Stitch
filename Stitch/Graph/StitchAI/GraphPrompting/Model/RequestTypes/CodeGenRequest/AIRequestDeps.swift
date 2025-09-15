@@ -136,7 +136,7 @@ extension StitchAICodeCreator {
                     Task(priority: .high) {
                         await actionsResult
                             .applyAIGraph(to: document,
-                                          viewStatePatchConnections: actionsResult.graphData .viewStatePatchConnections)
+                                          viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections)
                     }
                     
                     // Note: task clearing and menu hiding are handled by resetStreamingUIState() called by AI providers
@@ -165,6 +165,12 @@ extension StitchAICodeCreator {
 
         log("userPrompt: \(userPrompt)") // Very helpful to see user-prompt here again
         log("StitchAICodeCreator swiftUICode:\n\(swiftUICode)")
+
+        // Check if the AI returned empty code
+        if swiftUICode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            log("ERROR: AI returned empty code for prompt: \(userPrompt)")
+            throw StitchAIManagerError.emptyAIResponse
+        }
 
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
         
