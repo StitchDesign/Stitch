@@ -8,36 +8,32 @@
 import Foundation
 import StitchSchemaKit
 
-@MainActor
-func minNode(id: NodeId,
-             n1: Double = 1.0,
-             n2: Double = 0.0,
-             position: CGPoint = .zero,
-             zIndex: Double = 0,
-             n1Loop: PortValues? = nil,
-             n2Loop: PortValues? = nil) -> PatchNode {
 
-    let inputs = toInputs(id: id,
-                         values:
-                           (nil, n1Loop ?? [.number(n1)]),
-                           (nil, n2Loop ?? [.number(n2)]))
-    
-    // Calculate initial output using the same logic as MinEvalOps.numberOperation
-    let initialValues: [PortValue] = [.number(n1), .number(n2)]
-    let minValue = initialValues.compactMap { $0.getNumber }.min() ?? .zero
-    
-    let outputs = toOutputs(id: id,
-                           offset: inputs.count,
-                           values: (nil, [.number(minValue)]))
+struct MinPatchNode: PatchNodeDefinition {
+    static let patch = Patch.min
 
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .min,
-        userVisibleType: .number,
-        inputs: inputs,
-        outputs: outputs)
+    static let defaultUserVisibleType: UserVisibleType? = .number
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(1)],
+                    label: ""
+                ),
+                .init(
+                    defaultValues: [.number(0)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: type ?? .number
+                )
+            ]
+        )
+    }
 }
 
 @MainActor

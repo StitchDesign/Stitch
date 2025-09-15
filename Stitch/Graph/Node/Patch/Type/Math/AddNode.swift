@@ -9,61 +9,33 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
-// starts out as number
-@MainActor
-func addPatchNode(nodeId: NodeId = NodeId(),
-                  n1: Double = 0.0,
-                  n2: Double = 0.0,
-                  position: CGPoint = .zero,
-                  zIndex: Double = 0,
-                  n1Loop: PortValues? = nil,
-                  n2Loop: PortValues? = nil) -> PatchNode {
 
-    let inputs = toInputs(id: nodeId,
-                          values:
-                            (nil, n1Loop ?? [.number(n1)]),
-                          (nil, n2Loop ?? [.number(n2)]))
+struct AddPatchNode: PatchNodeDefinition {
+    static let patch = Patch.add
 
-    let outputs = toOutputs(id: nodeId, offset: inputs.count,
-                            values: (nil, [.number(n1 + n2)]))
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: nodeId,
-        patchName: .add,
-        userVisibleType: .number,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: ""
+                ),
+                .init(
+                    defaultValues: [.number(0)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: type ?? .number
+                )
+            ]
+        )
+    }
 }
-
-//// This has an output of .none during `insert-node-animation` ?
-//struct AddPatchNode: PatchNodeDefinition {
-//    static let patch = Patch.add
-//
-//    static private let _defaultUserVisibleType: UserVisibleType = .number
-//    static let defaultUserVisibleType: UserVisibleType? = Self._defaultUserVisibleType
-//
-//    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
-//        .init(
-//            inputs: [
-//                .init(
-//                    defaultValues: [defaultNumber],
-//                    label: ""
-//                ),
-//                .init(
-//                    defaultValues: [defaultNumber],
-//                    label: ""
-//                )
-//            ],
-//            outputs: [
-//                .init(
-//                    label: ""
-//                )
-//            ]
-//        )
-//    }
-//}
 
 @MainActor
 func addEval(inputs: PortValuesList,

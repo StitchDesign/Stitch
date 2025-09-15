@@ -10,35 +10,32 @@ import StitchSchemaKit
 import SwiftUI
 import Numerics
 
-@MainActor
-func arcTan2Node(id: NodeId,
-                 y: Double = 0.0,
-                 x: Double = 0.0,
-                 position: CGPoint = .zero,
-                 zIndex: Double = 0,
-                 yLoop: PortValues? = nil,
-                 xLoop: PortValues? = nil) -> PatchNode {
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Y", yLoop ?? [.number(y)]),
-        ("X", xLoop ?? [.number(x)]))
+struct ArcTan2PatchNode: PatchNodeDefinition {
+    static let patch = Patch.arcTan2
 
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values: (nil, [.number(atan2(y, x)
-                                .radiansToDegrees
-                                .rounded(toPlaces: 5))]))
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .arcTan2,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "Y"
+                ),
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "X"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: type ?? .number
+                )
+            ]
+        )
+    }
 }
 
 @MainActor

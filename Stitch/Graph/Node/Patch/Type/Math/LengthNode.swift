@@ -8,33 +8,28 @@
 import Foundation
 import StitchSchemaKit
 
-@MainActor
-func lengthNode(id: NodeId,
-                n: Double = 1,
-                position: CGPoint = .zero,
-                zIndex: Double = 0) -> PatchNode {
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            (nil, [.number(n)])
-    )
+struct LengthPatchNode: PatchNodeDefinition {
+    static let patch = Patch.length
 
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            (nil, [.number(abs(n))])
-    )
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .length,
-        userVisibleType: .number,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(1)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: type ?? .number
+                )
+            ]
+        )
+    }
 }
 
 @MainActor

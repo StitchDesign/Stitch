@@ -10,33 +10,28 @@ import StitchSchemaKit
 import SwiftUI
 import Numerics
 
-@MainActor
-func sineNode(id: NodeId,
-              n: Double = 0.0,
-              position: CGPoint = .zero,
-              zIndex: Double = 0,
-              nLoop: PortValues? = nil) -> PatchNode {
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Angle", nLoop ?? [.number(n)]))
+struct SinePatchNode: PatchNodeDefinition {
+    static let patch = Patch.sine
 
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values: (nil, [
-            .number(sin(n.degreesToRadians).rounded(toPlaces: 5))
-        ])
-    )
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .sine,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "Angle"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: type ?? .number
+                )
+            ]
+        )
+    }
 }
 
 // Swift `sin(n)` expects RADIANS

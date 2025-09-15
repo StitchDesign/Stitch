@@ -40,14 +40,12 @@ extension Patch {
         var node: PatchNode
 
         switch self {
-        case .add:
-            node = addPatchNode(nodeId: id, position: position, zIndex: zIndex)
-        case .convertPosition:
-            node = convertPositionNode(nodeId: id, position: position, zIndex: zIndex)
-        case .multiply:
-            node = multiplyPatchNode(id: id, position: position, zIndex: zIndex)
-        case .divide:
-            node = dividePatchNode(id: id, position: position, zIndex: zIndex)
+        // Converted nodes - these cases should not be reached anymore
+        // since they now use the new PatchNodeDefinition system via graphNode
+        // case .add: - now uses AddPatchNode
+        // case .convertPosition: - now uses ConvertPositionPatchNode
+        // case .multiply: - now uses MultiplyPatchNode
+        // case .divide: - now uses DividePatchNode
         case .loop:
             node = loopStartNode(id: id, position: position, zIndex: zIndex)
         case .time:
@@ -74,8 +72,7 @@ extension Patch {
             node = notNode(id: id, position: position, zIndex: zIndex)
         case .transition:
             node = transitionNode(id: id, position: position, zIndex: zIndex)
-        case .speaker:
-            node = speakerNode(id: id, position: position, zIndex: zIndex)
+        // case .speaker: - this should be converted to use SpeakerPatchNode
         case .loopOverArray:
             node = loopOverArrayNode(id: id, position: position, zIndex: zIndex)
         case .setValueForKey:
@@ -98,42 +95,29 @@ extension Patch {
             node = deviceMotionNode(id: id, position: position, zIndex: zIndex)
         case .deviceInfo:
             node = deviceInfoNode(id: id, position: position, zIndex: zIndex)
-        case .clip:
-            node = clipNode(id: id, position: position, zIndex: zIndex)
-        case .max:
-            node = maxNode(id: id, position: position, zIndex: zIndex)
-        case .mod:
-            node = modNode(id: id, position: position, zIndex: zIndex)
-        case .absoluteValue:
-            node = absoluteValueNode(id: id, position: position, zIndex: zIndex)
-        case .round:
-            node = roundNode(id: id, position: position, zIndex: zIndex)
+        // case .clip: - now uses ClipPatchNode
+        // case .max: - now uses MaxPatchNode
+        // case .mod: - now uses ModPatchNode
+        // case .absoluteValue: - now uses AbsoluteValuePatchNode
+        // case .round: - now uses RoundPatchNode
         case .rgba:
             node = rgbaNode(id: id, position: position, zIndex: zIndex)
         case .lessThanOrEqual:
             node = lessThanOrEqualPatchNode(id: id, position: position, zIndex: zIndex)
         case .equals:
             node = equalsPatchNode(id: id, position: position, zIndex: zIndex)
-        case .arcTan2:
-            node = arcTan2Node(id: id, position: position, zIndex: zIndex)
-        case .sine:
-            node = sineNode(id: id, position: position, zIndex: zIndex)
-        case .cosine:
-            node = cosineNode(id: id, position: position, zIndex: zIndex)
+        // case .arcTan2: - now uses ArcTan2PatchNode
+        // case .sine: - now uses SinePatchNode
+        // case .cosine: - now uses CosinePatchNode
         case .soulver:
             node = soulverNode(id: id, position: position, zIndex: zIndex)
         case .optionEquals:
             node = optionEqualsNode(id: id, position: position, zIndex: zIndex)
-        case .subtract:
-            node = subtractNode(id: id, position: position, zIndex: zIndex)
-        case .squareRoot:
-            node = squareRootNode(id: id, position: position, zIndex: zIndex)
-        case .length:
-            node = lengthNode(id: id, position: position, zIndex: zIndex)
-        case .min:
-            node = minNode(id: id, position: position, zIndex: zIndex)
-        case .power:
-            node = powerNode(id: id, position: position, zIndex: zIndex)
+        // case .subtract: - now uses SubtractPatchNode
+        // case .squareRoot: - now uses SquareRootPatchNode
+        // case .length: - now uses LengthPatchNode
+        // case .min: - now uses MinPatchNode
+        // case .power: - now uses PowerPatchNode
         case .equalsExactly:
             node = equalsExactlyPatchNode(id: id, position: position, zIndex: zIndex)
         case .greaterThan:
@@ -199,9 +183,21 @@ extension Patch {
         case .commandsToShape:
             node = commandsToShapeNode(id: id, position: position, zIndex: zIndex)
         default:
-            // Shouldn't happen
+            // This should not happen - all patches should either use the new PatchNodeDefinition system
+            // or have a case in this switch statement
             fatalErrorIfDebug("defaultNode: could not create node for patch \(self)")
-            node = addPatchNode(nodeId: id, position: position, zIndex: zIndex)
+            // Create a minimal fallback node with one dummy input and output
+            let inputs = toInputs(id: id, values: (nil, [.number(0)]))
+            let outputs = toOutputs(id: id, offset: inputs.count, values: (nil, [.number(0)]))
+            node = PatchNode(
+                position: position,
+                zIndex: zIndex,
+                id: id,
+                patchName: self,
+                userVisibleType: .number,
+                inputs: inputs,
+                outputs: outputs
+            )
         } // switch
 
         /*

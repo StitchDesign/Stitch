@@ -9,33 +9,45 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func convertPositionNode(nodeId: NodeId = NodeId(),
-                         n1: Double = 0.0,
-                         position: CGPoint = .zero,
-                         zIndex: Double = 0,
-                         interactionId: PortValue = interactionIdDefault) -> PatchNode {
-    let inputs = toInputs(
-        id: nodeId,
-        values:
-            ("From Parent", [interactionId]), // 0
-        ("From Anchor", [.anchoring(.defaultAnchoring)]), // 1
-        ("Point", [.position(StitchPosition.zero)]), // 2
-        ("To Parent", [interactionId]), // 3
-        ("To Anchor", [.anchoring(.defaultAnchoring)]) // 4
-    )
+struct ConvertPositionPatchNode: PatchNodeDefinition {
+    static let patch = Patch.convertPosition
 
-    let outputs = toOutputs(id: nodeId, offset: inputs.count,
-                            values: (nil, [.position(.zero)]))
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: nodeId,
-        patchName: .convertPosition,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.assignedLayer(nil)],
+                    label: "From Parent"
+                ),
+                .init(
+                    defaultValues: [.anchoring(.defaultAnchoring)],
+                    label: "From Anchor"
+                ),
+                .init(
+                    defaultValues: [.position(StitchPosition.zero)],
+                    label: "Point"
+                ),
+                .init(
+                    defaultValues: [.assignedLayer(nil)],
+                    label: "To Parent"
+                ),
+                .init(
+                    defaultValues: [.anchoring(.defaultAnchoring)],
+                    label: "To Anchor"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .position
+                )
+            ]
+        )
+    }
 }
+
 
 // Does this assume single layer?
 // Preferably, retrieve the layer view model at that loop-index?

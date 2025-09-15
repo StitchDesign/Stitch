@@ -9,32 +9,32 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func dividePatchNode(id: NodeId,
-                     n1: Double = 0,
-                     n2: Double = 0,
-                     position: CGPoint = .zero,
-                     zIndex: Double = 0) -> PatchNode {
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            (nil, [.number(n1)]),
-        (nil, [.number(n2)]))
+struct DividePatchNode: PatchNodeDefinition {
+    static let patch = Patch.divide
 
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values: (nil, [.number(zeroCompatibleDivision(numerator: n1, denominator: n2))]))
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .divide,
-        userVisibleType: .number,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: ""
+                ),
+                .init(
+                    defaultValues: [.number(0)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: type ?? .number
+                )
+            ]
+        )
+    }
 }
 
 func zeroCompatibleDivision(numerator: Double, denominator: Double) -> Double {

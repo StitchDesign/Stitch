@@ -16,11 +16,9 @@ extension Patch {
             return SplitterPatchNode.self
             
         case .add:
-            return nil
-            // see note in `addPatchNode`
-            //            return AddPatchNode.self
+            return AddPatchNode.self
         case .convertPosition:
-            return nil
+            return ConvertPositionPatchNode.self
         case .dragInteraction:
             return DragInteractionNode.self
         case .pressInteraction:
@@ -40,7 +38,7 @@ extension Patch {
         case .flipSwitch:
             return SwitchNode.self
         case .multiply:
-            return nil
+            return MultiplyPatchNode.self
         case .optionPicker:
             return OptionPickerPatchNode.self
         case .loop:
@@ -62,7 +60,7 @@ extension Patch {
         case .restartPrototype:
             return nil
         case .divide:
-            return nil
+            return DividePatchNode.self
         case .hslColor:
             return nil
         case .or:
@@ -124,7 +122,7 @@ extension Patch {
         case .soundImport:
             return SoundImportNode.self
         case .speaker:
-            return nil
+            return SpeakerPatchNode.self
         case .microphone:
             return MicrophoneNode.self
         case .networkRequest:
@@ -168,15 +166,15 @@ extension Patch {
         case .velocity:
             return VelocityNode.self
         case .clip:
-            return nil
+            return ClipPatchNode.self
         case .max:
-            return nil
+            return MaxPatchNode.self
         case .mod:
-            return nil
+            return ModPatchNode.self
         case .absoluteValue:
-            return nil
+            return AbsoluteValuePatchNode.self
         case .round:
-            return nil
+            return RoundPatchNode.self
         case .progress:
             return ProgressNode.self
         case .reverseProgress:
@@ -188,11 +186,11 @@ extension Patch {
         case .rgba:
             return nil
         case .arcTan2:
-            return nil
+            return ArcTan2PatchNode.self
         case .sine:
-            return nil
+            return SinePatchNode.self
         case .cosine:
-            return nil
+            return CosinePatchNode.self
         case .hapticFeedback:
             return HapticFeedbackNode.self
         case .imageToBase64String:
@@ -206,15 +204,15 @@ extension Patch {
         case .optionEquals:
             return nil
         case .subtract:
-            return nil
+            return SubtractPatchNode.self
         case .squareRoot:
-            return nil
+            return SquareRootPatchNode.self
         case .length:
-            return nil
+            return LengthPatchNode.self
         case .min:
-            return nil
+            return MinPatchNode.self
         case .power:
-            return nil
+            return PowerPatchNode.self
         case .equalsExactly:
             return nil
         case .greaterThan:

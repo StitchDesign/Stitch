@@ -9,32 +9,32 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
-@MainActor
-func subtractNode(id: NodeId,
-                  n1: Double = 0.0,
-                  n2: Double = 0.0,
-                  position: CGPoint = .zero,
-                  zIndex: Double = 0,
-                  n1Loop: PortValues? = nil,
-                  n2Loop: PortValues? = nil) -> PatchNode {
 
+struct SubtractPatchNode: PatchNodeDefinition {
+    static let patch = Patch.subtract
 
-    let inputs = toInputs(id: id,
-                            values:
-                              (nil, n1Loop ?? [.number(n1)]),
-                            (nil, n2Loop ?? [.number(n2)]))
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
-    let outputs = toOutputs(id: id, offset: inputs.count,
-                              values: (nil, [.number(n1 + n2)]))
-    
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .subtract,
-        userVisibleType: .number,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: ""
+                ),
+                .init(
+                    defaultValues: [.number(0)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: type ?? .number
+                )
+            ]
+        )
+    }
 }
 
 @MainActor
