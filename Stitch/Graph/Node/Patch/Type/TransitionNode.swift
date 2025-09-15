@@ -10,44 +10,37 @@ import StitchSchemaKit
 import SwiftUI
 import Accelerate
 
-@MainActor
-func transitionNode(id: NodeId,
-                    progress: Double = 0.5,
-                    start: Double = 50,
-                    end: Double = 100,
-                    position: CGPoint = .zero,
-                    zIndex: Double = 0,
-                    progressLoop: PortValues? = nil,
-                    n2Loop: PortValues? = nil,
-                    n3Loop: PortValues? = nil) -> PatchNode {
+struct TransitionPatchNode: PatchNodeDefinition {
+    static let patch = Patch.transition
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Progress", progressLoop ?? [.number(progress)]),
-        ("Start", n2Loop ?? [.number(start)]),
-        ("End", n3Loop ?? [.number(end)])
-    )
-
-    let prelimResult: Double = transition(
-        progress,
-        start: start,
-        end: end)
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        // ... not a loop!
-        values: (nil, [.number(prelimResult)]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .transition,
-        userVisibleType: .number,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0.5)],
+                    label: "Progress",
+                    isTypeStatic: true
+                ),
+                .init(
+                    defaultValues: [.number(50)],
+                    label: "Start"
+                ),
+                .init(
+                    defaultValues: [.number(100)],
+                    label: "End"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .number
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func transitionEval(inputs: PortValuesList,
@@ -123,8 +116,8 @@ struct TransitionEvalOps {
     static let numberOp: Operation = { (values: PortValues) -> PortValue in
 
         guard let progress = values.first?.getNumber,
-              let start = values[1].getNumber,
-              let end = values[2].getNumber else {
+              let start = values[safe: 1]?.getNumber,
+              let end = values[safe: 2]?.getNumber else {
             fatalErrorIfDebug()
             return .number(.zero)
             }
@@ -137,8 +130,8 @@ struct TransitionEvalOps {
     static let anchoringOp: Operation = { (values: PortValues) -> PortValue in
 
         guard let progress = values.first?.getNumber,
-              let start = values[1].getAnchoring,
-              let end = values[2].getAnchoring else {
+              let start = values[safe: 1]?.getAnchoring,
+              let end = values[safe: 2]?.getAnchoring else {
             fatalErrorIfDebug()
             return .anchoring(.topLeft)
         }
@@ -157,8 +150,8 @@ struct TransitionEvalOps {
     static let positionOp: Operation = { (values: PortValues) -> PortValue in
 
         guard let progress = values.first?.getNumber,
-              let start = values[1].getPosition,
-              let end = values[2].getPosition else {
+              let start = values[safe: 1]?.getPosition,
+              let end = values[safe: 2]?.getPosition else {
             fatalErrorIfDebug()
             return .position(.zero)
         }
@@ -178,8 +171,8 @@ struct TransitionEvalOps {
     static let sizeOp: Operation = { (values: PortValues) -> PortValue in
 
         guard let progress = values.first?.getNumber,
-              let start = values[1].getSize,
-              let end = values[2].getSize else {
+              let start = values[safe: 1]?.getSize,
+              let end = values[safe: 2]?.getSize else {
             fatalErrorIfDebug()
             return .size(.zero)
         }
@@ -199,8 +192,8 @@ struct TransitionEvalOps {
     static let point3DOp: Operation = { (values: PortValues) -> PortValue in
 
         guard let progress = values.first?.getNumber,
-              let start = values[1].getPoint3D,
-              let end = values[2].getPoint3D else {
+              let start = values[safe: 1]?.getPoint3D,
+              let end = values[safe: 2]?.getPoint3D else {
             fatalErrorIfDebug()
             return .point3D(.zero)
         }
@@ -223,8 +216,8 @@ struct TransitionEvalOps {
     static let colorOp: Operation = { (values: PortValues) -> PortValue in
 
         guard let progress = values.first?.getNumber,
-              let start: RGBA = values[1].getColor?.asRGBA,
-              let end: RGBA = values[2].getColor?.asRGBA else {
+              let start: RGBA = values[safe: 1]?.getColor?.asRGBA,
+              let end: RGBA = values[safe: 2]?.getColor?.asRGBA else {
             fatalErrorIfDebug()
             return colorDefaultFalse
         }
@@ -254,8 +247,8 @@ struct TransitionEvalOps {
     static let point4DOp: Operation = { (values: PortValues) -> PortValue in
         
         guard let progress = values.first?.getNumber,
-              let start = values[1].getPoint4D,
-              let end = values[2].getPoint4D else {
+              let start = values[safe: 1]?.getPoint4D,
+              let end = values[safe: 2]?.getPoint4D else {
             fatalErrorIfDebug()
             return .point4D(.zero)
         }

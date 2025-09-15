@@ -8,30 +8,36 @@
 import Foundation
 import StitchSchemaKit
 
-@MainActor
-func trimTextNode(id: NodeId,
-                  position: CGPoint = .zero,
-                  zIndex: Double = 0) -> PatchNode {
+struct TrimTextPatchNode: PatchNodeDefinition {
+    static let patch = Patch.trimText
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values: ("Text", [.string(.init(""))]),
-        ("Position", [numberDefaultFalse]),
-        ("Length", [numberDefaultFalse])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: (nil, [.string(.init(.empty))]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .trimText,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Text"
+                ),
+                .init(
+                    defaultValues: [numberDefaultFalse],
+                    label: "Position"
+                ),
+                .init(
+                    defaultValues: [numberDefaultFalse],
+                    label: "Length"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .string
+                )
+            ]
+        )
+    }
 }
+
 
 // https://origami.design/documentation/patches/builtin.textsubstring
 // https://stackoverflow.com/questions/39677330/how-does-string-substring-work-in-swift

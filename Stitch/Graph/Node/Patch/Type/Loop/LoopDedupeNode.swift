@@ -8,34 +8,30 @@
 import Foundation
 import StitchSchemaKit
 
-// TODO: needs more node types ?
-@MainActor
-func loopDedupeNode(id: NodeId,
-                    position: CGPoint = .zero,
-                    zIndex: Double = 0) -> PatchNode {
+struct LoopDedupePatchNode: PatchNodeDefinition {
+    static let patch = Patch.loopDedupe
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Loop", [numberDefaultFalse]) // 0
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            ("Loop", [numberDefaultFalse]),
-        ("Index", [numberDefaultFalse])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .loopDedupe,
-        userVisibleType: .number,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "Loop"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Loop",
+                    type: type ?? .number
+                ),
+                .init(
+                    label: "Index",
+                    type: .number
+                )
+            ]
+        )
+    }
 }
 
 func loopDedupeEval(inputs: PortValuesList,

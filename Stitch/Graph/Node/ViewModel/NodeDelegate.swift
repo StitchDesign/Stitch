@@ -12,7 +12,7 @@ import StitchSchemaKit
 extension NodeViewModel {
     @MainActor
     var defaultOutputs: PortValues {
-        guard let values = self.kind.patchOrLayer?.graphNode?.rowDefinitions(for: self.userVisibleType).outputs
+        guard let values = self.kind.patchOrLayer?.graphNode.rowDefinitions(for: self.userVisibleType).outputs
             .map({ $0.value }),
               !values.isEmpty else {
             return []

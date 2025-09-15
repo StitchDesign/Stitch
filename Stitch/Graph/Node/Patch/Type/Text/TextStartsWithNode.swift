@@ -8,29 +8,32 @@
 import Foundation
 import StitchSchemaKit
 
-@MainActor
-func textStartsWithNode(id: NodeId,
-                        position: CGPoint = .zero,
-                        zIndex: Double = 0) -> PatchNode {
+struct TextStartsWithPatchNode: PatchNodeDefinition {
+    static let patch = Patch.textStartsWith
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values: ("Text", [.string(.init(""))]),
-        ("Prefix", [.string(.init(""))])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: (nil, [.bool(false)]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .textStartsWith,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Text"
+                ),
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Prefix"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .bool
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func textStartsWithEval(inputs: PortValuesList,

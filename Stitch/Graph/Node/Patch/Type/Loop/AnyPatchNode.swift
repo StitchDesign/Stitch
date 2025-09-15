@@ -8,34 +8,32 @@
 import Foundation
 import StitchSchemaKit
 
-@MainActor
-func anyPatchNode(id: NodeId,
-                  position: CGPoint = .zero,
-                  zIndex: Double = 0) -> PatchNode {
+struct AnyPatchNode: PatchNodeDefinition {
+    static let patch = Patch.any
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Loop", [boolDefaultFalse]), // 0
-        // TODO: use Grouping input properly
-        ("Grouping", [.number(0)]) // 1
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            (nil, [boolDefaultFalse])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .any,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [boolDefaultFalse],
+                    label: "Loop"
+                ),
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "Grouping"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .bool
+                )
+            ]
+        )
+    }
 }
+
 
 func anyEval(inputs: PortValuesList,
              outputs: PortValuesList) -> PortValuesList {

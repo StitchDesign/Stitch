@@ -10,47 +10,46 @@ import StitchSchemaKit
 @preconcurrency import SwiftyJSON
 import SwiftUI
 
+struct JsonToShapePatchNode: PatchNodeDefinition {
+    static let patch = Patch.jsonToShape
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.json(.emptyJSONObject)],
+                    label: "JSON"
+                ),
+                .init(
+                    defaultValues: [.position(defaultJsonToShapeCoordinateSpace)],
+                    label: "Coordinate Space"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Shape",
+                    type: .shape
+                ),
+                .init(
+                    label: "Error",
+                    type: .json
+                ),
+                .init(
+                    label: "Size",
+                    type: .size
+                )
+            ]
+        )
+    }
+}
+
 //let JSON_TO_SHAPE_NO_ERROR = ""
 extension JSON {
     static let JSON_TO_SHAPE_NO_ERROR: JSON = parseJSON("{ \"Error\": \"None\" }")!
 }
 
 
-@MainActor
-func jsonToShapeNode(id: NodeId,
-                     position: CGPoint = .zero,
-                     zIndex: Double = 0) -> PatchNode {
-
-    let startingJson = StitchJSON.emptyJSONObject // JSON(parseJSON: sampleCurveToJSON)
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("JSON", [.json(startingJson)]),
-        ("Coordinate Space", [.position(defaultJsonToShapeCoordinateSpace)])
-    )
-
-    //    let asCommands = startingJson.parseAsJSONShapeCommands().getCommands!
-    //    let shape = CustomShape(ShapeAndRect.custom(asCommands))
-    //    let sizeShape = asCommands.points.boundingBox
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values:
-            ("Shape", [.shape(nil)]),
-        ("Error", [.json(.init(.JSON_TO_SHAPE_NO_ERROR))]),
-        // the bounding box of the shape
-        ("Size", [.size(.zero)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .jsonToShape,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func jsonToShapeEval(inputs: PortValuesList,

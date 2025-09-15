@@ -537,7 +537,7 @@ extension AIGraphData_V0.NodeIndexedCoordinate {
             return nil
         }
         
-        guard let upstreamOutput = upstreamPatch.graphNode?.rowDefinitions(for: upstreamNodeType).outputs[safe: self.port_index] else {
+        guard let upstreamOutput = upstreamPatch.graphNode.rowDefinitions(for: upstreamNodeType).outputs[safe: self.port_index] else {
             fatalErrorIfDebug()
             return nil
         }

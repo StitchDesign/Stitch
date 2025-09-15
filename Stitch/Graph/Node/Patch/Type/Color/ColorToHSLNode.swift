@@ -9,38 +9,40 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func colorToHSLNode(id: NodeId,
-                    hue: Double = hueDefault,
-                    saturation: Double = saturationDefault,
-                    lightness: Double = lightnessDefault,
-                    position: CGPoint = .zero,
-                    zIndex: Double = 0) -> PatchNode {
+struct ColorToHSLPatchNode: PatchNodeDefinition {
+    static let patch = Patch.colorToHSL
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let initialColor: Color = falseColor
-
-    let inputs = toInputs(
-        id: id,
-        values: (nil, [.color(initialColor)]))
-
-    let hsl = initialColor.toUIColor.hsl
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: ("Hue", [.number(hsl.hue)]),
-        ("Saturation", [.number(hsl.saturation)]),
-        ("Lightness", [.number(hsl.lightness)]),
-        ("Alpha", [.number(hsl.alpha)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .colorToHSL,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.color(falseColor)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Hue",
+                    type: .number
+                ),
+                .init(
+                    label: "Saturation",
+                    type: .number
+                ),
+                .init(
+                    label: "Lightness",
+                    type: .number
+                ),
+                .init(
+                    label: "Alpha",
+                    type: .number
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func colorToHSLEval(inputs: PortValuesList, outputs: PortValuesList) -> PortValuesList {

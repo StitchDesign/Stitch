@@ -9,34 +9,26 @@ import Foundation
 import StitchSchemaKit
 import SwiftyJSON
 
-@MainActor
-func loopToArrayNode(id: NodeId,
-                     position: CGPoint = .zero,
-                     zIndex: Double = 0) -> PatchNode {
+struct LoopToArrayPatchNode: PatchNodeDefinition {
+    static let patch = Patch.loopToArray
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Loop", [.number(0)]) // 0
-    )
-
-    let json = JSON(rawValue: [0])?.toStitchJSON ?? .emptyJSONArray
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            (nil, [.json(json)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .loopToArray,
-        userVisibleType: .number,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "Loop"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .json
+                )
+            ]
+        )
+    }
 }
 
 // LoopToArray's output, when measured via LoopCount, always seems to be 1.

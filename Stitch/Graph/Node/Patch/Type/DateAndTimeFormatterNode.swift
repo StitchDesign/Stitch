@@ -9,6 +9,36 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+struct DateAndTimeFormatterPatchNode: PatchNodeDefinition {
+    static let patch = Patch.dateAndTimeFormatter
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(.zero)],
+                    label: "Time"
+                ),
+                .init(
+                    defaultValues: [.dateAndTimeFormat(.defaultFormat)],
+                    label: "Format"
+                ),
+                .init(
+                    defaultValues: [.string(.init(.empty))],
+                    label: "Custom Format"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .string
+                )
+            ]
+        )
+    }
+}
+
 extension DateAndTimeFormat: PortValueEnum {
     static let defaultFormat = Self.medium
 
@@ -53,35 +83,6 @@ extension String {
 
 // No node type or user-node types
 // No inputs (ie inputs are disabled
-@MainActor
-func dateAndTimeFormatterNode(id: NodeId,
-                              position: CGPoint = .zero,
-                              zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Time", [.number(.zero)]),
-        ("Format", [.dateAndTimeFormat(.defaultFormat)]),
-        // TODO: allow user to provide custom format option
-        ("Custom Format", [.string(.init(.empty))])
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            (nil, [.string(.init(.empty))])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .dateAndTimeFormatter,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 // dateAndTimeFormatter is the only node that needs graphFrameCount from state;
 @MainActor

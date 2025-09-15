@@ -9,38 +9,40 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func colorToRGBANode(id: NodeId,
-                     hue: Double = hueDefault,
-                     saturation: Double = saturationDefault,
-                     lightness: Double = lightnessDefault,
-                     position: CGPoint = .zero,
-                     zIndex: Double = 0) -> PatchNode {
+struct ColorToRGBAPatchNode: PatchNodeDefinition {
+    static let patch = Patch.colorToRGB
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let initialColor: Color = falseColor
-
-    let inputs = toInputs(
-        id: id,
-        values: (nil, [.color(initialColor)]))
-
-    let rgba = initialColor.asRGBA
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: ("Red", [.number(rgba.red)]),
-        ("Green", [.number(rgba.green)]),
-        ("Blue", [.number(rgba.blue)]),
-        ("Alpha", [.number(rgba.alpha)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .colorToRGB,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.color(falseColor)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Red",
+                    type: .number
+                ),
+                .init(
+                    label: "Green",
+                    type: .number
+                ),
+                .init(
+                    label: "Blue",
+                    type: .number
+                ),
+                .init(
+                    label: "Alpha",
+                    type: .number
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func colorToRGBAEval(inputs: PortValuesList,

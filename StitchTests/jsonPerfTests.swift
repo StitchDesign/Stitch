@@ -7,10 +7,10 @@
 
 import XCTest
 @testable import Stitch
-import SwiftyJSON
+//import SwiftyJSON
 
 // Performance test failures not considered blocking.
-final class jsonPerfTests: XCTestCase {
+//final class jsonPerfTests: XCTestCase {
 //
 //    // SwiftyJSON.rawData + JSONDecoder<PathCommands>
 //    // parseTestJSON: 0.219
@@ -282,4 +282,4 @@ final class jsonPerfTests: XCTestCase {
     //        }
     //    }
 
-}
+//}

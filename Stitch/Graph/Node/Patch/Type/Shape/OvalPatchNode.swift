@@ -9,34 +9,32 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func ovalShapeNode(id: NodeId,
-                   position: CGPoint = .zero,
-                   zIndex: Double = 0) -> PatchNode {
+struct OvalShapePatchNode: PatchNodeDefinition {
+    static let patch = Patch.ovalShape
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let oval = CGRect.defaultOval
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Position", [.position(oval.origin)]),
-        ("Size", [.size(oval.size.toLayerSize)])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values:
-            ("Shape", [.shape(CustomShape(.oval(oval)))])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .ovalShape,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.position(CGRect.defaultOval.origin)],
+                    label: "Position"
+                ),
+                .init(
+                    defaultValues: [.size(CGRect.defaultOval.size.toLayerSize)],
+                    label: "Size"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Shape",
+                    type: .shape
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func ovalShapeEval(inputs: PortValuesList,

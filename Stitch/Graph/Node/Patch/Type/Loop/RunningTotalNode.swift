@@ -8,32 +8,26 @@
 import Foundation
 import StitchSchemaKit
 
-// TODO: handle more node types
-@MainActor
-func runningTotalNode(id: NodeId,
-                      position: CGPoint = .zero,
-                      zIndex: Double = 0) -> PatchNode {
+struct RunningTotalPatchNode: PatchNodeDefinition {
+    static let patch = Patch.runningTotal
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Loop", [.number(0)]) // 0
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            (nil, [.number(0)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .runningTotal,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "Loop"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .number
+                )
+            ]
+        )
+    }
 }
 
 @MainActor

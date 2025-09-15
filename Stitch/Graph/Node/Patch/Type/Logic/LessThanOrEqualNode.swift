@@ -9,29 +9,30 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func lessThanOrEqualPatchNode(id: NodeId,
-                              n: Double = 200,
-                              position: CGPoint = .zero,
-                              zIndex: Double = 0) -> PatchNode {
+struct LessThanOrEqualPatchNode: PatchNodeDefinition {
+    static let patch = Patch.lessThanOrEqual
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            (nil, [.number(0)]),
-        (nil, [.number(n)]))
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values: (nil, [.bool(0 <= n)]))
-
-    return PatchNode(position: position,
-                     zIndex: zIndex,
-                     id: id,
-                     patchName: .lessThanOrEqual,
-                     inputs: inputs,
-                     outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: ""
+                ),
+                .init(
+                    defaultValues: [.number(200)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .bool
+                )
+            ]
+        )
+    }
 }
 
 @MainActor

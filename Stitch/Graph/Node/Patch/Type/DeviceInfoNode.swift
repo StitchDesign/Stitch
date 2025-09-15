@@ -10,6 +10,47 @@ import StitchSchemaKit
 import CoreMotion
 import SwiftUI
 
+struct DeviceInfoPatchNode: PatchNodeDefinition {
+    static let patch = Patch.deviceInfo
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [],
+            outputs: [
+                .init(
+                    label: "Screen Size",
+                    type: .size
+                ),
+                .init(
+                    label: "Screen Scale",
+                    type: .number
+                ),
+                .init(
+                    label: "Orientation",
+                    type: .deviceOrientation
+                ),
+                .init(
+                    label: "Device Type",
+                    type: .string
+                ),
+                .init(
+                    label: "Appearance",
+                    type: .string
+                ),
+                .init(
+                    label: "Safe Area Top",
+                    type: .number
+                ),
+                .init(
+                    label: "Safe Area Bottom",
+                    type: .number
+                )
+            ]
+        )
+    }
+}
+
 let defaultColorScheme: ColorScheme = .dark
 
 let LIGHT_COLOR_SCHEME = "Light"
@@ -114,43 +155,6 @@ extension UIDeviceOrientation {
     }
 }
 
-@MainActor
-func deviceInfoNode(id: NodeId,
-                    position: CGPoint = .zero,
-                    zIndex: Double = 0) -> PatchNode {
-
-    let inputs = fakeInputs(id: id)
-
-    // has outputs only; outputs updated by eval drawing on state
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            ("Screen Size", [.size(DEFAULT_LANDSCAPE_SIZE.toLayerSize)]), // 0
-
-        // graph zoom
-        ("Screen Scale", [.number(1)]), // 1
-
-        // 0, 90, 180 or 270 degrees
-        // will use UIDevice.orientation
-        ("Orientation", [.deviceOrientation(.defaultDeviceOrientation)]), // 2
-
-        ("Device Type", [.string(.init("iPad"))]), // 3
-
-        ("Appearance", [.string(.init(defaultColorScheme.description))]), // 4
-        ("Safe Area Top", [.number(0)]), // 5
-
-        ("Safe Area Bottom", [.number(0)]) // 6
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .deviceInfo,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 // just pulls from the state; has no inputs and can never be a loop
 

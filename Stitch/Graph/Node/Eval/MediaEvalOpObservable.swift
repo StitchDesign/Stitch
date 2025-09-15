@@ -349,7 +349,7 @@ extension PortValues {
     @MainActor
     func prevOutputs(nodeKind: PatchOrLayer) -> PortValues? {
         // Just get inputs count, user visible type doesn't matter
-        let inputsCount = nodeKind.rowDefinitionsOldOrNewStyle(for: nil).inputs.count
+        let inputsCount = nodeKind.rowDefinitions(for: nil).inputs.count
         
         let firstOutputIndex = inputsCount
         guard self.count > firstOutputIndex else {

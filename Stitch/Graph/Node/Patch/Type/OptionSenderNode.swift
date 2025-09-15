@@ -8,41 +8,48 @@
 import Foundation
 import StitchSchemaKit
 
+struct OptionSenderPatchNode: PatchNodeDefinition {
+    static let patch = Patch.optionSender
+    static let defaultUserVisibleType: UserVisibleType? = .number
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [numberDefaultFalse],
+                    label: "Option"
+                ),
+                .init(
+                    defaultValues: [numberDefaultFalse],
+                    label: "Value"
+                ),
+                .init(
+                    defaultValues: [numberDefaultFalse],
+                    label: "Default"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .number
+                ),
+                .init(
+                    label: "",
+                    type: .number
+                ),
+                .init(
+                    label: "",
+                    type: .number
+                )
+            ]
+        )
+    }
+}
+
 // TODO: OptionSender can have an arbitrary number of outputs
 // We currently don't have any logic in the app for adding outputs (only inputs)
 let OPTION_SENDER_PATCH_NODE_OUTPUT_COUNT: Int = 3
 
-@MainActor
-func optionSenderNode(id: NodeId,
-                      n: Double? = nil,
-                      n2: Double? = nil,
-                      position: CGPoint = .zero,
-                      zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Option", [numberDefaultFalse]),
-        ("Value", [numberDefaultFalse]),
-        ("Default", [numberDefaultFalse]))
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values: (nil, [numberDefaultFalse]),
-        (nil, [numberDefaultFalse]),
-        (nil, [numberDefaultFalse])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .optionSender,
-        userVisibleType: .number,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func optionSenderEval(inputs: PortValuesList,

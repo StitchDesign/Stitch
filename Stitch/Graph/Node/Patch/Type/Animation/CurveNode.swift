@@ -9,33 +9,32 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func curveNode(id: NodeId,
-               position: CGPoint = .zero,
-               zIndex: Double = 0) -> PatchNode {
+struct CurvePatchNode: PatchNodeDefinition {
+    static let patch = Patch.curve
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Progress", [.number(0)]),
-        ("Curve", [.animationCurve(.linear)])
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            ("Progress", [.number(0)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .curve,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "Progress"
+                ),
+                .init(
+                    defaultValues: [.animationCurve(.linear)],
+                    label: "Curve"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Progress",
+                    type: .number
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func curveEval(inputs: PortValuesList,

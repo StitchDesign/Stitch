@@ -10,29 +10,35 @@ import StitchSchemaKit
 import SwiftUI
 import AudioKit
 
-@MainActor
-func speakerNode(id: NodeId,
-                 audio: AsyncMediaValue? = nil,
-                 position: CGPoint = .zero,
-                 zIndex: Double = 0) -> PatchNode {
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Sound", [.asyncMedia(audio)]),
-        ("Volume", [.number(1)])
-    )
+struct SpeakerPatchNode: PatchNodeDefinition {
+    static let patch = Patch.speaker
 
-    // no outputs actually?
-    let outputs = fakeOutputs(id: id, offset: inputs.count)
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .speaker,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.asyncMedia(nil)],
+                    label: "Sound",
+                    isTypeStatic: true
+                ),
+                .init(
+                    defaultValues: [.number(1)],
+                    label: "Volume"
+                )
+            ],
+            outputs: [
+                // Speaker has no real outputs, so we create a disabled output
+                .init(
+                    label: "",
+                    type: .number
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func speakerEval(node: PatchNode) -> EvalResult {

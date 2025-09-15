@@ -9,26 +9,26 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func notNode(id: NodeId,
-             n1: Bool = false,
-             position: CGPoint = .zero,
-             zIndex: Double = 0) -> PatchNode {
+struct NotPatchNode: PatchNodeDefinition {
+    static let patch = Patch.not
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(id: id,
-                          values: (nil, [.bool(n1)]))
-
-    let outputs = toOutputs(id: id,
-                            offset: inputs.count,
-                            values: (nil, [.bool(!n1)]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .not,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.bool(false)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .bool
+                )
+            ]
+        )
+    }
 }
 
 @MainActor

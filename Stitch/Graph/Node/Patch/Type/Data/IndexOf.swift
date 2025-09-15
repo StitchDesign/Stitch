@@ -10,36 +10,36 @@ import StitchSchemaKit
 import SwiftUI
 import SwiftyJSON
 
-@MainActor
-func indexOfNode(id: NodeId,
-                 startingJson: StitchJSON = emptyStitchJSONObject,
-                 position: CGPoint = .zero,
-                 zIndex: Double = 0) -> PatchNode {
+struct IndexOfPatchNode: PatchNodeDefinition {
+    static let patch = Patch.indexOf
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Array", [.json(startingJson)]),
-        ("Item", [.string(.init(.empty))])
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        // it's called index, but it's actually the loop that's coming out
-        values:
-            ("Index", [.number(-1)]),
-        ("Contains", [.bool(false)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .indexOf,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.json(emptyStitchJSONObject)],
+                    label: "Array"
+                ),
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Item"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Index",
+                    type: .number
+                ),
+                .init(
+                    label: "Contains",
+                    type: .bool
+                )
+            ]
+        )
+    }
 }
+
 
 // if first input is a json object rather than an array,
 // this append will fail / should fail, per Origami

@@ -8,27 +8,28 @@
 import Foundation
 import StitchSchemaKit
 
-@MainActor
-func textLengthNode(id: NodeId,
-                    position: CGPoint = .zero,
-                    zIndex: Double = 0) -> PatchNode {
+struct TextLengthPatchNode: PatchNodeDefinition {
+    static let patch = Patch.textLength
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values: ("Text", [.string(.init(""))]))
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: (nil, [.number(.zero)]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .textLength,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Text"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .number
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func textLengthEval(inputs: PortValuesList,

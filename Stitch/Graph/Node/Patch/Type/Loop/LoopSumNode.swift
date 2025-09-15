@@ -8,32 +8,26 @@
 import Foundation
 import StitchSchemaKit
 
-@MainActor
-func loopSumNode(id: NodeId,
-                 position: CGPoint = .zero,
-                 zIndex: Double = 0) -> PatchNode {
+struct LoopSumPatchNode: PatchNodeDefinition {
+    static let patch = Patch.loopSum
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Loop", [.number(0)]) // 0
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        // it's called index, but it's actually the loop that's coming out
-        values:
-            (nil, [.number(0)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .loopSum,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "Loop"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .number
+                )
+            ]
+        )
+    }
 }
 
 // TODO: Origami docs indicate that this node can be number, index or bool type, but Origami in practice only has a single node type;

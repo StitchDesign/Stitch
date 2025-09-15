@@ -8,35 +8,32 @@
 import Foundation
 import StitchSchemaKit
 
-@MainActor
-func powerNode(id: NodeId,
-               n: Double = 1,
-               n2: Double = 0,
-               position: CGPoint = .zero,
-               zIndex: Double = 0) -> PatchNode {
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            (nil, [.number(n)]),
-        (nil, [.number(n2)])
-    )
+struct PowerPatchNode: PatchNodeDefinition {
+    static let patch = Patch.power
 
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            (nil, [.number(pow(n, n2))])
-    )
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .power,
-        userVisibleType: .number,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(1)],
+                    label: ""
+                ),
+                .init(
+                    defaultValues: [.number(0)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: type ?? .number
+                )
+            ]
+        )
+    }
 }
 
 @MainActor

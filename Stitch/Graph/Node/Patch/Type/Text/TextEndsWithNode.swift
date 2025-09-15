@@ -8,29 +8,32 @@
 import Foundation
 import StitchSchemaKit
 
-@MainActor
-func textEndsWithNode(id: NodeId,
-                      position: CGPoint = .zero,
-                      zIndex: Double = 0) -> PatchNode {
+struct TextEndsWithPatchNode: PatchNodeDefinition {
+    static let patch = Patch.textEndsWith
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values: ("Text", [.string(.init(""))]),
-        ("Suffix", [.string(.init(""))])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: (nil, [.bool(false)]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .textEndsWith,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Text"
+                ),
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Suffix"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .bool
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func textEndsWithEval(inputs: PortValuesList,

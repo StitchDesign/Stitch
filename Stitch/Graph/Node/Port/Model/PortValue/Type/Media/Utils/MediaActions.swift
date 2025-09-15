@@ -410,14 +410,10 @@ func createPatchNode(from importedMediaURL: URL,
         dataType: .source(importedMediaURL.mediaKey),
         label: importedMediaURL.filename)
 
-    guard let node = mediaType.nodeKind.graphNode?.createViewModel(id: nodeId,
-                                                                       position: position.toCGPoint,
-                                                                       zIndex: zIndex,
-                                                                       graphDelegate: graphDelegate) else {
-        log("createPatchNode: unknown file encountered with extension \(importedMediaURL.pathExtension)")
-        return .failure(.mediaFileUnsupported(importedMediaURL.pathExtension))
-    }
-
+    let node = mediaType.nodeKind.graphNode.createViewModel(id: nodeId,
+                                                            position: position.toCGPoint,
+                                                            zIndex: zIndex,
+                                                            graphDelegate: graphDelegate)
     // Import nodes always use first input
     node.getInputRowObserver(0)?.updateValuesInInput([.asyncMedia(asyncMedia)])
     return .success(node)

@@ -65,7 +65,7 @@ final class PatchNodeViewModel: Sendable {
         
         // Create initial inputs and outputs using default data
         let rowDefinitions = PatchOrLayer.patch(schema.patch)
-            .rowDefinitionsOldOrNewStyle(for: schema.userVisibleType)
+            .rowDefinitions(for: schema.userVisibleType)
         
         // Must set inputs before calling eval below
         let inputsObservers = schema.inputs

@@ -9,39 +9,34 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-// TODO: `input` input can be many different node-types
-@MainActor
-func loopFilterNode(id: NodeId,
-                    position: CGPoint = .zero,
-                    zIndex: Double = 0) -> PatchNode {
+struct LoopFilterPatchNode: PatchNodeDefinition {
+    static let patch = Patch.loopFilter
+    static let defaultUserVisibleType: UserVisibleType? = .string
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Input", [.string(.init(""))]), // 0
-        ("Include", [.number(1)]) // 1
-    )
-
-    // loop Builder has TWO outputs:
-    // 1. indices: ALWAYS a loop of ints, where each int is just an index
-    // 2. values: a loop of the user-chosen value-type (here: color)
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        // it's called index, but it's actually the loop that's coming out
-        values:
-            ("Loop", [.string(.init(""))]),
-        ("Index", [.number(0)]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .loopFilter,
-        userVisibleType: .string,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Input"
+                ),
+                .init(
+                    defaultValues: [.number(1)],
+                    label: "Include"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Loop",
+                    type: type ?? .string
+                ),
+                .init(
+                    label: "Index",
+                    type: .number
+                )
+            ]
+        )
+    }
 }
 
 @MainActor

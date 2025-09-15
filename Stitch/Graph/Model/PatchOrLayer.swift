@@ -195,7 +195,7 @@ extension PatchOrLayer {
     
     
     // Only Patches and Layers have static NodeDefinitons
-    var graphNode: (any NodeDefinition.Type)? {
+    var graphNode: (any NodeDefinition.Type) {
         switch self {
         case .patch(let patch):
             return patch.graphNode

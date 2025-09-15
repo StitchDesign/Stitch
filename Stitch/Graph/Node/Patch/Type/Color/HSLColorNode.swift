@@ -13,37 +13,40 @@ let hueDefault = 0.5
 let saturationDefault = 0.8
 let lightnessDefault = 0.8
 
-@MainActor
-func hslColorNode(id: NodeId,
-                  hue: Double = hueDefault,
-                  saturation: Double = saturationDefault,
-                  lightness: Double = lightnessDefault,
-                  nodePosition: CGPoint = .zero,
-                  nodeZIndex: Double = 0) -> PatchNode {
+struct HSLColorPatchNode: PatchNodeDefinition {
+    static let patch = Patch.hslColor
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Hue", [.number(hue)]),
-        ("Saturation", [.number(saturation)]),
-        ("Lightness", [.number(lightness)]),
-        ("Alpha", [.number(alphaDefault)]))
-
-    let initialColor = Color(hue: hue,
-                             saturation: saturation,
-                             brightness: lightness)
-
-    let outputs = toOutputs(id: id, offset: inputs.count,
-                            values: (nil, [.color(initialColor)]))
-
-    return PatchNode(
-        position: nodePosition,
-        zIndex: nodeZIndex,
-        id: id,
-        patchName: .hslColor,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(hueDefault)],
+                    label: "Hue"
+                ),
+                .init(
+                    defaultValues: [.number(saturationDefault)],
+                    label: "Saturation"
+                ),
+                .init(
+                    defaultValues: [.number(lightnessDefault)],
+                    label: "Lightness"
+                ),
+                .init(
+                    defaultValues: [.number(alphaDefault)],
+                    label: "Alpha"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .color
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func hslColorEval(inputs: PortValuesList,

@@ -9,34 +9,32 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func modNode(id: NodeId,
-             n1: Double = 1.0,
-             n2: Double = 0.0,
-             position: CGPoint = .zero,
-             zIndex: Double = 0,
-             n1Loop: PortValues? = nil,
-             n2Loop: PortValues? = nil) -> PatchNode {
-    
-    let inputs = toInputs(id: id,
-                         values:
-                           (nil, n1Loop ?? [.number(n1)]),
-                           (nil, n2Loop ?? [.number(n2)]))
-    
-    let initialModValue = mod(n1, n2)
-    
-    let outputs = toOutputs(id: id,
-                           offset: inputs.count,
-                           values: (nil, [.number(initialModValue)]))
 
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .mod,
-        userVisibleType: .number,
-        inputs: inputs,
-        outputs: outputs)
+struct ModPatchNode: PatchNodeDefinition {
+    static let patch = Patch.mod
+
+    static let defaultUserVisibleType: UserVisibleType? = .number
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(1)],
+                    label: ""
+                ),
+                .init(
+                    defaultValues: [.number(1)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: type ?? .number
+                )
+            ]
+        )
+    }
 }
 
 

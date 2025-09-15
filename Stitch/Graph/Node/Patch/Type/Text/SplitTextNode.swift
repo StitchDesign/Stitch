@@ -8,29 +8,32 @@
 import Foundation
 import StitchSchemaKit
 
-@MainActor
-func splitTextNode(id: NodeId,
-                   position: CGPoint = .zero,
-                   zIndex: Double = 0) -> PatchNode {
+struct SplitTextPatchNode: PatchNodeDefinition {
+    static let patch = Patch.splitText
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values: ("Text", [.string(.init(""))]),
-        ("Token", [.string(.init(""))])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: (nil, [.string(.init(""))]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .splitText,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Text"
+                ),
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Token"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .string
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func splitTextEval(inputs: PortValuesList,

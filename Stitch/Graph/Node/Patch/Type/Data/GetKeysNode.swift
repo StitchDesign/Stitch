@@ -10,34 +10,28 @@ import StitchSchemaKit
 import SwiftUI
 import SwiftyJSON
 
-@MainActor
-func getKeysNode(id: NodeId,
-                 startingJson: StitchJSON = emptyStitchJSONObject,
-                 position: CGPoint = .zero,
-                 zIndex: Double = 0) -> PatchNode {
+struct GetKeysPatchNode: PatchNodeDefinition {
+    static let patch = Patch.getKeys
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Object", [.json(startingJson)])
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        // it's called index, but it's actually the loop that's coming out
-        values:
-            (nil, [.json(emptyStitchJSONArray)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .getKeys,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.json(emptyStitchJSONObject)],
+                    label: "Object"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .json
+                )
+            ]
+        )
+    }
 }
+
 
 // if first input is a json object rather than an array,
 // this append will fail / should fail, per Origami

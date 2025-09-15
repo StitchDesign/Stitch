@@ -45,31 +45,6 @@ struct OptionSwitchPatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func optionSwitchPatchNode(id: NodeId,
-                           position: CGPoint = .zero,
-                           zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Set to 0", [pulseDefaultFalse]),
-        ("Set to 1", [pulseDefaultFalse]),
-        ("Set to 2", [pulseDefaultFalse]))
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values: ("Option", [numberDefaultFalse]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .optionSwitch,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 // the port number of the input that received the pulse becomes the new number in the output
 

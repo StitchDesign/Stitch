@@ -9,32 +9,32 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func unionNode(id: NodeId,
-               position: CGPoint = .zero,
-               zIndex: Double = 0) -> PatchNode {
+struct UnionPatchNode: PatchNodeDefinition {
+    static let patch = Patch.union
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            (nil, [.shape(nil)]),
-        (nil, [.shape(nil)])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values:
-            (nil, [.shape(nil)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .union,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.shape(nil)],
+                    label: ""
+                ),
+                .init(
+                    defaultValues: [.shape(nil)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .shape
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func unionEval(inputs: PortValuesList,

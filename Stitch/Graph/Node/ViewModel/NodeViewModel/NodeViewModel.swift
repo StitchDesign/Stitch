@@ -188,7 +188,7 @@ extension NodeViewModel {
 
     @MainActor
     func createEphemeralObserver() -> NodeEphemeralObservable? {
-        let observer = self.kind.patchOrLayer?.graphNode?.createEphemeralObserver()
+        let observer = self.kind.patchOrLayer?.graphNode.createEphemeralObserver()
         
         // Media eval observers need reference to a node delegate
         if let mediaObserver = observer as? any MediaEvalOpObservable {

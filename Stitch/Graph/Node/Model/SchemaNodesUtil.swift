@@ -20,7 +20,7 @@ extension [NodePortInputEntity] {
             return .init()
         }
         
-        let defaultInputs: NodeInputDefinitions = PatchOrLayer.patch(patch).rowDefinitionsOldOrNewStyle(for: userVisibleType).inputs
+        let defaultInputs: NodeInputDefinitions = PatchOrLayer.patch(patch).rowDefinitions(for: userVisibleType).inputs
 
         // Determine count of inputs based on persisted data in case extra rows created
         // Note: look at input count from schema; important for e.g. removing inputs where e.g. LoopBuilder has had inputs removed and so has fewer inputs than the 5 declared in its node row definition

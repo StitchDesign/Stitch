@@ -205,7 +205,7 @@ final class LayerNodeViewModel {
         
         // Create initial inputs and outputs using default data
         let rowDefinitions = PatchOrLayer.layer(schema.layer)
-            .rowDefinitionsOldOrNewStyle(for: nil)
+            .rowDefinitions(for: nil)
         
         self.id = schema.id
         self.layer = schema.layer

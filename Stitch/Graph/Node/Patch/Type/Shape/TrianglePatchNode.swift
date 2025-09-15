@@ -10,33 +10,36 @@ import StitchSchemaKit
 import SwiftUI
 import NonEmpty
 
-@MainActor
-func triangleShapeNode(id: NodeId,
-                       position: CGPoint = .zero,
-                       zIndex: Double = 0) -> PatchNode {
+struct TriangleShapePatchNode: PatchNodeDefinition {
+    static let patch = Patch.triangleShape
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("First Point", [.position(TriangleData.defaultTriangleP1)]),
-        ("Second Point", [.position(TriangleData.defaultTriangleP2)]),
-        ("Third Point", [.position(TriangleData.defaultTriangleP3)])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values:
-            ("Shape", [.shape(.triangleShapePatchNodeDefault)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .triangleShape,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.position(TriangleData.defaultTriangleP1)],
+                    label: "First Point"
+                ),
+                .init(
+                    defaultValues: [.position(TriangleData.defaultTriangleP2)],
+                    label: "Second Point"
+                ),
+                .init(
+                    defaultValues: [.position(TriangleData.defaultTriangleP3)],
+                    label: "Third Point"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Shape",
+                    type: .shape
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func triangleShapeEval(inputs: PortValuesList,

@@ -9,29 +9,28 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func hexNode(id: NodeId,
-             position: CGPoint = .zero,
-             zIndex: Double = 0) -> PatchNode {
+struct HexPatchNode: PatchNodeDefinition {
+    static let patch = Patch.hexColor
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let defaultColor = falseColor
-    let hexStringForDefaultColor = defaultColor.asHexDisplay
-    
-    let inputs = toInputs(
-        id: id,
-        values: ("Hex", [.string(.init(hexStringForDefaultColor))]))
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: ("Color", [.color(defaultColor)]))
-
-    return PatchNode(position: position,
-                     zIndex: zIndex,
-                     id: id,
-                     patchName: .hexColor,
-                     inputs: inputs,
-                     outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.string(.init(falseColor.asHexDisplay))],
+                    label: "Hex"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Color",
+                    type: .color
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func hexEval(inputs: PortValuesList,

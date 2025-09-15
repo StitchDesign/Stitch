@@ -9,29 +9,25 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-// No node type or user-node types
-// No inputs (i.e. inputs are disabled)
-@MainActor
-func deviceTimeNode(id: NodeId,
-                    position: CGPoint = .zero,
-                    zIndex: Double = 0) -> PatchNode {
+struct DeviceTimePatchNode: PatchNodeDefinition {
+    static let patch = Patch.deviceTime
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = fakeInputs(id: id)
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            ("Seconds", [numberDefaultFalse]),
-        ("Milliseconds", [numberDefaultFalse]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .deviceTime,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [],
+            outputs: [
+                .init(
+                    label: "Seconds",
+                    type: .number
+                ),
+                .init(
+                    label: "Milliseconds",
+                    type: .number
+                )
+            ]
+        )
+    }
 }
 
 // Doesn't actually need anything

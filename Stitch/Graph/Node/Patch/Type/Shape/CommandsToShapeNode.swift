@@ -8,33 +8,28 @@
 import Foundation
 import StitchSchemaKit
 
-@MainActor
-func commandsToShapeNode(id: NodeId,
-                         position: CGPoint = .zero,
-                         zIndex: Double = 0) -> PatchNode {
+struct CommandsToShapePatchNode: PatchNodeDefinition {
+    static let patch = Patch.commandsToShape
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let demoShape: CustomShape = getDemoShape()
-    let commandsLoop: [ShapeCommand] = demoShape.shapes.fromShapeToShapeCommandLoop!
-
-    let inputs = toInputs(
-        id: id,
-        values: ("Commands", commandsLoop.map(PortValue.shapeCommand))
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values: ("Shape", [.shape(demoShape)]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .commandsToShape,
-        inputs: inputs,
-        outputs: outputs)
-
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: getDemoShape().shapes.fromShapeToShapeCommandLoop?.map(PortValue.shapeCommand) ?? [],
+                    label: "Commands"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Shape",
+                    type: .shape
+                )
+            ]
+        )
+    }
 }
+
 
 func commandsToShapeEval(inputs: PortValuesList,
                          outputs: PortValuesList) -> PortValuesList {

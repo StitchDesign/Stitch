@@ -9,17 +9,17 @@ import Foundation
 @testable import Stitch
 
 
-func getSyntaxView(_ code: String) -> SyntaxView {
-    SwiftUIViewVisitor.parseSwiftUICode(code).rootView!
-}
-
-extension SyntaxView {
-    func getSyntaxActions() -> [CurrentAIGraphData.LayerData] {
-        try! self.deriveStitchActions().actions
-    }
-    
-    func getFirstSyntaxAction() -> CurrentAIGraphData.LayerData {
-        self.getSyntaxActions().first!
-    }
-}
+//func getSyntaxView(_ code: String) -> SyntaxView {
+//    SwiftUIViewVisitor.parseSwiftUICode(code).rootView!
+//}
+//
+//extension SyntaxView {
+//    func getSyntaxActions() -> [CurrentAIGraphData.LayerData] {
+//        try! self.deriveStitchActions().actions
+//    }
+//    
+//    func getFirstSyntaxAction() -> CurrentAIGraphData.LayerData {
+//        self.getSyntaxActions().first!
+//    }
+//}
 

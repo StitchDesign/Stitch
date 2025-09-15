@@ -9,35 +9,32 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func circleShapeNode(id: NodeId,
-                     position: CGPoint = .zero,
-                     zIndex: Double = 0) -> PatchNode {
+struct CircleShapePatchNode: PatchNodeDefinition {
+    static let patch = Patch.circleShape
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let circle = CGRect.defaultCircle
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Position", [.position(circle.origin)]),
-        // width = diameter = radius * 2
-        ("Radius", [.number(circle.size.width/2)])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values:
-            ("Shape", [.shape(CustomShape(.circle(circle)))])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .circleShape,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.position(CGRect.defaultCircle.origin)],
+                    label: "Position"
+                ),
+                .init(
+                    defaultValues: [.number(CGRect.defaultCircle.size.width/2)],
+                    label: "Radius"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Shape",
+                    type: .shape
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func circleShapeEval(inputs: PortValuesList,

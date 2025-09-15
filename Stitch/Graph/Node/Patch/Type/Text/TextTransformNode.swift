@@ -27,29 +27,32 @@ extension TextTransform: PortValueEnum {
     }
 }
 
-@MainActor
-func textTransformNode(id: NodeId,
-                       position: CGPoint = .zero,
-                       zIndex: Double = 0) -> PatchNode {
+struct TextTransformPatchNode: PatchNodeDefinition {
+    static let patch = Patch.textTransform
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values: ("Text", [.string(.init(""))]),
-        ("Transform", [.textTransform(.defaultTransform)])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: (nil, [.bool(false)]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .textTransform,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Text"
+                ),
+                .init(
+                    defaultValues: [.textTransform(.defaultTransform)],
+                    label: "Transform"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .string
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func textTransformEval(inputs: PortValuesList,

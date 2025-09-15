@@ -9,35 +9,36 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func roundedRectangleShapeNode(id: NodeId,
-                               position: CGPoint = .zero,
-                               zIndex: Double = 0) -> PatchNode {
+struct RoundedRectangleShapePatchNode: PatchNodeDefinition {
+    static let patch = Patch.roundedRectangleShape
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let rect: RoundedRectangleData = CGRect.defaultRoundedRectangle
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Position", [.position(rect.rect.origin)]),
-        ("Size", [.size(rect.rect.size.toLayerSize)]),
-        ("Radius", [.number(rect.cornerRadius)])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values:
-            ("Shape", [.shape(CustomShape(.rectangle(rect)))])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .roundedRectangleShape,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.position(CGRect.defaultRoundedRectangle.rect.origin)],
+                    label: "Position"
+                ),
+                .init(
+                    defaultValues: [.size(CGRect.defaultRoundedRectangle.rect.size.toLayerSize)],
+                    label: "Size"
+                ),
+                .init(
+                    defaultValues: [.number(CGRect.defaultRoundedRectangle.cornerRadius)],
+                    label: "Radius"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Shape",
+                    type: .shape
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func roundedRectangleShapeEval(inputs: PortValuesList,

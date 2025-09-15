@@ -71,3 +71,18 @@ extension NodeDefinition {
                              graphDelegate: nil)
     }
 }
+
+extension NodeViewModel {
+    @MainActor
+    func updateAllInputs(_ inputs: PortValuesList) {
+        switch self.nodeType {
+        case .patch(let patch):
+            zip(inputs, patch.inputsObservers).forEach { values, inputObserver in
+                inputObserver.values = values
+            }
+            
+        default:
+            fatalErrorIfDebug("too lazy to support, just for tests")
+        }
+    }
+}

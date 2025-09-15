@@ -69,7 +69,7 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
         }
                 
         let defaultInputs: NodeInputDefinitions = PatchOrLayer.patch(patch)
-            .rowDefinitionsOldOrNewStyle(for: node.userVisibleType)
+            .rowDefinitions(for: node.userVisibleType)
             .inputs
         
         guard let defaultValues = getDefaultValueForPatchNodeInput(portId,

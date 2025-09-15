@@ -9,35 +9,32 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func maxNode(id: NodeId,
-             n1: Double = 1.0,
-             n2: Double = 0.0,
-             position: CGPoint = .zero,
-             zIndex: Double = 0,
-             n1Loop: PortValues? = nil,
-             n2Loop: PortValues? = nil) -> PatchNode {
-    
-    let inputs = toInputs(id: id,
-                         values:
-                           (nil, n1Loop ?? [.number(n1)]),
-                           (nil, n2Loop ?? [.number(n2)]))
-    
-    let initialValues: [PortValue] = [.number(n1), .number(n2)]
-    let maxValue = initialValues.compactMap { $0.getNumber }.max() ?? .zero
-    
-    let outputs = toOutputs(id: id,
-                           offset: inputs.count,
-                           values: (nil, [.number(maxValue)]))
 
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .max,
-        userVisibleType: .number,
-        inputs: inputs,
-        outputs: outputs)
+struct MaxPatchNode: PatchNodeDefinition {
+    static let patch = Patch.max
+
+    static let defaultUserVisibleType: UserVisibleType? = .number
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(1)],
+                    label: ""
+                ),
+                .init(
+                    defaultValues: [.number(0)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: type ?? .number
+                )
+            ]
+        )
+    }
 }
 
 @MainActor

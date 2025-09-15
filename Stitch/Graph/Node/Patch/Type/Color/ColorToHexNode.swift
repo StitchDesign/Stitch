@@ -8,28 +8,28 @@
 import Foundation
 import StitchSchemaKit
 
-@MainActor
-func colorToHexNode(id: NodeId,
-                    position: CGPoint = .zero,
-                    zIndex: Double = 0) -> PatchNode {
+struct ColorToHexPatchNode: PatchNodeDefinition {
+    static let patch = Patch.colorToHex
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let color = falseColor
-
-    let inputs = toInputs(
-        id: id,
-        values: ("Color", [.color(color)]))
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: ("Hex", [.string(.init(color.asHexDisplay))]))
-
-    return PatchNode(position: position,
-                     zIndex: zIndex,
-                     id: id,
-                     patchName: .colorToHex,
-                     inputs: inputs,
-                     outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.color(falseColor)],
+                    label: "Color"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Hex",
+                    type: .string
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func colorToHexEval(inputs: PortValuesList,

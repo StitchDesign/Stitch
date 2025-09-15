@@ -10,40 +10,36 @@ import StitchSchemaKit
 import SwiftUI
 import SwiftyJSON
 
-@MainActor
-func setValueForKeyNode(id: NodeId,
-                        key: String = "",
-                        startingJson: StitchJSON = emptyStitchJSONObject,
-                        position: CGPoint = .zero,
-                        zIndex: Double = 0) -> PatchNode {
+struct SetValueForKeyPatchNode: PatchNodeDefinition {
+    static let patch = Patch.setValueForKey
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Object", [.json(startingJson)]), // 0
-        ("Key", [.string(.init(key))]), // 0
-        ("Value", [numberDefaultFalse]) // 0
-    )
-
-    let outputJson: StitchJSON = emptyStitchJSONObject
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        // it's called index, but it's actually the loop that's coming out
-        values:
-            ("Object", [.json(outputJson)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .setValueForKey,
-        userVisibleType: .number,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.json(emptyStitchJSONObject)],
+                    label: "Object"
+                ),
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Key"
+                ),
+                .init(
+                    defaultValues: [numberDefaultFalse],
+                    label: "Value"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Object",
+                    type: .json
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func setValueForKeyEval(node: NodeViewModel) -> EvalResult {

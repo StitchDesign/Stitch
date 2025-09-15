@@ -10,43 +10,30 @@ import StitchSchemaKit
 import SwiftUI
 import SwiftyJSON
 
-@MainActor
-func loopOverArrayNode(id: NodeId,
-                       key: String = "",
-                       startingJson: StitchJSON = emptyStitchJSONObject,
-                       position: CGPoint = .zero,
-                       zIndex: Double = 0) -> PatchNode {
+struct LoopOverArrayPatchNode: PatchNodeDefinition {
+    static let patch = Patch.loopOverArray
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Array", [.json(startingJson)]) // 0
-    )
-
-    let outputJson: StitchJSON = emptyStitchJSONObject
-
-    // loop Builder has TWO outputs:
-    // 1. indices: ALWAYS a loop of ints, where each int is just an index
-    // 2. values: a loop of the user-chosen value-type (here: color)
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        // it's called index, but it's actually the loop that's coming out
-        values:
-            ("Index", [.number(0)]),
-
-        // is always a loop of jsons
-        ("Items", [.json(outputJson)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .loopOverArray,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.json(emptyStitchJSONObject)],
+                    label: "Array"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Index",
+                    type: .number
+                ),
+                .init(
+                    label: "Items",
+                    type: .json
+                )
+            ]
+        )
+    }
 }
 
 func loopOverArrayEval(inputs: PortValuesList,

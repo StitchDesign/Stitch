@@ -8,31 +8,40 @@
 import Foundation
 import StitchSchemaKit
 
-@MainActor
-func textReplaceNode(id: NodeId,
-                     position: CGPoint = .zero,
-                     zIndex: Double = 0) -> PatchNode {
+struct TextReplacePatchNode: PatchNodeDefinition {
+    static let patch = Patch.textReplace
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values: ("Text", [.string(.init(""))]),
-        ("Find", [.string(.init(""))]),
-        ("Replace", [.string(.init(""))]),
-        ("Case Sensitive", [.bool(false)])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: (nil, [.string(.init(""))]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .textReplace,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Text"
+                ),
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Find"
+                ),
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Replace"
+                ),
+                .init(
+                    defaultValues: [.bool(false)],
+                    label: "Case Sensitive"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .string
+                )
+            ]
+        )
+    }
 }
+
 
 // What's the proper case-sensitive logic?
 //

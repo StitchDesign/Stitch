@@ -9,41 +9,38 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func optionEqualsNode(id: NodeId,
-                      position: CGPoint = .zero,
-                      zIndex: Double = 0) -> PatchNode {
+struct OptionEqualsPatchNode: PatchNodeDefinition {
+    static let patch = Patch.optionEquals
+    static let defaultUserVisibleType: UserVisibleType? = .string
 
-    // default
-    //    var opt1: PortValue = colorDefaultFalse
-    //    var opt2: PortValue = colorDefaultTrue
-    let opt1: PortValue = .string(.init("a"))
-    let opt2: PortValue = .string(.init("b"))
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            //            ("Option", [numberDefaultFalse]),
-            ("Option", [.string(.init("a"))]),
-        (nil, [opt1]),
-        (nil, [opt2]))
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values: (nil, [opt1]),
-        ("Equals", [.bool(true)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .optionEquals,
-        //        userVisibleType: .color,
-        userVisibleType: .string,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.string(.init("a"))],
+                    label: "Option"
+                ),
+                .init(
+                    defaultValues: [.string(.init("a"))],
+                    label: ""
+                ),
+                .init(
+                    defaultValues: [.string(.init("b"))],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: type ?? .string
+                ),
+                .init(
+                    label: "Equals",
+                    type: .bool
+                )
+            ]
+        )
+    }
 }
 
 // returns `(.number(index), .bool(equals))` outputs regardless of node-type
@@ -79,3 +76,4 @@ func optionEqualsEval(inputs: PortValuesList,
 
     return resultsMaker2(inputs)(op)
 }
+

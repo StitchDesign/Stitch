@@ -9,41 +9,48 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func cubicBezierCurveNode(id: NodeId,
-                          position: CGPoint = .zero,
-                          zIndex: Double = 0) -> PatchNode {
+struct CubicBezierCurvePatchNode: PatchNodeDefinition {
+    static let patch = Patch.cubicBezierCurve
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Progress", [.number(.zero)]), // 0
-        // first control point's x
-        ("1st Control Point X", [.number(0.17)]), // 1
-        // first control point's y
-        ("1st Control Point Y", [.number(0.17)]), // 2
-        // second control point's x
-        ("2nd Control Point X", [.number(0)]), // 3
-        // second control point's y
-        ("2nd Control Point Y", [.number(1)]) // 4
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            ("Progress", [.number(0)]),
-        ("2D Progress", [.position(.zero)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .cubicBezierCurve,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(.zero)],
+                    label: "Progress"
+                ),
+                .init(
+                    defaultValues: [.number(0.17)],
+                    label: "1st Control Point X"
+                ),
+                .init(
+                    defaultValues: [.number(0.17)],
+                    label: "1st Control Point Y"
+                ),
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "2nd Control Point X"
+                ),
+                .init(
+                    defaultValues: [.number(1)],
+                    label: "2nd Control Point Y"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Progress",
+                    type: .number
+                ),
+                .init(
+                    label: "2D Progress",
+                    type: .position
+                )
+            ]
+        )
+    }
 }
+
 
 @MainActor
 func cubicBezierCurveEval(inputs: PortValuesList,

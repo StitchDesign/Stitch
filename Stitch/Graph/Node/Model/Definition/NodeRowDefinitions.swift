@@ -64,47 +64,28 @@ extension NodeRowDefinitions {
 // row-definitions are only for Patches and Layers, never Groups or Components
 extension PatchOrLayer {
     @MainActor
-    func rowDefinitionsOldOrNewStyle(for nodeType: UserVisibleType?) -> NodeRowDefinitions {
-
-        // TODO: Most GraphNodes' input and output counts do not vary by nodeType, so we can just coerce the inputs like we do for `legacyRowDefinitions`
-        if let rowDefinitions = self.newStyleRowDefinitions(for: nodeType) {
-            return rowDefinitions
-        }
-
-        let rowDefinitions = self.legacyRowDefinitions
-        if let nodeType = nodeType {
-            return .init(inputs: rowDefinitions.inputs.coerce(to: nodeType),
-                         outputs: rowDefinitions.outputs)
-        } else {
-            return rowDefinitions
-        }
-    }
-    
-    @MainActor
-    func newStyleRowDefinitions(for nodeType: UserVisibleType?) -> NodeRowDefinitions? {
+    func rowDefinitions(for nodeType: UserVisibleType?) -> NodeRowDefinitions {
         switch self {
         case .layer(let x):
-            return x.newStyleRowDefinitions()
+            return x.rowDefinitions()
         case .patch(let x):
-            return x.newStyleRowDefinitions(for: nodeType)
+            return x.rowDefinitions(for: nodeType)
         }
     }
 }
 
 extension Layer {
     @MainActor
-    func newStyleRowDefinitions() -> NodeRowDefinitions {
+    func rowDefinitions() -> NodeRowDefinitions {
         self.graphNode.rowDefinitions(for: nil)
     }
 }
 
 extension Patch {
     @MainActor
-    func newStyleRowDefinitions(for nodeType: NodeType?) -> NodeRowDefinitions? {
+    func rowDefinitions(for nodeType: NodeType?) -> NodeRowDefinitions {
         
-        guard let graphNode = self.graphNode else {
-            return nil
-        }
+        let graphNode = self.graphNode
                     
         let rowDefinitions = graphNode.rowDefinitions(for: nodeType)
         
