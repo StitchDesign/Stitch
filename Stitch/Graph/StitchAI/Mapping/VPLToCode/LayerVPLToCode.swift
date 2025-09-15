@@ -415,20 +415,17 @@ extension LayerNodeEntity {
             // Special handling for position - combine with anchoring to choose modifier
             if port == .position && !processedPositionPort {
                 processedPositionPort = true
-                
+
                 let positionInputData = self[keyPath: port.schemaPortKeyPath]
-                let positionDefault = port.getDefaultValueForAI(for: self.layer)
                 let anchoringInputData = self.anchoringPort
-                let anchoringDefault = LayerInputPort.anchoring.getDefaultValueForAI(for: self.layer)
-                
-                // Only generate position modifier if position value differs from default
-                let positionValue = positionInputData.packedData.inputPort.values?.first
-                guard positionDefault != positionValue else { continue }
-                
+
+                // Always generate position modifier to maintain explicit positioning
+                // This prevents unintended anchoring changes when AI edits the code
+
                 // Determine modifier type based on anchoring value
                 let anchoringValue = anchoringInputData.packedData.inputPort.values?.first
-                let currentAnchoring = anchoringValue?.getAnchoring ?? .topLeft // Default fallback
-                
+                let currentAnchoring = anchoringValue?.getAnchoring ?? .centerCenter // Default to center
+
                 let viewModifier: SyntaxViewModifierName
                 switch currentAnchoring {
                 case .centerCenter:
@@ -436,14 +433,14 @@ extension LayerNodeEntity {
                 case .topLeft:
                     viewModifier = .position
                 default:
-                    // Fallback to position for any other anchoring
+                    // For other anchorings, use position modifier
                     viewModifier = .position
                 }
-                
+
                 // Generate the modifier string
                 let portValueArgs = try positionInputData.getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
                 results.append(".\(viewModifier.rawValue)(\(portValueArgs))")
-                
+
                 continue
             }
             
