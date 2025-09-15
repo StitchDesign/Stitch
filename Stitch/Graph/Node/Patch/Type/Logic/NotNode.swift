@@ -31,3 +31,19 @@ struct NotPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
+func notEval(inputs: PortValuesList,
+             outputs: PortValuesList) -> PortValuesList {
+
+    let op: Operation = { (values: PortValues) -> PortValue in
+        
+        guard let value = values.first?.getBool else {
+            fatalErrorIfDebug()
+            return .bool(false)
+        }
+        
+        return .bool(!value)
+    }
+
+    return resultsMaker(inputs)(op)
+}

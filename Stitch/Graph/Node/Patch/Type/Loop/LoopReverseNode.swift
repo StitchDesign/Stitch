@@ -30,3 +30,8 @@ struct LoopReversePatchNode: PatchNodeDefinition {
     }
 }
 
+func loopReverseEval(inputs: PortValuesList,
+                     outputs: PortValuesList) -> PortValuesList {
+    let inputLoop: PortValues = inputs.first!
+    return [inputLoop.reversed()]
+}

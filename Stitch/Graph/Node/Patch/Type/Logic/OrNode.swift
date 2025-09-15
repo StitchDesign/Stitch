@@ -35,3 +35,21 @@ struct OrPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
+func orEval(inputs: PortValuesList,
+            outputs: PortValuesList) -> PortValuesList {
+
+    let op: Operation = { (values: PortValues) -> PortValue in
+        let boolInputs = values.compactMap(\.getBool)
+        #if DEBUG
+        if boolInputs.isEmpty {
+            fatalError("orEval")
+        }
+        #endif
+        // If at least one input-value is true (i.e. satisfies identity predicate), then the output of this node will be true.
+        let opResult = !boolInputs.filter(identity).isEmpty
+        return .bool(opResult)
+    }
+
+    return resultsMaker(inputs)(op)
+}

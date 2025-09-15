@@ -35,3 +35,20 @@ struct AndPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
+func andEval(inputs: PortValuesList,
+             outputs: PortValuesList) -> PortValuesList {
+
+    let op: Operation = { (values: PortValues) -> PortValue in
+        let boolInputs: [Bool] = values.map { $0.getBool ?? false }
+        #if DEBUG
+        if boolInputs.isEmpty {
+            fatalError("andEval")
+        }
+        #endif
+        let opResult = boolInputs.allSatisfy(identity)
+        return .bool(opResult)
+    }
+
+    return resultsMaker(inputs)(op)
+}

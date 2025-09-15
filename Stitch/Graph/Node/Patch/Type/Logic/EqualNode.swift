@@ -39,3 +39,36 @@ struct EqualsPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
+func equalsEval(inputs: PortValuesList,
+                outputs: PortValuesList) -> PortValuesList {
+
+    resultsMaker(inputs)({ (values: PortValues) -> PortValue in
+        if let first = values[0].getNumber,
+           let second = values[1].getNumber,
+           let threshold = values[2].getNumber {
+
+            return .bool(first.isEqualWithinThreshold(
+                            to: second,
+                            threshold: threshold))
+        }
+        log("equalsEval: error")
+        return .bool(false)
+    })
+}
+
+extension Double {
+    func isEqualWithinThreshold(to: Double,
+                                threshold: Double) -> Bool {
+
+        equalWithinThreshold(n: self,
+                             n2: to,
+                             threshold: threshold)
+    }
+}
+
+func equalWithinThreshold(n: Double,
+                          n2: Double,
+                          threshold: Double = IS_SAME_DIFFERENCE_ALLOWANCE_LEGACY) -> Bool {
+    abs(n - n2) <= threshold
+}

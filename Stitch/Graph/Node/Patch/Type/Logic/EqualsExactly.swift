@@ -35,3 +35,19 @@ struct EqualsExactlyPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
+func equalsExactlyEval(inputs: PortValuesList,
+                       outputs: PortValuesList) -> PortValuesList {
+    
+    let op: Operation = { (values: PortValues) -> PortValue in
+        guard let firstValue = values.first else {
+            return .bool(false)
+        }
+        
+        // All values must be exactly the same as each other (fine to check against first value),
+        // otherwise we return false.
+        return .bool(values.allSatisfy({ $0 == firstValue }))
+    }
+    
+    return resultsMaker(inputs)(op)
+}

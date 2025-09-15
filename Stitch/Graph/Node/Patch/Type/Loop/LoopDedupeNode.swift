@@ -34,3 +34,14 @@ struct LoopDedupePatchNode: PatchNodeDefinition {
     }
 }
 
+func loopDedupeEval(inputs: PortValuesList,
+                    outputs: PortValuesList) -> PortValuesList {
+
+    let input = inputs.first!
+    let uniqueValues = input.unique
+
+    return [
+        uniqueValues,
+        uniqueValues.asLoopIndices
+    ]
+}

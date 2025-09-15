@@ -31,6 +31,25 @@ struct LoopToArrayPatchNode: PatchNodeDefinition {
     }
 }
 
+// LoopToArray's output, when measured via LoopCount, always seems to be 1.
+// So we're always returning a single array, and never a loop of arrays.
+@MainActor
+func loopToArrayEval(node: NodeViewModel) -> EvalResult {
+    guard let firstRow = node.getInputRowObserver(0) else {
+        fatalErrorIfDebug()
+        return .init(outputsValues: [[.json(.emptyJSONArray)]])
+    }
+    
+    let jsonArrayFromValues = JSON.jsonLoopToArrayFromValues(firstRow.allLoopedValues)
+    
+    let outputsValues: PortValuesList = [
+        [
+            .init(jsonArrayFromValues ?? JSON.emptyArray)
+        ]
+    ]
+    
+    return .init(outputsValues: outputsValues)
+}
 
 extension JSON {
     @MainActor

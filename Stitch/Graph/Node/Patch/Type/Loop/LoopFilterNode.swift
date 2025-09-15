@@ -39,6 +39,41 @@ struct LoopFilterPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
+func loopFilterEval(inputs: PortValuesList,
+                    outputs: PortValuesList) -> PortValuesList {
+
+    // What if inputLoop and includeLoop aren't same length?
+    let inputLoop: PortValues = inputs.first!
+    let includeLoop: [Int] = inputs[1].map { Int($0.getNumber ?? 0.0) }
+
+    let longestLoopLength: Int = getLongestLoopLength(inputs)
+    let extendedInputLoop = lengthenArray(loop: inputLoop,
+                                          length: longestLoopLength)
+    let extendedIncludeLoop = lengthenArray(loop: includeLoop,
+                                            length: longestLoopLength)
+
+    //    log("loopFilterEval: inputLoop: \(inputLoop)")
+    //    log("loopFilterEval: includeLoop: \(includeLoop)")
+    //    log("loopFilterEval: longestLoopLength: \(longestLoopLength)")
+    //    log("loopFilterEval: extendedInputLoop: \(extendedInputLoop)")
+    //    log("loopFilterEval: extendedIncludeLoop: \(extendedIncludeLoop)")
+
+    let result = loopFilter(input: extendedInputLoop,
+                            include: extendedIncludeLoop,
+                            originalInputLoopLength: inputLoop.count)
+
+    //    log("loopFilterEval: result: \(result)")
+
+    // If the result is empty, then we should return a default false result.
+    if result.isEmpty,
+       let inputLoopFirst = inputLoop.first {
+        let emptyResult = [inputLoopFirst.defaultFalseValue]
+        return [emptyResult, emptyResult.asLoopIndices]
+    } else {
+        return [result, result.asLoopIndices]
+    }
+}
 
 // `input` can be any PortValue
 func loopFilter(input: [PortValue],
