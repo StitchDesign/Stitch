@@ -132,7 +132,7 @@ struct LLMNodeIOPortTypeView: View {
             HStack {
                 StitchTextView(string: "\(generalLabel): ")
                 
-                if let labelForPortIndex = nodeName.asNodeKind.getPatch?.graphNode?.rowDefinitions(for: .number).inputs[safeIndex: portIndex],
+                if let labelForPortIndex = nodeName.asNodeKind.getPatch?.graphNode.rowDefinitions(for: .number).inputs[safeIndex: portIndex],
                    !labelForPortIndex.label.isEmpty {
                     
                     StitchTextView(string: "\(labelForPortIndex.label), ")

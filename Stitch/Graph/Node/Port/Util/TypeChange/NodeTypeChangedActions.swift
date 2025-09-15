@@ -147,8 +147,8 @@ extension Patch {
     /// Refers to input ports whose types change given a conditional node value type. Returns nil if the node doesn't support type changing.
     @MainActor
     var nonStaticTypedInputPorts: Set<Int>? {
-        guard let patchNodeDefinition = self.graphNode,
-              let defaultType = patchNodeDefinition.defaultUserVisibleType else {
+        let patchNodeDefinition = self.graphNode
+        guard let defaultType = patchNodeDefinition.defaultUserVisibleType else {
             // No type changing support
             return nil
         }

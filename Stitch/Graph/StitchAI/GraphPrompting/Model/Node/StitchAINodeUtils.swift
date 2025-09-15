@@ -81,10 +81,8 @@ extension AIGraphData_V0.PatchOrLayer {
             return nil
         }
         
-        // Use node definitions, if available
-        if let graphNode = migratedPatchOrLayer.graphNode {
-            return try .init(graphNode)
-        }
+        // Use node definitions
+        let graphNode = migratedPatchOrLayer.graphNode
         
         // Backup plan: create default node, extract data from there
         guard let defaultNode = migratedPatchOrLayer

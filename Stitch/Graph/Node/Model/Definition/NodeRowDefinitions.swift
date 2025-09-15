@@ -67,7 +67,7 @@ extension PatchOrLayer {
     func rowDefinitionsOldOrNewStyle(for nodeType: UserVisibleType?) -> NodeRowDefinitions {
 
         // TODO: Most GraphNodes' input and output counts do not vary by nodeType, so we can just coerce the inputs like we do for `legacyRowDefinitions`
-        if let rowDefinitions = self.newStyleRowDefinitions(for: nodeType) {
+        if let rowDefinitions = self.rowDefinitions(for: nodeType) {
             return rowDefinitions
         }
 
@@ -81,26 +81,26 @@ extension PatchOrLayer {
     }
     
     @MainActor
-    func newStyleRowDefinitions(for nodeType: UserVisibleType?) -> NodeRowDefinitions? {
+    func rowDefinitions(for nodeType: UserVisibleType?) -> NodeRowDefinitions? {
         switch self {
         case .layer(let x):
-            return x.newStyleRowDefinitions()
+            return x.rowDefinitions()
         case .patch(let x):
-            return x.newStyleRowDefinitions(for: nodeType)
+            return x.rowDefinitions(for: nodeType)
         }
     }
 }
 
 extension Layer {
     @MainActor
-    func newStyleRowDefinitions() -> NodeRowDefinitions {
+    func rowDefinitions() -> NodeRowDefinitions {
         self.graphNode.rowDefinitions(for: nil)
     }
 }
 
 extension Patch {
     @MainActor
-    func newStyleRowDefinitions(for nodeType: NodeType?) -> NodeRowDefinitions {
+    func rowDefinitions(for nodeType: NodeType?) -> NodeRowDefinitions {
         
         let graphNode = self.graphNode
                     

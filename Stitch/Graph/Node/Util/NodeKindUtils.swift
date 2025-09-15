@@ -220,7 +220,7 @@ extension PatchOrLayer {
             return false
         }
         
-        return self.graphNode?.rowDefinitions(for: userVisibleType)
+        return self.graphNode.rowDefinitions(for: userVisibleType)
             .inputs[safe: portId]?.canDirectlyCopyUpstreamValues ?? false
     }
 }
