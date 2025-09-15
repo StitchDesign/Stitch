@@ -8,6 +8,40 @@
 import Foundation
 import StitchSchemaKit
 
+struct TextReplacePatchNode: PatchNodeDefinition {
+    static let patch = Patch.textReplace
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Text"
+                ),
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Find"
+                ),
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Replace"
+                ),
+                .init(
+                    defaultValues: [.bool(false)],
+                    label: "Case Sensitive"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .string
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func textReplaceNode(id: NodeId,
                      position: CGPoint = .zero,

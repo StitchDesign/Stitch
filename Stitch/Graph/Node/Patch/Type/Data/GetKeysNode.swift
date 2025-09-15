@@ -10,6 +10,28 @@ import StitchSchemaKit
 import SwiftUI
 import SwiftyJSON
 
+struct GetKeysPatchNode: PatchNodeDefinition {
+    static let patch = Patch.getKeys
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.json(emptyStitchJSONObject)],
+                    label: "Object"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .json
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func getKeysNode(id: NodeId,
                  startingJson: StitchJSON = emptyStitchJSONObject,

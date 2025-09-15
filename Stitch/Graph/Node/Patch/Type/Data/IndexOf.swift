@@ -10,6 +10,36 @@ import StitchSchemaKit
 import SwiftUI
 import SwiftyJSON
 
+struct IndexOfPatchNode: PatchNodeDefinition {
+    static let patch = Patch.indexOf
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.json(emptyStitchJSONObject)],
+                    label: "Array"
+                ),
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Item"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Index",
+                    type: .number
+                ),
+                .init(
+                    label: "Contains",
+                    type: .bool
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func indexOfNode(id: NodeId,
                  startingJson: StitchJSON = emptyStitchJSONObject,

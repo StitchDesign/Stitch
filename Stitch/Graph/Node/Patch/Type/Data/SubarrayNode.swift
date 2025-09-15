@@ -10,6 +10,36 @@ import StitchSchemaKit
 import SwiftUI
 import SwiftyJSON
 
+struct SubarrayPatchNode: PatchNodeDefinition {
+    static let patch = Patch.subarray
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.json(emptyStitchJSONArray)],
+                    label: "Array"
+                ),
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "Location"
+                ),
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "Length"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Subarray",
+                    type: .json
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func subarrayNode(id: NodeId,
                   startingJson: StitchJSON = emptyStitchJSONArray,

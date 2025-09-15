@@ -10,6 +10,36 @@ import StitchSchemaKit
 import SwiftUI
 import NonEmpty
 
+struct TriangleShapePatchNode: PatchNodeDefinition {
+    static let patch = Patch.triangleShape
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.position(TriangleData.defaultTriangleP1)],
+                    label: "First Point"
+                ),
+                .init(
+                    defaultValues: [.position(TriangleData.defaultTriangleP2)],
+                    label: "Second Point"
+                ),
+                .init(
+                    defaultValues: [.position(TriangleData.defaultTriangleP3)],
+                    label: "Third Point"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Shape",
+                    type: .shape
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func triangleShapeNode(id: NodeId,
                        position: CGPoint = .zero,

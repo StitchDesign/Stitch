@@ -10,7 +10,7 @@ import StitchSchemaKit
 
 extension Patch {
     
-    var graphNode: (any NodeDefinition.Type)? {
+    var graphNode: any NodeDefinition.Type {
         switch self {
         case .splitter:
             return SplitterPatchNode.self
@@ -42,33 +42,33 @@ extension Patch {
         case .optionPicker:
             return OptionPickerPatchNode.self
         case .loop:
-            return nil
+            return LoopStartPatchNode.self
         case .time:
-            return nil
+            return TimePatchNode.self
         case .deviceTime:
-            return nil
+            return DeviceTimePatchNode.self
         case .location:
             return LocationNode.self
         case .random:
             return RandomPatchNode.self
         case .greaterOrEqual:
-            return nil
+            return GreaterOrEqualPatchNode.self
         case .lessThanOrEqual:
-            return nil
+            return LessThanOrEqualPatchNode.self
         case .equals:
-            return nil
+            return EqualsPatchNode.self
         case .restartPrototype:
-            return nil
+            return RestartPrototypePatchNode.self
         case .divide:
             return DividePatchNode.self
         case .hslColor:
-            return nil
+            return HSLColorPatchNode.self
         case .or:
-            return nil
+            return OrPatchNode.self
         case .and:
-            return nil
+            return AndPatchNode.self
         case .not:
-            return nil
+            return NotPatchNode.self
         case .springAnimation:
             return SpringAnimationNode.self
         case .popAnimation:
@@ -86,9 +86,9 @@ extension Patch {
         case .cubicBezierAnimation:
             return CubicBezierAnimationNode.self
         case .curve:
-            return nil
+            return CurvePatchNode.self
         case .cubicBezierCurve:
-            return nil
+            return CubicBezierCurvePatchNode.self
         case .repeatingAnimation:
             return RepeatingAnimationNode.self
         case .loopBuilder:
@@ -100,7 +100,7 @@ extension Patch {
         case .coreMLDetection:
             return CoreMLDetectionNode.self
         case .transition:
-            return nil
+            return TransitionPatchNode.self
         case .imageImport:
             return ImageImportPatchNode.self
         case .cameraFeed:
@@ -132,9 +132,9 @@ extension Patch {
         case .valueAtIndex:
             return ValueAtIndexNode.self
         case .loopOverArray:
-            return nil
+            return LoopOverArrayPatchNode.self
         case .setValueForKey:
-            return nil
+            return SetValueForKeyPatchNode.self
         case .jsonObject:
             return JSONObjectNode.self
         case .jsonArray:
@@ -142,25 +142,25 @@ extension Patch {
         case .arrayAppend:
             return ArrayAppendNode.self
         case .arrayCount:
-            return nil
+            return ArrayCountPatchNode.self
         case .arrayJoin:
-            return nil
+            return ArrayJoinPatchNode.self
         case .arrayReverse:
-            return nil
+            return ArrayReversePatchNode.self
         case .arraySort:
-            return nil
+            return ArraySortPatchNode.self
         case .getKeys:
-            return nil
+            return GetKeysPatchNode.self
         case .indexOf:
-            return nil
+            return IndexOfPatchNode.self
         case .subarray:
-            return nil
+            return SubarrayPatchNode.self
         case .valueAtPath:
             return ValueAtPathNode.self
         case .deviceMotion:
-            return nil
+            return DeviceMotionPatchNode.self
         case .deviceInfo:
-            return nil
+            return DeviceInfoPatchNode.self
         case .smoothValue:
             return SmoothValueNode.self
         case .velocity:
@@ -184,7 +184,7 @@ extension Patch {
         case .wirelessReceiver:
             return WirelessReceiverPatchNode.self
         case .rgba:
-            return nil
+            return RGBAPatchNode.self
         case .arcTan2:
             return ArcTan2PatchNode.self
         case .sine:
@@ -200,9 +200,9 @@ extension Patch {
         case .whenPrototypeStarts:
             return WhenPrototypeStartsNode.self
         case .soulver:
-            return nil
+            return SoulverPatchNode.self
         case .optionEquals:
-            return nil
+            return OptionEqualsPatchNode.self
         case .subtract:
             return SubtractPatchNode.self
         case .squareRoot:
@@ -214,81 +214,81 @@ extension Patch {
         case .power:
             return PowerPatchNode.self
         case .equalsExactly:
-            return nil
+            return EqualsExactlyPatchNode.self
         case .greaterThan:
-            return nil
+            return GreaterThanPatchNode.self
         case .lessThan:
-            return nil
+            return LessThanPatchNode.self
         case .colorToHSL:
-            return nil
+            return ColorToHSLPatchNode.self
         case .colorToHex:
-            return nil
+            return ColorToHexPatchNode.self
         case .colorToRGB:
-            return nil
+            return ColorToRGBAPatchNode.self
         case .hexColor:
-            return nil
+            return HexPatchNode.self
         case .splitText:
-            return nil
+            return SplitTextPatchNode.self
         case .textEndsWith:
-            return nil
+            return TextEndsWithPatchNode.self
         case .textLength:
-            return nil
+            return TextLengthPatchNode.self
         case .textReplace:
-            return nil
+            return TextReplacePatchNode.self
         case .textStartsWith:
-            return nil
+            return TextStartsWithPatchNode.self
         case .textTransform:
-            return nil
+            return TextTransformPatchNode.self
         case .trimText:
-            return nil
+            return TrimTextPatchNode.self
         case .dateAndTimeFormatter:
-            return nil
+            return DateAndTimeFormatterPatchNode.self
         case .stopwatch:
             return StopwatchNode.self
         case .optionSender:
-            return nil
+            return OptionSenderPatchNode.self
         case .any:
-            return nil
+            return AnyPatchNode.self
         case .loopCount:
-            return nil
+            return LoopCountPatchNode.self
         case .loopDedupe:
-            return nil
+            return LoopDedupePatchNode.self
         case .loopFilter:
-            return nil
+            return LoopFilterPatchNode.self
         case .loopOptionSwitch:
             return LoopOptionSwitchNode.self
         case .loopRemove:
             return LoopRemoveNode.self
         case .loopReverse:
-            return nil
+            return LoopReversePatchNode.self
         case .loopShuffle:
             return LoopShuffleNode.self
         case .loopSum:
-            return nil
+            return LoopSumPatchNode.self
         case .loopToArray:
-            return nil
+            return LoopToArrayPatchNode.self
         case .runningTotal:
-            return nil
+            return RunningTotalPatchNode.self
         case .layerInfo:
             return LayerInfoPatchNode.self
         case .triangleShape:
-            return nil
+            return TriangleShapePatchNode.self
         case .circleShape:
-            return nil
+            return CircleShapePatchNode.self
         case .ovalShape:
-            return nil
+            return OvalShapePatchNode.self
         case .roundedRectangleShape:
-            return nil
+            return RoundedRectangleShapePatchNode.self
         case .union:
-            return nil
+            return UnionPatchNode.self
         case .keyboard:
             return KeyboardNode.self
         case .jsonToShape:
-            return nil
+            return JsonToShapePatchNode.self
         case .shapeToCommands:
-            return nil
+            return ShapeToCommandsPatchNode.self
         case .commandsToShape:
-            return nil
+            return CommandsToShapePatchNode.self
         case .mouse:
             return MouseInteractNode.self
         case .sizePack:

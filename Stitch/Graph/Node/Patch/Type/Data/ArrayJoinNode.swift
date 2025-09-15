@@ -10,6 +10,32 @@ import StitchSchemaKit
 import SwiftUI
 import SwiftyJSON
 
+struct ArrayJoinPatchNode: PatchNodeDefinition {
+    static let patch = Patch.arrayJoin
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.json(emptyStitchJSONObject)],
+                    label: ""
+                ),
+                .init(
+                    defaultValues: [.json(emptyStitchJSONObject)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .json
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func arrayJoinNode(id: NodeId,
                    startingJson: StitchJSON = emptyStitchJSONObject,

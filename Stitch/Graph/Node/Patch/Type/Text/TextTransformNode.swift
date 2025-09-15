@@ -27,6 +27,32 @@ extension TextTransform: PortValueEnum {
     }
 }
 
+struct TextTransformPatchNode: PatchNodeDefinition {
+    static let patch = Patch.textTransform
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Text"
+                ),
+                .init(
+                    defaultValues: [.textTransform(.defaultTransform)],
+                    label: "Transform"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .string
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func textTransformNode(id: NodeId,
                        position: CGPoint = .zero,

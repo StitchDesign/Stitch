@@ -9,6 +9,32 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+struct OvalShapePatchNode: PatchNodeDefinition {
+    static let patch = Patch.ovalShape
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.position(CGRect.defaultOval.origin)],
+                    label: "Position"
+                ),
+                .init(
+                    defaultValues: [.size(CGRect.defaultOval.size.toLayerSize)],
+                    label: "Size"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Shape",
+                    type: .shape
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func ovalShapeNode(id: NodeId,
                    position: CGPoint = .zero,

@@ -10,6 +10,28 @@ import StitchSchemaKit
 import SwiftUI
 import SwiftyJSON
 
+struct ArrayCountPatchNode: PatchNodeDefinition {
+    static let patch = Patch.arrayCount
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.json(emptyStitchJSONObject)],
+                    label: "Array"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .number
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func arrayCountNode(id: NodeId,
                     startingJson: StitchJSON = emptyStitchJSONObject,

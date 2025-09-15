@@ -10,6 +10,28 @@ import StitchSchemaKit
 import SwiftUI
 import SwiftyJSON
 
+struct ArrayReversePatchNode: PatchNodeDefinition {
+    static let patch = Patch.arrayReverse
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.json(emptyStitchJSONObject)],
+                    label: "Array"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .json
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func arrayReverseNode(id: NodeId,
                       startingJson: StitchJSON = emptyStitchJSONObject,

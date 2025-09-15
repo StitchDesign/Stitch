@@ -9,41 +9,29 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func andNode(id: NodeId,
-             n1: Bool = false,
-             n2: Bool = false,
-             position: CGPoint = .zero, zIndex: Double = 0) -> PatchNode {
-    let inputs = toInputs(id: id,
-                          values: (nil, [.bool(n1)]),
-                          (nil, [.bool(n2)]))
+struct AndPatchNode: PatchNodeDefinition {
+    static let patch = Patch.and
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let outputs = toOutputs(id: id,
-                            offset: inputs.count,
-                            values: (nil, [.bool(n1 && n2)]))
-
-    return PatchNode(position: position,
-                     zIndex: zIndex,
-                     id: id,
-                     patchName: .and,
-                     inputs: inputs,
-                     outputs: outputs)
-}
-
-@MainActor
-func andEval(inputs: PortValuesList,
-             outputs: PortValuesList) -> PortValuesList {
-
-    let op: Operation = { (values: PortValues) -> PortValue in
-        let boolInputs: [Bool] = values.map { $0.getBool ?? false }
-        #if DEBUG
-        if boolInputs.isEmpty {
-            fatalError("andEval")
-        }
-        #endif
-        let opResult = boolInputs.allSatisfy(identity)
-        return .bool(opResult)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.bool(false)],
+                    label: ""
+                ),
+                .init(
+                    defaultValues: [.bool(false)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .bool
+                )
+            ]
+        )
     }
-
-    return resultsMaker(inputs)(op)
 }
+

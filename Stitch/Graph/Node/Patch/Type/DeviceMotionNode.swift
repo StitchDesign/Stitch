@@ -10,6 +10,35 @@ import StitchSchemaKit
 import CoreMotion
 import SwiftUI
 
+struct DeviceMotionPatchNode: PatchNodeDefinition {
+    static let patch = Patch.deviceMotion
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [],
+            outputs: [
+                .init(
+                    label: "Has Acceleration",
+                    type: .bool
+                ),
+                .init(
+                    label: "Acceleration",
+                    type: .point3D
+                ),
+                .init(
+                    label: "Has Rotation",
+                    type: .bool
+                ),
+                .init(
+                    label: "Rotation",
+                    type: .point3D
+                )
+            ]
+        )
+    }
+}
+
 typealias StitchMotionManagersDict = [NodeId: CMMotionManager]
 
 

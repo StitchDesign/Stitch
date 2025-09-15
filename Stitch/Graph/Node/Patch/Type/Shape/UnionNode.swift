@@ -9,6 +9,32 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+struct UnionPatchNode: PatchNodeDefinition {
+    static let patch = Patch.union
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.shape(nil)],
+                    label: ""
+                ),
+                .init(
+                    defaultValues: [.shape(nil)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .shape
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func unionNode(id: NodeId,
                position: CGPoint = .zero,

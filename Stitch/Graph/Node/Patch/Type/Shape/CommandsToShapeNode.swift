@@ -8,6 +8,28 @@
 import Foundation
 import StitchSchemaKit
 
+struct CommandsToShapePatchNode: PatchNodeDefinition {
+    static let patch = Patch.commandsToShape
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: getDemoShape().shapes.fromShapeToShapeCommandLoop?.map(PortValue.shapeCommand) ?? [],
+                    label: "Commands"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Shape",
+                    type: .shape
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func commandsToShapeNode(id: NodeId,
                          position: CGPoint = .zero,

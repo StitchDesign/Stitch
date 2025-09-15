@@ -9,6 +9,32 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+struct CurvePatchNode: PatchNodeDefinition {
+    static let patch = Patch.curve
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "Progress"
+                ),
+                .init(
+                    defaultValues: [.animationCurve(.linear)],
+                    label: "Curve"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Progress",
+                    type: .number
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func curveNode(id: NodeId,
                position: CGPoint = .zero,

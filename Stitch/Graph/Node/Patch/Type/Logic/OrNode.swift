@@ -9,45 +9,29 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func orNode(id: NodeId,
-            n1: Bool = false,
-            n2: Bool = false,
-            position: CGPoint = .zero,
-            zIndex: Double = 0) -> PatchNode {
+struct OrPatchNode: PatchNodeDefinition {
+    static let patch = Patch.or
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = toInputs(id: id,
-                          values: (nil, [.bool(n1)]),
-                          (nil, [.bool(n2)]))
-
-    let outputs = toOutputs(id: id,
-                            offset: inputs.count,
-                            values: (nil, [.bool(n1 || n2)]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .or,
-        inputs: inputs,
-        outputs: outputs)
-}
-
-@MainActor
-func orEval(inputs: PortValuesList,
-            outputs: PortValuesList) -> PortValuesList {
-
-    let op: Operation = { (values: PortValues) -> PortValue in
-        let boolInputs = values.compactMap(\.getBool)
-        #if DEBUG
-        if boolInputs.isEmpty {
-            fatalError("orEval")
-        }
-        #endif
-        // If at least one input-value is true (i.e. satisfies identity predicate), then the output of this node will be true.
-        let opResult = !boolInputs.filter(identity).isEmpty
-        return .bool(opResult)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.bool(false)],
+                    label: ""
+                ),
+                .init(
+                    defaultValues: [.bool(false)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .bool
+                )
+            ]
+        )
     }
-
-    return resultsMaker(inputs)(op)
 }
+

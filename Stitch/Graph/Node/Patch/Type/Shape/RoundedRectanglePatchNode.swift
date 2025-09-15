@@ -9,6 +9,36 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+struct RoundedRectangleShapePatchNode: PatchNodeDefinition {
+    static let patch = Patch.roundedRectangleShape
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.position(CGRect.defaultRoundedRectangle.rect.origin)],
+                    label: "Position"
+                ),
+                .init(
+                    defaultValues: [.size(CGRect.defaultRoundedRectangle.rect.size.toLayerSize)],
+                    label: "Size"
+                ),
+                .init(
+                    defaultValues: [.number(CGRect.defaultRoundedRectangle.cornerRadius)],
+                    label: "Radius"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Shape",
+                    type: .shape
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func roundedRectangleShapeNode(id: NodeId,
                                position: CGPoint = .zero,

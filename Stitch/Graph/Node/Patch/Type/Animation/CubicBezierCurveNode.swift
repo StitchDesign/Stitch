@@ -9,6 +9,48 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+struct CubicBezierCurvePatchNode: PatchNodeDefinition {
+    static let patch = Patch.cubicBezierCurve
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(.zero)],
+                    label: "Progress"
+                ),
+                .init(
+                    defaultValues: [.number(0.17)],
+                    label: "1st Control Point X"
+                ),
+                .init(
+                    defaultValues: [.number(0.17)],
+                    label: "1st Control Point Y"
+                ),
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "2nd Control Point X"
+                ),
+                .init(
+                    defaultValues: [.number(1)],
+                    label: "2nd Control Point Y"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Progress",
+                    type: .number
+                ),
+                .init(
+                    label: "2D Progress",
+                    type: .position
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func cubicBezierCurveNode(id: NodeId,
                           position: CGPoint = .zero,

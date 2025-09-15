@@ -8,6 +8,32 @@
 import Foundation
 import StitchSchemaKit
 
+struct TextEndsWithPatchNode: PatchNodeDefinition {
+    static let patch = Patch.textEndsWith
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Text"
+                ),
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Suffix"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .bool
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func textEndsWithNode(id: NodeId,
                       position: CGPoint = .zero,

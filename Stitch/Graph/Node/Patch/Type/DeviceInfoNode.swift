@@ -10,6 +10,47 @@ import StitchSchemaKit
 import CoreMotion
 import SwiftUI
 
+struct DeviceInfoPatchNode: PatchNodeDefinition {
+    static let patch = Patch.deviceInfo
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [],
+            outputs: [
+                .init(
+                    label: "Screen Size",
+                    type: .size
+                ),
+                .init(
+                    label: "Screen Scale",
+                    type: .number
+                ),
+                .init(
+                    label: "Orientation",
+                    type: .deviceOrientation
+                ),
+                .init(
+                    label: "Device Type",
+                    type: .string
+                ),
+                .init(
+                    label: "Appearance",
+                    type: .string
+                ),
+                .init(
+                    label: "Safe Area Top",
+                    type: .number
+                ),
+                .init(
+                    label: "Safe Area Bottom",
+                    type: .number
+                )
+            ]
+        )
+    }
+}
+
 let defaultColorScheme: ColorScheme = .dark
 
 let LIGHT_COLOR_SCHEME = "Light"

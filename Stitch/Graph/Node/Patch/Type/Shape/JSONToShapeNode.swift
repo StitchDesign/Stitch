@@ -10,6 +10,40 @@ import StitchSchemaKit
 @preconcurrency import SwiftyJSON
 import SwiftUI
 
+struct JsonToShapePatchNode: PatchNodeDefinition {
+    static let patch = Patch.jsonToShape
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.json(.emptyJSONObject)],
+                    label: "JSON"
+                ),
+                .init(
+                    defaultValues: [.position(defaultJsonToShapeCoordinateSpace)],
+                    label: "Coordinate Space"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Shape",
+                    type: .shape
+                ),
+                .init(
+                    label: "Error",
+                    type: .json
+                ),
+                .init(
+                    label: "Size",
+                    type: .size
+                )
+            ]
+        )
+    }
+}
+
 //let JSON_TO_SHAPE_NO_ERROR = ""
 extension JSON {
     static let JSON_TO_SHAPE_NO_ERROR: JSON = parseJSON("{ \"Error\": \"None\" }")!

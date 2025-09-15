@@ -8,6 +8,28 @@
 import Foundation
 import StitchSchemaKit
 
+struct ShapeToCommandsPatchNode: PatchNodeDefinition {
+    static let patch = Patch.shapeToCommands
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.shape(getDemoShape())],
+                    label: "Shape"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Commands",
+                    type: .shapeCommand
+                )
+            ]
+        )
+    }
+}
+
 func getDemoShape(jsonString: String = sampleCurveToJSON) -> CustomShape {
     let json: JSONShapeCommands = parseJSON(jsonString)!
         .parseAsPathCommands()!

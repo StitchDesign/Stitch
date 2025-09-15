@@ -8,6 +8,40 @@
 import SwiftUI
 import StitchSchemaKit
 
+struct RGBAPatchNode: PatchNodeDefinition {
+    static let patch = Patch.rgba
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(redDefault)],
+                    label: "Red"
+                ),
+                .init(
+                    defaultValues: [.number(greenDefault)],
+                    label: "Green"
+                ),
+                .init(
+                    defaultValues: [.number(blueDefault)],
+                    label: "Blue"
+                ),
+                .init(
+                    defaultValues: [.number(alphaDefault)],
+                    label: "Alpha"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .color
+                )
+            ]
+        )
+    }
+}
+
 let RGBA_COLOR_DISPLAY_TITLE = "RGB Color"
 
 let redDefault: Double = 0

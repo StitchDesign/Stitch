@@ -10,6 +10,32 @@ import StitchSchemaKit
 import SwiftUI
 import SwiftyJSON
 
+struct ArraySortPatchNode: PatchNodeDefinition {
+    static let patch = Patch.arraySort
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.json(emptyStitchJSONObject)],
+                    label: "Array"
+                ),
+                .init(
+                    defaultValues: [.bool(true)],
+                    label: "Ascending"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .json
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func arraySortNode(id: NodeId,
                    startingJson: StitchJSON = emptyStitchJSONObject,

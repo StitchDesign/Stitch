@@ -8,36 +8,25 @@
 import Foundation
 import StitchSchemaKit
 
-@MainActor
-func loopReverseNode(id: NodeId,
-                     position: CGPoint = .zero,
-                     zIndex: Double = 0) -> PatchNode {
+struct LoopReversePatchNode: PatchNodeDefinition {
+    static let patch = Patch.loopReverse
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Loop", [.number(0)]) // 0
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            (nil, [.number(0)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .loopReverse,
-        userVisibleType: .number,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "Loop"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: type ?? .number
+                )
+            ]
+        )
+    }
 }
 
-func loopReverseEval(inputs: PortValuesList,
-                     outputs: PortValuesList) -> PortValuesList {
-    let inputLoop: PortValues = inputs.first!
-    return [inputLoop.reversed()]
-}

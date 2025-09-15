@@ -9,6 +9,40 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+struct ColorToRGBAPatchNode: PatchNodeDefinition {
+    static let patch = Patch.colorToRGB
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.color(falseColor)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Red",
+                    type: .number
+                ),
+                .init(
+                    label: "Green",
+                    type: .number
+                ),
+                .init(
+                    label: "Blue",
+                    type: .number
+                ),
+                .init(
+                    label: "Alpha",
+                    type: .number
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func colorToRGBANode(id: NodeId,
                      hue: Double = hueDefault,

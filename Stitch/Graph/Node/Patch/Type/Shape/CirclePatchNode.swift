@@ -9,6 +9,32 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+struct CircleShapePatchNode: PatchNodeDefinition {
+    static let patch = Patch.circleShape
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.position(CGRect.defaultCircle.origin)],
+                    label: "Position"
+                ),
+                .init(
+                    defaultValues: [.number(CGRect.defaultCircle.size.width/2)],
+                    label: "Radius"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Shape",
+                    type: .shape
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func circleShapeNode(id: NodeId,
                      position: CGPoint = .zero,

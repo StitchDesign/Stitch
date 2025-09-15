@@ -9,55 +9,28 @@ import Foundation
 import StitchSchemaKit
 import SwiftyJSON
 
-@MainActor
-func loopToArrayNode(id: NodeId,
-                     position: CGPoint = .zero,
-                     zIndex: Double = 0) -> PatchNode {
+struct LoopToArrayPatchNode: PatchNodeDefinition {
+    static let patch = Patch.loopToArray
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Loop", [.number(0)]) // 0
-    )
-
-    let json = JSON(rawValue: [0])?.toStitchJSON ?? .emptyJSONArray
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            (nil, [.json(json)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .loopToArray,
-        userVisibleType: .number,
-        inputs: inputs,
-        outputs: outputs)
-}
-
-// LoopToArray's output, when measured via LoopCount, always seems to be 1.
-// So we're always returning a single array, and never a loop of arrays.
-@MainActor
-func loopToArrayEval(node: NodeViewModel) -> EvalResult {
-    guard let firstRow = node.getInputRowObserver(0) else {
-        fatalErrorIfDebug()
-        return .init(outputsValues: [[.json(.emptyJSONArray)]])
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "Loop"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .json
+                )
+            ]
+        )
     }
-    
-    let jsonArrayFromValues = JSON.jsonLoopToArrayFromValues(firstRow.allLoopedValues)
-    
-    let outputsValues: PortValuesList = [
-        [
-            .init(jsonArrayFromValues ?? JSON.emptyArray)
-        ]
-    ]
-    
-    return .init(outputsValues: outputsValues)
 }
+
 
 extension JSON {
     @MainActor

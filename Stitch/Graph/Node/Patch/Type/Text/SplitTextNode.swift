@@ -8,6 +8,32 @@
 import Foundation
 import StitchSchemaKit
 
+struct SplitTextPatchNode: PatchNodeDefinition {
+    static let patch = Patch.splitText
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Text"
+                ),
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Token"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .string
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func splitTextNode(id: NodeId,
                    position: CGPoint = .zero,

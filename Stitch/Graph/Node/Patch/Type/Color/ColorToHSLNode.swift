@@ -9,6 +9,40 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+struct ColorToHSLPatchNode: PatchNodeDefinition {
+    static let patch = Patch.colorToHSL
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.color(falseColor)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Hue",
+                    type: .number
+                ),
+                .init(
+                    label: "Saturation",
+                    type: .number
+                ),
+                .init(
+                    label: "Lightness",
+                    type: .number
+                ),
+                .init(
+                    label: "Alpha",
+                    type: .number
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func colorToHSLNode(id: NodeId,
                     hue: Double = hueDefault,

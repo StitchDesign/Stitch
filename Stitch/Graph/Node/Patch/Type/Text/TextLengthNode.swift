@@ -8,6 +8,28 @@
 import Foundation
 import StitchSchemaKit
 
+struct TextLengthPatchNode: PatchNodeDefinition {
+    static let patch = Patch.textLength
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Text"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .number
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func textLengthNode(id: NodeId,
                     position: CGPoint = .zero,

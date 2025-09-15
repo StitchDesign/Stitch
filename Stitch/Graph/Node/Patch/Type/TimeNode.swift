@@ -9,29 +9,25 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-// No node type or user-node types
-// No inputs (i.e. inputs are disabled)
-@MainActor
-func timePatchNode(id: NodeId,
-                   position: CGPoint = .zero,
-                   zIndex: Double = 0) -> PatchNode {
+struct TimePatchNode: PatchNodeDefinition {
+    static let patch = Patch.time
+    static let defaultUserVisibleType: UserVisibleType? = nil
 
-    let inputs = fakeInputs(id: id)
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            ("Time", [numberDefaultFalse]),
-        ("Frame", [numberDefaultFalse]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .time,
-        inputs: inputs,
-        outputs: outputs)
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [],
+            outputs: [
+                .init(
+                    label: "Time",
+                    type: .number
+                ),
+                .init(
+                    label: "Frame",
+                    type: .number
+                )
+            ]
+        )
+    }
 }
 
 // Time is the only node that needs graphFrameCount from state;
@@ -59,3 +55,4 @@ func timeEval(inputsValues: PortValuesList,
 
     return [timeOutput, framesOutput]
 }
+

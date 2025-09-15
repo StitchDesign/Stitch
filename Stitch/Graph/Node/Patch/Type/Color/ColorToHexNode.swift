@@ -8,6 +8,28 @@
 import Foundation
 import StitchSchemaKit
 
+struct ColorToHexPatchNode: PatchNodeDefinition {
+    static let patch = Patch.colorToHex
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.color(falseColor)],
+                    label: "Color"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "Hex",
+                    type: .string
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func colorToHexNode(id: NodeId,
                     position: CGPoint = .zero,

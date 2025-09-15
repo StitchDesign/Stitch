@@ -9,6 +9,36 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+struct DateAndTimeFormatterPatchNode: PatchNodeDefinition {
+    static let patch = Patch.dateAndTimeFormatter
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(.zero)],
+                    label: "Time"
+                ),
+                .init(
+                    defaultValues: [.dateAndTimeFormat(.defaultFormat)],
+                    label: "Format"
+                ),
+                .init(
+                    defaultValues: [.string(.init(.empty))],
+                    label: "Custom Format"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .string
+                )
+            ]
+        )
+    }
+}
+
 extension DateAndTimeFormat: PortValueEnum {
     static let defaultFormat = Self.medium
 

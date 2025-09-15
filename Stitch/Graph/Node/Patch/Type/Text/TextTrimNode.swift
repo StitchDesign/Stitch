@@ -8,6 +8,36 @@
 import Foundation
 import StitchSchemaKit
 
+struct TrimTextPatchNode: PatchNodeDefinition {
+    static let patch = Patch.trimText
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.string(.init(""))],
+                    label: "Text"
+                ),
+                .init(
+                    defaultValues: [numberDefaultFalse],
+                    label: "Position"
+                ),
+                .init(
+                    defaultValues: [numberDefaultFalse],
+                    label: "Length"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .string
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func trimTextNode(id: NodeId,
                   position: CGPoint = .zero,

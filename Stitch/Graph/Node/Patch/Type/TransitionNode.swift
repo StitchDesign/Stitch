@@ -10,6 +10,36 @@ import StitchSchemaKit
 import SwiftUI
 import Accelerate
 
+struct TransitionPatchNode: PatchNodeDefinition {
+    static let patch = Patch.transition
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0.5)],
+                    label: "Progress"
+                ),
+                .init(
+                    defaultValues: [.number(50)],
+                    label: "Start"
+                ),
+                .init(
+                    defaultValues: [.number(100)],
+                    label: "End"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .number
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func transitionNode(id: NodeId,
                     progress: Double = 0.5,

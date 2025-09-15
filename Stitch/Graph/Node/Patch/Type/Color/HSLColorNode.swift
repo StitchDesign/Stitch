@@ -13,6 +13,40 @@ let hueDefault = 0.5
 let saturationDefault = 0.8
 let lightnessDefault = 0.8
 
+struct HSLColorPatchNode: PatchNodeDefinition {
+    static let patch = Patch.hslColor
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(hueDefault)],
+                    label: "Hue"
+                ),
+                .init(
+                    defaultValues: [.number(saturationDefault)],
+                    label: "Saturation"
+                ),
+                .init(
+                    defaultValues: [.number(lightnessDefault)],
+                    label: "Lightness"
+                ),
+                .init(
+                    defaultValues: [.number(alphaDefault)],
+                    label: "Alpha"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .color
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func hslColorNode(id: NodeId,
                   hue: Double = hueDefault,
