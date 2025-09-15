@@ -38,30 +38,6 @@ struct TrimTextPatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func trimTextNode(id: NodeId,
-                  position: CGPoint = .zero,
-                  zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values: ("Text", [.string(.init(""))]),
-        ("Position", [numberDefaultFalse]),
-        ("Length", [numberDefaultFalse])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: (nil, [.string(.init(.empty))]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .trimText,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 // https://origami.design/documentation/patches/builtin.textsubstring
 // https://stackoverflow.com/questions/39677330/how-does-string-substring-work-in-swift

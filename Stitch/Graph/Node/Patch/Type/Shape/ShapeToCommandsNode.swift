@@ -37,36 +37,6 @@ func getDemoShape(jsonString: String = sampleCurveToJSON) -> CustomShape {
     return .init(ShapeAndRect.custom(json))
 }
 
-@MainActor
-func ShapeToCommandsNode(id: NodeId,
-                         position: CGPoint = .zero,
-                         zIndex: Double = 0) -> PatchNode {
-
-    let startingShape: CustomShape = getDemoShape()
-
-    let inputs = toInputs(
-        id: id,
-        values: ("Shape", [.shape(startingShape)])
-    )
-
-    // turn the first union-shape (of the first PortValue.shape in the loop),
-    // into a loop of ShapeCommands:
-    let commandsLoop: [ShapeCommand] = startingShape.shapes.fromShapeToShapeCommandLoop!
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values: ("Commands", commandsLoop.map(PortValue.shapeCommand)))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .shapeToCommands,
-        inputs: inputs,
-        outputs: outputs)
-
-}
 
 func shapeToCommandsEval(inputs: PortValuesList,
                          outputs: PortValuesList) -> PortValuesList {

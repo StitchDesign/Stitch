@@ -53,29 +53,6 @@ struct TextTransformPatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func textTransformNode(id: NodeId,
-                       position: CGPoint = .zero,
-                       zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values: ("Text", [.string(.init(""))]),
-        ("Transform", [.textTransform(.defaultTransform)])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: (nil, [.bool(false)]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .textTransform,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func textTransformEval(inputs: PortValuesList,

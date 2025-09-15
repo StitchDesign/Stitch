@@ -39,35 +39,6 @@ struct RoundedRectangleShapePatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func roundedRectangleShapeNode(id: NodeId,
-                               position: CGPoint = .zero,
-                               zIndex: Double = 0) -> PatchNode {
-
-    let rect: RoundedRectangleData = CGRect.defaultRoundedRectangle
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Position", [.position(rect.rect.origin)]),
-        ("Size", [.size(rect.rect.size.toLayerSize)]),
-        ("Radius", [.number(rect.cornerRadius)])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values:
-            ("Shape", [.shape(CustomShape(.rectangle(rect)))])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .roundedRectangleShape,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func roundedRectangleShapeEval(inputs: PortValuesList,

@@ -34,29 +34,6 @@ struct TextStartsWithPatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func textStartsWithNode(id: NodeId,
-                        position: CGPoint = .zero,
-                        zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values: ("Text", [.string(.init(""))]),
-        ("Prefix", [.string(.init(""))])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: (nil, [.bool(false)]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .textStartsWith,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func textStartsWithEval(inputs: PortValuesList,

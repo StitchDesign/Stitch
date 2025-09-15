@@ -42,32 +42,6 @@ struct DeviceMotionPatchNode: PatchNodeDefinition {
 typealias StitchMotionManagersDict = [NodeId: CMMotionManager]
 
 
-@MainActor
-func deviceMotionNode(id: NodeId,
-                      position: CGPoint = .zero,
-                      zIndex: Double = 0) -> PatchNode {
-
-    let inputs = fakeInputs(id: id)
-
-    // has outputs only; outputs updated by eval drawing on state
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            ("Has Acceleration", [boolDefaultFalse]), // 0
-        ("Acceleration", [point3DDefaultFalse]), // 1
-        ("Has Rotation", [boolDefaultFalse]), // 2
-        ("Rotation", [point3DDefaultFalse]) // 3
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .deviceMotion,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 extension CMAcceleration {
     var toPoint3D: Point3D {

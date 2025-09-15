@@ -83,35 +83,6 @@ extension String {
 
 // No node type or user-node types
 // No inputs (ie inputs are disabled
-@MainActor
-func dateAndTimeFormatterNode(id: NodeId,
-                              position: CGPoint = .zero,
-                              zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Time", [.number(.zero)]),
-        ("Format", [.dateAndTimeFormat(.defaultFormat)]),
-        // TODO: allow user to provide custom format option
-        ("Custom Format", [.string(.init(.empty))])
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            (nil, [.string(.init(.empty))])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .dateAndTimeFormatter,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 // dateAndTimeFormatter is the only node that needs graphFrameCount from state;
 @MainActor

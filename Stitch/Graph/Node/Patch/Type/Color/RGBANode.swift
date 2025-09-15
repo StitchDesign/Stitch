@@ -49,38 +49,6 @@ let greenDefault: Double = 0
 let blueDefault: Double = 0
 let alphaDefault: Double = 1.0
 
-@MainActor
-func rgbaNode(id: NodeId,
-              red: Double = redDefault,
-              green: Double = greenDefault,
-              blue: Double = blueDefault,
-              alpha: Double = alphaDefault,
-              position: CGPoint = .zero,
-              zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Red", [.number(red)]),
-        ("Green", [.number(green)]),
-        ("Blue", [.number(blue)]),
-        ("Alpha", [.number(alpha)]))
-
-    let initialColor: Color = RGBA(red: red,
-                                   green: green,
-                                   blue: blue,
-                                   alpha: alpha).toColor
-
-    let outputs = toOutputs(id: id, offset: inputs.count,
-                            values: (nil, [.color(initialColor)]))
-
-    return PatchNode(position: position,
-                     zIndex: zIndex,
-                     id: id,
-                     patchName: .rgba,
-                     inputs: inputs,
-                     outputs: outputs)
-}
 
 @MainActor
 func rgbaEval(inputs: PortValuesList,

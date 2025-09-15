@@ -30,28 +30,6 @@ struct ColorToHexPatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func colorToHexNode(id: NodeId,
-                    position: CGPoint = .zero,
-                    zIndex: Double = 0) -> PatchNode {
-
-    let color = falseColor
-
-    let inputs = toInputs(
-        id: id,
-        values: ("Color", [.color(color)]))
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: ("Hex", [.string(.init(color.asHexDisplay))]))
-
-    return PatchNode(position: position,
-                     zIndex: zIndex,
-                     id: id,
-                     patchName: .colorToHex,
-                     inputs: inputs,
-                     outputs: outputs)
-}
 
 @MainActor
 func colorToHexEval(inputs: PortValuesList,

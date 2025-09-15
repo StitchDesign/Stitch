@@ -34,29 +34,6 @@ struct SplitTextPatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func splitTextNode(id: NodeId,
-                   position: CGPoint = .zero,
-                   zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values: ("Text", [.string(.init(""))]),
-        ("Token", [.string(.init(""))])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: (nil, [.string(.init(""))]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .splitText,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func splitTextEval(inputs: PortValuesList,

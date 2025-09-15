@@ -43,38 +43,6 @@ struct ColorToRGBAPatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func colorToRGBANode(id: NodeId,
-                     hue: Double = hueDefault,
-                     saturation: Double = saturationDefault,
-                     lightness: Double = lightnessDefault,
-                     position: CGPoint = .zero,
-                     zIndex: Double = 0) -> PatchNode {
-
-    let initialColor: Color = falseColor
-
-    let inputs = toInputs(
-        id: id,
-        values: (nil, [.color(initialColor)]))
-
-    let rgba = initialColor.asRGBA
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: ("Red", [.number(rgba.red)]),
-        ("Green", [.number(rgba.green)]),
-        ("Blue", [.number(rgba.blue)]),
-        ("Alpha", [.number(rgba.alpha)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .colorToRGB,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func colorToRGBAEval(inputs: PortValuesList,

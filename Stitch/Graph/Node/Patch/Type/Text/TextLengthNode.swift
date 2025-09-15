@@ -30,27 +30,6 @@ struct TextLengthPatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func textLengthNode(id: NodeId,
-                    position: CGPoint = .zero,
-                    zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values: ("Text", [.string(.init(""))]))
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: (nil, [.number(.zero)]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .textLength,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func textLengthEval(inputs: PortValuesList,

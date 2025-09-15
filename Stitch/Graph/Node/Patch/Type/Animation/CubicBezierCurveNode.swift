@@ -51,41 +51,6 @@ struct CubicBezierCurvePatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func cubicBezierCurveNode(id: NodeId,
-                          position: CGPoint = .zero,
-                          zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Progress", [.number(.zero)]), // 0
-        // first control point's x
-        ("1st Control Point X", [.number(0.17)]), // 1
-        // first control point's y
-        ("1st Control Point Y", [.number(0.17)]), // 2
-        // second control point's x
-        ("2nd Control Point X", [.number(0)]), // 3
-        // second control point's y
-        ("2nd Control Point Y", [.number(1)]) // 4
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            ("Progress", [.number(0)]),
-        ("2D Progress", [.position(.zero)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .cubicBezierCurve,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func cubicBezierCurveEval(inputs: PortValuesList,

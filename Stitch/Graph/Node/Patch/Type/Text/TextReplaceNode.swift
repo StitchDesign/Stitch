@@ -42,31 +42,6 @@ struct TextReplacePatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func textReplaceNode(id: NodeId,
-                     position: CGPoint = .zero,
-                     zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values: ("Text", [.string(.init(""))]),
-        ("Find", [.string(.init(""))]),
-        ("Replace", [.string(.init(""))]),
-        ("Case Sensitive", [.bool(false)])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: (nil, [.string(.init(""))]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .textReplace,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 // What's the proper case-sensitive logic?
 //

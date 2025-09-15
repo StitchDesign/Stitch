@@ -40,33 +40,6 @@ struct TriangleShapePatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func triangleShapeNode(id: NodeId,
-                       position: CGPoint = .zero,
-                       zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("First Point", [.position(TriangleData.defaultTriangleP1)]),
-        ("Second Point", [.position(TriangleData.defaultTriangleP2)]),
-        ("Third Point", [.position(TriangleData.defaultTriangleP3)])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values:
-            ("Shape", [.shape(.triangleShapePatchNodeDefault)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .triangleShape,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func triangleShapeEval(inputs: PortValuesList,

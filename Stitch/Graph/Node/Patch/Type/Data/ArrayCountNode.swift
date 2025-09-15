@@ -32,33 +32,6 @@ struct ArrayCountPatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func arrayCountNode(id: NodeId,
-                    startingJson: StitchJSON = emptyStitchJSONObject,
-                    position: CGPoint = .zero,
-                    zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values: ("Array", [.json(startingJson)])
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        // it's called index, but it's actually the loop that's coming out
-        values:
-            (nil, [.number(Double(startingJson.value.count))])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .arrayCount,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 // if first input is a json object rather than an array,
 // this append will fail / should fail, per Origami

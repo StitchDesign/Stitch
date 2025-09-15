@@ -35,35 +35,6 @@ struct CircleShapePatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func circleShapeNode(id: NodeId,
-                     position: CGPoint = .zero,
-                     zIndex: Double = 0) -> PatchNode {
-
-    let circle = CGRect.defaultCircle
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Position", [.position(circle.origin)]),
-        // width = diameter = radius * 2
-        ("Radius", [.number(circle.size.width/2)])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values:
-            ("Shape", [.shape(CustomShape(.circle(circle)))])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .circleShape,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func circleShapeEval(inputs: PortValuesList,

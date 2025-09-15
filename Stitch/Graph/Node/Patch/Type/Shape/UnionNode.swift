@@ -35,32 +35,6 @@ struct UnionPatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func unionNode(id: NodeId,
-               position: CGPoint = .zero,
-               zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            (nil, [.shape(nil)]),
-        (nil, [.shape(nil)])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values:
-            (nil, [.shape(nil)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .union,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func unionEval(inputs: PortValuesList,

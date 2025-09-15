@@ -35,33 +35,6 @@ struct CurvePatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func curveNode(id: NodeId,
-               position: CGPoint = .zero,
-               zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Progress", [.number(0)]),
-        ("Curve", [.animationCurve(.linear)])
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            ("Progress", [.number(0)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .curve,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func curveEval(inputs: PortValuesList,

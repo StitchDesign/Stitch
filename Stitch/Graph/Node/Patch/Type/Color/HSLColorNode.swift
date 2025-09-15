@@ -47,37 +47,6 @@ struct HSLColorPatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func hslColorNode(id: NodeId,
-                  hue: Double = hueDefault,
-                  saturation: Double = saturationDefault,
-                  lightness: Double = lightnessDefault,
-                  nodePosition: CGPoint = .zero,
-                  nodeZIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Hue", [.number(hue)]),
-        ("Saturation", [.number(saturation)]),
-        ("Lightness", [.number(lightness)]),
-        ("Alpha", [.number(alphaDefault)]))
-
-    let initialColor = Color(hue: hue,
-                             saturation: saturation,
-                             brightness: lightness)
-
-    let outputs = toOutputs(id: id, offset: inputs.count,
-                            values: (nil, [.color(initialColor)]))
-
-    return PatchNode(
-        position: nodePosition,
-        zIndex: nodeZIndex,
-        id: id,
-        patchName: .hslColor,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func hslColorEval(inputs: PortValuesList,

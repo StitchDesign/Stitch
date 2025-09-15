@@ -30,33 +30,6 @@ struct CommandsToShapePatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func commandsToShapeNode(id: NodeId,
-                         position: CGPoint = .zero,
-                         zIndex: Double = 0) -> PatchNode {
-
-    let demoShape: CustomShape = getDemoShape()
-    let commandsLoop: [ShapeCommand] = demoShape.shapes.fromShapeToShapeCommandLoop!
-
-    let inputs = toInputs(
-        id: id,
-        values: ("Commands", commandsLoop.map(PortValue.shapeCommand))
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values: ("Shape", [.shape(demoShape)]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .commandsToShape,
-        inputs: inputs,
-        outputs: outputs)
-
-}
 
 func commandsToShapeEval(inputs: PortValuesList,
                          outputs: PortValuesList) -> PortValuesList {

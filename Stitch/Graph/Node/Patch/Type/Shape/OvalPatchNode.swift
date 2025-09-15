@@ -35,34 +35,6 @@ struct OvalShapePatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func ovalShapeNode(id: NodeId,
-                   position: CGPoint = .zero,
-                   zIndex: Double = 0) -> PatchNode {
-
-    let oval = CGRect.defaultOval
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Position", [.position(oval.origin)]),
-        ("Size", [.size(oval.size.toLayerSize)])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values:
-            ("Shape", [.shape(CustomShape(.oval(oval)))])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .ovalShape,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func ovalShapeEval(inputs: PortValuesList,

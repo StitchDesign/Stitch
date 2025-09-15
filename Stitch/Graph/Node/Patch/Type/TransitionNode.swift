@@ -41,44 +41,6 @@ struct TransitionPatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func transitionNode(id: NodeId,
-                    progress: Double = 0.5,
-                    start: Double = 50,
-                    end: Double = 100,
-                    position: CGPoint = .zero,
-                    zIndex: Double = 0,
-                    progressLoop: PortValues? = nil,
-                    n2Loop: PortValues? = nil,
-                    n3Loop: PortValues? = nil) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Progress", progressLoop ?? [.number(progress)]),
-        ("Start", n2Loop ?? [.number(start)]),
-        ("End", n3Loop ?? [.number(end)])
-    )
-
-    let prelimResult: Double = transition(
-        progress,
-        start: start,
-        end: end)
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        // ... not a loop!
-        values: (nil, [.number(prelimResult)]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .transition,
-        userVisibleType: .number,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func transitionEval(inputs: PortValuesList,

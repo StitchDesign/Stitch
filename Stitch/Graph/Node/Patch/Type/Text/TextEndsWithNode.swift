@@ -34,29 +34,6 @@ struct TextEndsWithPatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func textEndsWithNode(id: NodeId,
-                      position: CGPoint = .zero,
-                      zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values: ("Text", [.string(.init(""))]),
-        ("Suffix", [.string(.init(""))])
-    )
-
-    let outputs = toOutputs(
-        id: id, offset: inputs.count,
-        values: (nil, [.bool(false)]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .textEndsWith,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func textEndsWithEval(inputs: PortValuesList,

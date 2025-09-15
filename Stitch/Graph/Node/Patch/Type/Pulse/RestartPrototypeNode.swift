@@ -29,25 +29,6 @@ struct RestartPrototypePatchNode: PatchNodeDefinition {
 // a pulse-receiving node like counter
 // not outputs, only inputs?
 // it's evaluation will be the same as body of 'handleGraphReset'
-@MainActor
-func restartPrototypeNode(id: NodeId,
-                          position: CGPoint = .zero,
-                          zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(id: id, values: ("Restart", [pulseDefaultFalse])) // receives pulse
-
-    // FAKE, HAS NO OUTPUTS!
-    let outputs = fakeOutputs(id: id, offset: inputs.count)
-    // toOutputs(id: id, offset: inputs.count, values: .none)
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .restartPrototype,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 // doesn't have outputs, and only maybe returns side effect.
 @MainActor

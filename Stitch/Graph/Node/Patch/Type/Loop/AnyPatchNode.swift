@@ -34,34 +34,6 @@ struct AnyPatchNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func anyPatchNode(id: NodeId,
-                  position: CGPoint = .zero,
-                  zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Loop", [boolDefaultFalse]), // 0
-        // TODO: use Grouping input properly
-        ("Grouping", [.number(0)]) // 1
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            (nil, [boolDefaultFalse])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .any,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 func anyEval(inputs: PortValuesList,
              outputs: PortValuesList) -> PortValuesList {

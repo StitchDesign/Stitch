@@ -39,32 +39,6 @@ func soulve(_ s: String) -> String {
     return calculator.calculate(s).stringValue
 }
 
-@MainActor
-func soulverNode(id: NodeId,
-                 n1: String = "",
-                 position: CGPoint = .zero,
-                 zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values: (nil, [.string(.init(n1.isEmpty ? "34% of 2k" : n1))])
-    )
-
-    let initialOutput = soulve(n1)
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values: (nil, [.string(.init(initialOutput))]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .soulver,
-        inputs: inputs,
-        outputs: outputs)
-}
 
 @MainActor
 func soulverEval(inputs: PortValuesList,
