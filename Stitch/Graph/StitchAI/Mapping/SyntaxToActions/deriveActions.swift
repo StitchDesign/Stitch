@@ -482,37 +482,37 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                 ]
             }
             
-            let portValuesResults = try pvDescription.derivePortValues(viewEvent: viewEvent)
+            return try pvDescription.derivePortValues(viewEvent: viewEvent)
             
             // TODO: bake in the syntax logic from port values into upstream SwiftPatchCode logic
-            switch portValuesResults.first {
-            case .value(let pvDescription):
-                let value = try PortValue(from: pvDescription)
-                return [
-                    .portData(.values([value]))
-                ]
-                
-            case .stateRef(let ref):
-                return try self
-                    .getUpstreamPatchPortConnectionData(
-                        expr: .ref(ref),
-                        varName: varName,
-                        portIndex: portIndex,
-                        varNameToCode: varNameToCode,
-                        existingStateVarConnections: existingStateVarConnections,
-                        nodesDict: nodesDict,
-                        viewEvent: viewEvent)
-                
-            case .stateRefInViewEvent(let memberAccessData):
-                // TODO: this is how we handle member access data in state ref
-                return memberAccessData.memberAccess
-                    .createConnectedPatchData(viewEvent: memberAccessData.viewEvent,
-                                              varName: varName,
-                                              nodesDict: nodesDict)
-            
-            case .none:
-                throw SwiftUISyntaxError.portValueDataDecodingFailure
-            }
+//            switch portValuesResults.first {
+//            case .value(let pvDescription):
+//                let value = try PortValue(from: pvDescription)
+//                return [
+//                    .portData(.values([value]))
+//                ]
+//                
+//            case .stateRef(let ref):
+//                return try self
+//                    .getUpstreamPatchPortConnectionData(
+//                        expr: .ref(ref),
+//                        varName: varName,
+//                        portIndex: portIndex,
+//                        varNameToCode: varNameToCode,
+//                        existingStateVarConnections: existingStateVarConnections,
+//                        nodesDict: nodesDict,
+//                        viewEvent: viewEvent)
+//                
+//            case .stateRefInViewEvent(let memberAccessData):
+//                // TODO: this is how we handle member access data in state ref
+//                return memberAccessData.memberAccess
+//                    .createConnectedPatchData(viewEvent: memberAccessData.viewEvent,
+//                                              varName: varName,
+//                                              nodesDict: nodesDict)
+//            
+//            case .none:
+//                throw SwiftUISyntaxError.portValueDataDecodingFailure
+//            }
         
         case .ref(let ref):
             let portIndex = portIndex ?? 0
@@ -540,7 +540,6 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                             portIndex: portIndex,
                             varNameToCode: varNameToCode,
                             existingStateVarConnections: existingStateVarConnections,
-                            groupNodeId: groupNodeId,
                             nodesDict: nodesDict,
                             viewEvent: viewEvent)
                     
@@ -554,7 +553,6 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                                 portIndex: newPortIndex,
                                 varNameToCode: varNameToCode,
                                 existingStateVarConnections: existingStateVarConnections,
-                                groupNodeId: groupNodeId,
                                 nodesDict: nodesDict,
                                 viewEvent: viewEvent)
                         
@@ -592,7 +590,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
             var patchNodeResult = try patchNodeData
                 .defaultNodeEntityData(varName: varName,
                                        varNameToCode: varNameToCode,
-                                       groupNodeId: groupNodeId,
+                                       groupNodeId: nil,
                                        existingStateVarConnections: existingStateVarConnections,
                                        nodesDict: nodesDict,
                                        viewEvent: viewEvent)
@@ -652,13 +650,11 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
 //                                                viewEvent: viewEvent)
 //    }
      
-    @MainActor
     func getUpstreamPatchPortConnectionData(value: SwiftPatchCodeType,
                                             varName: String,
                                             portIndex: Int? = nil,
                                             varNameToCode: [String: SwiftPatchCodeType],
                                             existingStateVarConnections: [String: NodeIOCoordinate],
-                                            groupNodeId: UUID?,
                                             nodesDict: [UUID: NodeEntity],
                                             viewEvent: SyntaxViewEvent?) throws -> [PatchSyntaxResultType] {
         switch value {
@@ -669,7 +665,6 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                 portIndex: portIndex,
                 varNameToCode: varNameToCode,
                 existingStateVarConnections: existingStateVarConnections,
-                groupNodeId: groupNodeId,
                 nodesDict: nodesDict,
                 viewEvent: viewEvent)
         
@@ -686,7 +681,6 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                         portIndex: int,
                         varNameToCode: varNameToCode,
                         existingStateVarConnections: existingStateVarConnections,
-                        groupNodeId: groupNodeId,
                         nodesDict: nodesDict,
                         viewEvent: viewEvent)
                 
@@ -725,7 +719,6 @@ struct SwiftPatchNodeInputsResult {
 //}
 
 extension Array where Element == SwiftPatchCodeType {
-    @MainActor
     func createSchemaList(nodeId: UUID,
                           varNameToCode: [String: SwiftPatchCodeType],
                           existingStateVarConnections: [String: NodeIOCoordinate],
@@ -745,7 +738,6 @@ extension Array where Element == SwiftPatchCodeType {
                         varName: "",    // can ignore
                         varNameToCode: varNameToCode,
                         existingStateVarConnections: existingStateVarConnections,
-                        groupNodeId: nil,   // can ignore
                         nodesDict: nodesDict,
                         viewEvent: viewEvent)
                 
@@ -851,7 +843,6 @@ extension PatchSyntaxResultType {
 
 // TODO: move
 extension SwiftPatchNodeCode {
-    @MainActor
     func defaultNodeEntityData(varName: String,
                                varNameToCode: [String: SwiftPatchCodeType],
                                groupNodeId: UUID?,
@@ -920,42 +911,26 @@ extension Layer {
 extension Patch {
     func createDefaultIOValues(nodeIO: NodeIO,
                                nodeType: NodeType? = nil) -> PortValuesList {
-        if let graphNode = self.graphNode {
-            // Create port entities from node definition
-            let definitions = graphNode.rowDefinitions(for: nodeType ?? graphNode.defaultUserVisibleType)
+        let graphNode = self.graphNode
+        // Create port entities from node definition
+        let definitions = graphNode.rowDefinitions(for: nodeType ?? graphNode.defaultUserVisibleType)
+        
+        switch nodeIO {
+        case .input:
+            return definitions
+                .inputs
+                .enumerated()
+                .map { portIndex, inputDefinition in
+                    return inputDefinition.defaultValues
+                }
             
-            switch nodeIO {
-            case .input:
-                return definitions
-                    .inputs
-                    .enumerated()
-                    .map { portIndex, inputDefinition in
-                        return inputDefinition.defaultValues
-                    }
-                
-            case .output:
-                return definitions
-                    .outputs
-                    .enumerated()
-                    .map { portIndex, outputDefinition in
-                        return [outputDefinition.value]
-                    }
-            }
-        } else {
-            // Backup method
-            let defaultNodeViewModel = self
-                .defaultNode(id: .init(),
-                             position: .zero,
-                             zIndex: .zero,
-                             graphDelegate: GraphState())
-            
-            switch nodeIO {
-            case .input:
-                return defaultNodeViewModel.inputsValuesList
-                
-            case .output:
-                return defaultNodeViewModel.outputs
-            }
+        case .output:
+            return definitions
+                .outputs
+                .enumerated()
+                .map { portIndex, outputDefinition in
+                    return [outputDefinition.value]
+                }
         }
     }
     
@@ -963,7 +938,7 @@ extension Patch {
                            ports: [NodePortInputEntity]? = nil,
                            nodesDict: [UUID: NodeEntity],
                            jsSettings: JavaScriptNodeSettings? = nil) -> NodeEntity {
-        var nodeType: NodeType? = self.graphNode?.defaultUserVisibleType
+        var nodeType: NodeType? = self.graphNode.defaultUserVisibleType
         let portEntities: [NodePortInputEntity]
         
         let canvasEntity = CanvasNodeEntity(position: .zero,
@@ -1017,8 +992,6 @@ extension SwiftPatchCodeType {
                          viewEvent: SyntaxViewEvent?,
                          existingStateVarConnections: [String: NodeIOCoordinate],
                          nodesDict: [UUID: NodeEntity]) async throws -> [PatchSyntaxResultType] {
-        let currentGroupContext = document.groupNodeFocused?.groupNodeId
-        
         guard let aiManager = document.aiManager else {
             fatalErrorIfDebug()
             return []
@@ -1036,7 +1009,7 @@ extension SwiftPatchCodeType {
                 let list = try patchNodeData
                     .defaultNodeEntityData(varName: varName,
                                            varNameToCode: varNameToCode,
-                                           groupNodeId: currentGroupContext,
+                                           groupNodeId: nil,
                                            existingStateVarConnections: existingStateVarConnections,
                                            nodesDict: nodesDict,
                                            viewEvent: viewEvent)
@@ -1080,7 +1053,7 @@ extension SwiftPatchCodeType {
                                               ports: [])
                 .defaultNodeEntityData(varName: varName,
                                        varNameToCode: varNameToCode,
-                                       groupNodeId: currentGroupContext,
+                                       groupNodeId: nil,
                                        existingStateVarConnections: existingStateVarConnections,
                                        nodesDict: nodesDict,
                                        viewEvent: viewEvent,
@@ -1116,7 +1089,6 @@ extension SwiftPatchCodeType {
                         portIndex: portIndex,
                         varNameToCode: varNameToCode,
                         existingStateVarConnections: existingStateVarConnections,
-                        groupNodeId: currentGroupContext,
                         nodesDict: nodesDict,
                         viewEvent: viewEvent)
 
