@@ -17,9 +17,7 @@ extension JSON {
 
         let json = self
 
-        let path = json[JSONShapeKeys.PATH]
-
-        if path == .null {
+        guard let path = json.dictionary?[JSONShapeKeys.PATH] else {
             return .error(.pathKeyMissing)
         }
 
@@ -32,10 +30,7 @@ extension JSON {
         for j in pathArray {
             //            log("parseAsJSONShapeCommands: j: \(j)")
 
-            let _type = j[JSONShapeKeys.TYPE]
-
-            if _type == .null {
-                //                log("parseAsJSONShapeCommands: could not retrieve type")
+            guard let _type = j.dictionary?[JSONShapeKeys.TYPE] else {
                 return .error(.typeKeyMissing)
             }
 
@@ -45,9 +40,7 @@ extension JSON {
                 return .error(.unrecognizedTypeKeyValue)
             }
             // Every key should contain a point
-            let _point = j[JSONShapeKeys.POINT]
-
-            if _point == .null {
+            guard let _point = j.dictionary?[JSONShapeKeys.POINT] else {
                 return .error(.pointKeyMissing)
             }
             guard let _x: Double = _point.caseInsensitiveX else {
@@ -79,9 +72,8 @@ extension JSON {
             else if _type.description == JSONShapeKeys.CURVE_TO {
                 //                log("parseAsJSONShapeCommands: cubic curveTo")
 
-                let curveTo = j[JSONShapeKeys.CURVE_TO]
-
-                guard let curveToX = curveTo.caseInsensitiveX else {
+                guard let curveTo = j.dictionary?[JSONShapeKeys.CURVE_TO],
+                      let curveToX = curveTo.caseInsensitiveX else {
                     return .error(.xKeyMalformed)
                 }
                 guard let curveToY = curveTo.caseInsensitiveY else {
@@ -97,8 +89,8 @@ extension JSON {
                 //                log("parseAsJSONShapeCommands: curveToX: \(curveToX)")
                 //                log("parseAsJSONShapeCommands: curveToY: \(curveToY)")
 
-                let curveFrom = j[JSONShapeKeys.CURVE_FROM]
-                guard let curveFromX = curveFrom.caseInsensitiveX else {
+                guard let curveFrom = j.dictionary?[JSONShapeKeys.CURVE_FROM],
+                      let curveFromX = curveFrom.caseInsensitiveX else {
                     //                    log("parseAsJSONShapeCommands: could not retrieve curveFrom data")
                     return .error(.xKeyMalformed)
                 }
