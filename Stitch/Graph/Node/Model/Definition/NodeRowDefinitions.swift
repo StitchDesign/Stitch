@@ -100,11 +100,9 @@ extension Layer {
 
 extension Patch {
     @MainActor
-    func newStyleRowDefinitions(for nodeType: NodeType?) -> NodeRowDefinitions? {
+    func newStyleRowDefinitions(for nodeType: NodeType?) -> NodeRowDefinitions {
         
-        guard let graphNode = self.graphNode else {
-            return nil
-        }
+        let graphNode = self.graphNode
                     
         let rowDefinitions = graphNode.rowDefinitions(for: nodeType)
         
