@@ -9,6 +9,23 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+struct RestartPrototypePatchNode: PatchNodeDefinition {
+    static let patch = Patch.restartPrototype
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [pulseDefaultFalse],
+                    label: "Restart"
+                )
+            ],
+            outputs: []
+        )
+    }
+}
+
 // a pulse-receiving node like counter
 // not outputs, only inputs?
 // it's evaluation will be the same as body of 'handleGraphReset'

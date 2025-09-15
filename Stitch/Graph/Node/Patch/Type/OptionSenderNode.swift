@@ -8,6 +8,44 @@
 import Foundation
 import StitchSchemaKit
 
+struct OptionSenderPatchNode: PatchNodeDefinition {
+    static let patch = Patch.optionSender
+    static let defaultUserVisibleType: UserVisibleType? = .number
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [numberDefaultFalse],
+                    label: "Option"
+                ),
+                .init(
+                    defaultValues: [numberDefaultFalse],
+                    label: "Value"
+                ),
+                .init(
+                    defaultValues: [numberDefaultFalse],
+                    label: "Default"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .number
+                ),
+                .init(
+                    label: "",
+                    type: .number
+                ),
+                .init(
+                    label: "",
+                    type: .number
+                )
+            ]
+        )
+    }
+}
+
 // TODO: OptionSender can have an arbitrary number of outputs
 // We currently don't have any logic in the app for adding outputs (only inputs)
 let OPTION_SENDER_PATCH_NODE_OUTPUT_COUNT: Int = 3

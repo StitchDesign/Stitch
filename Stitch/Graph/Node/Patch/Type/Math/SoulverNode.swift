@@ -10,6 +10,28 @@ import StitchSchemaKit
 import SwiftUI
 import SoulverCore
 
+struct SoulverPatchNode: PatchNodeDefinition {
+    static let patch = Patch.soulver
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.string(.init("34% of 2k"))],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .string
+                )
+            ]
+        )
+    }
+}
+
 // https://github.com/soulverteam/SoulverCore
 func soulve(_ s: String) -> String {
     // TODO: make a top-level class?

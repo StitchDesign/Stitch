@@ -8,6 +8,32 @@
 import Foundation
 import StitchSchemaKit
 
+struct AnyPatchNode: PatchNodeDefinition {
+    static let patch = Patch.any
+    static let defaultUserVisibleType: UserVisibleType? = nil
+
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [boolDefaultFalse],
+                    label: "Loop"
+                ),
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "Grouping"
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .bool
+                )
+            ]
+        )
+    }
+}
+
 @MainActor
 func anyPatchNode(id: NodeId,
                   position: CGPoint = .zero,
