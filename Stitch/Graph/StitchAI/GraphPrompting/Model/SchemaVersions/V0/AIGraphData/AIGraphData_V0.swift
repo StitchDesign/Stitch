@@ -316,21 +316,25 @@ extension LayerPortDerivation: Encodable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(coordinate, forKey: .coordinate)
         
-        switch self.inputData {
-        case .value(let value):
-            // Encodes values in manner that produces friendly printable result
-            try AIGraphData_V0.PortValue.encodeFromAI(container: &container,
-                                                      valueData: value.value,
-                                                      valueType: value.value_type,
-                                                      valueKey: .value,
-                                                      valueTypeKey: .value_type)
-
-        case .stateRef(let refName):
-            try container.encode(refName, forKey: .state_ref)
-            
-        case .stateRefInViewEvent(let memberAccess):
-            try container.encode(memberAccess.memberAccess.trimmedDescription, forKey: .state_ref_member_access)
-        }
+        // TODO: come back here
+        fatalError()
+//        self.inputData.forEach { _inputData in
+//            switch _inputData {
+//            case .value(let value):
+//                // Encodes values in manner that produces friendly printable result
+//                try AIGraphData_V0.PortValue.encodeFromAI(container: &container,
+//                                                          valueData: value.value,
+//                                                          valueType: value.value_type,
+//                                                          valueKey: .value,
+//                                                          valueTypeKey: .value_type)
+//                
+//            case .stateRef(let refName):
+//                try container.encode(refName, forKey: .state_ref)
+//                
+//            case .stateRefInViewEvent(let memberAccess):
+//                try container.encode(memberAccess.memberAccess.trimmedDescription, forKey: .state_ref_member_access)
+//            }
+//        }
     }
 }
 
