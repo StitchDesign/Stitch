@@ -56,7 +56,7 @@ final class nodeTypeTests: XCTestCase {
                     print("error on patch: \(patch)")
                 }
 
-                XCTAssert(node.userVisibleType.isDefined)
+                XCTAssert(node.userVisibleType.isDefined, "failed on patch: \(patch)")
             }
         }
     }

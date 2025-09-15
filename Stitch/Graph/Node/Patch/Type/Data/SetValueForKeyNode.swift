@@ -12,7 +12,7 @@ import SwiftyJSON
 
 struct SetValueForKeyPatchNode: PatchNodeDefinition {
     static let patch = Patch.setValueForKey
-    static let defaultUserVisibleType: UserVisibleType? = nil
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(
