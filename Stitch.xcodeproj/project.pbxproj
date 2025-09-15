@@ -363,6 +363,7 @@
 		B5EFD61A2C1134EC006F5E7F /* MediaLayerViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD6192C1134EC006F5E7F /* MediaLayerViewModifier.swift */; };
 		B5F0FC162B4F2FB5009104A8 /* GraphReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F0FC152B4F2FB5009104A8 /* GraphReducer.swift */; };
 		B5F3D0AF2DE2E4FF00103676 /* JavaScriptNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F3D0AE2DE2E4FA00103676 /* JavaScriptNode.swift */; };
+		B5F409BC2E787F2200D9BE3B /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = B5F409BB2E787F2200D9BE3B /* SwiftyJSON */; };
 		B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */ = {isa = PBXBuildFile; fileRef = B5F5FD422B37564500BBD9A2 /* WhatToTest.en-US.txt */; };
 		B5F88D6A2D2D6D8B00B5A45A /* StitchProjectOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F88D692D2D6D8500B5A45A /* StitchProjectOverlayView.swift */; };
 		B5F8D6A82C224A6600B99E5C /* LayerNodeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F8D6A72C224A6600B99E5C /* LayerNodeData.swift */; };
@@ -2406,6 +2407,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5F409BC2E787F2200D9BE3B /* SwiftyJSON in Frameworks */,
 				ECBC20B62E2B3730001CD845 /* StitchSchemaKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -8367,6 +8369,11 @@
 		B5E030682D9C5BEF00FDC5A5 /* StitchEngine */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = StitchEngine;
+		};
+		B5F409BB2E787F2200D9BE3B /* SwiftyJSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EC211A492698A8B70068A0F0 /* XCRemoteSwiftPackageReference "SwiftyJSON" */;
+			productName = SwiftyJSON;
 		};
 		B5FBE3C32C4195B3006DA0A7 /* DirectoryWatcher */ = {
 			isa = XCSwiftPackageProductDependency;
