@@ -92,12 +92,18 @@ extension OutputNodeRowObserver {
         // Set outputs to be empty
         // MARK: no longer seems necessary, removing for fixing flashing media on restart
 //        self.allLoopedValues = []
-  
+
+        // TODO: better solution? Need to write tests separating the handful of cases that are tricky with graph reset (e.g. don't want to lose media). For now we just do not wipe outputs if: (1) this is a media patch (e.g. size output on an image import node) or (2) has media-type values
+        let isMediaPatch = self.nodeDelegate?.patch?.isMediaPatch ?? false
         let containsMedia = self.allLoopedValues.first?.asyncMedia.isDefined ?? false
-        if !containsMedia {
+        if !isMediaPatch && !containsMedia {
             self.allLoopedValues = []
         }
         
+//        let containsMedia = self.allLoopedValues.first?.asyncMedia.isDefined ?? false
+//        if !containsMedia {
+//            self.allLoopedValues = []
+//        }
         //        // TODO: better to only reset based on pulses, since some nodes may still look at old-style previous outputs?
         //        let containsPulse = self.allLoopedValues.first?.getPulse.isDefined ?? false
         //        if containsPulse {
