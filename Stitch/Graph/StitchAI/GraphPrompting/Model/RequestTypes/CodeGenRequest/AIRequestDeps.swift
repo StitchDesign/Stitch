@@ -37,8 +37,7 @@ struct AIRequestDeps: StitchAICodeCreator {
     
     @MainActor
     func createCode(document: StitchDocumentViewModel,
-                    aiManager: StitchAIManager,
-                    dataGlossaryPrompt: String) async throws -> String {
+                    aiManager: StitchAIManager) async throws -> String {
         log("AIRequestDeps.createCode initial code:\n\(self.swiftUICodeOfGraph)")
         
         guard let secrets = try? Secrets() else {
@@ -104,8 +103,6 @@ extension StitchAICodeCreator {
                         document: StitchDocumentViewModel) throws -> Task<Result<AIGraphData_V0.GraphData, any Error>, Never> {
         log("getRequestTask: user prompt: \(userPrompt)")
         
-        let dataGlossaryPrompt = try StitchAIManager
-            .stitchAIDataGlossarySystemPrompt(graph: document.visibleGraph)
         let request = self
         
         return Task(priority: .high) { [weak document] in
@@ -125,8 +122,7 @@ extension StitchAICodeCreator {
                 var actionsResult = try await request
                     .processRequest(userPrompt: userPrompt,
                                     document: document,
-                                    aiManager: aiManager,
-                                    dataGlossaryPrompt: dataGlossaryPrompt)
+                                    aiManager: aiManager)
                 
                 // logToServerIfRelease("SUCCESS Patch Builder:\n\((try? actionsResult.graphData.encodeToPrintableString()) ?? "")")
                 
@@ -153,15 +149,13 @@ extension StitchAICodeCreator {
     @MainActor
     func processRequest(userPrompt: String,
                         document: StitchDocumentViewModel,
-                        aiManager: StitchAIManager,
-                        dataGlossaryPrompt: String) async throws -> SwiftSyntaxActionsResult {
+                        aiManager: StitchAIManager) async throws -> SwiftSyntaxActionsResult {
 
         log("SUCCESS: userPrompt: \(userPrompt)")
         
         let swiftUICode = try await self
             .createCode(document: document,
-                        aiManager: aiManager,
-                        dataGlossaryPrompt: dataGlossaryPrompt)
+                        aiManager: aiManager)
 
         log("userPrompt: \(userPrompt)") // Very helpful to see user-prompt here again
         log("StitchAICodeCreator swiftUICode:\n\(swiftUICode)")

@@ -66,8 +66,7 @@ struct StitchAITrainingDataCodeCreator: StitchAICodeCreator {
     
     // Skip OpenAI call - just return the pre-generated code
     func createCode(document: StitchDocumentViewModel,
-                    aiManager: StitchAIManager,
-                    dataGlossaryPrompt: String) async throws -> String {
+                    aiManager: StitchAIManager) async throws -> String {
         log("StitchAIExampleCodeCreator: using pre-generated code")
         return preGeneratedCode
     }
@@ -264,8 +263,7 @@ struct StitchAITrainingDataInspectionOverlay: View {
                 var actionsResult = try await codeCreator
                     .processRequest(userPrompt: userPrompt,
                                     document: document,
-                                    aiManager: aiManager,
-                                    dataGlossaryPrompt: dataGlossaryPrompt)
+                                    aiManager: aiManager)
                 
                 await MainActor.run {
                     Task(priority: .high) {
