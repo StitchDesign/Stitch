@@ -144,7 +144,7 @@ extension Array where Element == AIGraphData_V0.LayerData {
                 return
             }
             
-            var layerNodeEntity = layer
+            let layerNodeEntity = layer
                 .createDefaultLayerNodeEntity(nodeId: UUID(layerData.node_id) ?? UUID(),
                                               layerGroupId: layerGroupId)
             

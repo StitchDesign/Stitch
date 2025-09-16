@@ -899,9 +899,15 @@ extension Layer {
         
         graphNode.inputDefinitions.forEach { inputDefinition in
             let defaultValue = inputDefinition.getDefaultValue(for: self)
+            
+            // Create default unpacked port data
+            let unpackedData = (0..<UnpackedPortType.allCases.count).map { unpackedPort in
+                LayerInputDataEntity(inputPort: .values([defaultValue]))
+            }
+            
             layerNodeEntity[keyPath: inputDefinition.schemaPortKeyPath] = .init(
                 packedData: .init(inputPort: .values([defaultValue])),
-                unpackedData: []
+                unpackedData: unpackedData
             )
         }
         
