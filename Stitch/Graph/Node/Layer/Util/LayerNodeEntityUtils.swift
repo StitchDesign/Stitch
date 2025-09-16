@@ -281,6 +281,13 @@ extension LayerNodeEntity {
             
             self[keyPath: inputType.layerInput.schemaPortKeyPath]
                 .unpackedData[unpackedType.rawValue].inputPort = value
+            
+            // Create a canvas entity for unpacked ports
+            self[keyPath: inputType.layerInput.schemaPortKeyPath]
+                .unpackedData[unpackedType.rawValue]
+                .canvasItem = .init(position: .zero,
+                                    zIndex: .zero,
+                                    parentGroupNodeId: self.layerGroupId)
         }
     }
 }

@@ -1246,29 +1246,52 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
             
         case .connection(let portEdgeData):
             // Update already created node with an upstream connection
-            guard var toNode = self.get(portEdgeData.to.nodeId),
-                  let inputPortIndex = portEdgeData.to.portId,
-                  var patchNode = toNode.nodeTypeEntity.patchNodeEntity,
-                  var portToUpdate = patchNode.inputs[safe: inputPortIndex] else {
+            guard var toNode = self.get(portEdgeData.to.nodeId) else {
                 fatalErrorIfDebug()
                 return
             }
             
-            portToUpdate.portData = .upstreamConnection(portEdgeData.from)
-            patchNode.inputs[inputPortIndex] = portToUpdate
-            toNode.nodeTypeEntity = .patch(patchNode)
+            let updatedPort = NodeConnectionType.upstreamConnection(portEdgeData.from)
+            
+            switch toNode.nodeTypeEntity {
+            case .patch(var patchNode):
+                guard let inputPortIndex = portEdgeData.to.portId,
+                      toNode.inputs[safe: inputPortIndex] != nil else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                patchNode.inputs[inputPortIndex].portData = updatedPort
+                toNode.nodeTypeEntity = .patch(patchNode)
+                
+            case .layer(var layerNode):
+                guard let keyPath = portEdgeData.to.keyPath else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                layerNode.updateInputData(updatedPort, at: keyPath)
+                toNode.nodeTypeEntity = .layer(layerNode)
+                
+            default:
+                fatalErrorIfDebug()
+                return
+            }
+            
             self.updateValue(toNode, forKey: toNode.id)
         
         case .connectionToLayerInput(let stateName):
             // Get upstream patch data from variable name
             guard let upstreamPatchCoordinate = stateVarConnections
-                .get(stateName) else {
+                .get(stateName),
+                  let layerInputCoordinate = layerInputCoordinate else {
                 fatalErrorIfDebug()
                 return
             }
             
             // Recursively call with extrapolated upstream patch data
-            let event = PatchSyntaxResultType.portData(.upstreamConnection(upstreamPatchCoordinate))
+            let event = PatchSyntaxResultType.connection(.init(from: upstreamPatchCoordinate,
+                                                               to: layerInputCoordinate))
             return self
                 .updateWithEventData(event,
                                      layerInputCoordinate: layerInputCoordinate,
