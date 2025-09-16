@@ -15,27 +15,34 @@ struct ConvertPositionPatchNode: PatchNodeDefinition {
     static let defaultUserVisibleType: UserVisibleType? = nil
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
-        .init(
+        let effectiveType = type ?? .position
+        let defaultValue = effectiveType.defaultPortValue
+
+        return .init(
             inputs: [
                 .init(
                     defaultValues: [.assignedLayer(nil)],
-                    label: "From Parent"
+                    label: "From Parent",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.anchoring(.defaultAnchoring)],
-                    label: "From Anchor"
+                    label: "From Anchor",
+                    isTypeStatic: true
                 ),
                 .init(
-                    defaultValues: [.position(StitchPosition.zero)],
+                    defaultValues: [defaultValue],
                     label: "Point"
                 ),
                 .init(
                     defaultValues: [.assignedLayer(nil)],
-                    label: "To Parent"
+                    label: "To Parent",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.anchoring(.defaultAnchoring)],
-                    label: "To Anchor"
+                    label: "To Anchor",
+                    isTypeStatic: true
                 )
             ],
             outputs: [

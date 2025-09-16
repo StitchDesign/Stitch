@@ -13,23 +13,27 @@ struct TextReplacePatchNode: PatchNodeDefinition {
     static let defaultUserVisibleType: UserVisibleType? = nil
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
-        .init(
+        let effectiveType = type ?? .string
+        let defaultValue = effectiveType.defaultPortValue
+
+        return .init(
             inputs: [
                 .init(
-                    defaultValues: [.string(.init(""))],
+                    defaultValues: [defaultValue],
                     label: "Text"
                 ),
                 .init(
-                    defaultValues: [.string(.init(""))],
+                    defaultValues: [defaultValue],
                     label: "Find"
                 ),
                 .init(
-                    defaultValues: [.string(.init(""))],
+                    defaultValues: [defaultValue],
                     label: "Replace"
                 ),
                 .init(
                     defaultValues: [.bool(false)],
-                    label: "Case Sensitive"
+                    label: "Case Sensitive",
+                    isTypeStatic: true
                 )
             ],
             outputs: [

@@ -15,17 +15,20 @@ struct WirelessBroadcasterPatchNode: PatchNodeDefinition {
     static let defaultUserVisibleType: UserVisibleType? = .number
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
-        .init(
+        let effectiveType = type ?? .number
+        let defaultValue = effectiveType.defaultPortValue
+
+        return .init(
             inputs: [
                 .init(
-                    defaultValues: [.number(0)],
+                    defaultValues: [defaultValue],
                     label: ""
                 )
             ],
             outputs: [
                 .init(
                     label: "",
-                    type: type ?? .number
+                    type: effectiveType
                 )
             ]
         )

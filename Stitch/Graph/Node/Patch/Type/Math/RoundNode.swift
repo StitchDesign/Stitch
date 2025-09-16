@@ -29,7 +29,8 @@ struct RoundPatchNode: PatchNodeDefinition {
                 ),
                 .init(
                     defaultValues: [.bool(false)],
-                    label: "Rounded Up"
+                    label: "Rounded Up",
+                    isTypeStatic: true
                 )
             ],
             outputs: [

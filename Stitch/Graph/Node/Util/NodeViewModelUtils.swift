@@ -17,8 +17,8 @@ extension NodeViewModel {
                                         parentGroupNodeId: GroupNodeId? = nil,
                                         graphDelegate: GraphState?) {
         let kind = T.graphKind.kind
-        let userVisibleType = kind.graphNode.graphKind.patch?.defaultUserVisibleType
-        
+        let userVisibleType = T.defaultUserVisibleType
+
         let defaultInputs = kind.rowDefinitions(for: userVisibleType).inputs
             .enumerated()
             .map { portId, inputData in

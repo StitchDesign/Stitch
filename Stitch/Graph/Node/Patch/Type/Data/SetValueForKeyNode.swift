@@ -19,11 +19,13 @@ struct SetValueForKeyPatchNode: PatchNodeDefinition {
             inputs: [
                 .init(
                     defaultValues: [.json(emptyStitchJSONObject)],
-                    label: "Object"
+                    label: "Object",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.string(.init(""))],
-                    label: "Key"
+                    label: "Key",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [numberDefaultFalse],

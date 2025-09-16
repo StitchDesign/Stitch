@@ -14,21 +14,25 @@ struct LoopFilterPatchNode: PatchNodeDefinition {
     static let defaultUserVisibleType: UserVisibleType? = .string
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
-        .init(
+        let effectiveType = type ?? .string
+        let defaultValue = effectiveType.defaultPortValue
+
+        return .init(
             inputs: [
                 .init(
-                    defaultValues: [.string(.init(""))],
+                    defaultValues: [defaultValue],
                     label: "Input"
                 ),
                 .init(
                     defaultValues: [.number(1)],
-                    label: "Include"
+                    label: "Include",
+                    isTypeStatic: true
                 )
             ],
             outputs: [
                 .init(
                     label: "Loop",
-                    type: type ?? .string
+                    type: effectiveType
                 ),
                 .init(
                     label: "Index",
@@ -53,17 +57,17 @@ func loopFilterEval(inputs: PortValuesList,
     let extendedIncludeLoop = lengthenArray(loop: includeLoop,
                                             length: longestLoopLength)
 
-    //    log("loopFilterEval: inputLoop: \(inputLoop)")
-    //    log("loopFilterEval: includeLoop: \(includeLoop)")
-    //    log("loopFilterEval: longestLoopLength: \(longestLoopLength)")
-    //    log("loopFilterEval: extendedInputLoop: \(extendedInputLoop)")
-    //    log("loopFilterEval: extendedIncludeLoop: \(extendedIncludeLoop)")
+    // log("loopFilterEval: inputLoop: \(inputLoop)")
+    // log("loopFilterEval: includeLoop: \(includeLoop)")
+    // log("loopFilterEval: longestLoopLength: \(longestLoopLength)")
+    // log("loopFilterEval: extendedInputLoop: \(extendedInputLoop)")
+    // log("loopFilterEval: extendedIncludeLoop: \(extendedIncludeLoop)")
 
     let result = loopFilter(input: extendedInputLoop,
                             include: extendedIncludeLoop,
                             originalInputLoopLength: inputLoop.count)
 
-    //    log("loopFilterEval: result: \(result)")
+    // log("loopFilterEval: result: \(result)")
 
     // If the result is empty, then we should return a default false result.
     if result.isEmpty,
