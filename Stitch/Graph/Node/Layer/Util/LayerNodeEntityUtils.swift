@@ -265,4 +265,22 @@ extension LayerNodeEntity {
             hasSidebarVisibility: hasSidebarVisibility,
             layerGroupId: layerGroupId)
     }
+    
+    mutating func updateInputData(_ value: NodeConnectionType,
+                                  at inputType: LayerInputType) {
+        switch inputType.portType {
+        case .packed:
+            self[keyPath: inputType.layerInput.schemaPortKeyPath].packedData.inputPort = value
+            
+        case .unpacked(let unpackedType):
+            guard self[keyPath: inputType.layerInput.schemaPortKeyPath]
+                .unpackedData.count > unpackedType.rawValue else {
+                fatalErrorIfDebug("Missing ports")
+                return
+            }
+            
+            self[keyPath: inputType.layerInput.schemaPortKeyPath]
+                .unpackedData[unpackedType.rawValue].inputPort = value
+        }
+    }
 }
