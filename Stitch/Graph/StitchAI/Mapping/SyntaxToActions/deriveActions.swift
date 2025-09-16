@@ -11,12 +11,12 @@ import SwiftSyntax
 import SwiftParser
 import SwiftSyntaxBuilder
 
-struct SwiftSyntaxLayerActionsResult: Encodable {
+struct SwiftSyntaxLayerActionsResult {
     var actions: [CurrentAIGraphData.LayerData]
     var caughtErrors: [SwiftUISyntaxError]
 }
 
-struct SwiftSyntaxPatchActionsResult: Encodable {
+struct SwiftSyntaxPatchActionsResult {
 //    var actions: CurrentAIGraphData.PatchData
     var nodes: [NodeEntity]
     
@@ -66,7 +66,7 @@ extension AIGraphData_V0.PatchData {
     }
 }
 
-struct SwiftSyntaxActionsResult: Encodable {
+struct SwiftSyntaxActionsResult {
     var graphData: CurrentAIGraphData.GraphData
     
     var caughtErrors: [SwiftUISyntaxError]
