@@ -268,9 +268,20 @@ extension LayerNodeEntity {
     
     mutating func updateInputData(_ value: NodeConnectionType,
                                   at inputType: LayerInputType) {
+        let isConnection = value.upstreamConnection != nil
+        
         switch inputType.portType {
         case .packed:
             self[keyPath: inputType.layerInput.schemaPortKeyPath].packedData.inputPort = value
+            
+            // Create canvas entity only for connections
+            if isConnection {
+                self[keyPath: inputType.layerInput.schemaPortKeyPath]
+                    .packedData
+                    .canvasItem = .init(position: .zero,
+                                        zIndex: .zero,
+                                        parentGroupNodeId: self.layerGroupId)
+            }
             
         case .unpacked(let unpackedType):
             let portData = self[keyPath: inputType.layerInput.schemaPortKeyPath]
@@ -283,11 +294,13 @@ extension LayerNodeEntity {
                 .unpackedData[unpackedType.rawValue].inputPort = value
             
             // Create a canvas entity for unpacked ports
-            self[keyPath: inputType.layerInput.schemaPortKeyPath]
-                .unpackedData[unpackedType.rawValue]
-                .canvasItem = .init(position: .zero,
-                                    zIndex: .zero,
-                                    parentGroupNodeId: self.layerGroupId)
+            if isConnection {
+                self[keyPath: inputType.layerInput.schemaPortKeyPath]
+                    .unpackedData[unpackedType.rawValue]
+                    .canvasItem = .init(position: .zero,
+                                        zIndex: .zero,
+                                        parentGroupNodeId: self.layerGroupId)                
+            }
         }
     }
 }
