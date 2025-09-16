@@ -933,9 +933,7 @@ extension SyntaxViewName {
                 return result
             }
             
-            // See what happens here
-            fatalErrorIfDebug()
-            return []
+            return [.connectionToLayerInput(stateAccessRef)]
             
         case .memberAccess(let memberAccess):
             // Check for member syntax for view event arg, like `g.translation.width`
