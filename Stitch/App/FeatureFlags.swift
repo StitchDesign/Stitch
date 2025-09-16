@@ -18,6 +18,7 @@ struct FeatureFlags {
     // but which may not be good to expose to most beta testers quite yet.
     // TODO: set false for
     static let USE_SWIFTUI_IMPLEMENTATION: Bool = true
+//    static let USE_SWIFTUI_IMPLEMENTATION: Bool = false
     
     // TODO: SET FALSE BEFORE NEXT RELEASE / just use Stitch AI Reasoning ?
     static let SHOW_AI_TABLE_ROWS_VIEWER = true

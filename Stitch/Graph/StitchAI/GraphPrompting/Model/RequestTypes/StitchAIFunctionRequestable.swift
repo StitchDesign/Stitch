@@ -43,8 +43,7 @@ protocol StitchAICodeCreator {
         
     @MainActor
     func createCode(document: StitchDocumentViewModel,
-                    aiManager: StitchAIManager,
-                    dataGlossaryPrompt: String) async throws -> String
+                    aiManager: StitchAIManager) async throws -> String
 }
 
 //extension StitchAIFunctionRequestable {

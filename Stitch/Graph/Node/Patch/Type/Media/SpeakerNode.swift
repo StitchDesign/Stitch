@@ -61,5 +61,7 @@ func speakerEval(node: PatchNode) -> EvalResult {
         speakerMedia.updateVolume(volume)
     }
     
-    return EvalResult(outputsValues: [])
+    
+    // a Fake output
+    return EvalResult(outputsValues: [[.number(0)]])
 }

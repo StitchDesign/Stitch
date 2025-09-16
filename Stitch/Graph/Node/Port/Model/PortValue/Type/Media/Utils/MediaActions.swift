@@ -305,10 +305,9 @@ extension GraphState {
         
         // List of new outputvalues must match the node's
         guard outputValues.count == outputsToUpdate.count else {
-            log("recalculateGraph: AsyncMediaImpureEvalOpResult: incorrect output count for node \(nodeId)")
-#if DEV_DEBUG
-            fatalError()
-#endif
+            log("recalculateGraph: AsyncMediaImpureEvalOpResult: incorrect output count for node \(nodeId): outputValues: \(outputValues)")
+            log("recalculateGraph: AsyncMediaImpureEvalOpResult: incorrect output count for node \(nodeId): outputsToUpdate: \(outputsToUpdate)")
+            fatalErrorIfDevDebug()
             return
         }
         
