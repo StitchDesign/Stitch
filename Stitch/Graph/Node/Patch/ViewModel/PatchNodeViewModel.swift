@@ -56,22 +56,26 @@ final class PatchNodeViewModel: Sendable {
     @MainActor
     init(from schema: PatchNodeEntity) {
         let kind = NodeKind.patch(schema.patch)
-        
+
+        // Get the patch's default type as fallback for loading from schema
+        let patchGraphNode = PatchOrLayer.patch(schema.patch).graphNode
+        let effectiveUserVisibleType = schema.userVisibleType ?? patchGraphNode.defaultUserVisibleType
+
         self.id = schema.id
         self.patch = schema.patch
-        self.userVisibleType = schema.userVisibleType
+        self.userVisibleType = effectiveUserVisibleType
         self.mathExpression = schema.mathExpression
         self.splitterNode = schema.splitterNode
-        
+
         // Create initial inputs and outputs using default data
         let rowDefinitions = PatchOrLayer.patch(schema.patch)
-            .rowDefinitions(for: schema.userVisibleType)
+            .rowDefinitions(for: effectiveUserVisibleType)
         
         // Must set inputs before calling eval below
         let inputsObservers = schema.inputs
             .createInputObservers(nodeId: schema.id,
                                   kind: kind,
-                                  userVisibleType: schema.userVisibleType)
+                                  userVisibleType: effectiveUserVisibleType)
 
         let outputsObservers = rowDefinitions
             .createEmptyOutputObservers(nodeId: schema.id)

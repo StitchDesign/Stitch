@@ -13,10 +13,13 @@ struct AnyPatchNode: PatchNodeDefinition {
     static let defaultUserVisibleType: UserVisibleType? = nil
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
-        .init(
+        let effectiveType = type ?? .bool
+        let defaultValue = effectiveType.defaultPortValue
+
+        return .init(
             inputs: [
                 .init(
-                    defaultValues: [boolDefaultFalse],
+                    defaultValues: [defaultValue],
                     label: "Loop"
                 ),
                 .init(
