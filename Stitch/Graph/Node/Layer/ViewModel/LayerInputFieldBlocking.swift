@@ -129,7 +129,7 @@ extension LayerInputObserver {
         // For root level layers or layers in ZStacks
         case .position:
             // Blocked when layer is pinned or has a non-ZStack parent
-            if isPinned || (hasNonZStackParent && !FeatureFlags.USE_SWIFTUI_IMPLEMENTATION) {
+            if isPinned || (hasNonZStackParent) {
                 // The position input is always blocked *as a whole*
                 blockFullInput()
             }
