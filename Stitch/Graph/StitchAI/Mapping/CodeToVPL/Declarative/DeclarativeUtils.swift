@@ -347,7 +347,7 @@ extension MemberAccessExprSyntax {
     
     /// Returns patch data needed for supporting a reference to a view event.
     func createConnectedPatchData(viewEvent: SyntaxViewEvent,
-                                  varName: String,
+                                  varName: String?,
                                   nodesDict: [UUID: NodeEntity]) -> [PatchSyntaxResultType] {
         // Drop the argument portion of the argument
         let trimmedMemberAccess = self.dropInnermostBase()

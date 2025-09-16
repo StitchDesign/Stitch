@@ -1056,10 +1056,7 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
             }
             
         case .memberAccess(let memberAccess):
-            guard let viewEvent = viewEvent,
-                  let varName = varName,
-                  let secondArg = complexType.arguments[safe: 1],
-                  let nodeType = NodeType(secondArg.value.simpleValue?.stripQuotes() ?? "") else {
+            guard let viewEvent = viewEvent else {
                 fatalErrorIfDebug()
                 return []
             }
