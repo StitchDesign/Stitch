@@ -11,7 +11,7 @@ import SwiftUI
 enum AIGraphData_V0 {
     typealias NodeKind = NodeKind_V33.NodeKind
     
-    struct GraphData: Codable {
+    struct GraphData {
         let layer_data_list: [LayerData]
         let patchNodes: [NodeEntity]
 
@@ -250,93 +250,43 @@ extension AIGraphData_V0.CustomPatchInputValue {
     }
 }
 
-extension AIGraphData_V0.LayerData: Codable {
-    enum CodingKeys: String, CodingKey {
-        case node_id
-        case suggested_title
-        case node_name
-        case children
-        case custom_layer_input_values
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(node_id, forKey: .node_id)
-        try container.encode(node_name, forKey: .node_name)
-        try container.encode(custom_layer_input_values, forKey: .custom_layer_input_values)
-        
-        try container.encodeIfPresent(suggested_title, forKey: .suggested_title)
-        
-        // Only encode children if group layer
-        try container.encodeIfPresent(children, forKey: .children)
-    }
-    
-    init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        node_id = try container.decode(String.self, forKey: .node_id)
-        suggested_title = try container.decodeIfPresent(String.self, forKey: .suggested_title)
-        node_name = try container.decode(AIGraphData_V0.StitchAIPatchOrLayer.self, forKey: .node_name)
-        
-        if let children = try container.decodeIfPresent([Self].self, forKey: .children) {
-            self.children = children
-        } else {
-            // Make sure we have an empty list if layer is a group
-            if node_name.value == .layer(.group) || node_name.value == .layer(.realityView) {
-                self.children = []
-            }
-        }
-    }
-}
-
-extension LayerPortDerivation: Encodable {
-    enum CodingKeys: String, CodingKey {
-        case coordinate
-        case value
-        case value_type
-        case state_ref
-        case state_ref_member_access
-    }
-    
+//extension AIGraphData_V0.LayerData: Codable {
+//    enum CodingKeys: String, CodingKey {
+//        case node_id
+//        case suggested_title
+//        case node_name
+//        case children
+//        case custom_layer_input_values
+//    }
+//    
+//    func encode(to encoder: Encoder) throws {
+//        var container = encoder.container(keyedBy: CodingKeys.self)
+//        try container.encode(node_id, forKey: .node_id)
+//        try container.encode(node_name, forKey: .node_name)
+//        try container.encode(custom_layer_input_values, forKey: .custom_layer_input_values)
+//        
+//        try container.encodeIfPresent(suggested_title, forKey: .suggested_title)
+//        
+//        // Only encode children if group layer
+//        try container.encodeIfPresent(children, forKey: .children)
+//    }
+//    
 //    init(from decoder: any Decoder) throws {
 //        let container = try decoder.container(keyedBy: CodingKeys.self)
-//        self.coordinate = try container
-//            .decode(CurrentAIGraphData.LayerInputType.self,
-//                    forKey: .coordinate)
+//        node_id = try container.decode(String.self, forKey: .node_id)
+//        suggested_title = try container.decodeIfPresent(String.self, forKey: .suggested_title)
+//        node_name = try container.decode(AIGraphData_V0.StitchAIPatchOrLayer.self, forKey: .node_name)
 //        
-//        let nodeType = try container.decode(AIGraphData_V0.StitchAINodeType.self, forKey: .value_type)
-//        
-//        // Parse value given node type
-//        let portValueType = nodeType.value.portValueTypeForStitchAI
-//        
-//        self.value_type = nodeType
-//        self.value = try container.decode(portValueType, forKey: .value)
-//    }
-    
-    func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(coordinate, forKey: .coordinate)
-        
-        // TODO: come back here
-        fatalError()
-//        self.inputData.forEach { _inputData in
-//            switch _inputData {
-//            case .value(let value):
-//                // Encodes values in manner that produces friendly printable result
-//                try AIGraphData_V0.PortValue.encodeFromAI(container: &container,
-//                                                          valueData: value.value,
-//                                                          valueType: value.value_type,
-//                                                          valueKey: .value,
-//                                                          valueTypeKey: .value_type)
-//                
-//            case .stateRef(let refName):
-//                try container.encode(refName, forKey: .state_ref)
-//                
-//            case .stateRefInViewEvent(let memberAccess):
-//                try container.encode(memberAccess.memberAccess.trimmedDescription, forKey: .state_ref_member_access)
+//        if let children = try container.decodeIfPresent([Self].self, forKey: .children) {
+//            self.children = children
+//        } else {
+//            // Make sure we have an empty list if layer is a group
+//            if node_name.value == .layer(.group) || node_name.value == .layer(.realityView) {
+//                self.children = []
 //            }
 //        }
-    }
-}
+//    }
+//}
 
 // TODO: move
 extension AIGraphData_V0.PortValue {
