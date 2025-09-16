@@ -28,13 +28,7 @@ struct SpeakerPatchNode: PatchNodeDefinition {
                     label: "Volume"
                 )
             ],
-            outputs: [
-                // Speaker has no real outputs, so we create a disabled output
-                .init(
-                    label: "",
-                    type: .number
-                )
-            ]
+            outputs: []
         )
     }
 }
