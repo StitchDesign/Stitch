@@ -89,7 +89,7 @@ extension Patch {
 extension SyntaxViewEvent {
     /// Determines the connections and intermediary patch nodes to be created between an interaction patch node and some state.
     func createConnectedPatchData(gestureArg: MemberAccessExprSyntax?,
-                                  varName: String,
+                                  varName: String?,
                                   nodesDict: [UUID: NodeEntity]) -> [PatchSyntaxResultType] {
         let assignedLayerPortValue = PortValue
             .assignedLayer(.init(self.layerId))
@@ -105,10 +105,10 @@ extension SyntaxViewEvent {
             // Packed case: arg == "translation" or "position"
             if gestureArg.trimmedDescription == "translation" || gestureArg.trimmedDescription == "position" {
                 var dragNode = Patch.dragInteraction
-                    .defaultNodeEntity(nodeId: deterministicUUID(from: varName),
+                    .defaultNodeEntity(nodeId: self.interactionPatchNodeId,
                                        nodesDict: nodesDict)
                 dragNode.inputs[0] = .values([assignedLayerPortValue])
-
+                
                 // position = 0th port, translation = 2nd port
                 let outputPortIndex = gestureArg.trimmedDescription == "position" ? 0 : 2
                 
@@ -122,11 +122,11 @@ extension SyntaxViewEvent {
             }
             
             // Unpacked case: need to see the suffix value (i.e. x or y)
-//            guard let split = self.gestureArg?.split(separator: "."),
-//                  let prefixValue = split[safe: 0],
-//                  let suffixValue = split[safe: 1] else {
-//                return nil
-//            }
+            //            guard let split = self.gestureArg?.split(separator: "."),
+            //                  let prefixValue = split[safe: 0],
+            //                  let suffixValue = split[safe: 1] else {
+            //                return nil
+            //            }
             
             guard let prefixValue = gestureArg.base?.trimmedDescription else {
                 return []
@@ -142,7 +142,12 @@ extension SyntaxViewEvent {
             let outputPortIndex = prefixValue == "position" ? 0 : 2
             
             // Most downstream reference used for node ID
-            let unpackNodeId = deterministicUUID(from: varName)
+            let unpackNodeId: UUID
+            if let varName = varName {
+                unpackNodeId = deterministicUUID(from: varName)
+            } else {
+                unpackNodeId = UUID()
+            }
             
             if suffixValue == "x" || suffixValue == "width" {
                 let unpackPositionNode = Patch.unpack
@@ -187,7 +192,7 @@ extension SyntaxViewEvent {
             return []
             
         case .tapGesture:
-            let pressNodeId = deterministicUUID(from: varName)
+            let pressNodeId = self.interactionPatchNodeId
             var pressNode = Patch.pressInteraction
                 .defaultNodeEntity(nodeId: pressNodeId,
                                    nodesDict: nodesDict)
