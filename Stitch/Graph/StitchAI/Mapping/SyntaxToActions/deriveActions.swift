@@ -194,15 +194,16 @@ extension Array where Element == AIGraphData_V0.LayerData {
     /// Recursively gathers all view event data
     /// * key = layer id
     /// * value = view event data
-    func getAllViewEventsMap(into dict: [UUID: [SwiftPatchViewEvent]]? = nil) -> [UUID: [SwiftPatchViewEvent]] {
-        self.reduce(into: dict ?? .init()) { result, layerData in
+    func getAllViewEventsMap() -> [UUID: [SwiftPatchViewEvent]] {
+        self.reduce(into: .init()) { result, layerData in
             if let id = UUID(layerData.node_id),
                let viewEvents = layerData.view_events {
                 result.updateValue(viewEvents, forKey: id)
             }
             
-            if let appendedChildrenResult = layerData.children?.getAllViewEventsMap(into: result) {
-                result = appendedChildrenResult
+            if let appendedChildrenResult = layerData.children {
+                let childResults = appendedChildrenResult.getAllViewEventsMap()
+                result = result.merging(childResults) { $1 }
             }
         }
     }
@@ -1253,41 +1254,20 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
             self.updateValue(toNode, forKey: toNode.id)
         
         case .connectionToLayerInput(let stateName):
-            // TODO: need to pass in state var connections here once helper is made
+            // Get upstream patch data from variable name
+            guard let upstreamPatchCoordinate = stateVarConnections
+                .get(stateName) else {
+                fatalErrorIfDebug()
+                return
+            }
             
-            // TODO: pass in layer input and create canvas item like below
-            
-//            // Get upstream patch data from variable name
-//            guard let upstreamPatchCoordinate = self.graphData.viewStatePatchConnections
-//                .get(varName) else {
-//                //                    fatalErrorIfDebug()
-//                return
-//            }
-//            
-//            let newEdgeData = PortEdgeData(from: .init(portId: upstreamPatchCoordinate.portId!,
-//                                                       nodeId: upstreamPatchCoordinate.nodeId),
-//                                           to: inputCoordinate)
-//            
-//            // create canvas node
-//            guard let node = graph.getNode(upstreamPatchCoordinate.nodeId),
-//                  let fromNodeLocation = node.nonLayerCanvasItem?.position,
-//                  let destinationNode = document.visibleGraph.getNode(inputCoordinate.nodeId),
-//                  let layerInputType = inputCoordinate.keyPath else {
-//                throw SwiftUISyntaxError.layerEdgeDataFailure(varName)
-//            }
-//            
-//            var position = fromNodeLocation
-//            position.x += 200
-//            
-//            document.addCanvasLayerInput(node: destinationNode,
-//                                         layerInputType: layerInputType,
-//                                         draggedOutput: nil,
-//                                         canvasHeightOffset: nil,
-//                                         position: position)
-//            
-//            graph.addEdgeWithoutGraphRecalc(edge: newEdgeData)
-            
-            fatalError()
+            // Recursively call with extrapolated upstream patch data
+            let event = PatchSyntaxResultType.portData(.upstreamConnection(upstreamPatchCoordinate))
+            return self
+                .updateWithEventData(event,
+                                     layerInputCoordinate: layerInputCoordinate,
+                                     varName: stateName,
+                                     stateVarConnections: &stateVarConnections)
         }
     }
 }
