@@ -273,8 +273,8 @@ extension LayerNodeEntity {
             self[keyPath: inputType.layerInput.schemaPortKeyPath].packedData.inputPort = value
             
         case .unpacked(let unpackedType):
-            guard self[keyPath: inputType.layerInput.schemaPortKeyPath]
-                .unpackedData.count > unpackedType.rawValue else {
+            let portData = self[keyPath: inputType.layerInput.schemaPortKeyPath]
+            guard portData.unpackedData.count > unpackedType.rawValue else {
                 fatalErrorIfDebug("Missing ports")
                 return
             }
