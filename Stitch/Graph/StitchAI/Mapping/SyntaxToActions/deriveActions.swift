@@ -1200,6 +1200,7 @@ extension Array where Element == SwiftPatchClosureType {
 
 extension Dictionary where Key == UUID, Value == NodeEntity {
     mutating func updateWithEventData(_ event: PatchSyntaxResultType,
+                                      layerInputCoordinate: NodeIOCoordinate?,
                                       varName: String?,
                                       stateVarConnections: inout [String: NodeIOCoordinate]) {
         switch event {
@@ -1215,12 +1216,25 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
                     return
                 }
                 
+                // Update state var connections so we know which layer is pointed to by this variable name
                 stateVarConnections.updateValue(upstreamCoordinate,
                                                 forKey: varName)
                 
             case .values:
-                fatalErrorIfDebug("Unexpectedly found values here.")
-                return
+                break
+            }
+            
+            // Layer data case
+            if let layerInputCoordinate = layerInputCoordinate {
+                guard let layerInputType = layerInputCoordinate.keyPath,
+                      var layerNodeEntity = self.get(layerInputCoordinate.nodeId)?.layerNodeEntity else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                    
+                layerNodeEntity.updateInputData(portData,
+                                                at: layerInputType)
+                self[layerInputCoordinate.nodeId]?.nodeTypeEntity = .layer(layerNodeEntity)
             }
             
         case .connection(let portEdgeData):
@@ -1315,6 +1329,7 @@ extension Array where Element == (String, SwiftPatchCodeType) {
                 
                 for event in events {
                     nodesDict.updateWithEventData(event,
+                                                  layerInputCoordinate: nil,
                                                   varName: varName,
                                                   stateVarConnections: &stateVarConnections)
                 }
