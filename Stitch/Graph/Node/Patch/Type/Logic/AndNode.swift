@@ -14,14 +14,17 @@ struct AndPatchNode: PatchNodeDefinition {
     static let defaultUserVisibleType: UserVisibleType? = nil
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
-        .init(
+        let effectiveType = type ?? .bool
+        let defaultValue = effectiveType.defaultPortValue
+
+        return .init(
             inputs: [
                 .init(
-                    defaultValues: [.bool(false)],
+                    defaultValues: [defaultValue],
                     label: ""
                 ),
                 .init(
-                    defaultValues: [.bool(false)],
+                    defaultValues: [defaultValue],
                     label: ""
                 )
             ],
