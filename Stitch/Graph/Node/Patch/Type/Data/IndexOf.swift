@@ -19,7 +19,8 @@ struct IndexOfPatchNode: PatchNodeDefinition {
             inputs: [
                 .init(
                     defaultValues: [.json(emptyStitchJSONObject)],
-                    label: "Array"
+                    label: "Array",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.string(.init(""))],

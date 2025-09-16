@@ -17,7 +17,8 @@ struct OptionSenderPatchNode: PatchNodeDefinition {
             inputs: [
                 .init(
                     defaultValues: [numberDefaultFalse],
-                    label: "Option"
+                    label: "Option",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [numberDefaultFalse],

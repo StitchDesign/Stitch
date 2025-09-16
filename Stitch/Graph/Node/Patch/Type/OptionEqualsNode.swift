@@ -18,7 +18,8 @@ struct OptionEqualsPatchNode: PatchNodeDefinition {
             inputs: [
                 .init(
                     defaultValues: [.string(.init("a"))],
-                    label: "Option"
+                    label: "Option",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.string(.init("a"))],
