@@ -158,34 +158,53 @@ func adjustPosition(size: CGSize, // child's size
                     parentSize: CGSize,
                     ignoreOffsetTransform: Bool = false) -> CGPoint {
 
-    let x = position.x
-        + (parentSize.width * anchor.x)
-    
-    // works for left, i.e. when we need to move half of child's length away from left edge;
-    // + (size.width/2) * (1.0 - anchor.x)
-    
-    // when in center, we don't need to adjust at all, so should be +0
-    // + (size.width/2) * (0.5 - anchor.x)
-    
-    // Good; but left needs to be more + and right needs to be more -
-    // - (size.width/2) * (anchor.x - 0.5)
-    
-        // Perfect
-        - (size.width * (anchor.x - 0.5))
-         
-    let y = position.y
-        + (parentSize.height * anchor.y)
-        - (size.height * (anchor.y - 0.5))
-    
-    var pos = CGPoint(x: x, y: y)
-    
-    if !ignoreOffsetTransform {
-        pos.x -= parentSize.width/2
-        pos.y -= parentSize.height/2
+    if FeatureFlags.USE_SWIFTUI_IMPLEMENTATION {
+        if anchor == .topLeft {
+            // AI used .position(x,y) which places CENTER of child at (x,y) from top-left
+            // Convert to center-origin coordinates for .offset()
+            let x = position.x - (parentSize.width / 2)
+            let y = position.y - (parentSize.height / 2)
+            return CGPoint(x: x, y: y)
+        } else if anchor == .centerCenter {
+            // AI used .offset(x,y) which is already center-origin relative
+            // No coordinate conversion needed, just pass through
+            return position
+        } else {
+            // For other anchors, fall back to existing logic
+            let x = position.x - (parentSize.width / 2)
+            let y = position.y - (parentSize.height / 2)
+            return CGPoint(x: x, y: y)
+        }
+    } else {
+        // Existing Stitch behavior (center-origin coordinates)
+        let x = position.x
+            + (parentSize.width * anchor.x)
+
+        // works for left, i.e. when we need to move half of child's length away from left edge;
+        // + (size.width/2) * (1.0 - anchor.x)
+
+        // when in center, we don't need to adjust at all, so should be +0
+        // + (size.width/2) * (0.5 - anchor.x)
+
+        // Good; but left needs to be more + and right needs to be more -
+        // - (size.width/2) * (anchor.x - 0.5)
+
+            // Perfect
+            - (size.width * (anchor.x - 0.5))
+
+        let y = position.y
+            + (parentSize.height * anchor.y)
+            - (size.height * (anchor.y - 0.5))
+
+        var pos = CGPoint(x: x, y: y)
+
+        if !ignoreOffsetTransform {
+            pos.x -= parentSize.width/2
+            pos.y -= parentSize.height/2
+        }
+
+        return pos
     }
-            
-    return pos
-    
 }
 
 struct Anchoring_REPL_View: View {
