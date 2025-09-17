@@ -159,12 +159,22 @@ func adjustPosition(size: CGSize, // child's size
                     ignoreOffsetTransform: Bool = false) -> CGPoint {
 
     if FeatureFlags.USE_SWIFTUI_IMPLEMENTATION {
-        // SwiftUI .position(x,y) places the CENTER of the child at (x,y) from top-left
-        // Convert to center-origin coordinates for .offset()
-        let x = position.x - (parentSize.width / 2)
-        let y = position.y - (parentSize.height / 2)
-
-        return CGPoint(x: x, y: y)
+        if anchor == .topLeft {
+            // AI used .position(x,y) which places CENTER of child at (x,y) from top-left
+            // Convert to center-origin coordinates for .offset()
+            let x = position.x - (parentSize.width / 2)
+            let y = position.y - (parentSize.height / 2)
+            return CGPoint(x: x, y: y)
+        } else if anchor == .centerCenter {
+            // AI used .offset(x,y) which is already center-origin relative
+            // No coordinate conversion needed, just pass through
+            return position
+        } else {
+            // For other anchors, fall back to existing logic
+            let x = position.x - (parentSize.width / 2)
+            let y = position.y - (parentSize.height / 2)
+            return CGPoint(x: x, y: y)
+        }
     } else {
         // Existing Stitch behavior (center-origin coordinates)
         let x = position.x
