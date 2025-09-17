@@ -258,15 +258,4 @@ extension LayerDimension {
             return .hug
         }
     }
-    
-    static func parseFromString(_ str: String) -> Self {
-        let fieldValue = FieldValue.string(.init(str))
-        
-        switch fieldValue.layerDimensionField {
-        case .none:
-            return .number(.zero)
-        case .some(let fieldValueNumber):
-            return fieldValueNumber.layerDimension
-        }
-    }
 }

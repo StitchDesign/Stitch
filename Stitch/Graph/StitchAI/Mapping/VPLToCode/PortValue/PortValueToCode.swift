@@ -8,7 +8,7 @@
 import SwiftUI
 
 extension Array where Element == NodeConnectionType {
-    func createSwiftUICodeArgs(varIdNameMap: [NodeIOCoordinate: String],
+    func createSwiftUICodeArgs(varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String],
                                isLayer: Bool) throws -> [String] {
         try self.map { inputData in
             try inputData.createSwiftUICodeArg(varIdNameMap: varIdNameMap,
@@ -50,15 +50,18 @@ extension NodeConnectionType {
         }
     }
     
-    func createSwiftUICodeArg(varIdNameMap: [NodeIOCoordinate: String],
+    func createSwiftUICodeArg(varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String],
                               isLayer: Bool) throws -> String {
         switch self {
         case .values(let values):
             return try values.createSwiftUICodeArg()
             
         case .upstreamConnection(let upstream):
+            let indexedCoordinate = AIGraphData_V0.NodeIndexedCoordinate(node_id: upstream.nodeId.uuidString,
+                                                                         port_index: upstream.portId!)
+            
             // Variable name should already exist given topological order, otherwise its a cycle case which we should ignore
-            guard let upstreamVarName = varIdNameMap.get(upstream),
+            guard let upstreamVarName = varIdNameMap.get(indexedCoordinate),
                   let portIndex = upstream.portId else {
                 throw SwiftUISyntaxError.upstreamVarNameNotFound(upstream)
             }
@@ -93,7 +96,7 @@ extension Array where Element == PortValue {
 }
 
 extension LayerInputEntity {
-    func getSwiftUICodeForValues(varIdNameMap: [NodeIOCoordinate: String]) throws -> String {
+    func getSwiftUICodeForValues(varIdNameMap: [AIGraphData_V0.NodeIndexedCoordinate: String]) throws -> String {
         let portValueArgsString: String
         
         // Check packed/unpacked mode

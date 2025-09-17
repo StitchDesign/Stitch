@@ -194,7 +194,7 @@ extension TextViewConstructor {
             node_id: nodeId,
             node_name: .init(value: .layer(self.layer)),
             children: childrenLayers.isEmpty ? nil : childrenLayers,
-            custom_layer_input_values: [.init(input: .text, inputData: [value])]
+            custom_layer_input_values: [.init(input: .text, inputData: value)]
         )
     }
     
@@ -264,26 +264,26 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
         case .asset(let arg),
              .decorative(let arg),
              .uiImage(let arg):
-            guard let portValue = try arg.derivePortValues().first?.value else {
+            guard let portValue = try arg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: arg)
             }
             
             // Create SF symbol here if PortValue is string type
-            let isStringType = portValue.nodeType == .string
+            let isStringType = portValue.value?.value_type == .init(value: .string)
             
             portDerivations = [
                 .init(input: isStringType ? .sfSymbol : .image,
-                      value: portValue)
+                      inputData: portValue)
             ]
             
         case .sfSymbol(let arg):
-            guard let portValue = try arg.derivePortValues().first?.value else {
+            guard let portValue = try arg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: arg)
             }
             
             portDerivations = [
                 .init(input: .sfSymbol,
-                      value: portValue)
+                      inputData: portValue)
             ]
         }
         
@@ -299,8 +299,8 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> ImageViewConstructor? {
         guard let first = args.first else { return nil }
-        let portValueArg = try? first.value.derivePortValues().first?.value
-        let hasStringArg = portValueArg?.nodeType == .string
+        let portValueArg = try? first.value.derivePortValues().first
+        let hasStringArg = portValueArg?.value?.value_type == .init(value: .string)
         
         // Image(systemName:)
         if first.label == "systemName" {
@@ -526,21 +526,21 @@ enum HStackViewConstructor: FromSwiftUIViewToStitch {
                               value: .anchoring(vertAlignment.toAnchoring)))
             
         case .some(let alignmentArg):
-            guard let value = try alignmentArg.derivePortValues().first?.value else {
+            guard let value = try alignmentArg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: alignmentArg)
             }
             
             list.append(.init(input: .layerGroupAlignment,
-                              value: value))
+                              inputData: value))
         }
         
         if let spacingArg = spacingArg {
-            guard let value = try spacingArg.derivePortValues().first?.value else {
+            guard let value = try spacingArg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: spacingArg)
             }
             
             list.append(.init(input: .spacing,
-                              value: value))
+                              inputData: value))
         }
         
         return CurrentAIGraphData.LayerData(
@@ -625,7 +625,7 @@ enum VStackViewConstructor: FromSwiftUIViewToStitch {
             guard let value = try alignmentArg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: alignmentArg)
             }
-            list.append(.init(input: .layerGroupAlignment, inputData: [value]))
+            list.append(.init(input: .layerGroupAlignment, inputData: value))
         }
 
         // --- spacing (CGFloat?) → .spacing ---
@@ -633,7 +633,7 @@ enum VStackViewConstructor: FromSwiftUIViewToStitch {
             guard let value = try spacingArg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: spacingArg)
             }
-            list.append(.init(input: .spacing, inputData: [value]))
+            list.append(.init(input: .spacing, inputData: value))
         }
 
         return CurrentAIGraphData.LayerData(
@@ -820,7 +820,7 @@ enum ZStackViewConstructor: FromSwiftUIViewToStitch {
                 guard let value = try arg.derivePortValues().first else {
                     throw SwiftUISyntaxError.portValueNotFound(argument: arg)
                 }
-                list.append(.init(input: .layerGroupAlignment, inputData: [value]))
+                list.append(.init(input: .layerGroupAlignment, inputData: value))
             }
         }
 
@@ -1145,14 +1145,13 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
             }
             
             // Fall back to generic complex type handling
-            let inputData = try handleComplexArgumentType(
+            return try handleComplexArgumentType(
                 complexType,
-                varName: nil,
-                viewEvent: nil,
-                nodesDict: [:])
-
-            return [LayerPortDerivation(input: .scrollYEnabled,
-                                        inputData: inputData)]
+                context: nil)
+            .map { pv in
+                LayerPortDerivation(input: .scrollYEnabled,
+                                    inputData: pv)
+            }
 
         default:
             throw SwiftUISyntaxError
@@ -1548,14 +1547,14 @@ enum LazyHStackViewConstructor: FromSwiftUIViewToStitch {
             guard let value = try arg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: arg)
             }
-            list.append(.init(input: .layerGroupAlignment, inputData: [value]))
+            list.append(.init(input: .layerGroupAlignment, inputData: value))
         }
 
         if let spacingArg = spacingArg {
             guard let value = try spacingArg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: spacingArg)
             }
-            list.append(.init(input: .spacing, inputData: [value]))
+            list.append(.init(input: .spacing, inputData: value))
         }
         
         return CurrentAIGraphData.LayerData(
@@ -1624,14 +1623,14 @@ enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
             guard let value = try arg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: arg)
             }
-            list.append(.init(input: .layerGroupAlignment, inputData: [value]))
+            list.append(.init(input: .layerGroupAlignment, inputData: value))
         }
 
         if let spacingArg = spacingArg {
             guard let value = try spacingArg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: spacingArg)
             }
-            list.append(.init(input: .spacing, inputData: [value]))
+            list.append(.init(input: .spacing, inputData: value))
         }
         
         return CurrentAIGraphData.LayerData(
@@ -1739,7 +1738,7 @@ struct OpacityViewModifier: FromSwiftUIViewModifierToStitch {
             throw SwiftUISyntaxError.portValueNotFound(argument: value)
         }
         
-        return [.init(input: .opacity, inputData: [portValue])]
+        return [.init(input: .opacity, inputData: portValue)]
     }
     
     static func from(_ args: [SyntaxViewArgumentData],
@@ -1777,7 +1776,7 @@ enum ScaleEffectViewModifier: FromSwiftUIViewModifierToStitch {
                 return [.init(input: .pivot, value: .anchoring(anch))]
             }
             if let anchorPV = try anchorArg.derivePortValues().first {
-                return [.init(input: .pivot, inputData: [anchorPV])]
+                return [.init(input: .pivot, inputData: anchorPV)]
             }
             throw SwiftUISyntaxError.portValueNotFound(argument: anchorArg)
         }
@@ -1787,16 +1786,19 @@ enum ScaleEffectViewModifier: FromSwiftUIViewModifierToStitch {
             guard let pv = try scaleArg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: scaleArg)
             }
-            var events: [LayerPortDerivation] = [.init(input: .scale, inputData: [pv])]
+            var events: [LayerPortDerivation] = [.init(input: .scale, inputData: pv)]
             events += try pivotEvents(anchorArg)
             return events
 
         case .xy(let xArg, let yArg, let anchorArg):
-            guard let portValueX = try xArg.derivePortValues().first?.value,
-                  let portValueY = try yArg.derivePortValues().first?.value else {
+            guard let x = try xArg.derivePortValues().first?.value,
+                  let y = try yArg.derivePortValues().first?.value else {
                 // For multiple arguments, we'll report the first one as a representative
                 throw SwiftUISyntaxError.portValueNotFound(argument: xArg)
             }
+            
+            let portValueX = try PortValue(from: x)
+            let portValueY = try PortValue(from: y)
             
             guard portValueX == portValueY else {
                 throw SwiftUISyntaxError.unsupportedSyntaxArgument("scaleEffect(x:y:) requires uniform scale for Stitch .scale")
@@ -1810,8 +1812,10 @@ enum ScaleEffectViewModifier: FromSwiftUIViewModifierToStitch {
             if case .tuple(let fields) = sizeArg,
                let wField = fields.first(where: { $0.label == "width" })?.value,
                let hField = fields.first(where: { $0.label == "height" })?.value,
-               let portValueW = try wField.derivePortValues().first?.value,
-               let portValueH = try hField.derivePortValues().first?.value {
+               let w = try wField.derivePortValues().first?.value,
+               let h = try hField.derivePortValues().first?.value {
+                let portValueW = try PortValue(from: w)
+                let portValueH = try PortValue(from: h)
                 
                 if portValueW == portValueH {
                     var events: [LayerPortDerivation] = [.init(input: .scale, value: portValueW)]
@@ -1906,7 +1910,7 @@ struct BlurViewModifier: FromSwiftUIViewModifierToStitch {
             throw SwiftUISyntaxError.portValueNotFound(argument: radius)
         }
         
-        return [.init(input: .blur, inputData: [portValue])]
+        return [.init(input: .blur, inputData: portValue)]
     }
     
     static func from(_ args: [SyntaxViewArgumentData],
@@ -1934,7 +1938,7 @@ struct ZIndexViewModifier: FromSwiftUIViewModifierToStitch {
             throw SwiftUISyntaxError.portValueNotFound(argument: value)
         }
         
-        return [.init(input: .zIndex, inputData: [portValue])]
+        return [.init(input: .zIndex, inputData: portValue)]
     }
     
     static func from(_ args: [SyntaxViewArgumentData],
@@ -1959,7 +1963,7 @@ struct CornerRadiusViewModifier: FromSwiftUIViewModifierToStitch {
             throw SwiftUISyntaxError.portValueNotFound(argument: radius)
         }
         
-        return [.init(input: .cornerRadius, inputData: [portValue])]
+        return [.init(input: .cornerRadius, inputData: portValue)]
     }
     
     static func from(_ args: [SyntaxViewArgumentData],
@@ -2001,7 +2005,7 @@ struct ForegroundColorViewModifier: FromSwiftUIViewModifierToStitch {
         guard let colorPortValue = try color.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: color)
         }
-        return [LayerPortDerivation(input: .color, inputData: [colorPortValue])]
+        return [LayerPortDerivation(input: .color, inputData: colorPortValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -2030,7 +2034,7 @@ struct FillViewModifier: FromSwiftUIViewModifierToStitch {
         guard let colorPortValue = try color.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: color)
         }
-        return [LayerPortDerivation(input: .color, inputData: [colorPortValue])]
+        return [LayerPortDerivation(input: .color, inputData: colorPortValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -2052,7 +2056,7 @@ struct BrightnessViewModifier: FromSwiftUIViewModifierToStitch {
         guard let portValue = try value.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: value)
         }
-        return [LayerPortDerivation(input: .brightness, inputData: [portValue])]
+        return [LayerPortDerivation(input: .brightness, inputData: portValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -2072,7 +2076,7 @@ struct ContrastViewModifier: FromSwiftUIViewModifierToStitch {
         guard let portValue = try value.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: value)
         }
-        return [LayerPortDerivation(input: .contrast, inputData: [portValue])]
+        return [LayerPortDerivation(input: .contrast, inputData: portValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -2092,7 +2096,7 @@ struct SaturationViewModifier: FromSwiftUIViewModifierToStitch {
         guard let portValue = try value.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: value)
         }
-        return [LayerPortDerivation(input: .saturation, inputData: [portValue])]
+        return [LayerPortDerivation(input: .saturation, inputData: portValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -2112,7 +2116,7 @@ struct HueRotationViewModifier: FromSwiftUIViewModifierToStitch {
         guard let anglePortValue = try angle.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: angle)
         }
-        return [LayerPortDerivation(input: .hueRotation, inputData: [anglePortValue])]
+        return [LayerPortDerivation(input: .hueRotation, inputData: anglePortValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -2180,7 +2184,7 @@ struct PaddingViewModifier: FromSwiftUIViewModifierToStitch {
         }
         
         guard let lengthPortValue = try length.derivePortValues().first?.value,
-              let paddingValue: StitchPadding = lengthPortValue.getPadding else {
+              let paddingValue: StitchPadding = try PortValue(from: lengthPortValue).getPadding else {
             throw SwiftUISyntaxError.portValueNotFound(argument: length)
         }
    
@@ -2302,7 +2306,7 @@ struct RotationEffectViewModifier: FromSwiftUIViewModifierToStitch {
         guard let anglePortValue = try angle.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: angle)
         }
-        return [LayerPortDerivation(input: .rotationZ, inputData: [anglePortValue])]
+        return [LayerPortDerivation(input: .rotationZ, inputData: anglePortValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -2415,7 +2419,7 @@ struct Rotation3DEffectViewModifier: FromSwiftUIViewModifierToStitch {
             throw SwiftUISyntaxError.portValueNotFound(argument: angle)
         }
         // For now, always map to rotationZ regardless of axis
-        return [LayerPortDerivation(input: .rotationZ, inputData: [anglePortValue])]
+        return [LayerPortDerivation(input: .rotationZ, inputData: anglePortValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -2510,41 +2514,49 @@ func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [L
         
         // Check if we got a numeric value from PortValueDescription
         // Handle both value_type: "number" and value_type: "layerDimension"
-        if let portValue = portValues.first?.value {
+        if let firstValue = portValues.first,
+           case .value(let portValueDescription) = firstValue {
             
             var fontSize: Double?
             var isLayerDimensionType = false
-            
+                        
             // Extract fontSize from different PortValueDescription formats
-            switch portValue {
-            case .number(let directNumber):
+            if let directNumber = portValueDescription.value as? Double {
                 // value_type: "number", value: 36.0
                 //                log("DEBUG: Extracted as Double: \(directNumber)")
                 fontSize = directNumber
                 isLayerDimensionType = false
-                
-            case .string(let numberString):
-                if let parsedNumber = Double(numberString.string) {
-                    // value_type: "layerDimension", value: "36"
-                    log("DEBUG: Extracted from String: \(parsedNumber)")
-                    fontSize = parsedNumber
-                    isLayerDimensionType = true
-                }
-
-                            // TODO: a smarter way to parse the `portValueDescription.value` as a StitchAISizeDimension ? Or parse as a string or number instead of type-casting ?
-            case .layerDimension(let sizeDimension):
+            } else if let numberString = portValueDescription.value as? String,
+                      let parsedNumber = Double(numberString) {
+                // value_type: "layerDimension", value: "36"
+                //                log("DEBUG: Extracted from String: \(parsedNumber)")
+                fontSize = parsedNumber
+                isLayerDimensionType = true
+            }
+            
+            // TODO: a smarter way to parse the `portValueDescription.value` as a StitchAISizeDimension ? Or parse as a string or number instead of type-casting ?
+            else if let sizeDimension = (portValueDescription.value as? StitchAISizeDimension_V0.StitchAISizeDimension) {
                 // value_type: "layerDimension", value: StitchAISizeDimension with nested number
                 //                log("DEBUG: Extracted as StitchAISizeDimension_V0")
-                switch sizeDimension {
+                switch sizeDimension.value {
                 case .number(let number):
                     fontSize = number
                     isLayerDimensionType = true
                 default:
                     break // Handle other StitchAISizeDimension cases if needed
                 }
-
-            default:
-                return []
+            }
+            
+            else if let sizeDimension = portValueDescription.value as? StitchAISizeDimension_V1.StitchAISizeDimension {
+                // value_type: "layerDimension", value: StitchAISizeDimension with nested number
+                //                log("DEBUG: Extracted as StitchAISizeDimension_V1")
+                switch sizeDimension.value {
+                case .number(let number):
+                    fontSize = number
+                    isLayerDimensionType = true
+                default:
+                    break // Handle other StitchAISizeDimension cases if needed
+                }
             }
             
             if let fontSize = fontSize {

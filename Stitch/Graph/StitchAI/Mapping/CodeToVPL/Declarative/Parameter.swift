@@ -23,28 +23,25 @@ extension LayerPortDerivation {
          value: CurrentAIGraphData.PortValue) {
         self = .init(coordinate: .init(layerInput: input,
                                        portType: .packed),
-                     inputData: [
-                        .portData(.values([value]))
-                     ]
-        )
+                     inputData: .value(.init(value)))
     }
     
     init(input: LayerInputPort,
-         inputData: [PatchSyntaxResultType]) {
+         inputData: LayerPortDerivationType) {
         self = .init(coordinate: .init(layerInput: input,
                                        portType: .packed),
                      inputData: inputData)
     }
 }
 
-//extension Array where Element == LayerPortDerivation {
-//    init(_ portTypes: [PatchSyntaxResultType], input: LayerInputPort) {
-//        self = portTypes.map {
-//            LayerPortDerivation.init(input: input,
-//                                     inputData: $0)
-//        }
-//    }
-//}
+extension Array where Element == LayerPortDerivation {
+    init(_ portTypes: [LayerPortDerivationType], input: LayerInputPort) {
+        self = portTypes.map {
+            LayerPortDerivation.init(input: input,
+                                     inputData: $0)
+        }
+    }
+}
 
 /// A constructor argument that was either a compile‑time literal (`"logo"`,
  /// `.center`, `12`) or an arbitrary Swift expression (`myGap`, `foo()`, etc.).
