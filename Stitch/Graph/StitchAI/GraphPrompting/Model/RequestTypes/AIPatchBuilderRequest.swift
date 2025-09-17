@@ -17,6 +17,7 @@ struct NodeEntitySimilarityMatcher {
 
     /// Calculates similarity score between two nodes (0.0 to 1.0)
     func calculateSimilarity(oldNode: NodeEntity, newNodeType: PatchOrLayer) -> Double {
+        log("calculateSimilarity: oldNodes.map(.id): \(oldNodes.map(\.id))")
         var score = 0.0
         var maxScore = 0.0
 
@@ -25,10 +26,12 @@ struct NodeEntitySimilarityMatcher {
         switch oldNode.nodeTypeEntity {
         case .patch(let patchNodeEntity):
             if case .patch(let newPatch) = newNodeType, patchNodeEntity.patch == newPatch {
+                log("calculateSimilarity: had matching patch: \(newPatch)")
                 score += 3.0
             }
         case .layer(let layerNodeEntity):
             if case .layer(let newLayer) = newNodeType, layerNodeEntity.layer == newLayer {
+                log("calculateSimilarity: had matching layer: \(newLayer)")
                 score += 3.0
             }
         case .group:
@@ -44,6 +47,7 @@ struct NodeEntitySimilarityMatcher {
         var inputMatchScore = 0.0
 
         let oldInputValues = extractInputValues(from: oldNode)
+        log("calculateSimilarity: oldInputValues: \(oldInputValues)")
         if !oldInputValues.isEmpty {
             var totalComparisons = 0
             var matchScore = 0.0
@@ -87,24 +91,71 @@ struct NodeEntitySimilarityMatcher {
             score += 0.5
         }
 
-        return maxScore > 0 ? score / maxScore : 0.0
+        let finalScore = maxScore > 0 ? score / maxScore : 0.0
+        log("calculateSimilarity: maxScore: \(maxScore)")
+        log("calculateSimilarity: score: \(score)")
+        log("calculateSimilarity: finalScore: \(finalScore)")
+        return finalScore
     }
 
-    /// Finds the best matching existing node for a new node specification
-    func findBestMatch(for newNodeType: PatchOrLayer) -> NodeEntity? {
-        var bestMatch: NodeEntity?
-        var bestScore = 0.0
-        let threshold = 0.5 // Minimum similarity threshold
+    /// Represents a match between an old node and new node with similarity score
+    struct NodeMatch {
+        let oldNode: NodeEntity
+        let newNodeType: PatchOrLayer
+        let newNodeId: UUID
+        let similarity: Double
+    }
 
-        for oldNode in oldNodes {
-            let score = calculateSimilarity(oldNode: oldNode, newNodeType: newNodeType)
-            if score > bestScore && score >= threshold {
-                bestScore = score
-                bestMatch = oldNode
+    /// Performs one-to-one matching between old nodes and new nodes
+    /// Returns matches above threshold, ensuring each old node is matched to at most one new node
+    func findOptimalMatches(for newNodes: [(UUID, PatchOrLayer)]) -> [NodeMatch] {
+        log("findOptimalMatches: for \(newNodes.count) new nodes")
+
+        // Step 1: Create similarity matrix - calculate all possible matches
+        var candidateMatches: [NodeMatch] = []
+        let threshold = 0.5
+
+        for (newNodeId, newNodeType) in newNodes {
+            for oldNode in oldNodes {
+                let similarity = calculateSimilarity(oldNode: oldNode, newNodeType: newNodeType)
+                if similarity >= threshold {
+                    candidateMatches.append(NodeMatch(
+                        oldNode: oldNode,
+                        newNodeType: newNodeType,
+                        newNodeId: newNodeId,
+                        similarity: similarity
+                    ))
+                }
             }
         }
 
-        return bestMatch
+        log("findOptimalMatches: found \(candidateMatches.count) candidate matches above threshold")
+
+        // Step 2: Sort by similarity score (highest first) for greedy assignment
+        candidateMatches.sort { $0.similarity > $1.similarity }
+
+        // Step 3: Greedy one-to-one assignment
+        var finalMatches: [NodeMatch] = []
+        var usedOldNodeIds = Set<UUID>()
+        var usedNewNodeIds = Set<UUID>()
+
+        for candidate in candidateMatches {
+            // Skip if either node is already matched
+            if usedOldNodeIds.contains(candidate.oldNode.id) ||
+               usedNewNodeIds.contains(candidate.newNodeId) {
+                continue
+            }
+
+            // Accept this match and mark both nodes as used
+            finalMatches.append(candidate)
+            usedOldNodeIds.insert(candidate.oldNode.id)
+            usedNewNodeIds.insert(candidate.newNodeId)
+
+            log("findOptimalMatches: accepted match - old: \(candidate.oldNode.id) (\(candidate.oldNode.kind)) -> new: \(candidate.newNodeId) (\(candidate.newNodeType)), similarity: \(candidate.similarity)")
+        }
+
+        log("findOptimalMatches: final \(finalMatches.count) one-to-one matches")
+        return finalMatches
     }
 
     /// Extracts input values from a NodeEntity
@@ -114,8 +165,10 @@ struct NodeEntitySimilarityMatcher {
             return patchNodeEntity.inputs.compactMap { inputEntity in
                 switch inputEntity.portData {
                 case .values(let values):
+                    log("extractInputValues: patch: for node \(node.id) \(node.kind), had input values: \(values)")
                     return values
                 case .upstreamConnection:
+                    log("extractInputValues: patch: for node \(node.id) \(node.kind), had an upstream connection and thus no input values")
                     return [] // Connected inputs don't have direct values
                 }
             }
@@ -152,6 +205,7 @@ struct NodeEntitySimilarityMatcher {
                 }
             }
 
+            log("extractInputValues: layer: for node \(node.id) \(node.kind), had input values: allValues: \(allValues)")
             return allValues
         case .group:
             // TODO: Handle group node input extraction
@@ -168,9 +222,11 @@ struct NodeEntitySimilarityMatcher {
         case .patch(let patchNodeEntity):
             let upstreamCount = patchNodeEntity.inputs.reduce(0) { count, inputEntity in
                 switch inputEntity.portData {
-                case .upstreamConnection:
+                case .upstreamConnection(let x):
+                    log("extractConnectionCounts: patch: for node \(node.id) \(node.kind) and input \(inputEntity.id), had an upstream connection: \(x)")
                     return count + 1
                 case .values:
+                    log("extractConnectionCounts: patch: for node \(node.id) \(node.kind) and input \(inputEntity.id) had values")
                     return count
                 }
             }
@@ -351,12 +407,66 @@ extension SwiftSyntaxActionsResult {
     
     @MainActor
     mutating func createAIGraph(document: StitchDocumentViewModel) {
+        // STEP 1: Capture existing state for similarity matching
+        let existingGraph = document.graph.createSchema()
+        let matcher = NodeEntitySimilarityMatcher(oldNodes: existingGraph.nodes)
+        let previousSidebarSelection = document.graph.layersSidebarViewModel.primary
+        var matchedNodeIds = Set<UUID>()
 
         var viewStatePatchConnections = self.graphData.viewStatePatchConnections
         
+        // STEP 2: Apply similarity matching to patch nodes using one-to-one batch matching
+        // We keep the new AI nodes but preserve positions from matched existing nodes
+
+        // Prepare new patch nodes for batch matching
+        let newPatchNodeData: [(UUID, PatchOrLayer)] = self.graphData.patchNodes.compactMap { currentPatch in
+            if case .patch(let patchNodeEntity) = currentPatch.nodeTypeEntity {
+                return (currentPatch.id, PatchOrLayer.patch(patchNodeEntity.patch))
+            }
+            return nil
+        }
+
+        // Perform optimal one-to-one matching
+        let optimalMatches = matcher.findOptimalMatches(for: newPatchNodeData)
+        Swift.print("Found \(optimalMatches.count) optimal matches for \(newPatchNodeData.count) new patch nodes")
+
+        // Process the matches to build position mappings and selection mappings
+        var nodePositionMappings: [UUID: CGPoint] = [:]  // new node ID -> old position
+        var newNodesForSelectedOldNodes = Set<UUID>()  // new node IDs that should be selected
+
+        for match in optimalMatches {
+            // Only accept matches with high similarity scores
+            if match.similarity > 0.7 {
+                // Store the position mapping: new node should use old node's position
+                if case .patch(let matchedPatchEntity) = match.oldNode.nodeTypeEntity {
+                    nodePositionMappings[match.newNodeId] = matchedPatchEntity.canvasEntity.position
+                    matchedNodeIds.insert(match.newNodeId)  // Track the NEW node ID
+
+                    // If the old node was selected, mark the new node for selection
+                    if previousSidebarSelection.contains(match.oldNode.id) {
+                        newNodesForSelectedOldNodes.insert(match.newNodeId)
+                    }
+
+                    Swift.print("Matched new patch node \(match.newNodeId) (\(match.newNodeType)) with existing \(match.oldNode.id) (\(match.oldNode.kind)), similarity \(match.similarity)")
+                }
+            }
+        }
+
+        // Apply preserved positions to matched patch nodes
+        var updatedPatchNodes = self.graphData.patchNodes
+        for i in 0..<updatedPatchNodes.count {
+            let nodeId = updatedPatchNodes[i].id
+            if let preservedPosition = nodePositionMappings[nodeId],
+               case .patch(var patchNodeEntity) = updatedPatchNodes[i].nodeTypeEntity {
+                patchNodeEntity.canvasEntity.position = preservedPosition
+                updatedPatchNodes[i].nodeTypeEntity = .patch(patchNodeEntity)
+                Swift.print("Applied preserved position \(preservedPosition) to node \(nodeId)")
+            }
+        }
+
         // Sync patch graph nodes in document before parsing layers, which may need data from there
         var graphEntity = document.graph.createSchema()
-        graphEntity.nodes = self.graphData.patchNodes
+        graphEntity.nodes = updatedPatchNodes
         
         var nodesDict = graphEntity.nodes.reduce(into: [UUID: NodeEntity]()) { result, nodeEntity in
             result.updateValue(nodeEntity, forKey: nodeEntity.id)
@@ -381,7 +491,8 @@ extension SwiftSyntaxActionsResult {
         // since those UUIDs have not been remapped yet
         let repositionedNodes = graphEntity.nodes.positionAIGeneratedNodesDuringApply(
             viewPortCenter: document.viewPortCenter,
-            graph: document.visibleGraph)
+            graph: document.visibleGraph,
+            matchedNodeIds: matchedNodeIds)
         graphEntity.nodes = repositionedNodes
         
         // Make group Id map current context
@@ -398,7 +509,11 @@ extension SwiftSyntaxActionsResult {
         // Update topological data--needs to be forced here because of script building using this data
         document.graph.update(from: graphEntity)
         document.graph.updateGraphData(document)
-        
+
+        // STEP 3: Restore sidebar selections for matched nodes
+        document.graph.layersSidebarViewModel.primary = newNodesForSelectedOldNodes
+        Swift.print("Restored sidebar selection for \(newNodesForSelectedOldNodes.count) matched nodes")
+
         // Report errors
         caughtErrors.displayErrors(document: document)
     }

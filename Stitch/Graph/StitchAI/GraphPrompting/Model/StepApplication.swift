@@ -227,7 +227,8 @@ extension Array where Element == NodeEntity {
     @MainActor
     func positionAIGeneratedNodesDuringApply(
         viewPortCenter: CGPoint,
-        graph: GraphReader
+        graph: GraphReader,
+        matchedNodeIds: Set<UUID> = []
     ) -> Self {
         // TODO: if we have a chain of nodes, shift our starting point further west
         //    var viewPortCenter = viewPortCenter
@@ -320,6 +321,12 @@ extension Array where Element == NodeEntity {
             
             return createdNodesAtThisLevel.map { createdNode in
                 var createdNode = createdNode
+
+                // Skip positioning for matched nodes - they keep their original positions
+                if matchedNodeIds.contains(createdNode.id) {
+                    Swift.print("Skipping positioning for matched node \(createdNode.id)")
+                    return createdNode
+                }
                 
                 let updateCanvasPosition = { (canvasId: CanvasItemId) -> CGPoint in
                     var size: CGSize = canvasId
