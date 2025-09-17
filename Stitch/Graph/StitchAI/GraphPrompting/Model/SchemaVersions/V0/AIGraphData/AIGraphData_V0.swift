@@ -355,14 +355,17 @@ extension AIGraphData_V0.PortValue {
 //}
 
 extension AIGraphData_V0.LayerData {
-    func createSidebarLayerData() -> SidebarLayerData {
+    func createSidebarLayerData(idMapping: [String: UUID] = [:]) -> SidebarLayerData {
         let children = self.children?.map {
-            $0.createSidebarLayerData()
+            $0.createSidebarLayerData(idMapping: idMapping)
         }
-        
+
         assertInDebug(UUID(self.node_id) != nil)
-        
-        return SidebarLayerData(id: UUID(self.node_id) ?? UUID(),
+
+        // Use mapped ID if available, otherwise use original ID from AI data
+        let finalId = idMapping[self.node_id] ?? UUID(self.node_id) ?? UUID()
+
+        return SidebarLayerData(id: finalId,
                                 children: children)
     }
 }

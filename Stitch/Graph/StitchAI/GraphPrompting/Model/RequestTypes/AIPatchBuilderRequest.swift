@@ -464,14 +464,95 @@ extension SwiftSyntaxActionsResult {
             }
         }
 
+        // STEP 2.5: Apply similarity matching to layer nodes using one-to-one batch matching
+        // Extract new layer data for matching before creating them
+        let newLayerNodeData: [(UUID, PatchOrLayer)] = self.graphData.layer_data_list.flatMap { layerData -> [(UUID, PatchOrLayer)] in
+            // Recursive function to extract all layer data including nested children
+            func extractLayerData(from data: AIGraphData_V0.LayerData) -> [(UUID, PatchOrLayer)] {
+                var results: [(UUID, PatchOrLayer)] = []
+
+                // Add current layer
+                if let layer = data.node_name.value.layer {
+                    let layerId = UUID(data.node_id) ?? UUID()
+                    results.append((layerId, PatchOrLayer.layer(layer)))
+                }
+
+                // Recursively add children
+                if let children = data.children {
+                    for child in children {
+                        results.append(contentsOf: extractLayerData(from: child))
+                    }
+                }
+
+                return results
+            }
+
+            return extractLayerData(from: layerData)
+        }
+
+        // Perform optimal one-to-one matching for layers
+        let optimalLayerMatches = matcher.findOptimalMatches(for: newLayerNodeData)
+        Swift.print("Found \(optimalLayerMatches.count) optimal layer matches for \(newLayerNodeData.count) new layer nodes")
+
+        // Process layer matches to build position mappings and selection mappings
+        var layerPositionMappings: [UUID: CGPoint] = [:]  // new layer ID -> old position
+        var layerSidebarSelections = Set<UUID>()  // new layer IDs that should be selected
+
+        for match in optimalLayerMatches {
+            // Only accept matches with reasonable similarity scores
+            if match.similarity > 0.5 {
+                // Store the position mapping: new layer should use old layer's position
+                if case .layer(let matchedLayerEntity) = match.oldNode.nodeTypeEntity {
+                    // Extract position from layer node - layers don't have a direct canvas entity like patches
+                    // We'll capture their position during the creation process
+                    matchedNodeIds.insert(match.newNodeId)  // Track the NEW layer ID for position skipping
+
+                    // If the old layer was selected, mark the new layer for selection
+                    if previousSidebarSelection.contains(match.oldNode.id) {
+                        layerSidebarSelections.insert(match.newNodeId)
+                    }
+
+                    Swift.print("Matched new layer node \(match.newNodeId) (\(match.newNodeType)) with existing \(match.oldNode.id) (\(match.oldNode.kind)), similarity \(match.similarity)")
+                }
+            }
+        }
+
+        // Add layer selections to the overall selection set
+        newNodesForSelectedOldNodes.formUnion(layerSidebarSelections)
+
+        // Build ID mapping for sidebar creation: AI node_id -> matched UUID
+        var layerIdMapping: [String: UUID] = [:]
+
+        // Helper function to recursively find AI node_id for a given UUID
+        func findLayerNodeId(in layerDataList: [AIGraphData_V0.LayerData], targetUUID: UUID, callback: (String) -> Void) {
+            for layerData in layerDataList {
+                if UUID(layerData.node_id) == targetUUID {
+                    callback(layerData.node_id)
+                    return
+                }
+                if let children = layerData.children {
+                    findLayerNodeId(in: children, targetUUID: targetUUID, callback: callback)
+                }
+            }
+        }
+
+        for match in optimalLayerMatches {
+            if match.similarity > 0.5 {
+                // Find the AI node_id string that corresponds to this matched UUID
+                findLayerNodeId(in: self.graphData.layer_data_list, targetUUID: match.newNodeId) { nodeId in
+                    layerIdMapping[nodeId] = match.newNodeId
+                }
+            }
+        }
+
         // Sync patch graph nodes in document before parsing layers, which may need data from there
         var graphEntity = document.graph.createSchema()
         graphEntity.nodes = updatedPatchNodes
-        
+
         var nodesDict = graphEntity.nodes.reduce(into: [UUID: NodeEntity]()) { result, nodeEntity in
             result.updateValue(nodeEntity, forKey: nodeEntity.id)
         }
-        
+
         // create nested layer nodes in graph
         self.graphData.layer_data_list
             .createLayerNodes(layerGroupId: nil,
@@ -481,8 +562,9 @@ extension SwiftSyntaxActionsResult {
         graphEntity.nodes = Array(nodesDict.values)
         
         // Create nested sidebar layer data AFTER idMap gets updated from above layer logic
+        // Pass the layer ID mapping to preserve matched layer IDs
         let newSidebarData = self.graphData.layer_data_list.compactMap {
-            $0.createSidebarLayerData()
+            $0.createSidebarLayerData(idMapping: layerIdMapping)
         }
         
         graphEntity.orderedSidebarLayers = newSidebarData
