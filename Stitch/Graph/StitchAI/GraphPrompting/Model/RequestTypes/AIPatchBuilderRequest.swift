@@ -11,6 +11,73 @@ enum AIPatchBuilderRequestError: Error {
     case nodeIdNotFound
 }
 
+// MARK: - Constants
+
+private let LAYER_MATCHING_SIMILARITY_THRESHOLD: Double = 0.5
+private let PATCH_MATCHING_SIMILARITY_THRESHOLD: Double = 0.5
+
+// MARK: - Layer Canvas Item Coordinate
+
+/// Represents a specific canvas item within a layer node's input port
+/// Type-safe coordinate for identifying layer canvas items during position preservation
+struct LayerCanvasItemCoordinate: Hashable, Identifiable {
+    let nodeId: UUID
+    let port: LayerInputPort
+    let mode: PackedOrUnpacked
+
+    var id: String { "\(nodeId):\(port):\(mode)" }
+
+    /// Distinguishes between packed (single value) and unpacked (array) layer inputs
+    enum PackedOrUnpacked: Hashable {
+        case packed
+        case unpacked(index: Int)
+    }
+}
+
+// MARK: - Pure Functions
+
+/// Captures canvas item positions from a matched layer entity
+/// - Parameters:
+///   - layerEntity: The existing layer node to extract positions from
+///   - newNodeId: The ID of the new node that will receive these positions
+/// - Returns: Dictionary mapping canvas item coordinates to their positions
+private func captureLayerCanvasItemPositions(
+    from layerEntity: LayerNodeEntity,
+    forNewNodeId newNodeId: UUID
+) -> [LayerCanvasItemCoordinate: CGPoint] {
+    var positions: [LayerCanvasItemCoordinate: CGPoint] = [:]
+
+    for inputDefinition in layerEntity.layer.layerGraphNode.inputDefinitions {
+        let portData = layerEntity[keyPath: inputDefinition.schemaPortKeyPath]
+
+        // Check packed canvas items
+        if let canvasItem = portData.packedData.canvasItem {
+            let coordinate = LayerCanvasItemCoordinate(
+                nodeId: newNodeId,
+                port: inputDefinition,
+                mode: .packed
+            )
+            positions[coordinate] = canvasItem.position
+            log("  ✅ Captured packed canvas for port \(inputDefinition): position \(canvasItem.position)")
+        }
+
+        // Check unpacked canvas items
+        for (index, unpackedData) in portData.unpackedData.enumerated() {
+            if let canvasItem = unpackedData.canvasItem {
+                let coordinate = LayerCanvasItemCoordinate(
+                    nodeId: newNodeId,
+                    port: inputDefinition,
+                    mode: .unpacked(index: index)
+                )
+                positions[coordinate] = canvasItem.position
+                log("  ✅ Captured unpacked[\(index)] canvas for port \(inputDefinition): position \(canvasItem.position)")
+            }
+        }
+    }
+
+    return positions
+}
+
 /// Matches nodes from old graph to new graph based on similarity
 struct NodeEntitySimilarityMatcher {
     let oldNodes: [NodeEntity]
@@ -428,7 +495,7 @@ extension SwiftSyntaxActionsResult {
 
         // Perform optimal one-to-one matching
         let optimalMatches = matcher.findOptimalMatches(for: newPatchNodeData)
-        Swift.print("Found \(optimalMatches.count) optimal matches for \(newPatchNodeData.count) new patch nodes")
+        log("Found \(optimalMatches.count) optimal matches for \(newPatchNodeData.count) new patch nodes")
 
         // Process the matches to build position mappings and selection mappings
         var nodePositionMappings: [UUID: CGPoint] = [:]  // new node ID -> old position
@@ -436,7 +503,7 @@ extension SwiftSyntaxActionsResult {
 
         for match in optimalMatches {
             // Only accept matches with high similarity scores
-            if match.similarity > 0.5 {
+            if match.similarity > PATCH_MATCHING_SIMILARITY_THRESHOLD {
                 // Store the position mapping: new node should use old node's position
                 if case .patch(let matchedPatchEntity) = match.oldNode.nodeTypeEntity {
                     nodePositionMappings[match.newNodeId] = matchedPatchEntity.canvasEntity.position
@@ -447,7 +514,7 @@ extension SwiftSyntaxActionsResult {
                         newNodesForSelectedOldNodes.insert(match.newNodeId)
                     }
 
-                    Swift.print("Matched new patch node \(match.newNodeId) (\(match.newNodeType)) with existing \(match.oldNode.id) (\(match.oldNode.kind)), similarity \(match.similarity)")
+                    log("Matched new patch node \(match.newNodeId) (\(match.newNodeType)) with existing \(match.oldNode.id) (\(match.oldNode.kind)), similarity \(match.similarity)")
                 }
             }
         }
@@ -460,7 +527,7 @@ extension SwiftSyntaxActionsResult {
                case .patch(var patchNodeEntity) = updatedPatchNodes[i].nodeTypeEntity {
                 patchNodeEntity.canvasEntity.position = preservedPosition
                 updatedPatchNodes[i].nodeTypeEntity = .patch(patchNodeEntity)
-                Swift.print("Applied preserved position \(preservedPosition) to node \(nodeId)")
+                log("Applied preserved position \(preservedPosition) to node \(nodeId)")
             }
         }
 
@@ -492,52 +559,37 @@ extension SwiftSyntaxActionsResult {
 
         // Perform optimal one-to-one matching for layers
         let optimalLayerMatches = matcher.findOptimalMatches(for: newLayerNodeData)
-        Swift.print("Found \(optimalLayerMatches.count) optimal layer matches for \(newLayerNodeData.count) new layer nodes")
+        log("Found \(optimalLayerMatches.count) optimal layer matches for \(newLayerNodeData.count) new layer nodes")
 
         // Process layer matches to build position mappings and selection mappings
         var layerPositionMappings: [UUID: CGPoint] = [:]  // new layer ID -> old position
         var layerSidebarSelections = Set<UUID>()  // new layer IDs that should be selected
-        var layerCanvasItemPositions: [String: CGPoint] = [:]  // "nodeId:port:mode" -> position
+        var layerCanvasItemPositions: [LayerCanvasItemCoordinate: CGPoint] = [:]
 
         for match in optimalLayerMatches {
             // Only accept matches with reasonable similarity scores
-            if match.similarity > 0.5 {
+            if match.similarity > LAYER_MATCHING_SIMILARITY_THRESHOLD {
                 // Store the position mapping: new layer should use old layer's position
                 if case .layer(let matchedLayerEntity) = match.oldNode.nodeTypeEntity {
-                    Swift.print("📍 Capturing canvas positions for matched layer \(match.oldNode.id) -> \(match.newNodeId)")
+                    log("📍 Capturing canvas positions for matched layer \(match.oldNode.id) -> \(match.newNodeId)")
 
-                    // Iterate through all layer inputs to find canvas items
-                    for inputDefinition in matchedLayerEntity.layer.layerGraphNode.inputDefinitions {
-                        let portData = matchedLayerEntity[keyPath: inputDefinition.schemaPortKeyPath]
-
-                        // Check packed canvas items
-                        if let canvasItem = portData.packedData.canvasItem {
-                            let key = "\(match.newNodeId):\(inputDefinition):packed"
-                            layerCanvasItemPositions[key] = canvasItem.position
-                            Swift.print("  ✅ Captured packed canvas for port \(inputDefinition): position \(canvasItem.position)")
-                        }
-
-                        // Check unpacked canvas items
-                        for (index, unpackedData) in portData.unpackedData.enumerated() {
-                            if let canvasItem = unpackedData.canvasItem {
-                                let key = "\(match.newNodeId):\(inputDefinition):unpacked-\(index)"
-                                layerCanvasItemPositions[key] = canvasItem.position
-                                Swift.print("  ✅ Captured unpacked[\(index)] canvas for port \(inputDefinition): position \(canvasItem.position)")
-                            }
-                        }
-                    }
+                    // Capture canvas item positions using pure function
+                    let capturedPositions = captureLayerCanvasItemPositions(
+                        from: matchedLayerEntity,
+                        forNewNodeId: match.newNodeId
+                    )
+                    layerCanvasItemPositions.merge(capturedPositions) { _, new in new }
 
                     matchedNodeIds.insert(match.newNodeId)  // Track the NEW layer ID for position skipping
 
-                    let capturedCount = layerCanvasItemPositions.filter { $0.key.hasPrefix(match.newNodeId.uuidString) }.count
-                    Swift.print("📍 Total preserved positions for layer: \(capturedCount)")
+                    log("📍 Total preserved positions for layer: \(capturedPositions.count)")
 
                     // If the old layer was selected, mark the new layer for selection
                     if previousSidebarSelection.contains(match.oldNode.id) {
                         layerSidebarSelections.insert(match.newNodeId)
                     }
 
-                    Swift.print("Matched new layer node \(match.newNodeId) (\(match.newNodeType)) with existing \(match.oldNode.id) (\(match.oldNode.kind)), similarity \(match.similarity)")
+                    log("Matched new layer node \(match.newNodeId) (\(match.newNodeType)) with existing \(match.oldNode.id) (\(match.oldNode.kind)), similarity \(match.similarity)")
                 }
             }
         }
@@ -562,7 +614,7 @@ extension SwiftSyntaxActionsResult {
         }
 
         for match in optimalLayerMatches {
-            if match.similarity > 0.5 {
+            if match.similarity > LAYER_MATCHING_SIMILARITY_THRESHOLD {
                 // Find the AI node_id string that corresponds to this matched UUID
                 findLayerNodeId(in: self.graphData.layer_data_list, targetUUID: match.newNodeId) { nodeId in
                     layerIdMapping[nodeId] = match.newNodeId
@@ -620,7 +672,7 @@ extension SwiftSyntaxActionsResult {
 
         // STEP 3: Restore sidebar selections for matched nodes
         document.graph.layersSidebarViewModel.primary = newNodesForSelectedOldNodes
-        Swift.print("Restored sidebar selection for \(newNodesForSelectedOldNodes.count) matched nodes")
+        log("Restored sidebar selection for \(newNodesForSelectedOldNodes.count) matched nodes")
 
         // Report errors
         caughtErrors.displayErrors(document: document)
