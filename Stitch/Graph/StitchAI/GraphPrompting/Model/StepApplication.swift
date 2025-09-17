@@ -358,7 +358,12 @@ extension Array where Element == NodeEntity {
             cumulativeXOffset[depth] = runningX
             runningX += columnWidths[depth] ?? 0
         }
-        
+
+        // Calculate centering offset to position the middle of the chain at viewport center
+        let totalChainWidth = runningX
+        let centeringOffset = -totalChainWidth / 2.0
+        log("🎯 Chain centering: totalWidth=\(totalChainWidth), centeringOffset=\(centeringOffset)")
+
         // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
         let updatedNodes = depthLevels.flatMap { depthLevel -> [NodeEntity] in
             
@@ -418,7 +423,7 @@ extension Array where Element == NodeEntity {
                     size.width += horizontalPadding
                     
                     let newPosition = CGPoint(
-                        x: viewPortCenter.x + (cumulativeXOffset[depthLevel] ?? 0),
+                        x: viewPortCenter.x + centeringOffset + (cumulativeXOffset[depthLevel] ?? 0),
                         y: viewPortCenter.y + CGFloat(rowIndexForDepth) * rowHeight
                     )
                     rowIndexForDepth += 1
