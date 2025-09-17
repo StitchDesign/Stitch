@@ -83,150 +83,27 @@ extension SwiftSyntaxActionsResult {
     mutating func createAIGraph(document: StitchDocumentViewModel) {
         // STEP 1: Capture existing state for similarity matching
         let existingGraph = document.graph.createSchema()
-        let matcher = NodeEntitySimilarityMatcher(oldNodes: existingGraph.nodes)
         let previousSidebarSelection = document.graph.layersSidebarViewModel.primary
         var matchedNodeIds = Set<UUID>()
 
         var viewStatePatchConnections = self.graphData.viewStatePatchConnections
         
-        // STEP 2: Apply similarity matching to patch nodes using one-to-one batch matching
-        // We keep the new AI nodes but preserve positions from matched existing nodes
+        // STEP 2: Perform comprehensive node similarity matching using extracted pure function
+        let matchingInputs = NodeMatchingInputs(
+            existingNodes: existingGraph.nodes,
+            newPatchNodes: self.graphData.patchNodes,
+            newLayerDataList: self.graphData.layer_data_list,
+            previousSidebarSelection: previousSidebarSelection
+        )
 
-        // Prepare new patch nodes for batch matching
-        let newPatchNodeData: [(UUID, PatchOrLayer)] = self.graphData.patchNodes.compactMap { currentPatch in
-            if case .patch(let patchNodeEntity) = currentPatch.nodeTypeEntity {
-                return (currentPatch.id, PatchOrLayer.patch(patchNodeEntity.patch))
-            }
-            return nil
-        }
+        let matchingResults = performNodeSimilarityMatching(inputs: matchingInputs)
 
-        // Perform optimal one-to-one matching
-        let optimalMatches = matcher.findOptimalMatches(for: newPatchNodeData)
-        log("Found \(optimalMatches.count) optimal matches for \(newPatchNodeData.count) new patch nodes")
-
-        // Process the matches to build position mappings and selection mappings
-        var nodePositionMappings: [UUID: CGPoint] = [:]  // new node ID -> old position
-        var newNodesForSelectedOldNodes = Set<UUID>()  // new node IDs that should be selected
-
-        for match in optimalMatches {
-            // Only accept matches with high similarity scores
-            if match.similarity > PATCH_MATCHING_SIMILARITY_THRESHOLD {
-                // Store the position mapping: new node should use old node's position
-                if case .patch(let matchedPatchEntity) = match.oldNode.nodeTypeEntity {
-                    nodePositionMappings[match.newNodeId] = matchedPatchEntity.canvasEntity.position
-                    matchedNodeIds.insert(match.newNodeId)  // Track the NEW node ID
-
-                    // If the old node was selected, mark the new node for selection
-                    if previousSidebarSelection.contains(match.oldNode.id) {
-                        newNodesForSelectedOldNodes.insert(match.newNodeId)
-                    }
-
-                    log("Matched new patch node \(match.newNodeId) (\(match.newNodeType)) with existing \(match.oldNode.id) (\(match.oldNode.kind)), similarity \(match.similarity)")
-                }
-            }
-        }
-
-        // Apply preserved positions to matched patch nodes
-        var updatedPatchNodes = self.graphData.patchNodes
-        for i in 0..<updatedPatchNodes.count {
-            let nodeId = updatedPatchNodes[i].id
-            if let preservedPosition = nodePositionMappings[nodeId],
-               case .patch(var patchNodeEntity) = updatedPatchNodes[i].nodeTypeEntity {
-                patchNodeEntity.canvasEntity.position = preservedPosition
-                updatedPatchNodes[i].nodeTypeEntity = .patch(patchNodeEntity)
-                log("Applied preserved position \(preservedPosition) to node \(nodeId)")
-            }
-        }
-
-        // STEP 2.5: Apply similarity matching to layer nodes using one-to-one batch matching
-        // Extract new layer data for matching before creating them
-        let newLayerNodeData: [(UUID, PatchOrLayer)] = self.graphData.layer_data_list.flatMap { layerData -> [(UUID, PatchOrLayer)] in
-            // Recursive function to extract all layer data including nested children
-            func extractLayerData(from data: AIGraphData_V0.LayerData) -> [(UUID, PatchOrLayer)] {
-                var results: [(UUID, PatchOrLayer)] = []
-
-                // Add current layer
-                if let layer = data.node_name.value.layer {
-                    let layerId = UUID(data.node_id) ?? UUID()
-                    results.append((layerId, PatchOrLayer.layer(layer)))
-                }
-
-                // Recursively add children
-                if let children = data.children {
-                    for child in children {
-                        results.append(contentsOf: extractLayerData(from: child))
-                    }
-                }
-
-                return results
-            }
-
-            return extractLayerData(from: layerData)
-        }
-
-        // Perform optimal one-to-one matching for layers
-        let optimalLayerMatches = matcher.findOptimalMatches(for: newLayerNodeData)
-        log("Found \(optimalLayerMatches.count) optimal layer matches for \(newLayerNodeData.count) new layer nodes")
-
-        // Process layer matches to build position mappings and selection mappings
-        var layerSidebarSelections = Set<UUID>()  // new layer IDs that should be selected
-        var layerCanvasItemPositions: [LayerCanvasItemCoordinate: CGPoint] = [:]
-
-        for match in optimalLayerMatches {
-            // Only accept matches with reasonable similarity scores
-            if match.similarity > LAYER_MATCHING_SIMILARITY_THRESHOLD {
-                // Store the position mapping: new layer should use old layer's position
-                if case .layer(let matchedLayerEntity) = match.oldNode.nodeTypeEntity {
-                    log("📍 Capturing canvas positions for matched layer \(match.oldNode.id) -> \(match.newNodeId)")
-
-                    // Capture canvas item positions using pure function
-                    let capturedPositions = captureLayerCanvasItemPositions(
-                        from: matchedLayerEntity,
-                        forNewNodeId: match.newNodeId
-                    )
-                    layerCanvasItemPositions.merge(capturedPositions) { _, new in new }
-
-                    matchedNodeIds.insert(match.newNodeId)  // Track the NEW layer ID for position skipping
-
-                    log("📍 Total preserved positions for layer: \(capturedPositions.count)")
-
-                    // If the old layer was selected, mark the new layer for selection
-                    if previousSidebarSelection.contains(match.oldNode.id) {
-                        layerSidebarSelections.insert(match.newNodeId)
-                    }
-
-                    log("Matched new layer node \(match.newNodeId) (\(match.newNodeType)) with existing \(match.oldNode.id) (\(match.oldNode.kind)), similarity \(match.similarity)")
-                }
-            }
-        }
-
-        // Add layer selections to the overall selection set
-        newNodesForSelectedOldNodes.formUnion(layerSidebarSelections)
-
-        // Build ID mapping for sidebar creation: AI node_id -> matched UUID
-        var layerIdMapping: [String: UUID] = [:]
-
-        // Helper function to recursively find AI node_id for a given UUID
-        func findLayerNodeId(in layerDataList: [AIGraphData_V0.LayerData], targetUUID: UUID, callback: (String) -> Void) {
-            for layerData in layerDataList {
-                if UUID(layerData.node_id) == targetUUID {
-                    callback(layerData.node_id)
-                    return
-                }
-                if let children = layerData.children {
-                    findLayerNodeId(in: children, targetUUID: targetUUID, callback: callback)
-                }
-            }
-        }
-
-        for match in optimalLayerMatches {
-            if match.similarity > LAYER_MATCHING_SIMILARITY_THRESHOLD {
-                // Find the AI node_id string that corresponds to this matched UUID
-                findLayerNodeId(in: self.graphData.layer_data_list, targetUUID: match.newNodeId) { nodeId in
-                    layerIdMapping[nodeId] = match.newNodeId
-                }
-            }
-        }
+        // Apply results
+        let updatedPatchNodes = matchingResults.updatedPatchNodes
+        matchedNodeIds = matchingResults.matchedNodeIds
+        let layerCanvasItemPositions = matchingResults.layerCanvasItemPositions
+        let newNodesForSelectedOldNodes = matchingResults.newNodesForSelectedOldNodes
+        let layerIdMapping = matchingResults.layerIdMapping
 
         // Sync patch graph nodes in document before parsing layers, which may need data from there
         var graphEntity = document.graph.createSchema()

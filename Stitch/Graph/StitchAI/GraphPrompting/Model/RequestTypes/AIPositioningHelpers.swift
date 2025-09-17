@@ -31,6 +31,25 @@ struct LayerCanvasItemCoordinate: Hashable, Identifiable {
     }
 }
 
+// MARK: - Node Matching Data Structures
+
+/// Input parameters for node similarity matching
+struct NodeMatchingInputs {
+    let existingNodes: [NodeEntity]
+    let newPatchNodes: [NodeEntity]
+    let newLayerDataList: [AIGraphData_V0.LayerData]
+    let previousSidebarSelection: Set<UUID>
+}
+
+/// Results from node similarity matching
+struct NodeMatchingResults {
+    let updatedPatchNodes: [NodeEntity]           // Patch nodes with preserved positions
+    let matchedNodeIds: Set<UUID>                 // All matched node IDs for positioning
+    let layerCanvasItemPositions: [LayerCanvasItemCoordinate: CGPoint]  // Layer canvas positions
+    let newNodesForSelectedOldNodes: Set<UUID>    // Nodes that should be selected
+    let layerIdMapping: [String: UUID]            // AI node_id -> matched UUID mapping
+}
+
 // MARK: - Pure Functions
 
 /// Captures canvas item positions from a matched layer entity
@@ -73,6 +92,28 @@ func captureLayerCanvasItemPositions(
     }
 
     return positions
+}
+
+/// Recursively searches for a layer node ID in the layer data list
+/// - Parameters:
+///   - layerDataList: The list of layer data to search
+///   - targetUUID: The UUID to find
+/// - Returns: The string node_id if found, nil otherwise
+func findLayerNodeId(
+    in layerDataList: [AIGraphData_V0.LayerData],
+    targetUUID: UUID
+) -> String? {
+    for layerData in layerDataList {
+        if UUID(layerData.node_id) == targetUUID {
+            return layerData.node_id
+        }
+        if let children = layerData.children {
+            if let foundId = findLayerNodeId(in: children, targetUUID: targetUUID) {
+                return foundId
+            }
+        }
+    }
+    return nil
 }
 
 /// Matches nodes from old graph to new graph based on similarity
@@ -333,4 +374,148 @@ struct NodeEntitySimilarityMatcher {
             return (0, 0)
         }
     }
+}
+
+// MARK: - Main Node Matching Function
+
+/// Performs comprehensive node similarity matching between old and new graphs
+/// - Parameter inputs: All required inputs for matching
+/// - Returns: Complete matching results with updated nodes and mappings
+func performNodeSimilarityMatching(
+    inputs: NodeMatchingInputs
+) -> NodeMatchingResults {
+    let matcher = NodeEntitySimilarityMatcher(oldNodes: inputs.existingNodes)
+    var matchedNodeIds = Set<UUID>()
+
+    // STEP 1: Apply similarity matching to patch nodes using one-to-one batch matching
+    // Prepare new patch nodes for batch matching
+    let newPatchNodeData: [(UUID, PatchOrLayer)] = inputs.newPatchNodes.compactMap { currentPatch in
+        if case .patch(let patchNodeEntity) = currentPatch.nodeTypeEntity {
+            return (currentPatch.id, PatchOrLayer.patch(patchNodeEntity.patch))
+        }
+        return nil
+    }
+
+    // Perform optimal one-to-one matching
+    let optimalMatches = matcher.findOptimalMatches(for: newPatchNodeData)
+    log("Found \(optimalMatches.count) optimal matches for \(newPatchNodeData.count) new patch nodes")
+
+    // Process the matches to build position mappings and selection mappings
+    var nodePositionMappings: [UUID: CGPoint] = [:]  // new node ID -> old position
+    var newNodesForSelectedOldNodes = Set<UUID>()  // new node IDs that should be selected
+
+    for match in optimalMatches {
+        // Only accept matches with high similarity scores
+        if match.similarity > PATCH_MATCHING_SIMILARITY_THRESHOLD {
+            // Store the position mapping: new node should use old node's position
+            if case .patch(let matchedPatchEntity) = match.oldNode.nodeTypeEntity {
+                nodePositionMappings[match.newNodeId] = matchedPatchEntity.canvasEntity.position
+                matchedNodeIds.insert(match.newNodeId)  // Track the NEW node ID
+
+                // If the old node was selected, mark the new node for selection
+                if inputs.previousSidebarSelection.contains(match.oldNode.id) {
+                    newNodesForSelectedOldNodes.insert(match.newNodeId)
+                }
+
+                log("Matched new patch node \(match.newNodeId) (\(match.newNodeType)) with existing \(match.oldNode.id) (\(match.oldNode.kind)), similarity \(match.similarity)")
+            }
+        }
+    }
+
+    // Apply preserved positions to matched patch nodes
+    var updatedPatchNodes = inputs.newPatchNodes
+    for i in 0..<updatedPatchNodes.count {
+        let nodeId = updatedPatchNodes[i].id
+        if let preservedPosition = nodePositionMappings[nodeId],
+           case .patch(var patchNodeEntity) = updatedPatchNodes[i].nodeTypeEntity {
+            patchNodeEntity.canvasEntity.position = preservedPosition
+            updatedPatchNodes[i].nodeTypeEntity = .patch(patchNodeEntity)
+            log("Applied preserved position \(preservedPosition) to node \(nodeId)")
+        }
+    }
+
+    // STEP 2: Apply similarity matching to layer nodes using one-to-one batch matching
+    // Extract new layer data for matching before creating them
+    let newLayerNodeData: [(UUID, PatchOrLayer)] = inputs.newLayerDataList.flatMap { layerData -> [(UUID, PatchOrLayer)] in
+        // Recursive function to extract all layer data including nested children
+        func extractLayerData(from data: AIGraphData_V0.LayerData) -> [(UUID, PatchOrLayer)] {
+            var results: [(UUID, PatchOrLayer)] = []
+
+            // Add current layer
+            if let layer = data.node_name.value.layer {
+                let layerId = UUID(data.node_id) ?? UUID()
+                results.append((layerId, PatchOrLayer.layer(layer)))
+            }
+
+            // Recursively add children
+            if let children = data.children {
+                for child in children {
+                    results.append(contentsOf: extractLayerData(from: child))
+                }
+            }
+
+            return results
+        }
+
+        return extractLayerData(from: layerData)
+    }
+
+    // Perform optimal one-to-one matching for layers
+    let optimalLayerMatches = matcher.findOptimalMatches(for: newLayerNodeData)
+    log("Found \(optimalLayerMatches.count) optimal layer matches for \(newLayerNodeData.count) new layer nodes")
+
+    // Process layer matches to build position mappings and selection mappings
+    var layerSidebarSelections = Set<UUID>()  // new layer IDs that should be selected
+    var layerCanvasItemPositions: [LayerCanvasItemCoordinate: CGPoint] = [:]
+
+    for match in optimalLayerMatches {
+        // Only accept matches with reasonable similarity scores
+        if match.similarity > LAYER_MATCHING_SIMILARITY_THRESHOLD {
+            // Store the position mapping: new layer should use old layer's position
+            if case .layer(let matchedLayerEntity) = match.oldNode.nodeTypeEntity {
+                log("📍 Capturing canvas positions for matched layer \(match.oldNode.id) -> \(match.newNodeId)")
+
+                // Capture canvas item positions using pure function
+                let capturedPositions = captureLayerCanvasItemPositions(
+                    from: matchedLayerEntity,
+                    forNewNodeId: match.newNodeId
+                )
+                layerCanvasItemPositions.merge(capturedPositions) { _, new in new }
+
+                matchedNodeIds.insert(match.newNodeId)  // Track the NEW layer ID for position skipping
+
+                log("📍 Total preserved positions for layer: \(capturedPositions.count)")
+
+                // If the old layer was selected, mark the new layer for selection
+                if inputs.previousSidebarSelection.contains(match.oldNode.id) {
+                    layerSidebarSelections.insert(match.newNodeId)
+                }
+
+                log("Matched new layer node \(match.newNodeId) (\(match.newNodeType)) with existing \(match.oldNode.id) (\(match.oldNode.kind)), similarity \(match.similarity)")
+            }
+        }
+    }
+
+    // Add layer selections to the overall selection set
+    newNodesForSelectedOldNodes.formUnion(layerSidebarSelections)
+
+    // Build ID mapping for sidebar creation: AI node_id -> matched UUID
+    var layerIdMapping: [String: UUID] = [:]
+
+    for match in optimalLayerMatches {
+        if match.similarity > LAYER_MATCHING_SIMILARITY_THRESHOLD {
+            // Find the AI node_id string that corresponds to this matched UUID
+            if let nodeId = findLayerNodeId(in: inputs.newLayerDataList, targetUUID: match.newNodeId) {
+                layerIdMapping[nodeId] = match.newNodeId
+            }
+        }
+    }
+
+    return NodeMatchingResults(
+        updatedPatchNodes: updatedPatchNodes,
+        matchedNodeIds: matchedNodeIds,
+        layerCanvasItemPositions: layerCanvasItemPositions,
+        newNodesForSelectedOldNodes: newNodesForSelectedOldNodes,
+        layerIdMapping: layerIdMapping
+    )
 }
