@@ -351,28 +351,12 @@ extension SwiftSyntaxActionsResult {
     
     @MainActor
     mutating func createAIGraph(document: StitchDocumentViewModel) {
-//        guard let aiManager = document.aiManager else {
-//            return
-//        }
-        
-//        let graph = document.visibleGraph
-//        let graphCenter = document.viewPortCenter
-//        let highestZIndex = document.visibleGraph.highestZIndex
+
         var viewStatePatchConnections = self.graphData.viewStatePatchConnections
         
         // Sync patch graph nodes in document before parsing layers, which may need data from there
         var graphEntity = document.graph.createSchema()
         graphEntity.nodes = self.graphData.patchNodes
-        
-        // Update topological data--needs to be forced here because of script building using this data
-//        document.graph.update(from: graphEntity)
-//        document.graph.updateGraphData(document)
-        
-        // Track node ID map to create new IDs, fixing ID reusage issue
-        // Make sure currently used IDs are tracked so we don't create redundant nodes
-//        var idMap = graphEntity.nodes.reduce(into: [String : UUID]()) { result, node in
-//            result.updateValue(node.id, forKey: node.id.description)
-//        }
         
         var nodesDict = graphEntity.nodes.reduce(into: [UUID: NodeEntity]()) { result, nodeEntity in
             result.updateValue(nodeEntity, forKey: nodeEntity.id)
@@ -392,107 +376,6 @@ extension SwiftSyntaxActionsResult {
         }
         
         graphEntity.orderedSidebarLayers = newSidebarData
-        
-        // Update sidebar view model data with new layer data
-//        graph.layersSidebarViewModel.update(from: newSidebarData)
-        
-        // new state for layers
-//        self.graphData.layer_data_list.allNestedCustomInputValues { layerNodeId, newInputValueSetting in
-//            do {
-//                let inputCoordinate = try NodeIOCoordinate(
-//                    from: .init(layer_id: layerNodeId,
-//                                input_port_type: newInputValueSetting.coordinate),
-//                    idMap: idMap)
-//                
-//                for valueResult in newInputValueSetting.inputData {
-//                    switch valueResult {
-//                    case .portData(let connectionType):
-//                        switch connectionType {
-//                        case .values(let values):
-//                            try document
-//                                .updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
-//                                                              valueType: value.value_type.value,
-//                                                              data: value.value,
-//                                                              idMap: &idMap)
-//                            
-//                        case .stateRef(let varName):
-//                            // Get upstream patch data from variable name
-//                            guard let upstreamPatchCoordinate = self.graphData.viewStatePatchConnections
-//                                .get(varName) else {
-//                                //                    fatalErrorIfDebug()
-//                                return
-//                            }
-//                            
-//                            let newEdgeData = PortEdgeData(from: .init(portId: upstreamPatchCoordinate.portId!,
-//                                                                       nodeId: upstreamPatchCoordinate.nodeId),
-//                                                           to: inputCoordinate)
-//                            
-//                            // create canvas node
-//                            guard let node = graph.getNode(upstreamPatchCoordinate.nodeId),
-//                                  let fromNodeLocation = node.nonLayerCanvasItem?.position,
-//                                  let destinationNode = document.visibleGraph.getNode(inputCoordinate.nodeId),
-//                                  let layerInputType = inputCoordinate.keyPath else {
-//                                throw SwiftUISyntaxError.layerEdgeDataFailure(varName)
-//                            }
-//                            
-//                            var position = fromNodeLocation
-//                            position.x += 200
-//                            
-//                            document.addCanvasLayerInput(node: destinationNode,
-//                                                         layerInputType: layerInputType,
-//                                                         draggedOutput: nil,
-//                                                         canvasHeightOffset: nil,
-//                                                         position: position)
-//                            
-//                            graph.addEdgeWithoutGraphRecalc(edge: newEdgeData)
-//                        }
-//                        
-//                    case .stateRefInViewEvent(let memberAccessData):
-//                        // TODO: come back here
-//                        fatalErrorIfDebug()
-//                    }
-//                }
-//                
-//            } catch let error as SwiftUISyntaxError {
-//                caughtErrors.append(error)
-//            } catch {
-//                fatalErrorIfDebug(error.localizedDescription)
-//            }
-//        }
-        
-        // new edges to downstream patches
-//        for newPatchEdge in self.graphData.patch_data.patch_connections {
-//            do {
-//                let inputPort = try NodeIOCoordinate(
-//                    from: newPatchEdge.dest_port,
-//                    idMap: idMap)
-//                let outputPort = try NodeIOCoordinate(
-//                    from: newPatchEdge.src_port,
-//                    idMap: idMap)
-//                let edge: PortEdgeData = PortEdgeData(
-//                    from: outputPort,
-//                    to: inputPort)
-//                
-//                let _ = document.visibleGraph.addEdgeWithoutGraphRecalc(edge: edge)
-//            } catch let error as SwiftUISyntaxError {
-//                caughtErrors.append(error)
-//            } catch {
-//                fatalErrorIfDebug(error.localizedDescription)
-//            }
-//        }
-        
-        // Delete unused nodes
-//        let allNewIds = self.graphData.patch_data.javascript_patches.map(\.node_id) +
-//        self.graphData.patch_data.native_patches.map(\.node_id) +
-//        self.graphData.layer_data_list.allFlattenedItems.map(\.node_id)
-//        
-//        let allNewMappedIds = allNewIds.compactMap { idMap.get($0) }
-//        let nodeIdsToDelete = Set(document.visibleGraph.nodes.keys).subtracting(allNewMappedIds)
-//
-//        for nodeIdToDelete in nodeIdsToDelete {
-//            document.visibleGraph.deleteNode(id: nodeIdToDelete,
-//                                             document: document)
-//        }
         
         // Can't build the depth map from the `patch_data`,
         // since those UUIDs have not been remapped yet
