@@ -12,43 +12,46 @@ enum AIPatchBuilderRequestError: Error {
 }
 
 /// Matches nodes from old graph to new graph based on similarity
-struct NodeSimilarityMatcher {
-    let oldNodes: [NodeViewModel]
-    let graph: GraphState
+struct NodeEntitySimilarityMatcher {
+    let oldNodes: [NodeEntity]
 
     /// Calculates similarity score between two nodes (0.0 to 1.0)
-    @MainActor
-    func calculateSimilarity(oldNode: NodeViewModel, newNodeType: PatchOrLayer, newInputValues: [CurrentAIGraphData.CustomPatchInputValue] = []) -> Double {
+    func calculateSimilarity(oldNode: NodeEntity, newNodeType: PatchOrLayer) -> Double {
         var score = 0.0
         var maxScore = 0.0
 
         // 1. Exact type match (highest weight: 3 points)
         maxScore += 3.0
-        if let oldPatch = oldNode.patch {
-            if case .patch(let newPatch) = newNodeType, oldPatch == newPatch {
+        switch oldNode.nodeTypeEntity {
+        case .patch(let patchNodeEntity):
+            if case .patch(let newPatch) = newNodeType, patchNodeEntity.patch == newPatch {
                 score += 3.0
             }
-        } else if let oldLayer = oldNode.kind.getLayer {
-            if case .layer(let newLayer) = newNodeType, oldLayer == newLayer {
+        case .layer(let layerNodeEntity):
+            if case .layer(let newLayer) = newNodeType, layerNodeEntity.layer == newLayer {
                 score += 3.0
             }
+        case .group:
+            // TODO: Handle group node similarity
+            break
+        case .component:
+            // TODO: Handle component node similarity
+            break
         }
 
         // 2. Input values match (medium-high weight: 2.5 points)
         maxScore += 2.5
         var inputMatchScore = 0.0
 
-        let oldInputs = oldNode.inputs
-        if !oldInputs.isEmpty {
+        let oldInputValues = extractInputValues(from: oldNode)
+        if !oldInputValues.isEmpty {
             var totalComparisons = 0
             var matchScore = 0.0
 
-            for (index, oldInputList) in oldInputs.enumerated() {
-                // Compare actual values in each input port
-                for oldValue in oldInputList {
+            for oldValueList in oldInputValues {
+                for _ in oldValueList {
                     totalComparisons += 1
-                    // TODO: When we have newInputValues available, we can directly compare:
-                    // if newValue == oldValue { matchScore += 1.0 }
+                    // TODO: When we have newInputValues available, we can directly compare values
                     // For now, give partial credit for having values
                     matchScore += 0.5 // Half credit for having a value
                 }
@@ -64,14 +67,7 @@ struct NodeSimilarityMatcher {
         maxScore += 2.0
         var connectionScore = 0.0
 
-        // Count upstream connections (inputs with connections)
-        let upstreamCount = oldNode.getAllInputsObservers().compactMap { input in
-            (input as? InputNodeRowObserver)?.upstreamOutputCoordinate
-        }.count
-
-        // Count downstream connections (outputs that likely have connections)
-        // Note: We can't directly check downstream from the node, but having outputs suggests connections
-        let downstreamPotential = oldNode.getAllOutputsObservers().count
+        let (upstreamCount, downstreamPotential) = extractConnectionCounts(from: oldNode)
 
         // Score based on connection complexity
         if upstreamCount > 0 || downstreamPotential > 0 {
@@ -83,8 +79,11 @@ struct NodeSimilarityMatcher {
 
         // 4. Node kind category match (low weight: 0.5 points)
         maxScore += 0.5
-        if (oldNode.patch != nil && newNodeType.isPatch) ||
-           (oldNode.kind.getLayer != nil && newNodeType.isLayer) {
+        let oldIsPatch = oldNode.nodeTypeEntity.patchNodeEntity != nil
+        let oldIsLayer = oldNode.nodeTypeEntity.layerNodeEntity != nil
+
+        if (oldIsPatch && newNodeType.isPatch) ||
+           (oldIsLayer && newNodeType.isLayer) {
             score += 0.5
         }
 
@@ -92,20 +91,8 @@ struct NodeSimilarityMatcher {
     }
 
     /// Finds the best matching existing node for a new node specification
-    @MainActor
-    func findBestMatch(for newNodeType: PatchOrLayer, newNodeId: String, idMap: [String: UUID]) -> NodeViewModel? {
-        // First check if we already have this ID mapped
-        if let existingId = idMap[newNodeId],
-           let existingNode = graph.nodes[existingId] {
-            // Check if the type is compatible
-            let similarity = calculateSimilarity(oldNode: existingNode, newNodeType: newNodeType)
-            if similarity > 0.7 { // High confidence threshold
-                return existingNode
-            }
-        }
-
-        // Otherwise, find best match among all old nodes
-        var bestMatch: NodeViewModel?
+    func findBestMatch(for newNodeType: PatchOrLayer) -> NodeEntity? {
+        var bestMatch: NodeEntity?
         var bestScore = 0.0
         let threshold = 0.5 // Minimum similarity threshold
 
@@ -118,6 +105,113 @@ struct NodeSimilarityMatcher {
         }
 
         return bestMatch
+    }
+
+    /// Extracts input values from a NodeEntity
+    private func extractInputValues(from node: NodeEntity) -> [[PortValue]] {
+        switch node.nodeTypeEntity {
+        case .patch(let patchNodeEntity):
+            return patchNodeEntity.inputs.compactMap { inputEntity in
+                switch inputEntity.portData {
+                case .values(let values):
+                    return values
+                case .upstreamConnection:
+                    return [] // Connected inputs don't have direct values
+                }
+            }
+        case .layer(let layerNodeEntity):
+            // Extract values from the main layer input ports
+            var allValues: [[PortValue]] = []
+
+            // Sample key ports for similarity analysis
+            // TODO: Should we check more layer inputs down the road?
+            let keyPorts = [
+                layerNodeEntity.positionPort,
+                layerNodeEntity.sizePort,
+                layerNodeEntity.colorPort,
+                layerNodeEntity.opacityPort,
+                layerNodeEntity.rotationZPort
+            ]
+
+            for port in keyPorts {
+                switch port.packedData.inputPort {
+                case .values(let values):
+                    allValues.append(values)
+                case .upstreamConnection:
+                    allValues.append([]) // Connected ports don't have direct values
+                }
+
+                // Also check unpacked data for loop connections
+                for unpackedData in port.unpackedData {
+                    switch unpackedData.inputPort {
+                    case .values(let values):
+                        allValues.append(values)
+                    case .upstreamConnection:
+                        allValues.append([])
+                    }
+                }
+            }
+
+            return allValues
+        case .group:
+            // TODO: Handle group node input extraction
+            return []
+        case .component:
+            // TODO: Handle component node input extraction
+            return []
+        }
+    }
+
+    /// Extracts connection counts from a NodeEntity
+    private func extractConnectionCounts(from node: NodeEntity) -> (upstream: Int, downstream: Int) {
+        switch node.nodeTypeEntity {
+        case .patch(let patchNodeEntity):
+            let upstreamCount = patchNodeEntity.inputs.reduce(0) { count, inputEntity in
+                switch inputEntity.portData {
+                case .upstreamConnection:
+                    return count + 1
+                case .values:
+                    return count
+                }
+            }
+            // For downstream, we estimate based on patch type's typical output count
+            // This is less precise than runtime analysis but gives a useful signal
+            let downstreamPotential = 1 // Most patches have at least one output
+            return (upstreamCount, downstreamPotential)
+        case .layer(let layerNodeEntity):
+            // Count upstream connections from layer input ports
+            let keyPorts = [
+                layerNodeEntity.positionPort,
+                layerNodeEntity.sizePort,
+                layerNodeEntity.colorPort,
+                layerNodeEntity.opacityPort,
+                layerNodeEntity.rotationZPort
+            ]
+
+            var upstreamCount = 0
+            for port in keyPorts {
+                // Check packed data
+                if case .upstreamConnection = port.packedData.inputPort {
+                    upstreamCount += 1
+                }
+
+                // Check unpacked data
+                for unpackedData in port.unpackedData {
+                    if case .upstreamConnection = unpackedData.inputPort {
+                        upstreamCount += 1
+                    }
+                }
+            }
+
+            // Layers typically have one visual output
+            return (upstreamCount, 1)
+        case .group:
+            // TODO: Handle group node connections
+            return (0, 0)
+        case .component:
+            // TODO: Handle component node connections
+            return (0, 0)
+        }
     }
 }
 
@@ -179,72 +273,72 @@ extension Array where Element == AIGraphData_V0.LayerData {
     }
 }
 
-//extension StitchDocumentViewModel {
-//    /// Recursively creates new sidebar layer data from AI result after creating nodes.
-//    @MainActor
-//    func createLayerNodeFromAI(newLayer: CurrentAIGraphData.LayerData,
-//                               existingGraph: GraphState,
-//                               idMap: inout [String : UUID]) throws {
-//        let newId = idMap.get(newLayer.node_id) ?? UUID(newLayer.node_id) ?? UUID()
-//        idMap.updateValue(newId, forKey: newLayer.node_id)
-//        idMap.updateValue(newId, forKey: newId.description)
-//        let graph = self.visibleGraph
-//        
-//        let migratedNodeName = try newLayer.node_name.value.convert(to: PatchOrLayer.self)
-//        let existingLayerNode = existingGraph.nodes.get(newId)
-//        let needsNewNodeCreation = existingLayerNode?.kind.getLayer != migratedNodeName.layer
-//        
-//        if needsNewNodeCreation {
-//            // Creates new layer node view model
-//            let newLayerNode = graph
-//                .createNode(graphTime: self.graphStepState.graphTime,
-//                            newNodeId: newId,
-//                            highestZIndex: graph.highestZIndex,
-//                            choice: migratedNodeName,
-//                            center: self.newCanvasItemInsertionLocation)
-//            
-//            graph.visibleNodesViewModel.nodes.updateValue(newLayerNode,
-//                                                          forKey: newLayerNode.id)
-//
-//            // Initialize delegates for later helpers (like edges)
-//            newLayerNode.initializeDelegate(graph: graph,
-//                                            document: self)
-//        }
-//        
-//        if let children = newLayer.children {
-//            for child in children {
-//                // Recursive call
-//                try self.createLayerNodeFromAI(newLayer: child,
-//                                               existingGraph: existingGraph,
-//                                               idMap: &idMap)
-//            }
-//        }
-//    }
-//    
-//    @MainActor
-//    func updateCustomInputValueFromAI(inputCoordinate: NodeIOCoordinate,
-//                                      valueType: AIGraphData_V0.NodeType,
-//                                      data: (any Codable & Sendable),
-//                                      idMap: inout [String : UUID]) throws {
-//        guard let inputObserver = graph.getInputObserver(coordinate: inputCoordinate) else {
-//            log("applyAction: could not apply setInput")
-//            // fatalErrorIfDebug()
-//            throw StitchAIStepHandlingError.actionValidationError("Could not retrieve input \(inputCoordinate)")
-//        }
-//        
-//        let graph = self.visibleGraph
-//        
-//        let value = try AIGraphData_V0.PortValue.decodeFromAI(data: data,
-//                                                       valueType: valueType,
-//                                                       idMap: &idMap)
-//        let migratedValue = try value.migrate()
-//        
-//        // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
-//        graph.inputEditCommitted(input: inputObserver,
-//                                 value: migratedValue,
-//                                 activeIndex: self.activeIndex)
-//    }
-//}
+extension StitchDocumentViewModel {
+    /// Recursively creates new sidebar layer data from AI result after creating nodes.
+    @MainActor
+    func createLayerNodeFromAI(newLayer: CurrentAIGraphData.LayerData,
+                               existingGraph: GraphState,
+                               idMap: inout [String : UUID]) throws {
+        let newId = idMap.get(newLayer.node_id) ?? UUID(newLayer.node_id) ?? UUID()
+        idMap.updateValue(newId, forKey: newLayer.node_id)
+        idMap.updateValue(newId, forKey: newId.description)
+        let graph = self.visibleGraph
+        
+        let migratedNodeName = try newLayer.node_name.value.convert(to: PatchOrLayer.self)
+        let existingLayerNode = existingGraph.nodes.get(newId)
+        let needsNewNodeCreation = existingLayerNode?.kind.getLayer != migratedNodeName.layer
+        
+        if needsNewNodeCreation {
+            // Creates new layer node view model
+            let newLayerNode = graph
+                .createNode(graphTime: self.graphStepState.graphTime,
+                            newNodeId: newId,
+                            highestZIndex: graph.highestZIndex,
+                            choice: migratedNodeName,
+                            center: self.newCanvasItemInsertionLocation)
+            
+            graph.visibleNodesViewModel.nodes.updateValue(newLayerNode,
+                                                          forKey: newLayerNode.id)
+
+            // Initialize delegates for later helpers (like edges)
+            newLayerNode.initializeDelegate(graph: graph,
+                                            document: self)
+        }
+        
+        if let children = newLayer.children {
+            for child in children {
+                // Recursive call
+                try self.createLayerNodeFromAI(newLayer: child,
+                                               existingGraph: existingGraph,
+                                               idMap: &idMap)
+            }
+        }
+    }
+    
+    @MainActor
+    func updateCustomInputValueFromAI(inputCoordinate: NodeIOCoordinate,
+                                      valueType: AIGraphData_V0.NodeType,
+                                      data: (any Codable & Sendable),
+                                      idMap: inout [String : UUID]) throws {
+        guard let inputObserver = graph.getInputObserver(coordinate: inputCoordinate) else {
+            log("applyAction: could not apply setInput")
+            // fatalErrorIfDebug()
+            throw StitchAIStepHandlingError.actionValidationError("Could not retrieve input \(inputCoordinate)")
+        }
+        
+        let graph = self.visibleGraph
+        
+        let value = try AIGraphData_V0.PortValue.decodeFromAI(data: data,
+                                                       valueType: valueType,
+                                                       idMap: &idMap)
+        let migratedValue = try value.migrate()
+        
+        // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
+        graph.inputEditCommitted(input: inputObserver,
+                                 value: migratedValue,
+                                 activeIndex: self.activeIndex)
+    }
+}
 
 extension SwiftSyntaxActionsResult {
     @MainActor
