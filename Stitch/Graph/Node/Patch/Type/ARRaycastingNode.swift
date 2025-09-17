@@ -105,15 +105,16 @@ func arRayCastingEval(node: PatchNode) -> EvalResult {
                 return [prevValue]
             }
             
-            let transform: StitchTransform = StitchTransform.init(positionX: Double(raycastResult.worldTransform.position.x),
-                                                                  positionY: Double(raycastResult.worldTransform.position.y),
-                                                                  positionZ: Double(raycastResult.worldTransform.position.z),
-                                                                  scaleX: Double(raycastResult.worldTransform.scale.x),
-                                                                  scaleY: Double(raycastResult.worldTransform.scale.y),
-                                                                  scaleZ: Double(raycastResult.worldTransform.scale.z), 
-                                                                  rotationX: Double(raycastResult.worldTransform.rotationInRadians.x),
-                                                                  rotationY: Double(raycastResult.worldTransform.rotationInRadians.y),
-                                                                  rotationZ: Double(raycastResult.worldTransform.rotationInRadians.z))
+            let transform: StitchTransform = StitchTransform.init(
+                positionX: Double(raycastResult.position.x),
+                positionY: Double(raycastResult.position.y),
+                positionZ: Double(raycastResult.position.z),
+                scaleX: Double(raycastResult.scale.x),
+                scaleY: Double(raycastResult.scale.y),
+                scaleZ: Double(raycastResult.scale.z),
+                rotationX: Double(raycastResult.rotationInRadians.x),
+                rotationY: Double(raycastResult.rotationInRadians.y),
+                rotationZ: Double(raycastResult.rotationInRadians.z))
             
             return [.transform(transform)]
         }

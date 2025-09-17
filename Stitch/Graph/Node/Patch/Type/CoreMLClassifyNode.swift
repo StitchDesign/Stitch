@@ -93,6 +93,11 @@ func coreMLClassifyEval(node: PatchNode) -> EvalResult {
     }
 }
 
+struct VisionClassificationResult {
+    let identifier: String
+    let confidence: VNConfidence
+}
+
 final actor ImageClassifierActor {
     private var result: VNClassificationObservation?
     
@@ -121,7 +126,7 @@ final actor ImageClassifierActor {
     }
     
     func visionClassificationRequest(for model: VNCoreMLModel,
-                                     with uiImage: UIImage) -> VNClassificationObservation? {
+                                     with uiImage: UIImage) -> VisionClassificationResult? {
         // Request handler object for image classification tasks
         let request = VNCoreMLRequest(model: model,
                                       completionHandler: imageClassification)
@@ -140,7 +145,10 @@ final actor ImageClassifierActor {
             fatalErrorIfDebug()
         }
         
-        return self.result
+        return self.result.map {
+            .init(identifier: $0.identifier,
+                  confidence: $0.confidence)
+        }
     }
 }
 
