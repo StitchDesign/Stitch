@@ -140,10 +140,16 @@ struct NodeEntitySimilarityMatcher {
         case .patch(let patchEntity):
             if case .patch(let newPatch) = newNodeType, patchEntity.patch == newPatch {
                 score += 3.0
+                Swift.print("    🎯 Patch type match: \\(patchEntity.patch) == \\(newPatch)")
+            } else if case .patch(let newPatch) = newNodeType {
+                Swift.print("    ❌ Patch type mismatch: \\(patchEntity.patch) != \\(newPatch)")
             }
         case .layer(let layerEntity):
             if case .layer(let newLayer) = newNodeType, layerEntity.layer == newLayer {
                 score += 3.0
+                Swift.print("    🎯 Layer type match: \\(layerEntity.layer) == \\(newLayer)")
+            } else if case .layer(let newLayer) = newNodeType {
+                Swift.print("    ❌ Layer type mismatch: \\(layerEntity.layer) != \\(newLayer)")
             }
         default:
             break
@@ -151,23 +157,53 @@ struct NodeEntitySimilarityMatcher {
 
         // 2. Input values match (medium-high weight: 2.5 points)
         maxScore += 2.5
-        // Use title as a proxy for similarity
-        if !oldNode.title.isEmpty && oldNode.title != "None" {
-            score += 1.25 // Half credit for having a meaningful title
+        var inputMatchScore = 0.0
+
+        if let vm = oldViewModel {
+            let oldInputs = vm.inputs
+            if !oldInputs.isEmpty {
+                var totalComparisons = 0
+                var matchScore = 0.0
+
+                for (index, oldInputList) in oldInputs.enumerated() {
+                    // Compare actual values in each input port
+                    for oldValue in oldInputList {
+                        totalComparisons += 1
+                        // TODO: When we have newInputValues available, we can directly compare:
+                        // if newValue == oldValue { matchScore += 1.0 }
+                        // For now, give partial credit for having values
+                        matchScore += 0.5 // Half credit for having a value
+                    }
+                }
+
+                if totalComparisons > 0 {
+                    inputMatchScore = 2.5 * (matchScore / Double(totalComparisons))
+                }
+                Swift.print("    🔢 Input analysis: \\(totalComparisons) values, partial score: \\(inputMatchScore)")
+            }
         }
+        score += inputMatchScore
 
         // 3. Connection pattern match (medium weight: 2 points)
         maxScore += 2.0
+        var connectionScore = 0.0
+
         if let vm = oldViewModel {
+            // Count upstream connections (inputs with connections)
             let upstreamCount = vm.getAllInputsObservers().compactMap { input in
                 (input as? InputNodeRowObserver)?.upstreamOutputCoordinate
             }.count
+
+            // Count downstream connections (outputs that likely have connections)
             let downstreamPotential = vm.getAllOutputsObservers().count
 
+            // Score based on connection complexity
             if upstreamCount > 0 || downstreamPotential > 0 {
-                score += 2.0 * min(1.0, Double(upstreamCount + downstreamPotential) / 10.0)
+                connectionScore = 2.0 * min(1.0, Double(upstreamCount + downstreamPotential) / 10.0)
+                Swift.print("    🔗 Connections: \\(upstreamCount) upstream, \\(downstreamPotential) downstream, score: \\(connectionScore)")
             }
         }
+        score += connectionScore
 
         // 4. Node kind category match (low weight: 0.5 points)
         maxScore += 0.5
@@ -176,7 +212,9 @@ struct NodeEntitySimilarityMatcher {
             score += 0.5
         }
 
-        return maxScore > 0 ? score / maxScore : 0.0
+        let finalScore = maxScore > 0 ? score / maxScore : 0.0
+        Swift.print("    📊 Similarity score: \\(score)/\\(maxScore) = \\(finalScore)")
+        return finalScore
     }
 
     @MainActor
@@ -200,7 +238,9 @@ struct NodeEntitySimilarityMatcher {
         var bestScore = 0.0
         let threshold = 0.5
 
+        Swift.print("  🔍 Checking \\(oldNodes.count) existing nodes for matches:")
         for (nodeId, oldNode) in oldNodes {
+            Swift.print("    Comparing with existing node: \\(nodeId)")
             let vm = oldNodeViewModels[nodeId]
             let score = calculateSimilarity(oldNode: oldNode,
                                            oldViewModel: vm,
@@ -208,7 +248,14 @@ struct NodeEntitySimilarityMatcher {
             if score > bestScore && score >= threshold {
                 bestScore = score
                 bestMatch = (oldNode, vm)
+                Swift.print("    ✅ New best match with score \\(score)")
             }
+        }
+
+        if let bestMatch = bestMatch {
+            Swift.print("  🎯 Best match found with score: \\(bestScore)")
+        } else {
+            Swift.print("  ❌ No match found above threshold \\(threshold)")
         }
 
         return bestMatch
@@ -361,8 +408,18 @@ extension SwiftSyntaxActionsResult {
         let existingNodeViewModels = existingGraph.nodes
 
         // Preserve sidebar and canvas selections
-        let preservedSidebarSelection = existingGraph.sidebarSelectionState.primary
+        let preservedSidebarSelection = existingGraph.layersSidebarViewModel.primary
+        let preservedLastFocused = existingGraph.layersSidebarViewModel.lastFocused
         let preservedCanvasSelection = existingGraph.selection.selectedCanvasItems
+
+        Swift.print("🔍 SIDEBAR SELECTION DEBUG:")
+        Swift.print("  Preserved sidebar selection: \(preservedSidebarSelection)")
+        Swift.print("  Preserved last focused: \(String(describing: preservedLastFocused))")
+        let existingLayerNodes = existingNodeEntities.values.filter { node in
+            if case .layer = node.nodeTypeEntity { return true }
+            return false
+        }.map(\.id)
+        Swift.print("  Existing layer nodes: \(existingLayerNodes)")
 
         // Create similarity matcher
         let matcher = NodeEntitySimilarityMatcher(oldNodes: existingNodeEntities,
@@ -418,8 +475,11 @@ extension SwiftSyntaxActionsResult {
             if let (matchedNode, _) = matcher.findBestMatch(for: layerOrPatch,
                                                            newNodeId: layerIdString,
                                                            idMap: idMap) {
+                Swift.print("  ✅ Found layer match: \(layer) -> \(matchedNode.id)")
                 finalNodeId = matchedNode.id
                 matchedOldNodeIds.insert(matchedNode.id)
+            } else {
+                Swift.print("  ❌ No layer match found for: \(layer) (id: \(layerIdString))")
             }
 
             // Update idMap
@@ -612,9 +672,30 @@ extension SwiftSyntaxActionsResult {
         document.graph.updateGraphData(document)
 
         // Restore selections after graph update
-        let preservedSidebar = preservedSidebarSelection
-        if matchedOldNodeIds.contains(preservedSidebar) {
-            document.visibleGraph.sidebarSelectionState.primary = preservedSidebar
+        Swift.print("🔍 SELECTION RESTORATION DEBUG:")
+        Swift.print("  Matched old node IDs: \(matchedOldNodeIds)")
+        Swift.print("  Preserved sidebar selection: \(preservedSidebarSelection)")
+
+        // Filter the preserved sidebar selections to only include matched nodes
+        let restoredSidebarSelection = preservedSidebarSelection.filter { sidebarItemId in
+            matchedOldNodeIds.contains(sidebarItemId)
+        }
+        Swift.print("  Restored sidebar selection: \(restoredSidebarSelection)")
+
+        if !restoredSidebarSelection.isEmpty {
+            document.visibleGraph.layersSidebarViewModel.primary = restoredSidebarSelection
+            Swift.print("  ✅ Restored sidebar selection: \(restoredSidebarSelection)")
+        } else {
+            Swift.print("  ❌ No sidebar selection to restore")
+        }
+
+        // Restore last focused if it was matched
+        if let preservedFocus = preservedLastFocused,
+           matchedOldNodeIds.contains(preservedFocus) {
+            document.visibleGraph.layersSidebarViewModel.lastFocused = preservedFocus
+            Swift.print("  ✅ Restored last focused: \(preservedFocus)")
+        } else {
+            Swift.print("  ❌ No last focused to restore")
         }
 
         if !preservedCanvasSelection.isEmpty {
