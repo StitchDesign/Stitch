@@ -135,7 +135,7 @@ extension LayerInputObserver {
             }
             
         case .anchoring:
-            if isPinned {
+            if isPinned || FeatureFlags.USE_SWIFTUI_IMPLEMENTATION {
                 blockFullInput()
             }
         
