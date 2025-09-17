@@ -228,32 +228,37 @@ extension Array where Element == NodeEntity {
     func positionAIGeneratedNodesDuringApply(
         viewPortCenter: CGPoint,
         graph: GraphReader,
-        matchedNodeIds: Set<UUID> = []
+        matchedNodeIds: Set<UUID> = [],
+        layerCanvasItemPositions: [String: CGPoint] = [:]
     ) -> Self {
+        Swift.print("🚀 positionAIGeneratedNodesDuringApply called with \(self.count) nodes, \(matchedNodeIds.count) matched nodes, \(layerCanvasItemPositions.count) preserved positions")
+        Swift.print("🚀 Matched node IDs: \(matchedNodeIds)")
+        Swift.print("🚀 Preserved position keys: \(layerCanvasItemPositions.keys)")
+
         // TODO: if we have a chain of nodes, shift our starting point further west
         //    var viewPortCenter = viewPortCenter
         //    viewPortCenter.x -= 500 // We actually shift left a little bit, so nodes look like they're crawling from left to right
-        
+
         // Horizontal spacing between depth‑columns
         let horizontalPadding: CGFloat = 120.0
         
         let (depthMap, hasCycle) = Stitch.calculateAINodesAdjacency(nodes: self) // patchData.calculateAINodesAdjacency()
         
         guard let depthMap = depthMap else {
-            log("DID NOT HAVE A depthMap")
+            log("positionAIGeneratedNodesDuringApply: DID NOT HAVE A depthMap")
             return self
         }
         
         guard !hasCycle else {
-            log("HAD A CYCLE for depthMap \(depthMap)")
+            log("positionAIGeneratedNodesDuringApply: HAD A CYCLE for depthMap \(depthMap)")
             return self
         }
         
-        log("positionAIGeneratedNodes: depthMap: \(depthMap)")
+        log("positionAIGeneratedNodesDuringApply: depthMap: \(depthMap)")
         
         guard !depthMap.isEmpty else {
             //        fatalErrorIfDebug("Depth-map should never be empty")
-            log("Depth-map should never be empty") // can be empty if we have no nodes
+            log("positionAIGeneratedNodesDuringApply: Depth-map should never be empty") // can be empty if we have no nodes
             return self
         }
         
@@ -286,7 +291,7 @@ extension Array where Element == NodeEntity {
         // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
         let updatedNodes = depthLevels.flatMap { depthLevel -> [NodeEntity] in
             
-            log("on depthLevel: \(depthLevel)")
+            log("positionAIGeneratedNodesDuringApply: on depthLevel: \(depthLevel)")
             
             // ───────── vertical layout helpers ─────────
             let verticalPadding: CGFloat = 80.0
@@ -315,16 +320,20 @@ extension Array where Element == NodeEntity {
                     return self.getNode($0)
                 }
                 // THIS JUST MEANS WE COULD NOT FIND THE NODE AT THIS LEVEL
-                // log("positionAIGeneratedNodes: Could not get depth level for \($0.debugFriendlyId)")
+                 log("positionAIGeneratedNodesDuringApply: Could not get depth level for \($0.debugFriendlyId)")
                 return nil
             }
             
             return createdNodesAtThisLevel.map { createdNode in
                 var createdNode = createdNode
 
-                // Skip positioning for matched nodes - they keep their original positions
-                if matchedNodeIds.contains(createdNode.id) {
-                    Swift.print("Skipping positioning for matched node \(createdNode.id)")
+                Swift.print("positionAIGeneratedNodesDuringApply: on createdNode \(createdNode.id) \(createdNode.kind)")
+
+                let isNodeMatched = matchedNodeIds.contains(createdNode.id)
+
+                // Skip positioning for matched PATCH nodes only - layer nodes need canvas item handling
+                if isNodeMatched && createdNode.nodeTypeEntity.patchNodeEntity != nil {
+                    Swift.print("⏭️ Skipping positioning for matched patch node \(createdNode.id)")
                     return createdNode
                 }
                 
@@ -344,7 +353,7 @@ extension Array where Element == NodeEntity {
                     rowIndexForDepth += 1
                     
                     // log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
-                    log("positionAIGeneratedNodes: newPosition: \(newPosition)")
+                    log("positionAIGeneratedNodesDuringApply: newPosition: \(newPosition)")
                     return newPosition
                 }
 
@@ -356,35 +365,60 @@ extension Array where Element == NodeEntity {
                     createdNode.nodeTypeEntity = .patch(patchNode)
                     
                 case .layer(var layerNodeEntity):
+                    let isLayerMatched = matchedNodeIds.contains(createdNode.id)
+                    Swift.print("🎯 Processing layer \(createdNode.id), matched: \(isLayerMatched)")
+
                     for inputDefinition in layerNodeEntity.layer.layerGraphNode.inputDefinitions {
                         let inputDefinition = inputDefinition
                         var portData = layerNodeEntity[keyPath: inputDefinition.schemaPortKeyPath]
-                        
+
                         switch portData.mode {
                         case .packed:
                             if var canvas = portData.packedData.canvasItem {
-                                canvas.position = updateCanvasPosition(.layerInput(.init(node: createdNode.id,
-                                                                                         keyPath: .init(layerInput: inputDefinition, portType: .packed))))
-                                
+                                let key = "\(createdNode.id):\(inputDefinition):packed"
+                                log("positionAIGeneratedNodesDuringApply: packed: key: \(key)")
+
+                                if isLayerMatched, let preservedPosition = layerCanvasItemPositions[key] {
+                                    Swift.print("  ♻️ Restoring packed position for \(inputDefinition): \(preservedPosition)")
+                                    canvas.position = preservedPosition
+                                } else {
+                                    let newPosition = updateCanvasPosition(.layerInput(.init(node: createdNode.id,
+                                                                                             keyPath: .init(layerInput: inputDefinition, portType: .packed))))
+                                    Swift.print( "  🆕 New packed position for \(inputDefinition): \(newPosition)")
+                                    canvas.position = newPosition
+                                }
+
                                 portData.packedData.canvasItem = canvas
                             }
-                            
+
                         case .unpacked:
                             portData.unpackedData = portData.unpackedData
                                 .enumerated()
                                 .map { (portId, unpackedData) in
                                     var unpackedData = unpackedData
-                                    unpackedData.canvasItem?.position = updateCanvasPosition(
-                                        .layerInput(.init(node: createdNode.id,
-                                                          keyPath: .init(layerInput: inputDefinition, portType: .unpacked(.init(rawValue: portId)!))))
-                                        )
+                                    if var canvas = unpackedData.canvasItem {
+                                        let key = "\(createdNode.id):\(inputDefinition):unpacked-\(portId)"
+
+                                        if isLayerMatched, let preservedPosition = layerCanvasItemPositions[key] {
+                                            Swift.print("  ♻️ Restoring unpacked[\(portId)] position for \(inputDefinition): \(preservedPosition)")
+                                            canvas.position = preservedPosition
+                                        } else {
+                                            let newPosition = updateCanvasPosition(
+                                                .layerInput(.init(node: createdNode.id,
+                                                                  keyPath: .init(layerInput: inputDefinition, portType: .unpacked(portId.asUnpackedPortType))))
+                                            )
+                                            Swift.print("  🆕 New unpacked[\(portId)] position for \(inputDefinition): \(newPosition)")
+                                            canvas.position = newPosition
+                                        }
+                                        unpackedData.canvasItem = canvas
+                                    }
                                     return unpackedData
                                 }
                         }
-                        
+
                         layerNodeEntity[keyPath: inputDefinition.schemaPortKeyPath] = portData
                     }
-                    
+
                     createdNode.nodeTypeEntity = .layer(layerNodeEntity)
                 
                 case .group(var canvasEntity):

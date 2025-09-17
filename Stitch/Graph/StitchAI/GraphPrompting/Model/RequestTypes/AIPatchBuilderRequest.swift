@@ -497,15 +497,40 @@ extension SwiftSyntaxActionsResult {
         // Process layer matches to build position mappings and selection mappings
         var layerPositionMappings: [UUID: CGPoint] = [:]  // new layer ID -> old position
         var layerSidebarSelections = Set<UUID>()  // new layer IDs that should be selected
+        var layerCanvasItemPositions: [String: CGPoint] = [:]  // "nodeId:port:mode" -> position
 
         for match in optimalLayerMatches {
             // Only accept matches with reasonable similarity scores
             if match.similarity > 0.5 {
                 // Store the position mapping: new layer should use old layer's position
                 if case .layer(let matchedLayerEntity) = match.oldNode.nodeTypeEntity {
-                    // Extract position from layer node - layers don't have a direct canvas entity like patches
-                    // We'll capture their position during the creation process
+                    Swift.print("📍 Capturing canvas positions for matched layer \(match.oldNode.id) -> \(match.newNodeId)")
+
+                    // Iterate through all layer inputs to find canvas items
+                    for inputDefinition in matchedLayerEntity.layer.layerGraphNode.inputDefinitions {
+                        let portData = matchedLayerEntity[keyPath: inputDefinition.schemaPortKeyPath]
+
+                        // Check packed canvas items
+                        if let canvasItem = portData.packedData.canvasItem {
+                            let key = "\(match.newNodeId):\(inputDefinition):packed"
+                            layerCanvasItemPositions[key] = canvasItem.position
+                            Swift.print("  ✅ Captured packed canvas for port \(inputDefinition): position \(canvasItem.position)")
+                        }
+
+                        // Check unpacked canvas items
+                        for (index, unpackedData) in portData.unpackedData.enumerated() {
+                            if let canvasItem = unpackedData.canvasItem {
+                                let key = "\(match.newNodeId):\(inputDefinition):unpacked-\(index)"
+                                layerCanvasItemPositions[key] = canvasItem.position
+                                Swift.print("  ✅ Captured unpacked[\(index)] canvas for port \(inputDefinition): position \(canvasItem.position)")
+                            }
+                        }
+                    }
+
                     matchedNodeIds.insert(match.newNodeId)  // Track the NEW layer ID for position skipping
+
+                    let capturedCount = layerCanvasItemPositions.filter { $0.key.hasPrefix(match.newNodeId.uuidString) }.count
+                    Swift.print("📍 Total preserved positions for layer: \(capturedCount)")
 
                     // If the old layer was selected, mark the new layer for selection
                     if previousSidebarSelection.contains(match.oldNode.id) {
@@ -574,7 +599,8 @@ extension SwiftSyntaxActionsResult {
         let repositionedNodes = graphEntity.nodes.positionAIGeneratedNodesDuringApply(
             viewPortCenter: document.viewPortCenter,
             graph: document.visibleGraph,
-            matchedNodeIds: matchedNodeIds)
+            matchedNodeIds: matchedNodeIds,
+            layerCanvasItemPositions: layerCanvasItemPositions)
         graphEntity.nodes = repositionedNodes
         
         // Make group Id map current context
