@@ -436,7 +436,7 @@ extension SwiftSyntaxActionsResult {
 
         for match in optimalMatches {
             // Only accept matches with high similarity scores
-            if match.similarity > 0.7 {
+            if match.similarity > 0.5 {
                 // Store the position mapping: new node should use old node's position
                 if case .patch(let matchedPatchEntity) = match.oldNode.nodeTypeEntity {
                     nodePositionMappings[match.newNodeId] = matchedPatchEntity.canvasEntity.position
