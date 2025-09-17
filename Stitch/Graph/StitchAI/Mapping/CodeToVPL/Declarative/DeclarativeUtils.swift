@@ -321,6 +321,42 @@ extension MemberAccessExprSyntax {
         default: return nil
         }
     }
+    
+    var mostNestedBaseName: String {
+        if let nestedMember = self.base?.as(MemberAccessExprSyntax.self) {
+            return nestedMember.mostNestedBaseName
+        }
+        
+        if let decl = self.base?.as(DeclReferenceExprSyntax.self) {
+            return decl.baseName.trimmedDescription
+        }
+        
+        return self.base?.trimmedDescription ?? self.trimmedDescription
+    }
+    
+    func dropInnermostBase() -> MemberAccessExprSyntax {
+        guard let memberBase = self.base?.as(MemberAccessExprSyntax.self) else {
+            return self
+        }
+        
+        // make the decl the new base to omit the prefix
+        var newSelf = self
+        newSelf.base = ExprSyntax(memberBase.declName)
+        return newSelf
+    }
+    
+    /// Returns patch data needed for supporting a reference to a view event.
+    func createConnectedPatchData(viewEvent: SyntaxViewEvent,
+                                  varName: String?,
+                                  nodesDict: [UUID: NodeEntity]) -> [PatchSyntaxResultType] {
+        // Drop the argument portion of the argument
+        let trimmedMemberAccess = self.dropInnermostBase()
+        
+        return viewEvent
+            .createConnectedPatchData(gestureArg: trimmedMemberAccess,
+                                      varName: varName,
+                                      nodesDict: nodesDict)
+    }
 }
 
 // ---------------------------------------------------------------

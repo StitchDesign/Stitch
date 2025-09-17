@@ -47,18 +47,40 @@ extension NodeEntity {
         }
     }
     
+    @MainActor
+    var canvasIds: [CanvasItemId] {
+        switch self.nodeTypeEntity {
+        case .patch(let patch):
+            return [.node(patch.id)]
+        case .layer(let layer):
+            return layer.layer.layerGraphNode.inputDefinitions.flatMap {
+                layer[keyPath: $0.schemaPortKeyPath].getCanvasIds(nodeId: self.id,
+                                                                  layerInputPort: $0)
+            }
+        case .group(let canvas):
+            return [.node(self.id)]
+        case .component:
+            return []
+        }
+    }
+    
     /// Helper for mutating all canvas entities under some node.
     @MainActor
-    func canvasEntityMap(_ callback: @escaping (CanvasNodeEntity) -> CanvasNodeEntity) -> NodeEntity {
+    func canvasEntityMap(_ callback: @escaping (CanvasNodeEntity) -> CanvasNodeEntity) -> Self {
+        var node = self
+        node.canvasEntityMutator(callback)
+        return node
+    }
     
-        var nodeEntity = self
+    /// Helper for mutating all canvas entities under some node.
+    @MainActor
+    mutating func canvasEntityMutator(_ callback: @escaping (CanvasNodeEntity) -> CanvasNodeEntity) {
         
-        switch nodeEntity.nodeTypeEntity {
+        switch self.nodeTypeEntity {
         
         case .patch(var patch):
             patch.canvasEntity = callback(patch.canvasEntity)
-            nodeEntity.nodeTypeEntity = .patch(patch)
-            return nodeEntity
+            self.nodeTypeEntity = .patch(patch)
             
         case .layer(var layer):
             layer.layer.layerGraphNode.inputDefinitions.forEach { layerInput in
@@ -74,20 +96,17 @@ extension NodeEntity {
                 
                 layer[keyPath: layerInput.schemaPortKeyPath] = inputPortSchema
             }
-            nodeEntity.nodeTypeEntity = .layer(layer)
-            return nodeEntity
+            self.nodeTypeEntity = .layer(layer)
             
         case .group(let canvas):
             let newCanvas = callback(canvas)
-            nodeEntity.nodeTypeEntity = .group(newCanvas)
-            return nodeEntity
+            self.nodeTypeEntity = .group(newCanvas)
         
         case .component(let component):
             var component = component
             let newCanvas = callback(component.canvasEntity)
             component.canvasEntity = newCanvas
-            nodeEntity.nodeTypeEntity = .component(component)
-            return nodeEntity
+            self.nodeTypeEntity = .component(component)
         }
     }
     
@@ -100,17 +119,35 @@ extension NodeEntity {
         }
     }
     
-    @MainActor
     var inputs: [NodeConnectionType] {
-        switch self.nodeTypeEntity {
-        case .patch(let patch):
-            return patch.inputs.map { $0.portData }
-        case .layer(let layer):
-            return layer.layer.layerGraphNode.inputDefinitions.flatMap {
-                layer[keyPath: $0.schemaPortKeyPath].inputConnections
+        get {
+            switch self.nodeTypeEntity {
+            case .patch(let patch):
+                return patch.inputs.map { $0.portData }
+            case .layer(let layer):
+                return layer.layer.layerGraphNode.inputDefinitions.flatMap {
+                    layer[keyPath: $0.schemaPortKeyPath].inputConnections
+                }
+            case .group, .component:
+                return []
             }
-        case .group, .component:
-            return []
+        }
+        set(newValues) {
+            switch self.nodeTypeEntity {
+            case .patch(var patch):
+                patch.inputs = zip(newValues, patch.inputs).map { newValue, currentInputData in
+                    var currentInputData = currentInputData
+                    currentInputData.portData = newValue
+                    return currentInputData
+                }
+                self.nodeTypeEntity = .patch(patch)
+            
+            case .layer:
+                fatalErrorIfDebug("Unimplemented but can be done...")
+                return
+            case .group, .component:
+                return
+            }
         }
     }
 }

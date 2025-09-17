@@ -11,12 +11,12 @@ import SwiftUI
 enum AIGraphData_V0 {
     typealias NodeKind = NodeKind_V33.NodeKind
     
-    struct GraphData: Codable {
+    struct GraphData {
         let layer_data_list: [LayerData]
-        let patch_data: PatchData
+        let patchNodes: [NodeEntity]
 
         // Maps upstream patch output coordinate to some new created @State var name
-        let viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]
+        let viewStatePatchConnections: [String : NodeIOCoordinate]
     }
     
     struct GraphDataSchema: Encodable {
@@ -28,11 +28,11 @@ enum AIGraphData_V0 {
     }
     
     struct PatchData: Codable {
-        let javascript_patches: [AIGraphData_V0.PreprocessedJSPatchNode]
-        let native_patches: [AIGraphData_V0.PatchNode]
-        let native_patch_value_type_settings: [AIGraphData_V0.NativePatchNodeValueTypeSetting]
-        let patch_connections: [PatchConnection]
-        let custom_patch_input_values: [CustomPatchInputValue]
+        var javascript_patches: [AIGraphData_V0.PreprocessedJSPatchNode]
+        var native_patches: [AIGraphData_V0.PatchNode]
+        var native_patch_value_type_settings: [AIGraphData_V0.NativePatchNodeValueTypeSetting]
+        var patch_connections: [PatchConnection]
+        var custom_patch_input_values: [CustomPatchInputValue]
     
         // All connections are captured by patch data regardless of patch or layer
 //        let layer_connections: [LayerConnection]
@@ -44,7 +44,7 @@ enum AIGraphData_V0 {
         let node_name: StitchAIPatchOrLayer
         var children: [LayerData]?
         var custom_layer_input_values: [LayerPortDerivation] = []
-        var view_events: [LayerDataViewEvent] = []
+        var view_events: [SwiftPatchViewEvent]?
     }
     
     struct PreprocessedJSPatchNode: Codable {
@@ -250,85 +250,43 @@ extension AIGraphData_V0.CustomPatchInputValue {
     }
 }
 
-extension AIGraphData_V0.LayerData: Codable {
-    enum CodingKeys: String, CodingKey {
-        case node_id
-        case suggested_title
-        case node_name
-        case children
-        case custom_layer_input_values
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(node_id, forKey: .node_id)
-        try container.encode(node_name, forKey: .node_name)
-        try container.encode(custom_layer_input_values, forKey: .custom_layer_input_values)
-        
-        try container.encodeIfPresent(suggested_title, forKey: .suggested_title)
-        
-        // Only encode children if group layer
-        try container.encodeIfPresent(children, forKey: .children)
-    }
-    
-    init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        node_id = try container.decode(String.self, forKey: .node_id)
-        suggested_title = try container.decodeIfPresent(String.self, forKey: .suggested_title)
-        node_name = try container.decode(AIGraphData_V0.StitchAIPatchOrLayer.self, forKey: .node_name)
-        
-        if let children = try container.decodeIfPresent([Self].self, forKey: .children) {
-            self.children = children
-        } else {
-            // Make sure we have an empty list if layer is a group
-            if node_name.value == .layer(.group) || node_name.value == .layer(.realityView) {
-                self.children = []
-            }
-        }
-    }
-}
-
-extension LayerPortDerivation: Encodable {
-    enum CodingKeys: String, CodingKey {
-        case coordinate
-        case value
-        case value_type
-        case state_ref
-    }
-    
+//extension AIGraphData_V0.LayerData: Codable {
+//    enum CodingKeys: String, CodingKey {
+//        case node_id
+//        case suggested_title
+//        case node_name
+//        case children
+//        case custom_layer_input_values
+//    }
+//    
+//    func encode(to encoder: Encoder) throws {
+//        var container = encoder.container(keyedBy: CodingKeys.self)
+//        try container.encode(node_id, forKey: .node_id)
+//        try container.encode(node_name, forKey: .node_name)
+//        try container.encode(custom_layer_input_values, forKey: .custom_layer_input_values)
+//        
+//        try container.encodeIfPresent(suggested_title, forKey: .suggested_title)
+//        
+//        // Only encode children if group layer
+//        try container.encodeIfPresent(children, forKey: .children)
+//    }
+//    
 //    init(from decoder: any Decoder) throws {
 //        let container = try decoder.container(keyedBy: CodingKeys.self)
-//        self.coordinate = try container
-//            .decode(CurrentAIGraphData.LayerInputType.self,
-//                    forKey: .coordinate)
+//        node_id = try container.decode(String.self, forKey: .node_id)
+//        suggested_title = try container.decodeIfPresent(String.self, forKey: .suggested_title)
+//        node_name = try container.decode(AIGraphData_V0.StitchAIPatchOrLayer.self, forKey: .node_name)
 //        
-//        let nodeType = try container.decode(AIGraphData_V0.StitchAINodeType.self, forKey: .value_type)
-//        
-//        // Parse value given node type
-//        let portValueType = nodeType.value.portValueTypeForStitchAI
-//        
-//        self.value_type = nodeType
-//        self.value = try container.decode(portValueType, forKey: .value)
+//        if let children = try container.decodeIfPresent([Self].self, forKey: .children) {
+//            self.children = children
+//        } else {
+//            // Make sure we have an empty list if layer is a group
+//            if node_name.value == .layer(.group) || node_name.value == .layer(.realityView) {
+//                self.children = []
+//            }
+//        }
 //    }
-    
-    func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(coordinate, forKey: .coordinate)
-        
-        switch self.inputData {
-        case .value(let value):
-            // Encodes values in manner that produces friendly printable result
-            try AIGraphData_V0.PortValue.encodeFromAI(container: &container,
-                                                      valueData: value.value,
-                                                      valueType: value.value_type,
-                                                      valueKey: .value,
-                                                      valueTypeKey: .value_type)
-
-        case .stateRef(let refName):
-            try container.encode(refName, forKey: .state_ref)
-        }
-    }
-}
+//}
 
 // TODO: move
 extension AIGraphData_V0.PortValue {
@@ -384,29 +342,30 @@ extension AIGraphData_V0.PortValue {
     }
 }
 
-extension Array where Element == AIGraphData_V0.LayerData {
-    func allNestedCustomInputValues(callback: (String, LayerPortDerivation) -> ()) {
-        for layerData in self {
-            for customInputValue in layerData.custom_layer_input_values {
-                callback(layerData.node_id, customInputValue)
-            }
-            
-            layerData.children?.allNestedCustomInputValues(callback: callback)
-        }
-    }
-}
+//extension Array where Element == AIGraphData_V0.LayerData {
+//    func allNestedCustomInputValues(callback: (String, LayerPortDerivation) -> ()) {
+//        for layerData in self {
+//            for customInputValue in layerData.custom_layer_input_values {
+//                callback(layerData.node_id, customInputValue)
+//            }
+//            
+//            layerData.children?.allNestedCustomInputValues(callback: callback)
+//        }
+//    }
+//}
 
 extension AIGraphData_V0.LayerData {
-    func createSidebarLayerData(idMap: [String : UUID]) throws -> SidebarLayerData {
-        guard let newId = idMap.get(self.node_id) else {
-            throw SwiftUISyntaxError.viewNodeNotFound
+    func createSidebarLayerData(idMapping: [String: UUID] = [:]) -> SidebarLayerData {
+        let children = self.children?.map {
+            $0.createSidebarLayerData(idMapping: idMapping)
         }
-        
-        let children = try self.children?.map {
-            try $0.createSidebarLayerData(idMap: idMap)
-        }
-        
-        return SidebarLayerData(id: newId,
+
+        assertInDebug(UUID(self.node_id) != nil)
+
+        // Use mapped ID if available, otherwise use original ID from AI data
+        let finalId = idMapping[self.node_id] ?? UUID(self.node_id) ?? UUID()
+
+        return SidebarLayerData(id: finalId,
                                 children: children)
     }
 }
