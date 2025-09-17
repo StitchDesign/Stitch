@@ -468,25 +468,15 @@ extension SwiftSyntaxActionsResult {
             let node = finalNodes[i]
             if matchedOldNodeIds.contains(node.id),
                let existingViewModel = existingNodeViewModels[node.id],
-               let canvasItem = existingViewModel.canvasItemViewModels.first {
+               let canvasItem = existingViewModel.nonLayerCanvasItem {
                 // Preserve the position from the existing node
-                // Preserve the position by using canvasEntityMutator
+                // Only handle patch nodes for now (not layer canvas items)
                 if var patchEntity = node.nodeTypeEntity.patchNodeEntity {
                     patchEntity.canvasEntity.position = canvasItem.position
                     patchEntity.canvasEntity.zIndex = canvasItem.zIndex
                     finalNodes[i] = NodeEntity(id: node.id,
                                               nodeTypeEntity: .patch(patchEntity),
                                               title: node.title)
-                } else if case .layer(var layerEntity) = node.nodeTypeEntity {
-                    if let layerCanvas = layerEntity.canvasEntity {
-                        var updatedCanvas = layerCanvas
-                        updatedCanvas.position = canvasItem.position
-                        updatedCanvas.zIndex = canvasItem.zIndex
-                        layerEntity.canvasEntity = updatedCanvas
-                        finalNodes[i] = NodeEntity(id: node.id,
-                                                  nodeTypeEntity: .layer(layerEntity),
-                                                  title: node.title)
-                    }
                 }
             }
         }
@@ -590,14 +580,14 @@ extension SwiftSyntaxActionsResult {
 //            }
 //        }
         
-        // Delete only truly unmatched nodes (commented out for now to avoid deletion issues)
-        // let allNewNodeIds = Set(nodesDict.keys)
-        // let nodeIdsToDelete = Set(existingNodeEntities.keys).subtracting(allNewNodeIds)
-        //
-        // for nodeIdToDelete in nodeIdsToDelete {
-        //     document.visibleGraph.deleteNode(id: nodeIdToDelete,
-        //                                    document: document)
-        // }
+        // Delete only truly unmatched nodes
+        let allNewNodeIds = Set(nodesDict.keys)
+        let nodeIdsToDelete = Set(existingNodeEntities.keys).subtracting(allNewNodeIds)
+
+        for nodeIdToDelete in nodeIdsToDelete {
+            document.visibleGraph.deleteNode(id: nodeIdToDelete,
+                                           document: document)
+        }
         
         // Can't build the depth map from the `patch_data`,
         // since those UUIDs have not been remapped yet
