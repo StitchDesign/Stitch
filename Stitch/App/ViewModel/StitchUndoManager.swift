@@ -18,8 +18,9 @@ struct UndoFileEffects {
 
 /// The class used for managing undo operations.
 /// Note that `registerUndo` requires the parent object to be a class here.
+@MainActor
 final class StitchUndoManager: MiddlewareService, Sendable {
-    let undoManager = UndoManager()
+    @MainActor let undoManager = UndoManager()
 }
 
 extension UndoManager: @unchecked @retroactive Sendable { }

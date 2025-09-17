@@ -72,7 +72,7 @@ final class StitchARView: NSObject {
     func makeRaycast(alignmentType: ARRaycastQuery.TargetAlignment,
                      center: CGPoint,
                      x: Float,
-                     y: Float) -> ARRaycastResult? {
+                     y: Float) -> simd_float4x4? {
         let newPoint = CGPoint(x: center.x + CGFloat(x), y: center.y + CGFloat(y))
 
         let results = self.arView.raycast(from: newPoint,
@@ -80,7 +80,7 @@ final class StitchARView: NSObject {
                                           allowing: .estimatedPlane,
                                           alignment: alignmentType)
 
-        return results.first
+        return results.first?.worldTransform
     }
 }
 

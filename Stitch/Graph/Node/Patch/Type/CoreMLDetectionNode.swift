@@ -96,7 +96,7 @@ func coreMLDetectionEval(node: PatchNode) -> EvalResult {
                     return defaultOutputs
                 }
                 
-                let results: [VNRecognizedObjectObservation] = await mediaObserver.coreMlActor
+                let results: [VisionDetectionResult] = await mediaObserver.coreMlActor
                     .visionDetectionRequest(for: model,
                                             with: image,
                                             vnImageCropOption: cropAndScaleOption)
@@ -112,7 +112,7 @@ func coreMLDetectionEval(node: PatchNode) -> EvalResult {
                 
                 let imageSize = image.size
                 
-                results.forEach { (result: VNRecognizedObjectObservation) in
+                results.forEach { (result: VisionDetectionResult) in
                     if let mostConfidentLabel = result.labels.mostConfidentLabel() {
                         
                         labelsOutputLoop.append(mostConfidentLabel.identifier)
@@ -147,6 +147,10 @@ func coreMLDetectionEval(node: PatchNode) -> EvalResult {
                                                       node: node)
 }
 
+struct VisionDetectionResult {
+    let labels: [VNClassificationObservation]
+    let boundingBox: CGRect
+}
 
 final actor VisionOpActor {
     private var results: [VNRecognizedObjectObservation] = []
@@ -172,7 +176,7 @@ final actor VisionOpActor {
     
     func visionDetectionRequest(for model: VNCoreMLModel,
                                 with uiImage: UIImage,
-                                vnImageCropOption: VNImageCropAndScaleOption) -> [VNRecognizedObjectObservation] {
+                                vnImageCropOption: VNImageCropAndScaleOption) -> [VisionDetectionResult] {
         // Request handler object for object detection tasks
         let request = VNCoreMLRequest(model: model,
                                       completionHandler: self.visionRequestHandler)
@@ -199,7 +203,8 @@ final actor VisionOpActor {
             log("mlModelSideEffect error: failed to perform object detection.\n\(error.localizedDescription)")
         }
 
-        return self.results
+        return self.results.map { .init(labels: $0.labels,
+                                        boundingBox: $0.boundingBox) }
     }
 }
 
