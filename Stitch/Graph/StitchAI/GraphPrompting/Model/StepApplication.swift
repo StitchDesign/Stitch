@@ -219,6 +219,77 @@ extension StitchDocumentViewModel {
     }
 }
 
+// MARK: - Pure Functions for Layer Canvas Item Restoration
+
+/// Restores canvas item positions for a layer node from preserved position data
+/// - Parameters:
+///   - layerNodeEntity: The layer node to update (modified in place)
+///   - nodeId: The node's UUID for coordinate matching
+///   - preservedPositions: Previously captured canvas item positions
+///   - updateCanvasPosition: Closure to apply new positions to canvas items
+private func restoreLayerCanvasItemPositions(
+    in layerNodeEntity: inout LayerNodeEntity,
+    nodeId: UUID,
+    preservedPositions: [LayerCanvasItemCoordinate: CGPoint],
+    updateCanvasPosition: (CanvasItemId) -> CGPoint
+) {
+    for inputDefinition in layerNodeEntity.layer.layerGraphNode.inputDefinitions {
+        var portData = layerNodeEntity[keyPath: inputDefinition.schemaPortKeyPath]
+
+        switch portData.mode {
+        case .packed:
+            if var canvas = portData.packedData.canvasItem {
+                let coordinate = LayerCanvasItemCoordinate(
+                    nodeId: nodeId,
+                    port: inputDefinition,
+                    mode: .packed
+                )
+
+                if let preservedPosition = preservedPositions[coordinate] {
+                    log("  ♻️ Restoring packed position for \(inputDefinition): \(preservedPosition)")
+                    canvas.position = preservedPosition
+                } else {
+                    let newPosition = updateCanvasPosition(.layerInput(.init(
+                        node: nodeId,
+                        keyPath: .init(layerInput: inputDefinition, portType: .packed)
+                    )))
+                    log("  🆕 New packed position for \(inputDefinition): \(newPosition)")
+                    canvas.position = newPosition
+                }
+                portData.packedData.canvasItem = canvas
+            }
+
+        case .unpacked:
+            portData.unpackedData = portData.unpackedData.enumerated().map { (index, unpackedData) in
+                var unpackedData = unpackedData
+                if var canvas = unpackedData.canvasItem {
+                    let coordinate = LayerCanvasItemCoordinate(
+                        nodeId: nodeId,
+                        port: inputDefinition,
+                        mode: .unpacked(index: index)
+                    )
+
+                    if let preservedPosition = preservedPositions[coordinate] {
+                        log("  ♻️ Restoring unpacked[\(index)] position for \(inputDefinition): \(preservedPosition)")
+                        canvas.position = preservedPosition
+                    } else {
+                        let newPosition = updateCanvasPosition(.layerInput(.init(
+                            node: nodeId,
+                            keyPath: .init(layerInput: inputDefinition, portType: .unpacked(index.asUnpackedPortType))
+                        )))
+                        log("  🆕 New unpacked[\(index)] position for \(inputDefinition): \(newPosition)")
+                        canvas.position = newPosition
+                    }
+                    unpackedData.canvasItem = canvas
+                }
+                return unpackedData
+            }
+        }
+
+        layerNodeEntity[keyPath: inputDefinition.schemaPortKeyPath] = portData
+    }
+}
+
 extension Array where Element == NodeEntity {
     func getNode(_ id: UUID) -> NodeEntity? {
         self.first { $0.id == id }
@@ -227,32 +298,38 @@ extension Array where Element == NodeEntity {
     @MainActor
     func positionAIGeneratedNodesDuringApply(
         viewPortCenter: CGPoint,
-        graph: GraphReader
+        graph: GraphReader,
+        matchedNodeIds: Set<UUID> = [],
+        layerCanvasItemPositions: [LayerCanvasItemCoordinate: CGPoint] = [:]
     ) -> Self {
+        log("🚀 positionAIGeneratedNodesDuringApply called with \(self.count) nodes, \(matchedNodeIds.count) matched nodes, \(layerCanvasItemPositions.count) preserved positions")
+        log("🚀 Matched node IDs: \(matchedNodeIds)")
+        log("🚀 Preserved position coordinates: \(layerCanvasItemPositions.keys.map(\.id))")
+
         // TODO: if we have a chain of nodes, shift our starting point further west
         //    var viewPortCenter = viewPortCenter
         //    viewPortCenter.x -= 500 // We actually shift left a little bit, so nodes look like they're crawling from left to right
-        
+
         // Horizontal spacing between depth‑columns
         let horizontalPadding: CGFloat = 120.0
         
         let (depthMap, hasCycle) = Stitch.calculateAINodesAdjacency(nodes: self) // patchData.calculateAINodesAdjacency()
         
         guard let depthMap = depthMap else {
-            log("DID NOT HAVE A depthMap")
+            log("positionAIGeneratedNodesDuringApply: DID NOT HAVE A depthMap")
             return self
         }
         
         guard !hasCycle else {
-            log("HAD A CYCLE for depthMap \(depthMap)")
+            log("positionAIGeneratedNodesDuringApply: HAD A CYCLE for depthMap \(depthMap)")
             return self
         }
         
-        log("positionAIGeneratedNodes: depthMap: \(depthMap)")
+        log("positionAIGeneratedNodesDuringApply: depthMap: \(depthMap)")
         
         guard !depthMap.isEmpty else {
             //        fatalErrorIfDebug("Depth-map should never be empty")
-            log("Depth-map should never be empty") // can be empty if we have no nodes
+            log("positionAIGeneratedNodesDuringApply: Depth-map should never be empty") // can be empty if we have no nodes
             return self
         }
         
@@ -281,11 +358,16 @@ extension Array where Element == NodeEntity {
             cumulativeXOffset[depth] = runningX
             runningX += columnWidths[depth] ?? 0
         }
-        
+
+        // Calculate centering offset to position the middle of the chain at viewport center
+        let totalChainWidth = runningX
+        let centeringOffset = -totalChainWidth / 2.0
+        log("🎯 Chain centering: totalWidth=\(totalChainWidth), centeringOffset=\(centeringOffset)")
+
         // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
         let updatedNodes = depthLevels.flatMap { depthLevel -> [NodeEntity] in
             
-            log("on depthLevel: \(depthLevel)")
+            log("positionAIGeneratedNodesDuringApply: on depthLevel: \(depthLevel)")
             
             // ───────── vertical layout helpers ─────────
             let verticalPadding: CGFloat = 80.0
@@ -314,12 +396,22 @@ extension Array where Element == NodeEntity {
                     return self.getNode($0)
                 }
                 // THIS JUST MEANS WE COULD NOT FIND THE NODE AT THIS LEVEL
-                // log("positionAIGeneratedNodes: Could not get depth level for \($0.debugFriendlyId)")
+                 log("positionAIGeneratedNodesDuringApply: Could not get depth level for \($0.debugFriendlyId)")
                 return nil
             }
             
             return createdNodesAtThisLevel.map { createdNode in
                 var createdNode = createdNode
+
+                log("positionAIGeneratedNodesDuringApply: on createdNode \(createdNode.id) \(createdNode.kind)")
+
+                let isNodeMatched = matchedNodeIds.contains(createdNode.id)
+
+                // Skip positioning for matched PATCH nodes only - layer nodes need canvas item handling
+                if isNodeMatched && createdNode.nodeTypeEntity.patchNodeEntity != nil {
+                    log("⏭️ Skipping positioning for matched patch node \(createdNode.id)")
+                    return createdNode
+                }
                 
                 let updateCanvasPosition = { (canvasId: CanvasItemId) -> CGPoint in
                     var size: CGSize = canvasId
@@ -331,13 +423,13 @@ extension Array where Element == NodeEntity {
                     size.width += horizontalPadding
                     
                     let newPosition = CGPoint(
-                        x: viewPortCenter.x + (cumulativeXOffset[depthLevel] ?? 0),
+                        x: viewPortCenter.x + centeringOffset + (cumulativeXOffset[depthLevel] ?? 0),
                         y: viewPortCenter.y + CGFloat(rowIndexForDepth) * rowHeight
                     )
                     rowIndexForDepth += 1
                     
                     // log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
-                    log("positionAIGeneratedNodes: newPosition: \(newPosition)")
+                    log("positionAIGeneratedNodesDuringApply: newPosition: \(newPosition)")
                     return newPosition
                 }
 
@@ -349,35 +441,17 @@ extension Array where Element == NodeEntity {
                     createdNode.nodeTypeEntity = .patch(patchNode)
                     
                 case .layer(var layerNodeEntity):
-                    for inputDefinition in layerNodeEntity.layer.layerGraphNode.inputDefinitions {
-                        let inputDefinition = inputDefinition
-                        var portData = layerNodeEntity[keyPath: inputDefinition.schemaPortKeyPath]
-                        
-                        switch portData.mode {
-                        case .packed:
-                            if var canvas = portData.packedData.canvasItem {
-                                canvas.position = updateCanvasPosition(.layerInput(.init(node: createdNode.id,
-                                                                                         keyPath: .init(layerInput: inputDefinition, portType: .packed))))
-                                
-                                portData.packedData.canvasItem = canvas
-                            }
-                            
-                        case .unpacked:
-                            portData.unpackedData = portData.unpackedData
-                                .enumerated()
-                                .map { (portId, unpackedData) in
-                                    var unpackedData = unpackedData
-                                    unpackedData.canvasItem?.position = updateCanvasPosition(
-                                        .layerInput(.init(node: createdNode.id,
-                                                          keyPath: .init(layerInput: inputDefinition, portType: .unpacked(.init(rawValue: portId)!))))
-                                        )
-                                    return unpackedData
-                                }
-                        }
-                        
-                        layerNodeEntity[keyPath: inputDefinition.schemaPortKeyPath] = portData
-                    }
-                    
+                    let isLayerMatched = matchedNodeIds.contains(createdNode.id)
+                    log("🎯 Processing layer \(createdNode.id), matched: \(isLayerMatched)")
+
+                    // Use pure function to restore canvas item positions
+                    restoreLayerCanvasItemPositions(
+                        in: &layerNodeEntity,
+                        nodeId: createdNode.id,
+                        preservedPositions: layerCanvasItemPositions,
+                        updateCanvasPosition: updateCanvasPosition
+                    )
+
                     createdNode.nodeTypeEntity = .layer(layerNodeEntity)
                 
                 case .group(var canvasEntity):
