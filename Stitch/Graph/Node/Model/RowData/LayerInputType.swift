@@ -1657,30 +1657,6 @@ extension LayerInputEntity {
         }
     }
     
-    func getCanvasIds(nodeId: UUID,
-                      layerInputPort: LayerInputPort) -> [CanvasItemId] {
-        switch self.mode {
-        case .packed:
-            if self.packedData.canvasItem != nil {
-                return [.layerInput(.init(node: nodeId,
-                                          keyPath: .init(layerInput: layerInputPort,
-                                                         portType: .packed)))]
-            }
-            
-            return []
-        case .unpacked:
-            return self.unpackedData.enumerated().compactMap { index, unpackedData in
-                if unpackedData.canvasItem != nil {
-                    return .layerInput(.init(node: nodeId,
-                                             keyPath: .init(layerInput: layerInputPort,
-                                                            portType: .unpacked(.init(rawValue: index)!))))
-                }
-                
-                return nil
-            }
-        }
-    }
-    
     var inputConnections: [NodeConnectionType] {
         switch self.mode {
         case .packed:

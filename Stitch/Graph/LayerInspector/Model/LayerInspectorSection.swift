@@ -261,6 +261,7 @@ extension LayerInspectorSection {
         }
     }
     
+    @MainActor
     static let shadow: [LayerInputPort] = [
         .shadowColor,
         .shadowOpacity,
@@ -268,6 +269,7 @@ extension LayerInspectorSection {
         .shadowOffset
     ]
     
+    @MainActor
     func displaysOnTabbing(layer: Layer) -> Bool {
         switch self {
         case .sizing, .positioning, .common, .pinning:

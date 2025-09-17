@@ -145,6 +145,7 @@ extension GraphState {
 
 extension Patch {
     /// Refers to input ports whose types change given a conditional node value type. Returns nil if the node doesn't support type changing.
+    @MainActor
     var nonStaticTypedInputPorts: Set<Int>? {
         let patchNodeDefinition = self.graphNode
         guard let defaultType = patchNodeDefinition.defaultUserVisibleType else {
@@ -182,15 +183,13 @@ extension SwiftParserPatchData {
         
         // Determine node type by examining upstream node
         if checkForValueTypeHere {
-            fatalError("deleting this fn")
-            
-//           if let upstreamValueType = upstreamCoordinate
-//            .determineOutputNodeValueType(nativePatchNodes: nativePatchNodes,
-//                                          nativePatchValueTypeSettings: nativePatchValueTypeSettings) {
-//               nativePatchValueTypeSettings.updateValue(.init(node_id: upstreamCoordinate.node_id,
-//                                                              value_type: .init(value: upstreamValueType)) ,
-//                                                        forKey: upstreamCoordinate.node_id)
-//           }
+           if let upstreamValueType = upstreamCoordinate
+            .determineOutputNodeValueType(nativePatchNodes: nativePatchNodes,
+                                          nativePatchValueTypeSettings: nativePatchValueTypeSettings) {
+               nativePatchValueTypeSettings.updateValue(.init(node_id: upstreamCoordinate.node_id,
+                                                              value_type: .init(value: upstreamValueType)) ,
+                                                        forKey: upstreamCoordinate.node_id)
+           }
         }
         
         // Create connection data

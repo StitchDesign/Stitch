@@ -51,9 +51,6 @@ extension PortValue {
             return x
         case .number(let x):
             return .number(x)
-        case .string(let x):
-            let layerDimension = LayerDimension.parseFromString(x.string)
-            return layerDimension
         default: return nil
         }
     }
