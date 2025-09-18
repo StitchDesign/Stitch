@@ -1399,21 +1399,55 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
         
         case .connectionToLayerInput(let stateName):
             // Get upstream patch data from variable name
-            guard let upstreamPatchCoordinate = stateVarConnections
-                .get(stateName)?.first,
+            guard let upstreamPatchCoordinates = stateVarConnections
+                .get(stateName),
                   let layerInputCoordinate = layerInputCoordinate else {
                 fatalErrorIfDebug()
                 return
             }
             
-            // Recursively call with extrapolated upstream patch data
-            let event = PatchSyntaxResultType.connection(.init(from: upstreamPatchCoordinate,
-                                                               to: layerInputCoordinate))
-            return self
-                .updateWithEventData(event,
-                                     layerInputCoordinate: layerInputCoordinate,
-                                     varName: stateName,
-                                     stateVarConnections: &stateVarConnections)
+            // Multiple upstream coordinates means an unpacking scenario
+            if upstreamPatchCoordinates.count > 1 {
+                upstreamPatchCoordinates.enumerated().forEach { index, upstreamPatchCoordinate in
+                    var layerInputCoordinate = layerInputCoordinate
+                    guard let unapckedPortType = UnpackedPortType(rawValue: index),
+                          var layerKeyPath = layerInputCoordinate.keyPath else {
+                        fatalErrorIfDebug()
+                        return
+                    }
+                    
+                    layerKeyPath.portType = .unpacked(unapckedPortType)
+                    layerInputCoordinate = .init(portType: .keyPath(layerKeyPath),
+                                                 nodeId: layerInputCoordinate.nodeId)
+                    
+                    // Recursively call with extrapolated upstream patch data
+                    let event = PatchSyntaxResultType.connection(.init(from: upstreamPatchCoordinate,
+                                                                       to: layerInputCoordinate))
+                    return self
+                        .updateWithEventData(event,
+                                             layerInputCoordinate: layerInputCoordinate,
+                                             varName: stateName,
+                                             stateVarConnections: &stateVarConnections)
+                }
+            }
+            
+            // Packed scenario
+            else {
+                guard let upstreamPatchCoordinate = upstreamPatchCoordinates.first else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                // Recursively call with extrapolated upstream patch data
+                let event = PatchSyntaxResultType.connection(.init(from: upstreamPatchCoordinate,
+                                                                   to: layerInputCoordinate))
+                return self
+                    .updateWithEventData(event,
+                                         layerInputCoordinate: layerInputCoordinate,
+                                         varName: stateName,
+                                         stateVarConnections: &stateVarConnections)
+            }
+            
         case .portValues(let data):
             guard var nodeEntity = self.get(data.inputCoordinate.nodeId) else {
                 fatalErrorIfDebug()
