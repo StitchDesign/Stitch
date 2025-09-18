@@ -478,9 +478,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
             
             guard let pvDescription = array.first else {
                 fatalErrorIfDebug()
-                return [
-                    .portData(.values([.number(.zero)]))
-                ]
+                return []
             }
             
             return try pvDescription.derivePortValues(viewEvent: viewEvent)
@@ -814,12 +812,38 @@ extension SwiftPatchClosureType {
     }
 }
 
+struct PatchSyntaxNodeResult {
+    let id: UUID
+    let kind: NodeKind
+    var nodeType: NodeType?
+}
+
+struct PatchSyntaxPortValuesResult {
+    let inputCoordinate: NodeIOCoordinate
+    let values: PortValues
+}
+
+struct PatchSyntaxJSResult {
+    let id: UUID
+    let settings: JavaScriptNodeSettings
+}
+
 // TODO: move
 enum PatchSyntaxResultType {
-    case node(NodeEntity)
+    // Refrain from NodeEntity because we don't want to create a dupe later and overwrite data
+    case node(PatchSyntaxNodeResult)
+    
+    // Port value settings for a node's input
+    case portValues(PatchSyntaxPortValuesResult)
+    
+    // Used when code instantiates a reference or value to some patch node with an index
     case portData(NodeConnectionType)
+    
     case connection(PortEdgeData)
+    
     case connectionToLayerInput(String)
+    
+    case jsSettings(PatchSyntaxJSResult)
 }
 
 extension PatchSyntaxResultType {
@@ -834,7 +858,13 @@ extension PatchSyntaxResultType {
     }
     
     var portValues: [PortValue]? {
-        self.portData?.values
+        switch self {
+        case .portValues(let result):
+            return result.values
+            
+        default:
+            return nil
+        }
     }
     
     var value: PortValue? {
@@ -866,8 +896,10 @@ extension SwiftPatchNodeCode {
                                                 nodesDict: nodesDict,
                                                 jsSettings: jsSettings)
         
+        let nodeResults = node.nodeTypeEntity.patchNodeEntity?.createAIPatchSyntaxResults() ?? []
+        
         var actionsList = portData.otherData
-        actionsList.append(.node(node))
+        actionsList += nodeResults
         return actionsList
     }
 }
@@ -988,6 +1020,66 @@ extension Patch {
                               nodeTypeEntity: .patch(patchNodeEntity),
                               title: jsSettings?.suggestedTitle ?? "")
         return node
+    }
+}
+
+extension PatchNodeEntity {
+    func createAIPatchSyntaxResults() -> [PatchSyntaxResultType] {
+        let nodeResult: [PatchSyntaxResultType] = [
+            .node(.init(id: self.id,
+                        kind: .patch(self.patch),
+                        nodeType: self.userVisibleType)),
+        ]
+        
+        let inputResults: [PatchSyntaxResultType] = self.inputs.enumerated().map { portId, portData in
+            switch portData.portData {
+            case .values(let values):
+                return .portValues(.init(inputCoordinate: .init(portId: portId,
+                                                                nodeId: self.id),
+                                         values: values))
+                
+            case .upstreamConnection(let upstreamCoordinate):
+                return .connection(.init(from: upstreamCoordinate,
+                                         to: .init(portId: portId,
+                                                   nodeId: self.id)))
+            }
+        }
+        
+        let jsSettings: [PatchSyntaxResultType] = self.javaScriptNodeSettings != nil ? [
+            .jsSettings(.init(id: self.id,
+                              settings: self.javaScriptNodeSettings!))
+        ] : []
+        
+        return nodeResult + inputResults + jsSettings
+    }
+}
+
+extension NodeEntity {
+    mutating func updateInputData(_ portData: NodeConnectionType, at index: NodeIOCoordinate) {
+        switch self.nodeTypeEntity {
+        case .patch(var patchNode):
+            guard let portId = index.portId,
+                  var inputData = patchNode.inputs[safe: portId] else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            inputData.portData = portData
+            patchNode.inputs[portId] = inputData
+            self.nodeTypeEntity = .patch(patchNode)
+            
+        case .layer(var layerNode):
+            guard let layerInputType = index.layerInput else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            layerNode.updateInputData(portData, at: layerInputType)
+            self.nodeTypeEntity = .layer(layerNode)
+            
+        default:
+            fatalErrorIfDebug()
+        }
     }
 }
 
@@ -1211,9 +1303,19 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
                                       varName: String?,
                                       stateVarConnections: inout [String: NodeIOCoordinate]) {
         switch event {
-        case .node(let nodeEntity):
-            self.updateValue(nodeEntity,
-                             forKey: nodeEntity.id)
+        case .node(let nodeResult):
+            switch nodeResult.kind {
+            case .patch(let patch):
+                let nodeEntity = patch
+                    .defaultNodeEntity(nodeId: nodeResult.id,
+                                       nodesDict: self)
+                
+                self.updateValue(nodeEntity,
+                                 forKey: nodeEntity.id)
+                
+            default:
+                fatalErrorIfDebug("not yet supported")
+            }
             
         case .portData(let portData):
             switch portData {
@@ -1297,6 +1399,34 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
                                      layerInputCoordinate: layerInputCoordinate,
                                      varName: stateName,
                                      stateVarConnections: &stateVarConnections)
+        case .portValues(let data):
+            guard var nodeEntity = self.get(data.inputCoordinate.nodeId) else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            nodeEntity.updateInputData(.values(data.values),
+                                       at: data.inputCoordinate)
+            self.updateValue(nodeEntity, forKey: nodeEntity.id)
+            
+        case .jsSettings(let data):
+            guard var nodeEntity = self.get(data.id),
+                  let patchNode = nodeEntity.patchNodeEntity else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            let newPatchNode = PatchNodeEntity(id: patchNode.id,
+                                               patch: patchNode.patch,
+                                               inputs: patchNode.inputs,
+                                               canvasEntity: patchNode.canvasEntity,
+                                               userVisibleType: patchNode.userVisibleType,
+                                               splitterNode: patchNode.splitterNode,
+                                               mathExpression: patchNode.mathExpression,
+                                               javaScriptNodeSettings: data.settings)
+                
+            nodeEntity.nodeTypeEntity = .patch(newPatchNode)
+            self.updateValue(nodeEntity, forKey: nodeEntity.id)
         }
     }
 }
