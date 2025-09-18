@@ -86,7 +86,8 @@ func makeClaudeStreamingRequest(
                         "type": "base64",
                         "media_type": "image/jpeg",
                         "data": imageData
-                    ]
+                    ],
+                    "cache_control": ["type": "ephemeral", "ttl": "1h"] // Cache the image data for reuse
                 ]
             ]
         ]]
