@@ -1352,6 +1352,9 @@ extension Dictionary where Key == String, Value == [NodeIOCoordinate] {
 }
 
 extension Dictionary where Key == UUID, Value == NodeEntity {
+    
+    // TODO: state var connections would be updated here, take copied code and set breakpoints
+    
     mutating func updateWithEventData(_ event: PatchSyntaxResultType,
                                       layerInputCoordinate: NodeIOCoordinate?,
                                       varName: String?,

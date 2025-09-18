@@ -334,9 +334,9 @@ extension MemberAccessExprSyntax {
         return self.base?.trimmedDescription ?? self.trimmedDescription
     }
     
-    func dropInnermostBase() -> MemberAccessExprSyntax {
+    func dropInnermostBase() -> ExprSyntaxProtocol {
         guard let memberBase = self.base?.as(MemberAccessExprSyntax.self) else {
-            return self
+            return self.declName
         }
         
         // make the decl the new base to omit the prefix

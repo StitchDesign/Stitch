@@ -88,7 +88,7 @@ extension Patch {
 
 extension SyntaxViewEvent {
     /// Determines the connections and intermediary patch nodes to be created between an interaction patch node and some state.
-    func createConnectedPatchData(gestureArg: MemberAccessExprSyntax?,
+    func createConnectedPatchData(gestureArg: ExprSyntaxProtocol?,
                                   varName: String?) -> [PatchSyntaxResultType] {
         let assignedLayerPortValue = PortValue
             .assignedLayer(.init(self.layerId))
@@ -108,12 +108,10 @@ extension SyntaxViewEvent {
                                                        kind: .patch(.dragInteraction))
             
             // Packed case: arg == "translation" or "position"
-            if gestureArg.trimmedDescription == "translation" || gestureArg.trimmedDescription == "position" {
+            if let declrGestureArg = gestureArg.as(DeclReferenceExprSyntax.self),
+               declrGestureArg.trimmedDescription == "translation" || declrGestureArg.trimmedDescription == "position" {
                 // position = 0th port, translation = 2nd port
                 let outputPortIndex = gestureArg.trimmedDescription == "position" ? 0 : 2
-                
-                // Determine event for receiver of gesture data
-                let gestureReceiverEvent: PatchSyntaxResultType
                 
                 let patchOutput = NodeIOCoordinate(portId: outputPortIndex,
                                                    nodeId: self.interactionPatchNodeId)
@@ -131,11 +129,12 @@ extension SyntaxViewEvent {
                 return results
             }
             
-            guard let prefixValue = gestureArg.base?.trimmedDescription else {
+            guard let memberGestureArg = gestureArg.as(MemberAccessExprSyntax.self),
+                  let prefixValue = memberGestureArg.base?.trimmedDescription else {
                 return []
             }
                         
-            let suffixValue = gestureArg.declName.trimmedDescription
+            let suffixValue = memberGestureArg.declName.trimmedDescription
             let outputPortIndex = prefixValue == "position" ? 0 : 2
             
             // Determine event for receiver of gesture data
