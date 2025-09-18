@@ -12,6 +12,173 @@ import SwiftSyntax
 import SwiftParser
 import StitchSchemaKit
 
+// MARK: - SwiftSyntaxActionsResult Formatting
+
+/// Formats a SwiftSyntaxActionsResult into a readable string representation for display
+func formatSwiftSyntaxActionsResult(_ result: SwiftSyntaxActionsResult?, indent: String = "") -> String {
+    guard let result = result else { return "nil" }
+
+    var output = "\(indent)SwiftSyntaxActionsResult(\n"
+
+    // Format GraphData
+    output += "\(indent)  graphData: GraphData(\n"
+    output += "\(indent)    layer_data_list: [\n"
+
+    for (index, layer) in result.graphData.layer_data_list.enumerated() {
+        output += formatLayerData(layer, indent: indent + "      ")
+        if index < result.graphData.layer_data_list.count - 1 {
+            output += ","
+        }
+        output += "\n"
+    }
+
+    output += "\(indent)    ],\n"
+    output += "\(indent)    patchNodes: [\n"
+
+    for (index, patch) in result.graphData.patchNodes.enumerated() {
+        output += "\(indent)      \(patch.id.uuidString.prefix(8))... (\(patch.nodeTypeEntity))"
+        if index < result.graphData.patchNodes.count - 1 {
+            output += ","
+        }
+        output += "\n"
+    }
+
+    output += "\(indent)    ],\n"
+    output += "\(indent)    viewStatePatchConnections: \(result.graphData.viewStatePatchConnections.isEmpty ? "[:]" : "[\(result.graphData.viewStatePatchConnections.count) connections]")\n"
+    output += "\(indent)  ),\n"
+
+    // Format caught errors
+    output += "\(indent)  caughtErrors: [\n"
+    for (index, error) in result.caughtErrors.enumerated() {
+        output += "\(indent)    \(error)"
+        if index < result.caughtErrors.count - 1 {
+            output += ","
+        }
+        output += "\n"
+    }
+    output += "\(indent)  ]\n"
+    output += "\(indent))"
+
+    return output
+}
+
+/// Formats a LayerData into a readable string representation
+func formatLayerData(_ layer: CurrentAIGraphData.LayerData, indent: String = "") -> String {
+    var output = "\(indent)LayerData(\n"
+    output += "\(indent)  node_id: \"\(layer.node_id.prefix(8))...\",\n"
+    output += "\(indent)  suggested_title: \(layer.suggested_title?.description ?? "nil"),\n"
+    output += "\(indent)  node_name: .\(layer.node_name.value),\n"
+
+    if let children = layer.children, !children.isEmpty {
+        output += "\(indent)  children: [\n"
+        for (index, child) in children.enumerated() {
+            output += formatLayerData(child, indent: indent + "    ")
+            if index < children.count - 1 {
+                output += ","
+            }
+            output += "\n"
+        }
+        output += "\(indent)  ],\n"
+    } else {
+        output += "\(indent)  children: nil,\n"
+    }
+
+    if !layer.custom_layer_input_values.isEmpty {
+        output += "\(indent)  custom_layer_input_values: [\n"
+        for (index, inputValue) in layer.custom_layer_input_values.enumerated() {
+            output += formatLayerPortDerivation(inputValue, indent: indent + "    ")
+            if index < layer.custom_layer_input_values.count - 1 {
+                output += ","
+            }
+            output += "\n"
+        }
+        output += "\(indent)  ],\n"
+    } else {
+        output += "\(indent)  custom_layer_input_values: [],\n"
+    }
+
+    output += "\(indent)  view_events: \(layer.view_events?.description ?? "nil")\n"
+    output += "\(indent))"
+
+    return output
+}
+
+/// Formats a LayerPortDerivation into a readable string representation
+func formatLayerPortDerivation(_ derivation: LayerPortDerivation, indent: String = "") -> String {
+    var output = "\(indent)LayerPortDerivation(\n"
+    output += "\(indent)  coordinate: LayerInputType(\n"
+    output += "\(indent)    layerInput: .\(derivation.coordinate.layerInput),\n"
+    output += "\(indent)    portType: .\(derivation.coordinate.portType)\n"
+    output += "\(indent)  ),\n"
+    output += "\(indent)  inputData: [\n"
+
+    for (index, data) in derivation.inputData.enumerated() {
+        output += formatPatchSyntaxResultType(data, indent: indent + "    ")
+        if index < derivation.inputData.count - 1 {
+            output += ","
+        }
+        output += "\n"
+    }
+
+    output += "\(indent)  ]\n"
+    output += "\(indent))"
+
+    return output
+}
+
+/// Formats a PatchSyntaxResultType into a readable string representation
+func formatPatchSyntaxResultType(_ type: PatchSyntaxResultType, indent: String = "") -> String {
+    switch type {
+    case .node(let nodeResult):
+        return "\(indent).node(\(nodeResult))"
+    case .portValues(let portValuesResult):
+        return "\(indent).portValues(\(portValuesResult))"
+    case .portData(let connectionType):
+        return "\(indent).portData(\(formatNodeConnectionType(connectionType)))"
+    case .connection(let edgeData):
+        return "\(indent).connection(\(edgeData))"
+    case .connectionToLayerInput(let layerInput):
+        return "\(indent).connectionToLayerInput(\"\(layerInput)\")"
+    case .stateWrite(let stateName, let coordinate):
+        return "\(indent).stateWrite(\"\(stateName)\", \(coordinate))"
+    case .jsSettings(let jsResult):
+        return "\(indent).jsSettings(\(jsResult))"
+    }
+}
+
+/// Formats a NodeConnectionType into a readable string representation
+func formatNodeConnectionType(_ connectionType: NodeConnectionType, indent: String = "") -> String {
+    switch connectionType {
+    case .values(let portValues):
+        let formattedValues = portValues.map { formatPortValue($0) }.joined(separator: ", ")
+        return ".values([\(formattedValues)])"
+    case .upstreamConnection(let coordinate):
+        return ".upstreamConnection(\(coordinate))"
+    }
+}
+
+/// Formats a PortValue into a readable string representation
+func formatPortValue(_ portValue: PortValue) -> String {
+    switch portValue {
+    case .bool(let value):
+        return ".bool(\(value))"
+    case .string(let value):
+        return ".string(\"\(value)\")"
+    case .number(let value):
+        return ".number(\(value))"
+    case .size(let size):
+        return ".size(width: \(size.width), height: \(size.height))"
+    case .position(let position):
+        return ".position(x: \(position.x), y: \(position.y))"
+    case .orientation(let orientation):
+        return ".orientation(.\(orientation))"
+    case .color(let color):
+        return ".color(\(color))"
+    default:
+        return ".\(String(describing: portValue).components(separatedBy: "(").first ?? "unknown")"
+    }
+}
+
 // MARK: - StrictSyntaxView Formatting
 
 /// Formats a StrictSyntaxView into a readable string representation for display
@@ -222,7 +389,7 @@ struct ASTExplorerView: View {
                 case .derivedActions:
                     stageView(
                         title: Stage.derivedActions.title,
-                        text: "\(stitchActions)"
+                        text: formatSwiftSyntaxActionsResult(stitchActions)
                     )
                     .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
                                             removal:   .move(edge: .bottom).combined(with: .opacity)))

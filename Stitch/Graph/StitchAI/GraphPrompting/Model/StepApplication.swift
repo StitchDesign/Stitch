@@ -246,14 +246,14 @@ private func restoreLayerCanvasItemPositions(
                 )
 
                 if let preservedPosition = preservedPositions[coordinate] {
-                    log("  ♻️ Restoring packed position for \(inputDefinition): \(preservedPosition)")
+                    // log("  ♻️ Restoring packed position for \(inputDefinition): \(preservedPosition)")
                     canvas.position = preservedPosition
                 } else {
                     let newPosition = updateCanvasPosition(.layerInput(.init(
                         node: nodeId,
                         keyPath: .init(layerInput: inputDefinition, portType: .packed)
                     )))
-                    log("  🆕 New packed position for \(inputDefinition): \(newPosition)")
+                    // log("  🆕 New packed position for \(inputDefinition): \(newPosition)")
                     canvas.position = newPosition
                 }
                 portData.packedData.canvasItem = canvas
@@ -270,14 +270,14 @@ private func restoreLayerCanvasItemPositions(
                     )
 
                     if let preservedPosition = preservedPositions[coordinate] {
-                        log("  ♻️ Restoring unpacked[\(index)] position for \(inputDefinition): \(preservedPosition)")
+                        // log("  ♻️ Restoring unpacked[\(index)] position for \(inputDefinition): \(preservedPosition)")
                         canvas.position = preservedPosition
                     } else {
                         let newPosition = updateCanvasPosition(.layerInput(.init(
                             node: nodeId,
                             keyPath: .init(layerInput: inputDefinition, portType: .unpacked(index.asUnpackedPortType))
                         )))
-                        log("  🆕 New unpacked[\(index)] position for \(inputDefinition): \(newPosition)")
+                        // log("  🆕 New unpacked[\(index)] position for \(inputDefinition): \(newPosition)")
                         canvas.position = newPosition
                     }
                     unpackedData.canvasItem = canvas
@@ -302,9 +302,9 @@ extension Array where Element == NodeEntity {
         matchedNodeIds: Set<UUID> = [],
         layerCanvasItemPositions: [LayerCanvasItemCoordinate: CGPoint] = [:]
     ) -> Self {
-        log("🚀 positionAIGeneratedNodesDuringApply called with \(self.count) nodes, \(matchedNodeIds.count) matched nodes, \(layerCanvasItemPositions.count) preserved positions")
-        log("🚀 Matched node IDs: \(matchedNodeIds)")
-        log("🚀 Preserved position coordinates: \(layerCanvasItemPositions.keys.map(\.id))")
+        // log("🚀 positionAIGeneratedNodesDuringApply called with \(self.count) nodes, \(matchedNodeIds.count) matched nodes, \(layerCanvasItemPositions.count) preserved positions")
+        // log("🚀 Matched node IDs: \(matchedNodeIds)")
+        // log("🚀 Preserved position coordinates: \(layerCanvasItemPositions.keys.map(\.id))")
 
         // TODO: if we have a chain of nodes, shift our starting point further west
         //    var viewPortCenter = viewPortCenter
@@ -316,20 +316,20 @@ extension Array where Element == NodeEntity {
         let (depthMap, hasCycle) = Stitch.calculateAINodesAdjacency(nodes: self) // patchData.calculateAINodesAdjacency()
         
         guard let depthMap = depthMap else {
-            log("positionAIGeneratedNodesDuringApply: DID NOT HAVE A depthMap")
+            // log("positionAIGeneratedNodesDuringApply: DID NOT HAVE A depthMap")
             return self
         }
         
         guard !hasCycle else {
-            log("positionAIGeneratedNodesDuringApply: HAD A CYCLE for depthMap \(depthMap)")
+            // log("positionAIGeneratedNodesDuringApply: HAD A CYCLE for depthMap \(depthMap)")
             return self
         }
         
-        log("positionAIGeneratedNodesDuringApply: depthMap: \(depthMap)")
+        // log("positionAIGeneratedNodesDuringApply: depthMap: \(depthMap)")
         
         guard !depthMap.isEmpty else {
             //        fatalErrorIfDebug("Depth-map should never be empty")
-            log("positionAIGeneratedNodesDuringApply: Depth-map should never be empty") // can be empty if we have no nodes
+            // log("positionAIGeneratedNodesDuringApply: Depth-map should never be empty") // can be empty if we have no nodes
             return self
         }
         
@@ -362,12 +362,12 @@ extension Array where Element == NodeEntity {
         // Calculate centering offset to position the middle of the chain at viewport center
         let totalChainWidth = runningX
         let centeringOffset = -totalChainWidth / 2.0
-        log("🎯 Chain centering: totalWidth=\(totalChainWidth), centeringOffset=\(centeringOffset)")
+        // log("🎯 Chain centering: totalWidth=\(totalChainWidth), centeringOffset=\(centeringOffset)")
 
         // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
         let updatedNodes = depthLevels.flatMap { depthLevel -> [NodeEntity] in
             
-            log("positionAIGeneratedNodesDuringApply: on depthLevel: \(depthLevel)")
+            // log("positionAIGeneratedNodesDuringApply: on depthLevel: \(depthLevel)")
             
             // ───────── vertical layout helpers ─────────
             let verticalPadding: CGFloat = 80.0
@@ -388,7 +388,7 @@ extension Array where Element == NodeEntity {
             }()
             var rowIndexForDepth = 0
             
-            // TODO: just rewrite the adjacency logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
+            // TODO: just rewrite the adjacency // logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
             // Find all the created-nodes at this depth-level,
             // and adjust their positions
             let createdNodesAtThisLevel: [NodeEntity] = createdNodes.compactMap {
@@ -396,20 +396,20 @@ extension Array where Element == NodeEntity {
                     return self.getNode($0)
                 }
                 // THIS JUST MEANS WE COULD NOT FIND THE NODE AT THIS LEVEL
-                 log("positionAIGeneratedNodesDuringApply: Could not get depth level for \($0.debugFriendlyId)")
+                 // log("positionAIGeneratedNodesDuringApply: Could not get depth level for \($0.debugFriendlyId)")
                 return nil
             }
             
             return createdNodesAtThisLevel.map { createdNode in
                 var createdNode = createdNode
 
-                log("positionAIGeneratedNodesDuringApply: on createdNode \(createdNode.id) \(createdNode.kind)")
+                // log("positionAIGeneratedNodesDuringApply: on createdNode \(createdNode.id) \(createdNode.kind)")
 
                 let isNodeMatched = matchedNodeIds.contains(createdNode.id)
 
                 // Skip positioning for matched PATCH nodes only - layer nodes need canvas item handling
                 if isNodeMatched && createdNode.nodeTypeEntity.patchNodeEntity != nil {
-                    log("⏭️ Skipping positioning for matched patch node \(createdNode.id)")
+                    // log("⏭️ Skipping positioning for matched patch node \(createdNode.id)")
                     return createdNode
                 }
                 
@@ -428,8 +428,8 @@ extension Array where Element == NodeEntity {
                     )
                     rowIndexForDepth += 1
                     
-                    // log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
-                    log("positionAIGeneratedNodesDuringApply: newPosition: \(newPosition)")
+                    // // log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
+                    // log("positionAIGeneratedNodesDuringApply: newPosition: \(newPosition)")
                     return newPosition
                 }
 
@@ -442,7 +442,7 @@ extension Array where Element == NodeEntity {
                     
                 case .layer(var layerNodeEntity):
                     let isLayerMatched = matchedNodeIds.contains(createdNode.id)
-                    log("🎯 Processing layer \(createdNode.id), matched: \(isLayerMatched)")
+                    // log("🎯 Processing layer \(createdNode.id), matched: \(isLayerMatched)")
 
                     // Use pure function to restore canvas item positions
                     restoreLayerCanvasItemPositions(
