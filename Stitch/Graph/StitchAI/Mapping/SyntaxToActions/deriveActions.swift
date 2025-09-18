@@ -876,7 +876,14 @@ extension PatchSyntaxResultType {
     }
     
     var value: PortValue? {
-        self.portValues?.first
+        switch self {
+        case .portValues(let portValues):
+            return portValues.values.first
+        case .portData(let nodeConnectionType):
+            return nodeConnectionType.values?.first
+        default:
+            return nil
+        }
     }
 }
 
