@@ -14,7 +14,7 @@ struct SyntaxViewEvent: Hashable {
     // Creates constant IDs to prevent redundant creation of nodes
 //    let pressPatchNodeId = UUID()
     let interactionPatchNodeId = UUID()
-//    let unpackPositionNodeId = UUID()
+    let unpackPositionNodeId = UUID()
     
     // Assigned layer id
     let layerId: UUID
@@ -88,11 +88,14 @@ extension Patch {
 
 extension SyntaxViewEvent {
     /// Determines the connections and intermediary patch nodes to be created between an interaction patch node and some state.
-    func createConnectedPatchData(gestureArg: MemberAccessExprSyntax?,
-                                  varName: String?,
-                                  nodesDict: [UUID: NodeEntity]) -> [PatchSyntaxResultType] {
+    func createConnectedPatchData(gestureArg: ExprSyntaxProtocol?,
+                                  varName: String?) -> [PatchSyntaxResultType] {
         let assignedLayerPortValue = PortValue
             .assignedLayer(.init(self.layerId))
+        let assignedLayerValuesResult = PatchSyntaxPortValuesResult(
+            inputCoordinate: .init(portId: 0,
+                                   nodeId: self.interactionPatchNodeId),
+            values: [assignedLayerPortValue])
         
         switch self.type {
         case .dragGesture:
@@ -100,113 +103,135 @@ extension SyntaxViewEvent {
                 fatalErrorIfDebug()
                 return []
             }
-            
+
+            let dragNodeResult = PatchSyntaxNodeResult(id: self.interactionPatchNodeId,
+                                                       kind: .patch(.dragInteraction))
             
             // Packed case: arg == "translation" or "position"
-            if gestureArg.trimmedDescription == "translation" || gestureArg.trimmedDescription == "position" {
-                var dragNode = Patch.dragInteraction
-                    .defaultNodeEntity(nodeId: self.interactionPatchNodeId,
-                                       nodesDict: nodesDict)
-                dragNode.inputs[0] = .values([assignedLayerPortValue])
-                
+            if let declrGestureArg = gestureArg.as(DeclReferenceExprSyntax.self),
+               declrGestureArg.trimmedDescription == "translation" || declrGestureArg.trimmedDescription == "position" {
                 // position = 0th port, translation = 2nd port
                 let outputPortIndex = gestureArg.trimmedDescription == "position" ? 0 : 2
                 
-                return [
-                    .node(dragNode),
-                    .portData(
-                        .upstreamConnection(NodeIOCoordinate(portId: outputPortIndex,
-                                                             nodeId: self.interactionPatchNodeId))
-                    )
+                let patchOutput = NodeIOCoordinate(portId: outputPortIndex,
+                                                   nodeId: self.interactionPatchNodeId)
+                
+                var results: [PatchSyntaxResultType] = [
+                    .node(dragNodeResult),
+                    .portValues(assignedLayerValuesResult)
                 ]
+                
+                if let varName = varName {
+                    let gestureReceiverEvent = PatchSyntaxResultType.stateWrite(varName, patchOutput)
+                    results.append(gestureReceiverEvent)
+                }
+                
+                return results
             }
             
-            // Unpacked case: need to see the suffix value (i.e. x or y)
-            //            guard let split = self.gestureArg?.split(separator: "."),
-            //                  let prefixValue = split[safe: 0],
-            //                  let suffixValue = split[safe: 1] else {
-            //                return nil
-            //            }
-            
-            guard let prefixValue = gestureArg.base?.trimmedDescription else {
+            guard let memberGestureArg = gestureArg.as(MemberAccessExprSyntax.self),
+                  let prefixValue = memberGestureArg.base?.trimmedDescription else {
                 return []
             }
-            
-            var dragNode = Patch.dragInteraction
-                .defaultNodeEntity(nodeId: self.interactionPatchNodeId,
-                                   nodesDict: nodesDict)
-            
-            dragNode.inputs[0] = .values([assignedLayerPortValue])
-            
-            let suffixValue = gestureArg.declName.trimmedDescription
+                        
+            let suffixValue = memberGestureArg.declName.trimmedDescription
             let outputPortIndex = prefixValue == "position" ? 0 : 2
             
-            // Most downstream reference used for node ID
-            let unpackNodeId: UUID
-            if let varName = varName {
-                unpackNodeId = deterministicUUID(from: varName)
-            } else {
-                unpackNodeId = UUID()
-            }
+            // Determine event for receiver of gesture data
+            var gestureReceiverEvent: PatchSyntaxResultType?
             
             if suffixValue == "x" || suffixValue == "width" {
-                let unpackPositionNode = Patch.unpack
-                    .defaultNodeEntity(nodeId: unpackNodeId,
-                                       nodesDict: nodesDict)
+                if let varName = varName {
+                    let unpackOutput = NodeIOCoordinate(portId: 0,
+                                                        nodeId: self.unpackPositionNodeId)
+                    
+                    // Most downstream reference used for node ID
+                    gestureReceiverEvent = .stateWrite(varName, unpackOutput)
+                }
                 
                 let connection = PortEdgeData(
                     from: .init(portId: outputPortIndex,
                                 nodeId: self.interactionPatchNodeId),
-                    to: .init(portId: 0, nodeId: unpackPositionNode.id))
+                    to: .init(portId: 0, nodeId: self.unpackPositionNodeId))
                 
-                return [
-                    .node(dragNode),
-                    .node(unpackPositionNode),
-                    .connection(connection),
-                    .portData(
-                        .upstreamConnection(.init(portId: 0,
-                                                  nodeId: unpackPositionNode.id))
-                    )
+                let unpackPositionNodeResult = PatchSyntaxNodeResult(
+                    id: self.unpackPositionNodeId,
+                    kind: .patch(.unpack)
+                )
+                
+                var results: [PatchSyntaxResultType] = [
+                    .node(dragNodeResult),
+                    .node(unpackPositionNodeResult),
+                    .portValues(assignedLayerValuesResult),
+                    .connection(connection)
                 ]
-            } else if suffixValue == "y" || suffixValue == "height" {
-                let unpackPositionNode = Patch.unpack
-                    .defaultNodeEntity(nodeId: unpackNodeId,
-                                       nodesDict: nodesDict)
+                
+                if let gestureReceiverEvent = gestureReceiverEvent {
+                    results.append(gestureReceiverEvent)
+                }
+                
+                return results
+            }
+            
+            else if suffixValue == "y" || suffixValue == "height" {
+                if let varName = varName {
+                    let unpackOutput = NodeIOCoordinate(portId: 1,
+                                                        nodeId: self.unpackPositionNodeId)
+                    
+                    // Most downstream reference used for node ID
+                    gestureReceiverEvent = .stateWrite(varName, unpackOutput)
+                }
                 
                 let connection = PortEdgeData(
                     from: .init(portId: outputPortIndex,
-                                nodeId: interactionPatchNodeId),
-                    to: .init(portId: 0, nodeId: unpackPositionNode.id))
+                                nodeId: self.interactionPatchNodeId),
+                    to: .init(portId: 0, nodeId: self.unpackPositionNodeId))
                 
-                return [
-                    .node(dragNode),
-                    .node(unpackPositionNode),
-                    .connection(connection),
-                    .portData(
-                        .upstreamConnection(.init(portId: 1,
-                                                  nodeId: unpackPositionNode.id))
-                    )
+                let unpackPositionNodeResult = PatchSyntaxNodeResult(
+                    id: self.unpackPositionNodeId,
+                    kind: .patch(.unpack)
+                )
+                
+                var results: [PatchSyntaxResultType] = [
+                    .node(dragNodeResult),
+                    .node(unpackPositionNodeResult),
+                    .portValues(assignedLayerValuesResult),
+                    .connection(connection)
                 ]
+                
+                if let gestureReceiverEvent = gestureReceiverEvent {
+                    results.append(gestureReceiverEvent)
+                }
+                
+                return results
             }
             
             return []
             
         case .tapGesture:
             let pressNodeId = self.interactionPatchNodeId
-            var pressNode = Patch.pressInteraction
-                .defaultNodeEntity(nodeId: pressNodeId,
-                                   nodesDict: nodesDict)
             
-            pressNode.inputs[0] = .values([assignedLayerPortValue])
+            // Determine event for receiver of gesture data
+            var gestureReceiverEvent: PatchSyntaxResultType?
             
+            let pressOutput = NodeIOCoordinate(portId: 0,
+                                               nodeId: self.interactionPatchNodeId)
+            
+            if let varName = varName {
+                gestureReceiverEvent = .stateWrite(varName, pressOutput)
+            }
+                        
             // Assume 0 until we handle cases with position
-            return [
-                .node(pressNode),
-                .portData(
-                    .upstreamConnection(.init(portId: 0,
-                                              nodeId: pressNodeId))
-                )
+            var results: [PatchSyntaxResultType] = [
+                .node(.init(id: pressNodeId, kind: .patch(.pressInteraction))),
+                .portValues(assignedLayerValuesResult)
             ]
+            
+            if let gestureReceiverEvent = gestureReceiverEvent {
+                results.append(gestureReceiverEvent)
+            }
+            
+            return results
         }
     }
     

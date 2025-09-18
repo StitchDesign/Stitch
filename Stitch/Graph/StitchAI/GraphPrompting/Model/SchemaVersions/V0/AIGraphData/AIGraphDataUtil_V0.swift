@@ -46,7 +46,7 @@ extension AIGraphData_V0.GraphData {
 //        var customPatchInputs = [AIGraphData_V0.CustomPatchInputValue]()
         
         // Maps upstream patch output coordinate to some new created @State var name
-        var viewStatePatchConnections: [String : NodeIOCoordinate] = [:]
+        var viewStatePatchConnections: [String : [NodeIOCoordinate]] = [:]
         
         // Maps interactions to layers, used to determine gestures to create
         // Key = Patch, Value = Layer
@@ -173,7 +173,7 @@ extension Array where Element == AIGraphData_V0.SidebarLayerData {
     func createAIData(nodesDict: [UUID : AIGraphData_V0.NodeEntity],
                       patchToLayerAssignmentMap: [UUID : UUID],
                       upstreamConnectionToInteraction: inout [NodeIOCoordinate : NodeIOCoordinate],
-                      viewStatePatchConnections: inout [String : NodeIOCoordinate]) throws -> [AIGraphData_V0.LayerData] {
+                      viewStatePatchConnections: inout [String : [NodeIOCoordinate]]) throws -> [AIGraphData_V0.LayerData] {
         try self.map { sidebarData in
             try .init(from: sidebarData,
                       nodesDict: nodesDict,
@@ -197,7 +197,7 @@ extension AIGraphData_V0.LayerData {
          nodesDict: [UUID : AIGraphData_V0.NodeEntity],
          patchToLayerAssignmentMap: [UUID : UUID],
          upstreamConnectionToInteraction: inout [NodeIOCoordinate : NodeIOCoordinate],
-         viewStatePatchConnections: inout [String : NodeIOCoordinate]) throws {
+         viewStatePatchConnections: inout [String : [NodeIOCoordinate]]) throws {
         guard let node = nodesDict.get(sidebarData.id),
               let layerData = node.layerNodeEntity else {
             throw AICodeGenError.nodeDataNotFound
@@ -344,7 +344,16 @@ extension AIGraphData_V0.LayerData {
                     
                     // Check for state var names to override if redundant state vars were made for connected layer inputs
                     viewStatePatchConnections = viewStatePatchConnections.reduce(into: viewStatePatchConnections) { result, connectionData in
-                        let (oldKey, viewStateUpstreamCoordinate) = connectionData
+                        let (oldKey, viewStateUpstreamCoordinates) = connectionData
+                        
+                        // Multiple only expected when parsing AI result
+                        assertInDebug(viewStateUpstreamCoordinates.count == 1)
+                        
+                        guard let viewStateUpstreamCoordinate = viewStateUpstreamCoordinates.first else {
+                            fatalErrorIfDebug()
+                            return
+                        }
+                        
                         if viewStateUpstreamCoordinate == interactionOutputCoordinate {
                             // Update key
                             result.removeValue(forKey: oldKey)

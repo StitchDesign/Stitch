@@ -20,7 +20,7 @@ struct SwiftSyntaxPatchActionsResult {
 //    var actions: CurrentAIGraphData.PatchData
     var nodes: [NodeEntity]
     
-    var stateVarConnections: [String: NodeIOCoordinate]
+    var stateVarConnections: [String: [NodeIOCoordinate]]
     
     // Tracks any upstream patches that connect to some state
     // Key = state variable name
@@ -469,7 +469,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                                             varName: String,
                                             portIndex: Int? = nil,
                                             varNameToCode: [String: SwiftPatchCodeType],
-                                            existingStateVarConnections: [String: NodeIOCoordinate],
+                                            existingStateVarConnections: [String: [NodeIOCoordinate]],
                                             nodesDict: [UUID: NodeEntity],
                                             viewEvent: SyntaxViewEvent?) throws -> [PatchSyntaxResultType] {
         switch expr {
@@ -478,9 +478,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
             
             guard let pvDescription = array.first else {
                 fatalErrorIfDebug()
-                return [
-                    .portData(.values([.number(.zero)]))
-                ]
+                return []
             }
             
             return try pvDescription.derivePortValues(viewEvent: viewEvent)
@@ -525,7 +523,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                     .portData(.upstreamConnection(.init(portId: portIndex,
                                                         nodeId: inferredId)))
                 ]
-            } else if let upstreamStateVarCoordinate = existingStateVarConnections.get(ref) {
+            } else if let upstreamStateVarCoordinate = existingStateVarConnections.get(ref)?.first {
                 // Connection to some interaction patch node
                 return [
                     .portData(.upstreamConnection(upstreamStateVarCoordinate))
@@ -655,7 +653,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                                             varName: String,
                                             portIndex: Int? = nil,
                                             varNameToCode: [String: SwiftPatchCodeType],
-                                            existingStateVarConnections: [String: NodeIOCoordinate],
+                                            existingStateVarConnections: [String: [NodeIOCoordinate]],
                                             nodesDict: [UUID: NodeEntity],
                                             viewEvent: SyntaxViewEvent?) throws -> [PatchSyntaxResultType] {
         switch value {
@@ -722,7 +720,7 @@ struct SwiftPatchNodeInputsResult {
 extension Array where Element == SwiftPatchCodeType {
     func createSchemaList(nodeId: UUID,
                           varNameToCode: [String: SwiftPatchCodeType],
-                          existingStateVarConnections: [String: NodeIOCoordinate],
+                          existingStateVarConnections: [String: [NodeIOCoordinate]],
                           nodesDict: [UUID: NodeEntity],
                           viewEvent: SyntaxViewEvent?) throws -> SwiftPatchNodeInputsResult {
         var otherData = [PatchSyntaxResultType]()
@@ -814,12 +812,42 @@ extension SwiftPatchClosureType {
     }
 }
 
+struct PatchSyntaxNodeResult {
+    let id: UUID
+    let kind: NodeKind
+    var nodeType: NodeType?
+}
+
+struct PatchSyntaxPortValuesResult {
+    let inputCoordinate: NodeIOCoordinate
+    let values: PortValues
+}
+
+struct PatchSyntaxJSResult {
+    let id: UUID
+    let settings: JavaScriptNodeSettings
+}
+
 // TODO: move
 enum PatchSyntaxResultType {
-    case node(NodeEntity)
+    // Refrain from NodeEntity because we don't want to create a dupe later and overwrite data
+    case node(PatchSyntaxNodeResult)
+    
+    // Port value settings for a node's input
+    case portValues(PatchSyntaxPortValuesResult)
+    
+    // Used when code instantiates a reference or value to some patch node with an index
     case portData(NodeConnectionType)
+    
     case connection(PortEdgeData)
+    
+    // State reads
     case connectionToLayerInput(String)
+    
+    // State writes (var name, patch node output)
+    case stateWrite(String, NodeIOCoordinate)
+    
+    case jsSettings(PatchSyntaxJSResult)
 }
 
 extension PatchSyntaxResultType {
@@ -828,17 +856,34 @@ extension PatchSyntaxResultType {
         case .portData(let connectionType):
             return connectionType
             
+        case .connection(let edge):
+            // assumption here is that the `to` property is going "here"
+            return .upstreamConnection(edge.from)
+            
         default:
             return nil
         }
     }
     
     var portValues: [PortValue]? {
-        self.portData?.values
+        switch self {
+        case .portValues(let result):
+            return result.values
+            
+        default:
+            return nil
+        }
     }
     
     var value: PortValue? {
-        self.portValues?.first
+        switch self {
+        case .portValues(let portValues):
+            return portValues.values.first
+        case .portData(let nodeConnectionType):
+            return nodeConnectionType.values?.first
+        default:
+            return nil
+        }
     }
 }
 
@@ -847,7 +892,7 @@ extension SwiftPatchNodeCode {
     func defaultNodeEntityData(varName: String,
                                varNameToCode: [String: SwiftPatchCodeType],
                                groupNodeId: UUID?,
-                               existingStateVarConnections: [String: NodeIOCoordinate],
+                               existingStateVarConnections: [String: [NodeIOCoordinate]],
                                nodesDict: [UUID: NodeEntity],
                                viewEvent: SyntaxViewEvent?,
                                jsSettings: JavaScriptNodeSettings? = nil) throws -> [PatchSyntaxResultType] {
@@ -866,8 +911,10 @@ extension SwiftPatchNodeCode {
                                                 nodesDict: nodesDict,
                                                 jsSettings: jsSettings)
         
+        let nodeResults = node.nodeTypeEntity.patchNodeEntity?.createAIPatchSyntaxResults() ?? []
+        
         var actionsList = portData.otherData
-        actionsList.append(.node(node))
+        actionsList += nodeResults
         return actionsList
     }
 }
@@ -991,13 +1038,104 @@ extension Patch {
     }
 }
 
+extension PatchNodeEntity {
+    func createAIPatchSyntaxResults() -> [PatchSyntaxResultType] {
+        let nodeResult: [PatchSyntaxResultType] = [
+            .node(.init(id: self.id,
+                        kind: .patch(self.patch),
+                        nodeType: self.userVisibleType)),
+        ]
+        
+        let inputResults: [PatchSyntaxResultType] = self.inputs.enumerated().map { portId, portData in
+            switch portData.portData {
+            case .values(let values):
+                return .portValues(.init(inputCoordinate: .init(portId: portId,
+                                                                nodeId: self.id),
+                                         values: values))
+                
+            case .upstreamConnection(let upstreamCoordinate):
+                return .connection(.init(from: upstreamCoordinate,
+                                         to: .init(portId: portId,
+                                                   nodeId: self.id)))
+            }
+        }
+        
+        let jsSettings: [PatchSyntaxResultType] = self.javaScriptNodeSettings != nil ? [
+            .jsSettings(.init(id: self.id,
+                              settings: self.javaScriptNodeSettings!))
+        ] : []
+        
+        return nodeResult + inputResults + jsSettings
+    }
+}
+
+extension NodeEntity {
+    mutating func updateInputData(_ portData: NodeConnectionType,
+                                  at index: NodeIOCoordinate,
+                                  nodesDict: [UUID: NodeEntity]) {
+        switch self.nodeTypeEntity {
+        case .patch(var patchNode):
+            guard let portId = index.portId else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            // Determine if we need to extend inputs
+            if portId >= patchNode.inputs.count {
+                let defaultValues = patchNode.patch.rowDefinitions(for: patchNode.userVisibleType).inputs.last?.defaultValues ?? [.number(.zero)]
+                
+                (patchNode.inputs.count..<portId + 1).forEach { newPortId in
+                    patchNode.inputs.append(.init(id: .init(portId: newPortId,
+                                                            nodeId: self.id),
+                                                  portData: .values(defaultValues)))
+                }
+            }
+            
+            guard var inputData = patchNode.inputs[safe: portId] else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            inputData.portData = portData
+            patchNode.inputs[portId] = inputData
+            
+            // Determine node type
+            let nodeType = patchNode.patch
+                .deriveNodeValueType(portEntities: patchNode.inputs,
+                                     nodesDict: nodesDict)
+            let newPatchNode = PatchNodeEntity(id: patchNode.id,
+                                               patch: patchNode.patch,
+                                               inputs: patchNode.inputs,
+                                               canvasEntity: patchNode.canvasEntity,
+                                               userVisibleType: nodeType,
+                                               splitterNode: patchNode.splitterNode,
+                                               mathExpression: patchNode.mathExpression,
+                                               javaScriptNodeSettings: patchNode.javaScriptNodeSettings)
+            
+            self.nodeTypeEntity = .patch(newPatchNode)
+            
+        case .layer(var layerNode):
+            guard let layerInputType = index.layerInput else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            layerNode.updateInputData(portData, at: layerInputType)
+            self.nodeTypeEntity = .layer(layerNode)
+            
+        default:
+            fatalErrorIfDebug()
+        }
+    }
+}
+
 extension SwiftPatchCodeType {
     @MainActor
     func derivePatchData(document: StitchDocumentViewModel,
                          varName: String?,
                          varNameToCode: [String: SwiftPatchCodeType],
                          viewEvent: SyntaxViewEvent?,
-                         existingStateVarConnections: [String: NodeIOCoordinate],
+                         existingStateVarConnections: [String: [NodeIOCoordinate]],
                          nodesDict: [UUID: NodeEntity]) async throws -> [PatchSyntaxResultType] {
         guard let aiManager = document.aiManager else {
             fatalErrorIfDebug()
@@ -1205,15 +1343,39 @@ extension Array where Element == SwiftPatchClosureType {
     }
 }
 
+extension Dictionary where Key == String, Value == [NodeIOCoordinate] {
+    mutating func updateValue(_ value: NodeIOCoordinate, forKey key: String) {
+        var currentValues = self.get(key) ?? []
+        currentValues.append(value)
+        self = self.updatedValue(currentValues, forKey: key)
+    }
+}
+
 extension Dictionary where Key == UUID, Value == NodeEntity {
+    
+    // TODO: state var connections would be updated here, take copied code and set breakpoints
+    
     mutating func updateWithEventData(_ event: PatchSyntaxResultType,
                                       layerInputCoordinate: NodeIOCoordinate?,
                                       varName: String?,
-                                      stateVarConnections: inout [String: NodeIOCoordinate]) {
+                                      stateVarConnections: inout [String: [NodeIOCoordinate]]) {
         switch event {
-        case .node(let nodeEntity):
-            self.updateValue(nodeEntity,
-                             forKey: nodeEntity.id)
+        case .node(let nodeResult):
+            // Skip if node already made
+            guard self.get(nodeResult.id) == nil else { return }
+            
+            switch nodeResult.kind {
+            case .patch(let patch):
+                let nodeEntity = patch
+                    .defaultNodeEntity(nodeId: nodeResult.id,
+                                       nodesDict: self)
+                
+                self.updateValue(nodeEntity,
+                                 forKey: nodeEntity.id)
+                
+            default:
+                fatalErrorIfDebug("not yet supported")
+            }
             
         case .portData(let portData):
             switch portData {
@@ -1282,21 +1444,87 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
         
         case .connectionToLayerInput(let stateName):
             // Get upstream patch data from variable name
-            guard let upstreamPatchCoordinate = stateVarConnections
+            guard let upstreamPatchCoordinates = stateVarConnections
                 .get(stateName),
                   let layerInputCoordinate = layerInputCoordinate else {
                 fatalErrorIfDebug()
                 return
             }
             
-            // Recursively call with extrapolated upstream patch data
-            let event = PatchSyntaxResultType.connection(.init(from: upstreamPatchCoordinate,
-                                                               to: layerInputCoordinate))
-            return self
-                .updateWithEventData(event,
-                                     layerInputCoordinate: layerInputCoordinate,
-                                     varName: stateName,
-                                     stateVarConnections: &stateVarConnections)
+            // Multiple upstream coordinates means an unpacking scenario
+            if upstreamPatchCoordinates.count > 1 {
+                upstreamPatchCoordinates.enumerated().forEach { index, upstreamPatchCoordinate in
+                    var layerInputCoordinate = layerInputCoordinate
+                    guard let unapckedPortType = UnpackedPortType(rawValue: index),
+                          var layerKeyPath = layerInputCoordinate.keyPath else {
+                        fatalErrorIfDebug()
+                        return
+                    }
+                    
+                    layerKeyPath.portType = .unpacked(unapckedPortType)
+                    layerInputCoordinate = .init(portType: .keyPath(layerKeyPath),
+                                                 nodeId: layerInputCoordinate.nodeId)
+                    
+                    // Recursively call with extrapolated upstream patch data
+                    let event = PatchSyntaxResultType.connection(.init(from: upstreamPatchCoordinate,
+                                                                       to: layerInputCoordinate))
+                    return self
+                        .updateWithEventData(event,
+                                             layerInputCoordinate: layerInputCoordinate,
+                                             varName: stateName,
+                                             stateVarConnections: &stateVarConnections)
+                }
+            }
+            
+            // Packed scenario
+            else {
+                guard let upstreamPatchCoordinate = upstreamPatchCoordinates.first else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                // Recursively call with extrapolated upstream patch data
+                let event = PatchSyntaxResultType.connection(.init(from: upstreamPatchCoordinate,
+                                                                   to: layerInputCoordinate))
+                return self
+                    .updateWithEventData(event,
+                                         layerInputCoordinate: layerInputCoordinate,
+                                         varName: stateName,
+                                         stateVarConnections: &stateVarConnections)
+            }
+            
+        case .portValues(let data):
+            guard var nodeEntity = self.get(data.inputCoordinate.nodeId) else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            nodeEntity.updateInputData(.values(data.values),
+                                       at: data.inputCoordinate,
+                                       nodesDict: self)
+            self.updateValue(nodeEntity, forKey: nodeEntity.id)
+            
+        case .jsSettings(let data):
+            guard var nodeEntity = self.get(data.id),
+                  let patchNode = nodeEntity.patchNodeEntity else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            let newPatchNode = PatchNodeEntity(id: patchNode.id,
+                                               patch: patchNode.patch,
+                                               inputs: patchNode.inputs,
+                                               canvasEntity: patchNode.canvasEntity,
+                                               userVisibleType: patchNode.userVisibleType,
+                                               splitterNode: patchNode.splitterNode,
+                                               mathExpression: patchNode.mathExpression,
+                                               javaScriptNodeSettings: data.settings)
+                
+            nodeEntity.nodeTypeEntity = .patch(newPatchNode)
+            self.updateValue(nodeEntity, forKey: nodeEntity.id)
+        
+        case .stateWrite(let varName, let upstreamOutputCoordinate):
+            stateVarConnections.updateValue(upstreamOutputCoordinate, forKey: varName)
         }
     }
 }
@@ -1304,7 +1532,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
 extension Array where Element == (String, SwiftPatchCodeType) {
     @MainActor
     func derivePatchNodes(document: StitchDocumentViewModel,
-                          existingStateVarConnections: [String: NodeIOCoordinate],
+                          existingStateVarConnections: [String: [NodeIOCoordinate]],
                           existingNodesDict: [UUID: NodeEntity],
                           viewEvent: SyntaxViewEvent?) async -> SwiftSyntaxPatchActionsResult {
         // Create dictionary of self
@@ -1316,7 +1544,7 @@ extension Array where Element == (String, SwiftPatchCodeType) {
         var nodesDict = [UUID: NodeEntity]()
         
         // Tracks connections to state variables, used as layer inputs later
-        var stateVarConnections = [String: NodeIOCoordinate]()
+        var stateVarConnections = [String: [NodeIOCoordinate]]()
         
         var caughtErrors = [SwiftUISyntaxError]()
         

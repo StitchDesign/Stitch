@@ -75,7 +75,13 @@ extension GraphState {
         
         // Maps upstream patch node's output port to a view state's var
         let varIdNameMap = aiGraph.viewStatePatchConnections.reduce(into: [NodeIOCoordinate: String]()) { result, data in
-            let (variableName, nodeIndexCoordiante) = data
+            let (variableName, nodeIndexCoordiantes) = data
+            
+            assertInDebug(nodeIndexCoordiantes.count == 1)
+            
+            guard let nodeIndexCoordiante = nodeIndexCoordiantes.first else {
+                return
+            }
             result.updateValue(variableName, forKey: nodeIndexCoordiante)
         }
         
