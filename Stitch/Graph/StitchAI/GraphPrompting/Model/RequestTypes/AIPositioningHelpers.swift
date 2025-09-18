@@ -74,7 +74,7 @@ func captureLayerCanvasItemPositions(
                 mode: .packed
             )
             positions[coordinate] = canvasItem.position
-            log("  ✅ Captured packed canvas for port \(inputDefinition): position \(canvasItem.position)")
+            // log("  ✅ Captured packed canvas for port \(inputDefinition): position \(canvasItem.position)")
         }
 
         // Check unpacked canvas items
@@ -122,7 +122,7 @@ struct NodeEntitySimilarityMatcher {
 
     /// Calculates similarity score between two nodes (0.0 to 1.0)
     func calculateSimilarity(oldNode: NodeEntity, newNodeType: PatchOrLayer) -> Double {
-        log("calculateSimilarity: oldNodes.map(.id): \(oldNodes.map(\.id))")
+        // log("calculateSimilarity: oldNodes.map(.id): \(oldNodes.map(\.id))")
         var score = 0.0
         var maxScore = 0.0
 
@@ -131,12 +131,12 @@ struct NodeEntitySimilarityMatcher {
         switch oldNode.nodeTypeEntity {
         case .patch(let patchNodeEntity):
             if case .patch(let newPatch) = newNodeType, patchNodeEntity.patch == newPatch {
-                log("calculateSimilarity: had matching patch: \(newPatch)")
+                // log("calculateSimilarity: had matching patch: \(newPatch)")
                 score += 3.0
             }
         case .layer(let layerNodeEntity):
             if case .layer(let newLayer) = newNodeType, layerNodeEntity.layer == newLayer {
-                log("calculateSimilarity: had matching layer: \(newLayer)")
+                // log("calculateSimilarity: had matching layer: \(newLayer)")
                 score += 3.0
             }
         case .group:
@@ -152,7 +152,7 @@ struct NodeEntitySimilarityMatcher {
         var inputMatchScore = 0.0
 
         let oldInputValues = extractInputValues(from: oldNode)
-        log("calculateSimilarity: oldInputValues: \(oldInputValues)")
+        // log("calculateSimilarity: oldInputValues: \(oldInputValues)")
         if !oldInputValues.isEmpty {
             var totalComparisons = 0
             var matchScore = 0.0
@@ -197,9 +197,9 @@ struct NodeEntitySimilarityMatcher {
         }
 
         let finalScore = maxScore > 0 ? score / maxScore : 0.0
-        log("calculateSimilarity: maxScore: \(maxScore)")
-        log("calculateSimilarity: score: \(score)")
-        log("calculateSimilarity: finalScore: \(finalScore)")
+        // log("calculateSimilarity: maxScore: \(maxScore)")
+        // log("calculateSimilarity: score: \(score)")
+        // log("calculateSimilarity: finalScore: \(finalScore)")
         return finalScore
     }
 
@@ -214,7 +214,7 @@ struct NodeEntitySimilarityMatcher {
     /// Performs one-to-one matching between old nodes and new nodes
     /// Returns matches above threshold, ensuring each old node is matched to at most one new node
     func findOptimalMatches(for newNodes: [(UUID, PatchOrLayer)]) -> [NodeMatch] {
-        log("findOptimalMatches: for \(newNodes.count) new nodes")
+        // log("findOptimalMatches: for \(newNodes.count) new nodes")
 
         // Step 1: Create similarity matrix - calculate all possible matches
         var candidateMatches: [NodeMatch] = []
@@ -234,7 +234,7 @@ struct NodeEntitySimilarityMatcher {
             }
         }
 
-        log("findOptimalMatches: found \(candidateMatches.count) candidate matches above threshold")
+        // log("findOptimalMatches: found \(candidateMatches.count) candidate matches above threshold")
 
         // Step 2: Sort by similarity score (highest first) for greedy assignment
         candidateMatches.sort { $0.similarity > $1.similarity }
@@ -256,10 +256,10 @@ struct NodeEntitySimilarityMatcher {
             usedOldNodeIds.insert(candidate.oldNode.id)
             usedNewNodeIds.insert(candidate.newNodeId)
 
-            log("findOptimalMatches: accepted match - old: \(candidate.oldNode.id) (\(candidate.oldNode.kind)) -> new: \(candidate.newNodeId) (\(candidate.newNodeType)), similarity: \(candidate.similarity)")
+            // log("findOptimalMatches: accepted match - old: \(candidate.oldNode.id) (\(candidate.oldNode.kind)) -> new: \(candidate.newNodeId) (\(candidate.newNodeType)), similarity: \(candidate.similarity)")
         }
 
-        log("findOptimalMatches: final \(finalMatches.count) one-to-one matches")
+        // log("findOptimalMatches: final \(finalMatches.count) one-to-one matches")
         return finalMatches
     }
 
@@ -270,10 +270,10 @@ struct NodeEntitySimilarityMatcher {
             return patchNodeEntity.inputs.compactMap { inputEntity in
                 switch inputEntity.portData {
                 case .values(let values):
-                    log("extractInputValues: patch: for node \(node.id) \(node.kind), had input values: \(values)")
+                    // log("extractInputValues: patch: for node \(node.id) \(node.kind), had input values: \(values)")
                     return values
                 case .upstreamConnection:
-                    log("extractInputValues: patch: for node \(node.id) \(node.kind), had an upstream connection and thus no input values")
+                    // log("extractInputValues: patch: for node \(node.id) \(node.kind), had an upstream connection and thus no input values")
                     return [] // Connected inputs don't have direct values
                 }
             }
@@ -310,7 +310,7 @@ struct NodeEntitySimilarityMatcher {
                 }
             }
 
-            log("extractInputValues: layer: for node \(node.id) \(node.kind), had input values: allValues: \(allValues)")
+            // log("extractInputValues: layer: for node \(node.id) \(node.kind), had input values: allValues: \(allValues)")
             return allValues
         case .group:
             // TODO: Handle group node input extraction
@@ -328,10 +328,10 @@ struct NodeEntitySimilarityMatcher {
             let upstreamCount = patchNodeEntity.inputs.reduce(0) { count, inputEntity in
                 switch inputEntity.portData {
                 case .upstreamConnection(let x):
-                    log("extractConnectionCounts: patch: for node \(node.id) \(node.kind) and input \(inputEntity.id), had an upstream connection: \(x)")
+                    // log("extractConnectionCounts: patch: for node \(node.id) \(node.kind) and input \(inputEntity.id), had an upstream connection: \(x)")
                     return count + 1
                 case .values:
-                    log("extractConnectionCounts: patch: for node \(node.id) \(node.kind) and input \(inputEntity.id) had values")
+                    // log("extractConnectionCounts: patch: for node \(node.id) \(node.kind) and input \(inputEntity.id) had values")
                     return count
                 }
             }
@@ -398,7 +398,7 @@ func performNodeSimilarityMatching(
 
     // Perform optimal one-to-one matching
     let optimalMatches = matcher.findOptimalMatches(for: newPatchNodeData)
-    log("Found \(optimalMatches.count) optimal matches for \(newPatchNodeData.count) new patch nodes")
+    // log("Found \(optimalMatches.count) optimal matches for \(newPatchNodeData.count) new patch nodes")
 
     // Process the matches to build position mappings and selection mappings
     var nodePositionMappings: [UUID: CGPoint] = [:]  // new node ID -> old position
@@ -417,7 +417,7 @@ func performNodeSimilarityMatching(
                     newNodesForSelectedOldNodes.insert(match.newNodeId)
                 }
 
-                log("Matched new patch node \(match.newNodeId) (\(match.newNodeType)) with existing \(match.oldNode.id) (\(match.oldNode.kind)), similarity \(match.similarity)")
+                // log("Matched new patch node \(match.newNodeId) (\(match.newNodeType)) with existing \(match.oldNode.id) (\(match.oldNode.kind)), similarity \(match.similarity)")
             }
         }
     }
@@ -430,7 +430,7 @@ func performNodeSimilarityMatching(
            case .patch(var patchNodeEntity) = updatedPatchNodes[i].nodeTypeEntity {
             patchNodeEntity.canvasEntity.position = preservedPosition
             updatedPatchNodes[i].nodeTypeEntity = .patch(patchNodeEntity)
-            log("Applied preserved position \(preservedPosition) to node \(nodeId)")
+            // log("Applied preserved position \(preservedPosition) to node \(nodeId)")
         }
     }
 
@@ -462,7 +462,7 @@ func performNodeSimilarityMatching(
 
     // Perform optimal one-to-one matching for layers
     let optimalLayerMatches = matcher.findOptimalMatches(for: newLayerNodeData)
-    log("Found \(optimalLayerMatches.count) optimal layer matches for \(newLayerNodeData.count) new layer nodes")
+    // log("Found \(optimalLayerMatches.count) optimal layer matches for \(newLayerNodeData.count) new layer nodes")
 
     // Process layer matches to build position mappings and selection mappings
     var layerSidebarSelections = Set<UUID>()  // new layer IDs that should be selected
@@ -473,7 +473,7 @@ func performNodeSimilarityMatching(
         if match.similarity > LAYER_MATCHING_SIMILARITY_THRESHOLD {
             // Store the position mapping: new layer should use old layer's position
             if case .layer(let matchedLayerEntity) = match.oldNode.nodeTypeEntity {
-                log("📍 Capturing canvas positions for matched layer \(match.oldNode.id) -> \(match.newNodeId)")
+                // log("📍 Capturing canvas positions for matched layer \(match.oldNode.id) -> \(match.newNodeId)")
 
                 // Capture canvas item positions using pure function
                 let capturedPositions = captureLayerCanvasItemPositions(
@@ -484,14 +484,14 @@ func performNodeSimilarityMatching(
 
                 matchedNodeIds.insert(match.newNodeId)  // Track the NEW layer ID for position skipping
 
-                log("📍 Total preserved positions for layer: \(capturedPositions.count)")
+                // log("📍 Total preserved positions for layer: \(capturedPositions.count)")
 
                 // If the old layer was selected, mark the new layer for selection
                 if inputs.previousSidebarSelection.contains(match.oldNode.id) {
                     layerSidebarSelections.insert(match.newNodeId)
                 }
 
-                log("Matched new layer node \(match.newNodeId) (\(match.newNodeType)) with existing \(match.oldNode.id) (\(match.oldNode.kind)), similarity \(match.similarity)")
+                // log("Matched new layer node \(match.newNodeId) (\(match.newNodeType)) with existing \(match.oldNode.id) (\(match.oldNode.kind)), similarity \(match.similarity)")
             }
         }
     }
