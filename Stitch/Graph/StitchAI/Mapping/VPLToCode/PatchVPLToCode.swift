@@ -19,20 +19,7 @@ extension GraphState {
         
         let patchNodeDeclarations = patchData.patchNodeDeclarations
         
-//        let flattenedLayerData = aiGraph.layer_data_list.allFlattenedItems
         let layerViewEventsMap = aiGraph.layer_data_list.getAllViewEventsMap()
-//        let layerViewEvents = layerViewEventsMap.values
-        
-        // Organizes view event data by layer id
-//        let layerViewEventMap = flattenedLayerData.reduce(into: [String: [LayerDataViewEvent]]()) { result, layerData in
-//            layerData.view_events?.forEach { viewEvent in
-//                var viewEventsList = result.get(layerData.node_id) ?? []
-//                viewEventsList.append(viewEvent)
-//                
-//                result.updateValue(viewEventsList,
-//                                   forKey: layerData.node_id)
-//            }
-//        }
         
         // Patches that connect to layers
         let patchStateVars = Array(aiGraph.viewStatePatchConnections.keys)

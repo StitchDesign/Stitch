@@ -25,29 +25,6 @@ struct LayerPortDerivation {
     let inputData: [PatchSyntaxResultType]
 }
 
-//enum LayerPortDerivationType {
-//    case value(PortValueDescription)
-//    case stateRef(String)
-//    case stateRefInViewEvent(ViewEventStateRefPortValue)
-//}
-//
-//struct ViewEventStateRefPortValue {
-//    let memberAccess: MemberAccessExprSyntax
-//    let valueType: NodeType
-//    let viewEvent: SyntaxViewEvent
-//}
-//
-//extension LayerPortDerivationType {
-//    var value: PortValueDescription? {
-//        switch self {
-//        case .value(let portValueDescription):
-//            return portValueDescription
-//        case .stateRef, .stateRefInViewEvent:
-//            return nil
-//        }
-//    }
-//}
-
 extension Array where Element == PatchSyntaxResultType {
     func createUnpackedEvents(layerInputPort: LayerInputPort) throws -> [LayerPortDerivation] {
         let unpackedPortEvents = self.enumerated().map { portIndex, layerPortEvent in
@@ -155,31 +132,6 @@ extension SyntaxViewModifier {
                                        gestureArg: nil),
                       codeStatements: actionsResult)
             ]
-            
-            // Find first line of code with state mutation
-            
-            // TODO: come back here
-
-            
-            //            let mutatedStateVar = parsedCode.bindingDeclarations
-//                .compactMap {
-//                    switch $0.1 {
-//                    case .stateMutation:
-//                        return $0.0
-//                    default:
-//                        return nil
-//                    }
-//                }.first
-//            
-//            guard let mutatedStateVar = mutatedStateVar else {
-//                return nil
-//            }
-//            
-//            let layerData = LayerDataViewEvent(viewEvent: viewEvent,
-//                                               gestureArg: nil,
-//                                               mutatedStateVar: mutatedStateVar)
-//            return .init(events: [layerData],
-//                         caughtErrors: parsedCode.caughtErrors)
         }
     }
 }
@@ -713,15 +665,6 @@ extension SyntaxViewName {
                                       port: port,
                                       context: .viewModifier(port))
         }
-        
-//        let portValuesFromArgs = portDataFromArgs.compactMap {
-//            switch $0.inputData {
-//            case .value(let value):
-//                return value
-//            default:
-//                return nil
-//            }
-//        }
         
         // Scenarios where we assumed packed value or connection
         if arguments.count == 1,

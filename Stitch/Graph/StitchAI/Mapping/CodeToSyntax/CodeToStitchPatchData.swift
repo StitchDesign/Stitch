@@ -240,30 +240,6 @@ extension SwiftParserPatchData {
     }
 }
 
-extension SwiftParserPatchData {
-//    static func derivePatchUpstreamCoordinate(upstreamRefData: SwiftParserSubscript,
-//                                              varNameIdMap: [String : String]) -> AIGraphData_V0.NodeIndexedCoordinate {
-//        let upstreamPortIndex = upstreamRefData.portIndex
-//        let upstreamNodeId: String
-//        
-//        // Get upstream node ID
-//        switch upstreamRefData.subscriptType {
-//        case .patchNode(let patchNodeData):
-//            upstreamNodeId = patchNodeData.id
-//            
-//        case .ref(let refName):
-//            guard let _upstreamNodeId = varNameIdMap.get(refName) else {
-//                fatalError()
-//            }
-//            
-//            upstreamNodeId = _upstreamNodeId
-//        }
-//        
-//        return .init(node_id: upstreamNodeId,
-//                     port_index: upstreamPortIndex)
-//    }
-}
-
 extension SwiftUIViewVisitor {
     func deriveSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax) -> SwiftParserInitializerType? {
         guard let labeledExpr = subscriptCallExpr.arguments.first?.expression.as(IntegerLiteralExprSyntax.self),

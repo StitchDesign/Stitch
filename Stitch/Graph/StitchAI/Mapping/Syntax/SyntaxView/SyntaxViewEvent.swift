@@ -40,28 +40,10 @@ struct SyntaxViewModifierViewEvent: Sendable {
     let eventModifiers: [String: SyntaxViewModifierClosureData]
 }
 
-//struct LayerDataViewEvent {
-//    let viewEvent: SyntaxViewEvent
-//    
-//    // If relevant, the argument data that's read from the view event's closure.
-//    // i.e. `translation.width`
-//    let gestureArg: String?
-//    
-//    // Tracks which state variable is mutated
-//    let mutatedStateVar: String
-//}
-
 struct LayerDataViewEventsResult {
     let viewEvent: SyntaxViewEvent
     let actionsResult: SwiftSyntaxPatchActionsResult
 }
-
-//extension LayerDataViewEventsResult {
-//    init() {
-//        self.events = []
-//        self.caughtErrors = []
-//    }
-//}
 
 extension SyntaxViewEventType {
     var patch: Patch {
@@ -284,72 +266,5 @@ extension SyntaxViewModifierViewEvent {
         
         return .init(viewEvent: eventData,
                      codeStatements: actionsResult)
-//        let events = try parsedData.bindingDeclarations.compactMap { keyValue -> LayerDataViewEvent? in
-//            let (refName, assignmentValue) = keyValue
-            
-//            switch assignmentValue {
-//            case .stateMutation(let stateMutationAssignment):
-//                switch stateMutationAssignment {
-//                case .arraySyntax(let arraySyntax):
-//                    // Find what we're parsing
-//                    guard let funcExpr = arraySyntax.elements.first?.expression.as(FunctionCallExprSyntax.self) else {
-//                        return nil
-//                    }
-//                    
-//                    let args: ViewConstructorType
-//                    do {
-//                        args = try SwiftUIViewVisitor.parseArguments(from: funcExpr)
-//                    } catch let error as SwiftUISyntaxError {
-//                        caughtErrors.append(error)
-//                        return nil
-//                    } catch {
-//                        throw error
-//                    }
-//                    
-//                    var gestureArg: String?
-//                    
-//                    guard let defaultArgs = args.defaultArgs else {
-//                        return nil
-//                    }
-//                    
-//                    // A little hacky--if PortValueDescription of position type, return a packed variable
-//                    if (defaultArgs[safe: 1]?.value.simpleValue?.contains("position") ?? false) {
-//                        // TODO: see if position or translation
-//                        gestureArg = "position"
-//                    }
-//                    
-//                    else {
-//                        // Find the property that's read from the gesture param
-//                        gestureArg = defaultArgs.compactMap { arg -> String? in
-//                            guard let paramVarName = onChangeHandler.paramVars.first,
-//                                  let memberAccess = arg.value.firstMemberAccess else {
-//                                return nil
-//                            }
-//                            
-//                            var propertyString = memberAccess.trimmedDescription
-//                            let prefixStr = "\(paramVarName)."
-//                            
-//                            if propertyString.hasPrefix(prefixStr) {
-//                                propertyString = String(propertyString.dropFirst(prefixStr.count))
-//                            }
-//                            
-//                            return propertyString
-//                        }.first
-//                    }
-//                    
-//                    return .init(viewEvent: viewName,
-//                                 gestureArg: gestureArg,
-//                                 mutatedStateVar: refName)
-//                default:
-//                    return nil
-//                }
-//                
-//            default:
-//                return nil
-//            }
-//        }
-        
-//        return .init(events: events,
-//                     caughtErrors: caughtErrors)
     }
 }
