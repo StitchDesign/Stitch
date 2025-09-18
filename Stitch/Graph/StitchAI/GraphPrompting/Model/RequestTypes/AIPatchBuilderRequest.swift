@@ -28,7 +28,7 @@ extension Array where Element == AIGraphData_V0.LayerData {
     @MainActor
     func createLayerNodes(layerGroupId: UUID?,
                           nodesDict: inout [UUID: NodeEntity],
-                          stateVarConnections: inout [String: NodeIOCoordinate]) {
+                          stateVarConnections: inout [String: [NodeIOCoordinate]]) {
         self.forEach { layerData in
             guard let layer = layerData.node_name.value.layer else {
                 fatalErrorIfDebug()
@@ -73,7 +73,7 @@ extension Array where Element == AIGraphData_V0.LayerData {
 extension SwiftSyntaxActionsResult {
     @MainActor
     mutating func applyAIGraph(to document: StitchDocumentViewModel,
-                               viewStatePatchConnections: [String : NodeIOCoordinate]) async {
+                               viewStatePatchConnections: [String : [NodeIOCoordinate]]) async {
         // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
         self.createAIGraph(document: document)
         document.encodeProjectInBackground()
