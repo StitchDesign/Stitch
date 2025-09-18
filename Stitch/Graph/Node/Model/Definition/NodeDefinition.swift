@@ -17,7 +17,6 @@ protocol NodeDefinition {
     
     static var defaultTitle: String { get }
     
-    @MainActor
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions
     
     @MainActor
@@ -68,7 +67,7 @@ protocol LayerNodeDefinition: NodeDefinition {
     
     static var layer: Layer { get }
     
-    @MainActor static var inputDefinitions: LayerInputPortSet { get }
+    static var inputDefinitions: LayerInputPortSet { get }
     
     @MainActor
     static func content(document: StitchDocumentViewModel,
@@ -87,7 +86,6 @@ extension LayerNodeDefinition {
     
     static var defaultUserVisibleType: UserVisibleType? { nil }
     
-    @MainActor
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(layerInputs: Self.inputDefinitions,
               layer: self.layer)

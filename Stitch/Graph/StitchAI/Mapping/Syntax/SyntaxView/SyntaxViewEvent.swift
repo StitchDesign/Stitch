@@ -10,7 +10,22 @@ import SwiftSyntax
 import SwiftParser
 import SwiftSyntaxBuilder
 
-enum SyntaxViewEvent: String, Sendable, Encodable {
+struct SyntaxViewEvent: Hashable {
+    // Creates constant IDs to prevent redundant creation of nodes
+//    let pressPatchNodeId = UUID()
+    let interactionPatchNodeId = UUID()
+    let unpackPositionNodeId = UUID()
+    
+    // Assigned layer id
+    let layerId: UUID
+    
+    let type: SyntaxViewEventType
+    
+    // Expressions should only be read from patch node fn params
+    let gestureArg: String?
+}
+
+enum SyntaxViewEventType: String, Sendable, Encodable {
     case dragGesture = "DragGesture"
     case tapGesture = "TapGesture"
 }
@@ -25,30 +40,12 @@ struct SyntaxViewModifierViewEvent: Sendable {
     let eventModifiers: [String: SyntaxViewModifierClosureData]
 }
 
-struct LayerDataViewEvent {
-    let viewEvent: SyntaxViewEvent
-    
-    // If relevant, the argument data that's read from the view event's closure.
-    // i.e. `translation.width`
-    let gestureArg: String?
-    
-    // Tracks which state variable is mutated
-    let mutatedStateVar: String
-}
-
 struct LayerDataViewEventsResult {
-    var events: [LayerDataViewEvent]
-    var caughtErrors: [SwiftUISyntaxError]
+    let viewEvent: SyntaxViewEvent
+    let actionsResult: SwiftSyntaxPatchActionsResult
 }
 
-extension LayerDataViewEventsResult {
-    init() {
-        self.events = []
-        self.caughtErrors = []
-    }
-}
-
-extension SyntaxViewEvent {
+extension SyntaxViewEventType {
     var patch: Patch {
         switch self {
         case .dragGesture:
@@ -60,7 +57,7 @@ extension SyntaxViewEvent {
 }
 
 extension Patch {
-    var syntaxViewEvent: SyntaxViewEvent? {
+    var syntaxViewEvent: SyntaxViewEventType? {
         switch self {
         case .dragInteraction:
             return .dragGesture
@@ -71,54 +68,152 @@ extension Patch {
     }
 }
 
-extension LayerDataViewEvent {
+extension SyntaxViewEvent {
     /// Determines the connections and intermediary patch nodes to be created between an interaction patch node and some state.
-    func createConnectedPatchData(interactionPatchNodeId: String,
-                                  createdPatchesAtThisNode: inout [Patch: CurrentAIGraphData
-        .PatchNode],
-                                  patchConnections: inout [CurrentAIGraphData.PatchConnection]) -> AIGraphData_V0.NodeIndexedCoordinate? {
-        switch self.viewEvent {
+    func createConnectedPatchData(gestureArg: ExprSyntaxProtocol?,
+                                  varName: String?) -> [PatchSyntaxResultType] {
+        let assignedLayerPortValue = PortValue
+            .assignedLayer(.init(self.layerId))
+        let assignedLayerValuesResult = PatchSyntaxPortValuesResult(
+            inputCoordinate: .init(portId: 0,
+                                   nodeId: self.interactionPatchNodeId),
+            values: [assignedLayerPortValue])
+        
+        switch self.type {
         case .dragGesture:
+            guard let gestureArg = gestureArg else {
+                fatalErrorIfDebug()
+                return []
+            }
+
+            let dragNodeResult = PatchSyntaxNodeResult(id: self.interactionPatchNodeId,
+                                                       kind: .patch(.dragInteraction))
+            
             // Packed case: arg == "translation" or "position"
-            if self.gestureArg == "translation" || self.gestureArg == "position" {
+            if let declrGestureArg = gestureArg.as(DeclReferenceExprSyntax.self),
+               declrGestureArg.trimmedDescription == "translation" || declrGestureArg.trimmedDescription == "position" {
                 // position = 0th port, translation = 2nd port
-                let outputPortIndex = self.gestureArg == "position" ? 0 : 2
+                let outputPortIndex = gestureArg.trimmedDescription == "position" ? 0 : 2
                 
-                return AIGraphData_V0.NodeIndexedCoordinate(
-                            node_id: interactionPatchNodeId,
-                            port_index: outputPortIndex)
+                let patchOutput = NodeIOCoordinate(portId: outputPortIndex,
+                                                   nodeId: self.interactionPatchNodeId)
+                
+                var results: [PatchSyntaxResultType] = [
+                    .node(dragNodeResult),
+                    .portValues(assignedLayerValuesResult)
+                ]
+                
+                if let varName = varName {
+                    let gestureReceiverEvent = PatchSyntaxResultType.stateWrite(varName, patchOutput)
+                    results.append(gestureReceiverEvent)
+                }
+                
+                return results
             }
             
-            // Unpacked case: need to see the suffix value (i.e. x or y)
-            guard let split = self.gestureArg?.split(separator: "."),
-                  let prefixValue = split[safe: 0],
-                  let suffixValue = split[safe: 1] else {
-                return nil
+            guard let memberGestureArg = gestureArg.as(MemberAccessExprSyntax.self),
+                  let prefixValue = memberGestureArg.base?.trimmedDescription else {
+                return []
             }
-            
+                        
+            let suffixValue = memberGestureArg.declName.trimmedDescription
             let outputPortIndex = prefixValue == "position" ? 0 : 2
             
+            // Determine event for receiver of gesture data
+            var gestureReceiverEvent: PatchSyntaxResultType?
+            
             if suffixValue == "x" || suffixValue == "width" {
-                return Self._positionUnpackCase(outputInteractionPortIndex: outputPortIndex,
-                                                 outputUnpackPortIndex: 0,
-                                                 interactionPatchNodeId: interactionPatchNodeId,
-                                                 createdPatchesAtThisNode: &createdPatchesAtThisNode,
-                                                 patchConnections: &patchConnections)
-            } else if suffixValue == "y" || suffixValue == "height" {
-                return Self._positionUnpackCase(outputInteractionPortIndex: outputPortIndex,
-                                                 outputUnpackPortIndex: 1,
-                                                 interactionPatchNodeId: interactionPatchNodeId,
-                                                 createdPatchesAtThisNode: &createdPatchesAtThisNode,
-                                                 patchConnections: &patchConnections)
+                if let varName = varName {
+                    let unpackOutput = NodeIOCoordinate(portId: 0,
+                                                        nodeId: self.unpackPositionNodeId)
+                    
+                    // Most downstream reference used for node ID
+                    gestureReceiverEvent = .stateWrite(varName, unpackOutput)
+                }
+                
+                let connection = PortEdgeData(
+                    from: .init(portId: outputPortIndex,
+                                nodeId: self.interactionPatchNodeId),
+                    to: .init(portId: 0, nodeId: self.unpackPositionNodeId))
+                
+                let unpackPositionNodeResult = PatchSyntaxNodeResult(
+                    id: self.unpackPositionNodeId,
+                    kind: .patch(.unpack)
+                )
+                
+                var results: [PatchSyntaxResultType] = [
+                    .node(dragNodeResult),
+                    .node(unpackPositionNodeResult),
+                    .portValues(assignedLayerValuesResult),
+                    .connection(connection)
+                ]
+                
+                if let gestureReceiverEvent = gestureReceiverEvent {
+                    results.append(gestureReceiverEvent)
+                }
+                
+                return results
             }
             
-            return nil
+            else if suffixValue == "y" || suffixValue == "height" {
+                if let varName = varName {
+                    let unpackOutput = NodeIOCoordinate(portId: 1,
+                                                        nodeId: self.unpackPositionNodeId)
+                    
+                    // Most downstream reference used for node ID
+                    gestureReceiverEvent = .stateWrite(varName, unpackOutput)
+                }
+                
+                let connection = PortEdgeData(
+                    from: .init(portId: outputPortIndex,
+                                nodeId: self.interactionPatchNodeId),
+                    to: .init(portId: 0, nodeId: self.unpackPositionNodeId))
+                
+                let unpackPositionNodeResult = PatchSyntaxNodeResult(
+                    id: self.unpackPositionNodeId,
+                    kind: .patch(.unpack)
+                )
+                
+                var results: [PatchSyntaxResultType] = [
+                    .node(dragNodeResult),
+                    .node(unpackPositionNodeResult),
+                    .portValues(assignedLayerValuesResult),
+                    .connection(connection)
+                ]
+                
+                if let gestureReceiverEvent = gestureReceiverEvent {
+                    results.append(gestureReceiverEvent)
+                }
+                
+                return results
+            }
+            
+            return []
             
         case .tapGesture:
+            let pressNodeId = self.interactionPatchNodeId
+            
+            // Determine event for receiver of gesture data
+            var gestureReceiverEvent: PatchSyntaxResultType?
+            
+            let pressOutput = NodeIOCoordinate(portId: 0,
+                                               nodeId: self.interactionPatchNodeId)
+            
+            if let varName = varName {
+                gestureReceiverEvent = .stateWrite(varName, pressOutput)
+            }
+                        
             // Assume 0 until we handle cases with position
-            return AIGraphData_V0.NodeIndexedCoordinate(
-                node_id: interactionPatchNodeId,
-                port_index: 0)
+            var results: [PatchSyntaxResultType] = [
+                .node(.init(id: pressNodeId, kind: .patch(.pressInteraction))),
+                .portValues(assignedLayerValuesResult)
+            ]
+            
+            if let gestureReceiverEvent = gestureReceiverEvent {
+                results.append(gestureReceiverEvent)
+            }
+            
+            return results
         }
     }
     
@@ -148,85 +243,28 @@ extension LayerDataViewEvent {
 }
 
 extension SyntaxViewModifierViewEvent {
-    func deriveViewEventData() throws -> LayerDataViewEventsResult {
-        var caughtErrors = [SwiftUISyntaxError]()
-        
+    func deriveViewEventData(layerId: UUID) throws -> SwiftPatchViewEvent? {
         // Check for onChange handlers
-        guard let viewName = SyntaxViewEvent(rawValue: self.eventName),
+        guard let viewName = SyntaxViewEventType(rawValue: self.eventName),
               let onChangeHandler = self.eventModifiers.get("onChanged") else {
-            return .init()
+            return nil
         }
         
         // Parse script for determining what populates state
         let parsedData = SwiftUIViewVisitor.parseSwiftUICode(onChangeHandler.script,
                                                              willParseView: false)
         
-        let events = try parsedData.bindingDeclarations.compactMap { keyValue -> LayerDataViewEvent? in
-            let (refName, assignmentValue) = keyValue
-            
-            switch assignmentValue {
-            case .stateMutation(let stateMutationAssignment):
-                switch stateMutationAssignment {
-                case .arraySyntax(let arraySyntax):
-                    // Find what we're parsing
-                    guard let funcExpr = arraySyntax.elements.first?.expression.as(FunctionCallExprSyntax.self) else {
-                        return nil
-                    }
-                    
-                    let args: ViewConstructorType
-                    do {
-                        args = try SwiftUIViewVisitor.parseArguments(from: funcExpr)
-                    } catch let error as SwiftUISyntaxError {
-                        caughtErrors.append(error)
-                        return nil
-                    } catch {
-                        throw error
-                    }
-                    
-                    var gestureArg: String?
-                    
-                    guard let defaultArgs = args.defaultArgs else {
-                        return nil
-                    }
-                    
-                    // A little hacky--if PortValueDescription of position type, return a packed variable
-                    if (defaultArgs[safe: 1]?.value.simpleValue?.contains("position") ?? false) {
-                        // TODO: see if position or translation
-                        gestureArg = "position"
-                    }
-                    
-                    else {
-                        // Find the property that's read from the gesture param
-                        gestureArg = defaultArgs.compactMap { arg -> String? in
-                            guard let paramVarName = onChangeHandler.paramVars.first,
-                                  let memberAccess = arg.value.firstMemberAccess else {
-                                return nil
-                            }
-                            
-                            var propertyString = memberAccess.trimmedDescription
-                            let prefixStr = "\(paramVarName)."
-                            
-                            if propertyString.hasPrefix(prefixStr) {
-                                propertyString = String(propertyString.dropFirst(prefixStr.count))
-                            }
-                            
-                            return propertyString
-                        }.first
-                    }
-                    
-                    return .init(viewEvent: viewName,
-                                 gestureArg: gestureArg,
-                                 mutatedStateVar: refName)
-                default:
-                    return nil
-                }
-                
-            default:
-                return nil
-            }
-        }
+        var actionsResult: [(String, SwiftPatchCodeType)] = []
         
-        return .init(events: events,
-                     caughtErrors: caughtErrors)
+        let param = onChangeHandler.paramVars.first
+        let eventData = SyntaxViewEvent(layerId: layerId,
+                                        type: viewName,
+                                        gestureArg: param)
+        
+        actionsResult += try parsedData.bindingDeclarations
+            .getSwiftPatchCodeTypes()
+        
+        return .init(viewEvent: eventData,
+                     codeStatements: actionsResult)
     }
 }

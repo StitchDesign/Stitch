@@ -604,7 +604,11 @@ extension GraphState {
         // rootUrl should be non-nil.
         // TODO: `rootUrl` is currently nil in a test context; can we find a smarter way to handle the projectLoader/documentEncoder ?
         #if !targetEnvironment(simulator)
-        assertInDebug(rootUrl.isDefined)
+        // Only check for non-debug mode
+        if let document = self.documentDelegate,
+           !(document.isDebugMode || document.isLocalOnly)  {
+            assertInDebug(rootUrl.isDefined)
+        }
         #endif
         if let rootUrl = rootUrl,
            let decodedFiles = DocumentEncoder.getDecodedFiles(rootUrl: rootUrl) {

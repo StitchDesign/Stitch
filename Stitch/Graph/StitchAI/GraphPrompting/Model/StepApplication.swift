@@ -68,10 +68,10 @@ extension StitchDocumentViewModel {
         }
         
         // Only adjust node positions if actions were valid and successfully applied
-        positionAIGeneratedNodes(convertedActions: convertedActions,
-                                 nodes: self.visibleGraph.visibleNodesViewModel,
-                                 viewPortCenter: self.newCanvasItemInsertionLocation,
-                                 graph: graph)
+//        positionAIGeneratedNodes(convertedActions: convertedActions,
+//                                 nodes: self.visibleGraph.visibleNodesViewModel,
+//                                 viewPortCenter: self.newCanvasItemInsertionLocation,
+//                                 graph: graph)
         
         self.graphUpdaterId = .randomId() // NOT NEEDED, ACTUALLY?
         
@@ -219,214 +219,260 @@ extension StitchDocumentViewModel {
     }
 }
 
-@MainActor
-func positionAIGeneratedNodes(convertedActions: [any StepActionable],
-                              nodes: VisibleNodesViewModel,
-                              viewPortCenter: CGPoint,
-                              graph: GraphReader) {
-    
-    // TODO: if we have a chain of nodes, shift our starting point further west
-    //    var viewPortCenter = viewPortCenter
-    //    viewPortCenter.x -= 500 // We actually shift left a little bit, so nodes look like they're crawling from left to right
-    
-    let (depthMap, hasCycle) = convertedActions.calculateAINodesAdjacency()
-    
-    guard let depthMap = depthMap,
-          !hasCycle else {
-        fatalErrorIfDebug("Did not have a cycle but was not able create depth-map")
-        return
-    }
-    
-    guard !depthMap.isEmpty else {
-//        fatalErrorIfDebug("Depth-map should never be empty")
-        log("Depth-map should never be empty") // can be empty if we have no nodes
-        return
-    }
-                    
-    let depthLevels = depthMap.values.sorted().toOrderedSet
+// MARK: - Pure Functions for Layer Canvas Item Restoration
 
-    let createdNodes = convertedActions.nodesCreatedByLLMActions()
-        
-    // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
-    depthLevels.forEach { depthLevel in
-
-        // TODO: just rewrite the adjacency logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
-        // Find all the created-nodes at this depth-level,
-        // and adjust their positions
-        let createdNodesAtThisLevel = createdNodes.compactMap {
-            if depthMap.get($0) == depthLevel {
-                return nodes.getNode($0)
-            }
-            // log("positionAIGeneratedNodes: Could not get depth level for \($0.debugFriendlyId)")
-            return nil
-        }
-        
-        createdNodesAtThisLevel.enumerated().forEach { x in
-            let createdNode = x.element
-            let createdNodeIndexAtThisDepthLevel = x.offset
-            // log("positionAIGeneratedNodes: createdNode.id: \(createdNode.id)")
-            // log("positionAIGeneratedNodes: createdNodeIndexAtThisDepthLevel: \(createdNodeIndexAtThisDepthLevel)")
-            
-            createdNode.getAllCanvasObservers().enumerated().forEach { x in
-                
-                let canvasItem = x.element
-                let canvasItemIndex = x.offset
-                
-                var size: CGSize = canvasItem.getHardcodedSize(graph)
-                ?? CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
-                          height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
-                
-//                log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
-                
-                // Add some 'padding' to the canvas item's size, so items do not end up right next to each other
-                let padding: CGFloat = 36.0
-                size.width += padding
-                size.height += padding
-                               
-                let newPosition =  CGPoint(
-                    x: viewPortCenter.x + (CGFloat(depthLevel) * size.width),
-                    y: viewPortCenter.y + (CGFloat(canvasItemIndex) * size.height) + (CGFloat(createdNodeIndexAtThisDepthLevel) * size.height)
-                )
-                                
-//                 log("positionAIGeneratedNodes: canvasItemAndIndex.element.id: \(canvasItemAndIndex.element.id)")
-//                 log("positionAIGeneratedNodes: newPosition: \(newPosition)")
-                canvasItem.position = newPosition
-                canvasItem.previousPosition = newPosition
-            }
-        }
-    }
-}
-
-// TODO: ONLY POSITION THE NEWLY INTRODUCED NODES
-@MainActor
-func positionAIGeneratedNodesDuringApply(
-    nodes: VisibleNodesViewModel,
-    viewPortCenter: CGPoint,
-    graph: GraphReader,
-    nodeCreationOrder: [UUID: Int] = [:]
+/// Restores canvas item positions for a layer node from preserved position data
+/// - Parameters:
+///   - layerNodeEntity: The layer node to update (modified in place)
+///   - nodeId: The node's UUID for coordinate matching
+///   - preservedPositions: Previously captured canvas item positions
+///   - updateCanvasPosition: Closure to apply new positions to canvas items
+private func restoreLayerCanvasItemPositions(
+    in layerNodeEntity: inout LayerNodeEntity,
+    nodeId: UUID,
+    preservedPositions: [LayerCanvasItemCoordinate: CGPoint],
+    updateCanvasPosition: (CanvasItemId) -> CGPoint
 ) {
-    // TODO: if we have a chain of nodes, shift our starting point further west
-    //    var viewPortCenter = viewPortCenter
-    //    viewPortCenter.x -= 500 // We actually shift left a little bit, so nodes look like they're crawling from left to right
+    for inputDefinition in layerNodeEntity.layer.layerGraphNode.inputDefinitions {
+        var portData = layerNodeEntity[keyPath: inputDefinition.schemaPortKeyPath]
 
-    // Horizontal spacing between depth‑columns
-    let horizontalPadding: CGFloat = 120.0
-
-    let (depthMap, hasCycle) = calculateAINodesAdjacency(nodes: nodes) // patchData.calculateAINodesAdjacency()
-
-    guard let depthMap = depthMap else {
-        log("DID NOT HAVE A depthMap")
-        return
-    }
-    
-    guard !hasCycle else {
-        log("HAD A CYCLE for depthMap \(depthMap)")
-        return
-    }
-
-    // log("positionAIGeneratedNodes: depthMap: \(depthMap)")
-
-    guard !depthMap.isEmpty else {
-//        fatalErrorIfDebug("Depth-map should never be empty")
-        log("Depth-map should never be empty") // can be empty if we have no nodes
-        return
-    }
-
-    let depthLevels = depthMap.values.sorted().toOrderedSet
-
-    let createdNodes: IdSet = nodes.nodes.keys.toSet
-
-    // Determine widest item (incl. padding) for each depth column
-    var columnWidths: [Int: CGFloat] = [:]
-    depthLevels.forEach { depth in
-        let nodesAtLevel = createdNodes.compactMap { depthMap.get($0) == depth ? nodes.getNode($0) : nil }
-        let maxWidth = nodesAtLevel.flatMap { node in
-            node.getAllCanvasObservers().compactMap { obs in
-                (obs.getHardcodedSize(graph)?.width ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER) + horizontalPadding
-            }
-        }.max() ?? (CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER + horizontalPadding)
-        columnWidths[depth] = maxWidth
-    }
-
-    // Build cumulative X offsets so each column starts after the previous one
-    var cumulativeXOffset: [Int: CGFloat] = [:]
-    var runningX: CGFloat = 0
-    depthLevels.sorted().forEach { depth in
-        cumulativeXOffset[depth] = runningX
-        runningX += columnWidths[depth] ?? 0
-    }
-    
-    // Solution 1: Center the chain midpoint instead of starting at viewport center
-    // Calculate total chain width
-    let totalChainWidth = runningX
-    // Shift starting point west by half the chain width to center it
-    let startX = viewPortCenter.x - (totalChainWidth / 2)
-
-    // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
-    depthLevels.forEach { depthLevel in
-
-        log("on depthLevel: \(depthLevel)")
-
-        // ───────── vertical layout helpers ─────────
-        let verticalPadding: CGFloat = 80.0
-        // Tallest observer at this depth
-        let rowHeight: CGFloat = {
-            let maxH = createdNodes.compactMap { depthMap.get($0) == depthLevel ? nodes.getNode($0) : nil }
-                .flatMap { node in
-                    node.getAllCanvasObservers().compactMap { obs in
-                        obs.getHardcodedSize(graph)?.height ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER
-                    }
-                }
-                .max() ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER
-            return maxH + verticalPadding
-        }()
-        var rowIndexForDepth = 0
-
-        // TODO: just rewrite the adjacency logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
-        // Find all the created-nodes at this depth-level,
-        // and adjust their positions
-        let nodesAtThisDepth = createdNodes.compactMap {
-            if depthMap.get($0) == depthLevel {
-                return nodes.getNode($0)
-            }
-            // THIS JUST MEANS WE COULD NOT FIND THE NODE AT THIS LEVEL
-            // log("positionAIGeneratedNodes: Could not get depth level for \($0.debugFriendlyId)")
-            return nil
-        }
-
-        // Sort nodes at this depth level by creation order for deterministic positioning
-        let createdNodesAtThisLevel = nodesAtThisDepth.sorted { node1, node2 in
-            let order1 = nodeCreationOrder[node1.id] ?? Int.max
-            let order2 = nodeCreationOrder[node2.id] ?? Int.max
-            if order1 != order2 {
-                return order1 < order2
-            }
-            // Fallback to UUID string comparison for stability
-            return node1.id.uuidString < node2.id.uuidString
-        }
-
-        createdNodesAtThisLevel.forEach { createdNode in
-            createdNode.getAllCanvasObservers().forEach { canvasItem in
-                var size: CGSize = canvasItem.getHardcodedSize(graph)
-                ?? CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
-                          height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
-
-                // Add horizontal gap only
-                size.width += horizontalPadding
-
-                let newPosition = CGPoint(
-                    x: startX + (cumulativeXOffset[depthLevel] ?? 0),
-                    y: viewPortCenter.y + CGFloat(rowIndexForDepth) * rowHeight
+        switch portData.mode {
+        case .packed:
+            if var canvas = portData.packedData.canvasItem {
+                let coordinate = LayerCanvasItemCoordinate(
+                    nodeId: nodeId,
+                    port: inputDefinition,
+                    mode: .packed
                 )
-                rowIndexForDepth += 1
 
-                // log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
-                // log("positionAIGeneratedNodes: newPosition: \(newPosition)")
-                canvasItem.position = newPosition
-                canvasItem.previousPosition = newPosition
+                if let preservedPosition = preservedPositions[coordinate] {
+                    log("  ♻️ Restoring packed position for \(inputDefinition): \(preservedPosition)")
+                    canvas.position = preservedPosition
+                } else {
+                    let newPosition = updateCanvasPosition(.layerInput(.init(
+                        node: nodeId,
+                        keyPath: .init(layerInput: inputDefinition, portType: .packed)
+                    )))
+                    log("  🆕 New packed position for \(inputDefinition): \(newPosition)")
+                    canvas.position = newPosition
+                }
+                portData.packedData.canvasItem = canvas
+            }
+
+        case .unpacked:
+            portData.unpackedData = portData.unpackedData.enumerated().map { (index, unpackedData) in
+                var unpackedData = unpackedData
+                if var canvas = unpackedData.canvasItem {
+                    let coordinate = LayerCanvasItemCoordinate(
+                        nodeId: nodeId,
+                        port: inputDefinition,
+                        mode: .unpacked(index: index)
+                    )
+
+                    if let preservedPosition = preservedPositions[coordinate] {
+                        log("  ♻️ Restoring unpacked[\(index)] position for \(inputDefinition): \(preservedPosition)")
+                        canvas.position = preservedPosition
+                    } else {
+                        let newPosition = updateCanvasPosition(.layerInput(.init(
+                            node: nodeId,
+                            keyPath: .init(layerInput: inputDefinition, portType: .unpacked(index.asUnpackedPortType))
+                        )))
+                        log("  🆕 New unpacked[\(index)] position for \(inputDefinition): \(newPosition)")
+                        canvas.position = newPosition
+                    }
+                    unpackedData.canvasItem = canvas
+                }
+                return unpackedData
             }
         }
+
+        layerNodeEntity[keyPath: inputDefinition.schemaPortKeyPath] = portData
     }
 }
 
+extension Array where Element == NodeEntity {
+    func getNode(_ id: UUID) -> NodeEntity? {
+        self.first { $0.id == id }
+    }
+    
+    @MainActor
+    func positionAIGeneratedNodesDuringApply(
+        viewPortCenter: CGPoint,
+        graph: GraphReader,
+        matchedNodeIds: Set<UUID> = [],
+        layerCanvasItemPositions: [LayerCanvasItemCoordinate: CGPoint] = [:]
+    ) -> Self {
+        log("🚀 positionAIGeneratedNodesDuringApply called with \(self.count) nodes, \(matchedNodeIds.count) matched nodes, \(layerCanvasItemPositions.count) preserved positions")
+        log("🚀 Matched node IDs: \(matchedNodeIds)")
+        log("🚀 Preserved position coordinates: \(layerCanvasItemPositions.keys.map(\.id))")
 
+        // TODO: if we have a chain of nodes, shift our starting point further west
+        //    var viewPortCenter = viewPortCenter
+        //    viewPortCenter.x -= 500 // We actually shift left a little bit, so nodes look like they're crawling from left to right
+
+        // Horizontal spacing between depth‑columns
+        let horizontalPadding: CGFloat = 120.0
+        
+        let (depthMap, hasCycle) = Stitch.calculateAINodesAdjacency(nodes: self) // patchData.calculateAINodesAdjacency()
+        
+        guard let depthMap = depthMap else {
+            log("positionAIGeneratedNodesDuringApply: DID NOT HAVE A depthMap")
+            return self
+        }
+        
+        guard !hasCycle else {
+            log("positionAIGeneratedNodesDuringApply: HAD A CYCLE for depthMap \(depthMap)")
+            return self
+        }
+        
+        log("positionAIGeneratedNodesDuringApply: depthMap: \(depthMap)")
+        
+        guard !depthMap.isEmpty else {
+            //        fatalErrorIfDebug("Depth-map should never be empty")
+            log("positionAIGeneratedNodesDuringApply: Depth-map should never be empty") // can be empty if we have no nodes
+            return self
+        }
+        
+        let depthLevels = depthMap.values.sorted().toOrderedSet
+        
+        let createdNodes: IdSet = self.map(\.id).toSet
+        
+        // Determine widest item (incl. padding) for each depth column
+        var columnWidths: [Int: CGFloat] = [:]
+        depthLevels.forEach { depth in
+            let nodesAtLevel = createdNodes.compactMap { depthMap.get($0) == depth ? self.getNode($0) : nil }
+            let maxWidth = nodesAtLevel.flatMap { node in
+                node.canvasIds.compactMap { canvasId in
+                    (canvasId.getHardcodedSize(kind: node.kind,
+                                               nodeType: node.nodeTypeEntity.patchNodeEntity?.userVisibleType)?.width ??
+                     CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER) + horizontalPadding
+                }
+            }.max() ?? (CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER + horizontalPadding)
+            columnWidths[depth] = maxWidth
+        }
+        
+        // Build cumulative X offsets so each column starts after the previous one
+        var cumulativeXOffset: [Int: CGFloat] = [:]
+        var runningX: CGFloat = 0
+        depthLevels.sorted().forEach { depth in
+            cumulativeXOffset[depth] = runningX
+            runningX += columnWidths[depth] ?? 0
+        }
+
+        // Calculate centering offset to position the middle of the chain at viewport center
+        let totalChainWidth = runningX
+        let centeringOffset = -totalChainWidth / 2.0
+        log("🎯 Chain centering: totalWidth=\(totalChainWidth), centeringOffset=\(centeringOffset)")
+
+        // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
+        let updatedNodes = depthLevels.flatMap { depthLevel -> [NodeEntity] in
+            
+            log("positionAIGeneratedNodesDuringApply: on depthLevel: \(depthLevel)")
+            
+            // ───────── vertical layout helpers ─────────
+            let verticalPadding: CGFloat = 80.0
+            // Tallest observer at this depth
+            let rowHeight: CGFloat = {
+                let maxH = createdNodes.compactMap { depthMap.get($0) == depthLevel ? self.getNode($0) : nil }
+                    .flatMap { node in
+                        node.canvasIds
+                            .map { canvasId in
+                                canvasId
+                                    .getHardcodedSize(
+                                        kind: node.kind,
+                                        nodeType: node.nodeTypeEntity.patchNodeEntity?.userVisibleType)?.height ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER
+                            }
+                    }
+                    .max() ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER
+                return maxH + verticalPadding
+            }()
+            var rowIndexForDepth = 0
+            
+            // TODO: just rewrite the adjacency logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
+            // Find all the created-nodes at this depth-level,
+            // and adjust their positions
+            let createdNodesAtThisLevel: [NodeEntity] = createdNodes.compactMap {
+                if depthMap.get($0) == depthLevel {
+                    return self.getNode($0)
+                }
+                // THIS JUST MEANS WE COULD NOT FIND THE NODE AT THIS LEVEL
+                 log("positionAIGeneratedNodesDuringApply: Could not get depth level for \($0.debugFriendlyId)")
+                return nil
+            }
+            
+            return createdNodesAtThisLevel.map { createdNode in
+                var createdNode = createdNode
+
+                log("positionAIGeneratedNodesDuringApply: on createdNode \(createdNode.id) \(createdNode.kind)")
+
+                let isNodeMatched = matchedNodeIds.contains(createdNode.id)
+
+                // Skip positioning for matched PATCH nodes only - layer nodes need canvas item handling
+                if isNodeMatched && createdNode.nodeTypeEntity.patchNodeEntity != nil {
+                    log("⏭️ Skipping positioning for matched patch node \(createdNode.id)")
+                    return createdNode
+                }
+                
+                let updateCanvasPosition = { (canvasId: CanvasItemId) -> CGPoint in
+                    var size: CGSize = canvasId
+                        .getHardcodedSize(kind: createdNode.kind,
+                                          nodeType: createdNode.nodeTypeEntity.patchNodeEntity?.userVisibleType) ?? CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
+                              height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
+                    
+                    // Add horizontal gap only
+                    size.width += horizontalPadding
+                    
+                    let newPosition = CGPoint(
+                        x: viewPortCenter.x + centeringOffset + (cumulativeXOffset[depthLevel] ?? 0),
+                        y: viewPortCenter.y + CGFloat(rowIndexForDepth) * rowHeight
+                    )
+                    rowIndexForDepth += 1
+                    
+                    // log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
+                    log("positionAIGeneratedNodesDuringApply: newPosition: \(newPosition)")
+                    return newPosition
+                }
+
+                switch createdNode.nodeTypeEntity {
+                case .patch(var patchNode):
+                    patchNode.canvasEntity.position = updateCanvasPosition(
+                        .node(createdNode.id)
+                    )
+                    createdNode.nodeTypeEntity = .patch(patchNode)
+                    
+                case .layer(var layerNodeEntity):
+                    let isLayerMatched = matchedNodeIds.contains(createdNode.id)
+                    log("🎯 Processing layer \(createdNode.id), matched: \(isLayerMatched)")
+
+                    // Use pure function to restore canvas item positions
+                    restoreLayerCanvasItemPositions(
+                        in: &layerNodeEntity,
+                        nodeId: createdNode.id,
+                        preservedPositions: layerCanvasItemPositions,
+                        updateCanvasPosition: updateCanvasPosition
+                    )
+
+                    createdNode.nodeTypeEntity = .layer(layerNodeEntity)
+                
+                case .group(var canvasEntity):
+                    canvasEntity.position = updateCanvasPosition(
+                        .node(createdNode.id)
+                    )
+                    
+                    createdNode.nodeTypeEntity = .group(canvasEntity)
+                
+                case .component(var component):
+                    component.canvasEntity.position = updateCanvasPosition(
+                        .node(createdNode.id)
+                    )
+                    
+                    createdNode.nodeTypeEntity = .component(component)
+                }
+                
+                return createdNode
+            }
+        }
+        
+        return updatedNodes
+    }
+}

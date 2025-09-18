@@ -44,13 +44,13 @@ protocol PortValuesPackModifiable: FromSwiftUIViewModifierToStitch {
 extension PortValuesPackModifiable {
     func createCustomValueEvents() throws -> [LayerPortDerivation] {
         // Handle each argument argument
-        let layerPortEvents: [LayerPortDerivationType] = try self.args.flatMap {
+        let layerPortEvents: [PatchSyntaxResultType] = try self.args.flatMap {
             try $0.derivePortValues()
         }
         
-        let parsedValues = try layerPortEvents.compactMap { event -> PortValue? in
-            guard let valueDesc = event.value else { return nil }
-            return try PortValue(from: valueDesc)
+        let parsedValues = layerPortEvents.compactMap { event -> PortValue? in
+            guard let value = event.portData?.values?.first else { return nil }
+            return value
         }
         
         // Packed scenarios--either return the only argument or pack up multiple
@@ -58,7 +58,7 @@ extension PortValuesPackModifiable {
            let firstPortEvent = layerPortEvents.first {
             return [
                 .init(input: Self.layerInputPort,
-                      inputData: firstPortEvent)
+                      inputData: [firstPortEvent])
             ]
         }
         

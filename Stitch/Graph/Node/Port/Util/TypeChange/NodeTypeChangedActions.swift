@@ -145,7 +145,6 @@ extension GraphState {
 
 extension Patch {
     /// Refers to input ports whose types change given a conditional node value type. Returns nil if the node doesn't support type changing.
-    @MainActor
     var nonStaticTypedInputPorts: Set<Int>? {
         let patchNodeDefinition = self.graphNode
         guard let defaultType = patchNodeDefinition.defaultUserVisibleType else {
@@ -161,41 +160,5 @@ extension Patch {
             }
         
         return Set(valueDynamicRows)
-    }
-}
-
-extension SwiftParserPatchData {
-    @MainActor
-    static func processIncomingConnectionData(upstreamCoordinate: AIGraphData_V0.NodeIndexedCoordinate,
-                                              downstreamCoordinate: AIGraphData_V0.NodeIndexedCoordinate,
-                                              nativePatchNodes: [String: CurrentAIGraphData.PatchNode],
-                                              nativePatchValueTypeSettings: inout [String: CurrentAIGraphData.NativePatchNodeValueTypeSetting],
-                                              patchConnections: inout [CurrentAIGraphData.PatchConnection]) {
-        guard let patch = nativePatchNodes.get(downstreamCoordinate.node_id)?.node_name.value.patch else {
-            fatalErrorIfDebug()
-            return
-        }
-        
-        let nodeValueTypeDynamicPortIndices = patch.nonStaticTypedInputPorts ?? .init()
-        
-        // Determine a custom node value type if this node supports value types and no value has yet been set here
-        let checkForValueTypeHere = nodeValueTypeDynamicPortIndices.contains(downstreamCoordinate.port_index) && !nativePatchValueTypeSettings.keys.contains(downstreamCoordinate.node_id)
-        
-        // Determine node type by examining upstream node
-        if checkForValueTypeHere {
-           if let upstreamValueType = upstreamCoordinate
-            .determineOutputNodeValueType(nativePatchNodes: nativePatchNodes,
-                                          nativePatchValueTypeSettings: nativePatchValueTypeSettings) {
-               nativePatchValueTypeSettings.updateValue(.init(node_id: upstreamCoordinate.node_id,
-                                                              value_type: .init(value: upstreamValueType)) ,
-                                                        forKey: upstreamCoordinate.node_id)
-           }
-        }
-        
-        // Create connection data
-        patchConnections.append(
-            .init(src_port: upstreamCoordinate,
-                  dest_port: downstreamCoordinate)
-        )
     }
 }

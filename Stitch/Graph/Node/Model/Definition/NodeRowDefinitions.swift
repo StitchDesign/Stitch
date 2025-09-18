@@ -82,7 +82,6 @@ extension Layer {
 }
 
 extension Patch {
-    @MainActor
     func rowDefinitions(for nodeType: NodeType?) -> NodeRowDefinitions {
         
         let graphNode = self.graphNode

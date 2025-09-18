@@ -19,26 +19,23 @@ extension GraphState {
         
         let patchNodeDeclarations = patchData.patchNodeDeclarations
         
-        let flattenedLayerData = aiGraph.layer_data_list.allFlattenedItems
         let layerViewEventsMap = aiGraph.layer_data_list.getAllViewEventsMap()
-        let layerViewEvents = layerViewEventsMap.values
-        
-        // Organizes view event data by layer id
-        let layerViewEventMap = flattenedLayerData.reduce(into: [String: [LayerDataViewEvent]]()) { result, layerData in
-            layerData.view_events.forEach{ viewEvent in
-                var viewEventsList = result.get(layerData.node_id) ?? []
-                viewEventsList.append(viewEvent)
-                
-                result.updateValue(viewEventsList,
-                                   forKey: layerData.node_id)
-            }
-        }
         
         // Patches that connect to layers
         let patchStateVars = Array(aiGraph.viewStatePatchConnections.keys)
         
         // Interaction data updated from gesture callbacks
-        let interactionStateVars = layerViewEvents.map { $0.mutatedStateVar }
+        let layerViewEvents: [[SwiftPatchViewEvent]] = Array(layerViewEventsMap.values)
+        let flattenedLayerViewEvents = layerViewEvents.flatMap { $0 }
+        let interactionStateVars = flattenedLayerViewEvents
+            .map {
+                guard let mutatedVar = $0.codeStatements.first?.0 else {
+                    fatalErrorIfDebug()
+                    return ""
+                }
+                
+                return mutatedVar
+            }
         
         let allStateVarNames = Set(patchStateVars + interactionStateVars)
         let stateVarDeclarations = allStateVarNames.map { stateVarName in
@@ -46,7 +43,7 @@ extension GraphState {
         }
             .joined(separator: "\n")
             .indentLines()
-
+        
         // log("createSwiftUICode: stateVarDeclarations: \(stateVarDeclarations)")
         
         let allLayerEntities = graphEntity.nodes
@@ -64,23 +61,29 @@ extension GraphState {
         // log("createSwiftUICode: topLevelLayerEntities: \(topLevelLayerEntities)")
         
         // Maps upstream patch node's output port to a view state's var
-        let varIdNameMap = aiGraph.viewStatePatchConnections.reduce(into: [AIGraphData_V0.NodeIndexedCoordinate: String]()) { result, data in
-            let (variableName, nodeIndexCoordiante) = data
+        let varIdNameMap = aiGraph.viewStatePatchConnections.reduce(into: [NodeIOCoordinate: String]()) { result, data in
+            let (variableName, nodeIndexCoordiantes) = data
+            
+            assertInDebug(nodeIndexCoordiantes.count == 1)
+            
+            guard let nodeIndexCoordiante = nodeIndexCoordiantes.first else {
+                return
+            }
             result.updateValue(variableName, forKey: nodeIndexCoordiante)
         }
         
         // Append interactions to var name map
-//        varIdNameMap = layerViewEventsMap.reduce(into: varNameIdMap) { result, data in
-//            let (id, viewEvent) = data
-//            result.updateValue(viewEvent.mutatedStateVar, forKey: id)
-//        }
+        //        varIdNameMap = layerViewEventsMap.reduce(into: varNameIdMap) { result, data in
+        //            let (id, viewEvent) = data
+        //            result.updateValue(viewEvent.mutatedStateVar, forKey: id)
+        //        }
         
         // log("createSwiftUICode: varNameIdMap: \(varNameIdMap)")
         
         let viewCode = try topLevelLayerEntities
             .createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
                                varIdNameMap: varIdNameMap,
-                               layerViewEventMap: layerViewEventMap)
+                               layerViewEventMap: layerViewEventsMap)
         
         if ignoreScript {
             return viewCode
@@ -98,15 +101,15 @@ extension GraphState {
         
         let innerStructContents = """
         \(stateVarDeclarations)
-
+        
         var body: some View {
         \(viewCode.indentLines(n: 2))
         }
-
+        
         func updateLayerInputs() {
         \(patchNodeDeclarations.joined(separator: "\n").indentLines())
         }
-
+        
         \(jsNodesScript)
         """
         

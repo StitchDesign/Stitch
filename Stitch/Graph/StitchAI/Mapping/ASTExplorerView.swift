@@ -222,7 +222,7 @@ struct ASTExplorerView: View {
                 case .derivedActions:
                     stageView(
                         title: Stage.derivedActions.title,
-                        text: (try? stitchActions?.encodeToPrintableString()) ?? "—"
+                        text: "\(stitchActions)"
                     )
                     .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
                                             removal:   .move(edge: .bottom).combined(with: .opacity)))
@@ -255,19 +255,21 @@ struct ASTExplorerView: View {
         
         // Parse code → Syntax
         firstSyntax = codeParserResult.viewStack
-
-        // Syntax → Actions
-        var stitchActionsResult = codeParserResult.deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations)
-        
-        stitchActions = stitchActionsResult
-        silentlyCaughtErrors = stitchActionsResult.caughtErrors
         
         // Apply AI result to fake document
         Task(priority: .high) {
-            await stitchActionsResult
-                .createAIGraph(document: fakeDoc)
+            // Syntax → Actions
+            var stitchActionsResult = try await codeParserResult.deriveStitchActions(
+                bindingDeclarations: codeParserResult.bindingDeclarations,
+                document: fakeDoc)
             
             try await MainActor.run {
+                stitchActionsResult
+                    .createAIGraph(document: fakeDoc)
+    
+                stitchActions = stitchActionsResult
+                silentlyCaughtErrors = stitchActionsResult.caughtErrors
+    
                 // Updates all errors
                 silentlyCaughtErrors = stitchActionsResult.caughtErrors
                 
@@ -313,25 +315,7 @@ private extension CurrentAIGraphData.LayerData? {
         // Convert `nil` to a dash
         guard let layerData = self else { return "—" }
 
-        // 1) Encode the real structure
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        guard let rawData = try? encoder.encode(layerData),
-              var json = String(data: rawData, encoding: .utf8) else {
-            return "—"
-        }
-
-        // 2) Collapse `"value_type" : { "foo" : { } }` → `"value_type" : "foo"`
-        let pattern = #"\"value_type\"\s*:\s*\{\s*\"([^\"]+)\"\s*:\s*\{\s*\}\s*\}"#
-        if let regex = try? NSRegularExpression(pattern: pattern, options: [.dotMatchesLineSeparators]) {
-            let fullRange = NSRange(location: 0, length: json.utf16.count)
-            json = regex.stringByReplacingMatches(in: json,
-                                                  options: [],
-                                                  range: fullRange,
-                                                  withTemplate: "\"value_type\" : \"$1\"")
-        }
-
-        return json
+        return "\(layerData)"
     }
 }
 
