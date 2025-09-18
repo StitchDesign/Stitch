@@ -120,6 +120,9 @@ extension SyntaxViewEvent {
                 // Determine event for receiver of gesture data
                 let gestureReceiverEvent: PatchSyntaxResultType
                 
+                let patchOutput = NodeIOCoordinate(portId: outputPortIndex,
+                                                   nodeId: self.interactionPatchNodeId)
+                
                 switch context {
                 case .layerInput(let layerInput):
                     let destCoordinate = NodeIOCoordinate(
@@ -127,12 +130,11 @@ extension SyntaxViewEvent {
                                                  portType: .packed)),
                         nodeId: self.layerId)
                     gestureReceiverEvent = .connection(
-                        .init(from: .init(portId: outputPortIndex,
-                                          nodeId: self.interactionPatchNodeId),
+                        .init(from: patchOutput,
                               to: destCoordinate))
                     
                 case .varName(let varName):
-                    gestureReceiverEvent = .connectionToLayerInput(varName)
+                    gestureReceiverEvent = .stateWrite(varName, patchOutput)
                 }
                 
                 return [
@@ -158,20 +160,25 @@ extension SyntaxViewEvent {
                 case .layerInput(let layerInput):
                     unpackNodeId = .init()
                     
+                    let unpackOutput = NodeIOCoordinate(portId: 0,
+                                                        nodeId: unpackNodeId)
+                    
                     let destCoordinate = NodeIOCoordinate(
                         portType: .keyPath(.init(layerInput: layerInput,
                                                  portType: .unpacked(.port0))),
                         nodeId: self.layerId)
                     gestureReceiverEvent = .connection(
-                        .init(from: .init(portId: 0,
-                                          nodeId: unpackNodeId),
+                        .init(from: unpackOutput,
                               to: destCoordinate))
                     
                 case .varName(let varName):
                     unpackNodeId = deterministicUUID(from: varName)
                     
+                    let unpackOutput = NodeIOCoordinate(portId: 0,
+                                                        nodeId: unpackNodeId)
+                    
                     // Most downstream reference used for node ID
-                    gestureReceiverEvent = .connectionToLayerInput(varName)
+                    gestureReceiverEvent = .stateWrite(varName, unpackOutput)
                 }
                 
                 let connection = PortEdgeData(
@@ -198,20 +205,25 @@ extension SyntaxViewEvent {
                 case .layerInput(let layerInput):
                     unpackNodeId = .init()
                     
+                    let unpackOutput = NodeIOCoordinate(portId: 1,
+                                                        nodeId: unpackNodeId)
+                    
                     let destCoordinate = NodeIOCoordinate(
                         portType: .keyPath(.init(layerInput: layerInput,
                                                  portType: .unpacked(.port1))),
                         nodeId: self.layerId)
                     gestureReceiverEvent = .connection(
-                        .init(from: .init(portId: 1,
-                                          nodeId: unpackNodeId),
+                        .init(from: unpackOutput,
                               to: destCoordinate))
                     
                 case .varName(let varName):
                     unpackNodeId = deterministicUUID(from: varName)
                     
+                    let unpackOutput = NodeIOCoordinate(portId: 1,
+                                                        nodeId: unpackNodeId)
+                    
                     // Most downstream reference used for node ID
-                    gestureReceiverEvent = .connectionToLayerInput(varName)
+                    gestureReceiverEvent = .stateWrite(varName, unpackOutput)
                 }
                 
                 let connection = PortEdgeData(
@@ -241,6 +253,9 @@ extension SyntaxViewEvent {
             // Determine event for receiver of gesture data
             let gestureReceiverEvent: PatchSyntaxResultType
             
+            let pressOutput = NodeIOCoordinate(portId: 0,
+                                               nodeId: self.interactionPatchNodeId)
+            
             switch context {
             case .layerInput(let layerInput):
                 let destCoordinate = NodeIOCoordinate(
@@ -248,12 +263,11 @@ extension SyntaxViewEvent {
                                              portType: .packed)),
                     nodeId: self.layerId)
                 gestureReceiverEvent = .connection(
-                    .init(from: .init(portId: 0,
-                                      nodeId: self.interactionPatchNodeId),
+                    .init(from: pressOutput,
                           to: destCoordinate))
                 
             case .varName(let varName):
-                gestureReceiverEvent = .connectionToLayerInput(varName)
+                gestureReceiverEvent = .stateWrite(varName, pressOutput)
             }
                         
             // Assume 0 until we handle cases with position

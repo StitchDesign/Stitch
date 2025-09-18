@@ -841,7 +841,11 @@ enum PatchSyntaxResultType {
     
     case connection(PortEdgeData)
     
+    // State reads
     case connectionToLayerInput(String)
+    
+    // State writes (var name, patch node output)
+    case stateWrite(String, NodeIOCoordinate)
     
     case jsSettings(PatchSyntaxJSResult)
 }
@@ -1427,6 +1431,9 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
                 
             nodeEntity.nodeTypeEntity = .patch(newPatchNode)
             self.updateValue(nodeEntity, forKey: nodeEntity.id)
+        
+        case .stateWrite(let varName, let upstreamOutputCoordinate):
+            stateVarConnections.updateValue(upstreamOutputCoordinate, forKey: varName)
         }
     }
 }
