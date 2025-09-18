@@ -110,6 +110,15 @@ extension NodeEntity {
         }
     }
     
+    var patchNodeEntity: PatchNodeEntity? {
+        switch self.nodeTypeEntity {
+        case .patch(let patch):
+            return patch
+        default:
+            return nil
+        }
+    }
+    
     var layerNodeEntity: LayerNodeEntity? {
         switch self.nodeTypeEntity {
         case .layer(let layer):

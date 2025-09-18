@@ -928,8 +928,7 @@ extension SyntaxViewName {
                 
                 let result = viewEvent
                     .createConnectedPatchData(gestureArg: nil,
-                                              varName: varName,
-                                              nodesDict: nodesDict)
+                                              context: .varName(varName))
                 return result
             }
             
@@ -946,8 +945,7 @@ extension SyntaxViewName {
             
             return memberAccess
                 .createConnectedPatchData(viewEvent: viewEvent,
-                                          varName: varName,
-                                          nodesDict: nodesDict)
+                                          context: .varName(varName))
             
         case .closure, .viewEvent, .view:
             throw SwiftUISyntaxError.portValueDecodingError(.portValueDecodingError(describe(argument)))
@@ -1056,15 +1054,15 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
             }
             
         case .memberAccess(let memberAccess):
-            guard let viewEvent = viewEvent else {
+            guard let viewEvent = viewEvent,
+            let varName = varName else {
                 fatalErrorIfDebug()
                 return []
             }
-            
+
             return memberAccess
                 .createConnectedPatchData(viewEvent: viewEvent,
-                                          varName: varName,
-                                          nodesDict: nodesDict)
+                                          context: .varName(varName))
             
         default:
             return try firstArg.value.derivePortValues(viewEvent: viewEvent)
