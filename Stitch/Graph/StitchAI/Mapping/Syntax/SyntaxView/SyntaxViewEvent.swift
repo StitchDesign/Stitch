@@ -14,7 +14,7 @@ struct SyntaxViewEvent: Hashable {
     // Creates constant IDs to prevent redundant creation of nodes
 //    let pressPatchNodeId = UUID()
     let interactionPatchNodeId = UUID()
-//    let unpackPositionNodeId = UUID()
+    let unpackPositionNodeId = UUID()
     
     // Assigned layer id
     let layerId: UUID
@@ -153,15 +153,12 @@ extension SyntaxViewEvent {
             
             // Determine event for receiver of gesture data
             let gestureReceiverEvent: PatchSyntaxResultType
-            let unpackNodeId: UUID
             
             if suffixValue == "x" || suffixValue == "width" {
                 switch context {
                 case .layerInput(let layerInput):
-                    unpackNodeId = .init()
-                    
                     let unpackOutput = NodeIOCoordinate(portId: 0,
-                                                        nodeId: unpackNodeId)
+                                                        nodeId: self.unpackPositionNodeId)
                     
                     let destCoordinate = NodeIOCoordinate(
                         portType: .keyPath(.init(layerInput: layerInput,
@@ -172,10 +169,8 @@ extension SyntaxViewEvent {
                               to: destCoordinate))
                     
                 case .varName(let varName):
-                    unpackNodeId = deterministicUUID(from: varName)
-                    
                     let unpackOutput = NodeIOCoordinate(portId: 0,
-                                                        nodeId: unpackNodeId)
+                                                        nodeId: self.unpackPositionNodeId)
                     
                     // Most downstream reference used for node ID
                     gestureReceiverEvent = .stateWrite(varName, unpackOutput)
@@ -184,10 +179,10 @@ extension SyntaxViewEvent {
                 let connection = PortEdgeData(
                     from: .init(portId: outputPortIndex,
                                 nodeId: self.interactionPatchNodeId),
-                    to: .init(portId: 0, nodeId: unpackNodeId))
+                    to: .init(portId: 0, nodeId: self.unpackPositionNodeId))
                 
                 let unpackPositionNodeResult = PatchSyntaxNodeResult(
-                    id: unpackNodeId,
+                    id: self.unpackPositionNodeId,
                     kind: .patch(.unpack)
                 )
                 
@@ -203,10 +198,8 @@ extension SyntaxViewEvent {
             else if suffixValue == "y" || suffixValue == "height" {
                 switch context {
                 case .layerInput(let layerInput):
-                    unpackNodeId = .init()
-                    
                     let unpackOutput = NodeIOCoordinate(portId: 1,
-                                                        nodeId: unpackNodeId)
+                                                        nodeId: self.unpackPositionNodeId)
                     
                     let destCoordinate = NodeIOCoordinate(
                         portType: .keyPath(.init(layerInput: layerInput,
@@ -217,10 +210,8 @@ extension SyntaxViewEvent {
                               to: destCoordinate))
                     
                 case .varName(let varName):
-                    unpackNodeId = deterministicUUID(from: varName)
-                    
                     let unpackOutput = NodeIOCoordinate(portId: 1,
-                                                        nodeId: unpackNodeId)
+                                                        nodeId: self.unpackPositionNodeId)
                     
                     // Most downstream reference used for node ID
                     gestureReceiverEvent = .stateWrite(varName, unpackOutput)
@@ -229,10 +220,10 @@ extension SyntaxViewEvent {
                 let connection = PortEdgeData(
                     from: .init(portId: outputPortIndex,
                                 nodeId: self.interactionPatchNodeId),
-                    to: .init(portId: 0, nodeId: unpackNodeId))
+                    to: .init(portId: 0, nodeId: self.unpackPositionNodeId))
                 
                 let unpackPositionNodeResult = PatchSyntaxNodeResult(
-                    id: unpackNodeId,
+                    id: self.unpackPositionNodeId,
                     kind: .patch(.unpack)
                 )
                 

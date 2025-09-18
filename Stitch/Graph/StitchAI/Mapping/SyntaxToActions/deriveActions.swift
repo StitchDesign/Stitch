@@ -1316,6 +1316,9 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
                                       stateVarConnections: inout [String: [NodeIOCoordinate]]) {
         switch event {
         case .node(let nodeResult):
+            // Skip if node already made
+            guard self.get(nodeResult.id) == nil else { return }
+            
             switch nodeResult.kind {
             case .patch(let patch):
                 let nodeEntity = patch
