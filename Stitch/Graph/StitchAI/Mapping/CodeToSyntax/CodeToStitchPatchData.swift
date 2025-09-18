@@ -372,7 +372,8 @@ extension Patch {
                 // First check for some other patch's outputs
                 guard let upstreamNode = nodesDict.get(upstreamCoordinate.nodeId),
                       let upstreamPatchNode = upstreamNode.nodeTypeEntity.patchNodeEntity else {
-                    fatalErrorIfDebug()
+                    // MARK: if layer connection we won't have this data, just skip and hope it works out on the next input
+//                    fatalErrorIfDebug()
                     continue
                 }
                 
