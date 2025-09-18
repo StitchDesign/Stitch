@@ -86,15 +86,10 @@ extension Patch {
     }
 }
 
-enum SyntaxViewEventContext {
-    case varName(String)
-    case layerInput(LayerInputPort)
-}
-
 extension SyntaxViewEvent {
     /// Determines the connections and intermediary patch nodes to be created between an interaction patch node and some state.
     func createConnectedPatchData(gestureArg: MemberAccessExprSyntax?,
-                                  context: SyntaxViewEventContext) -> [PatchSyntaxResultType] {
+                                  varName: String?) -> [PatchSyntaxResultType] {
         let assignedLayerPortValue = PortValue
             .assignedLayer(.init(self.layerId))
         let assignedLayerValuesResult = PatchSyntaxPortValuesResult(
@@ -123,25 +118,17 @@ extension SyntaxViewEvent {
                 let patchOutput = NodeIOCoordinate(portId: outputPortIndex,
                                                    nodeId: self.interactionPatchNodeId)
                 
-                switch context {
-                case .layerInput(let layerInput):
-                    let destCoordinate = NodeIOCoordinate(
-                        portType: .keyPath(.init(layerInput: layerInput,
-                                                 portType: .packed)),
-                        nodeId: self.layerId)
-                    gestureReceiverEvent = .connection(
-                        .init(from: patchOutput,
-                              to: destCoordinate))
-                    
-                case .varName(let varName):
-                    gestureReceiverEvent = .stateWrite(varName, patchOutput)
+                var results: [PatchSyntaxResultType] = [
+                    .node(dragNodeResult),
+                    .portValues(assignedLayerValuesResult)
+                ]
+                
+                if let varName = varName {
+                    let gestureReceiverEvent = PatchSyntaxResultType.stateWrite(varName, patchOutput)
+                    results.append(gestureReceiverEvent)
                 }
                 
-                return [
-                    .node(dragNodeResult),
-                    .portValues(assignedLayerValuesResult),
-                    gestureReceiverEvent
-                ]
+                return results
             }
             
             guard let prefixValue = gestureArg.base?.trimmedDescription else {
@@ -152,23 +139,10 @@ extension SyntaxViewEvent {
             let outputPortIndex = prefixValue == "position" ? 0 : 2
             
             // Determine event for receiver of gesture data
-            let gestureReceiverEvent: PatchSyntaxResultType
+            var gestureReceiverEvent: PatchSyntaxResultType?
             
             if suffixValue == "x" || suffixValue == "width" {
-                switch context {
-                case .layerInput(let layerInput):
-                    let unpackOutput = NodeIOCoordinate(portId: 0,
-                                                        nodeId: self.unpackPositionNodeId)
-                    
-                    let destCoordinate = NodeIOCoordinate(
-                        portType: .keyPath(.init(layerInput: layerInput,
-                                                 portType: .unpacked(.port0))),
-                        nodeId: self.layerId)
-                    gestureReceiverEvent = .connection(
-                        .init(from: unpackOutput,
-                              to: destCoordinate))
-                    
-                case .varName(let varName):
+                if let varName = varName {
                     let unpackOutput = NodeIOCoordinate(portId: 0,
                                                         nodeId: self.unpackPositionNodeId)
                     
@@ -186,30 +160,22 @@ extension SyntaxViewEvent {
                     kind: .patch(.unpack)
                 )
                 
-                return [
+                var results: [PatchSyntaxResultType] = [
                     .node(dragNodeResult),
                     .node(unpackPositionNodeResult),
                     .portValues(assignedLayerValuesResult),
-                    .connection(connection),
-                    gestureReceiverEvent
+                    .connection(connection)
                 ]
+                
+                if let gestureReceiverEvent = gestureReceiverEvent {
+                    results.append(gestureReceiverEvent)
+                }
+                
+                return results
             }
             
             else if suffixValue == "y" || suffixValue == "height" {
-                switch context {
-                case .layerInput(let layerInput):
-                    let unpackOutput = NodeIOCoordinate(portId: 1,
-                                                        nodeId: self.unpackPositionNodeId)
-                    
-                    let destCoordinate = NodeIOCoordinate(
-                        portType: .keyPath(.init(layerInput: layerInput,
-                                                 portType: .unpacked(.port1))),
-                        nodeId: self.layerId)
-                    gestureReceiverEvent = .connection(
-                        .init(from: unpackOutput,
-                              to: destCoordinate))
-                    
-                case .varName(let varName):
+                if let varName = varName {
                     let unpackOutput = NodeIOCoordinate(portId: 1,
                                                         nodeId: self.unpackPositionNodeId)
                     
@@ -227,13 +193,18 @@ extension SyntaxViewEvent {
                     kind: .patch(.unpack)
                 )
                 
-                return [
+                var results: [PatchSyntaxResultType] = [
                     .node(dragNodeResult),
                     .node(unpackPositionNodeResult),
                     .portValues(assignedLayerValuesResult),
-                    .connection(connection),
-                    gestureReceiverEvent
+                    .connection(connection)
                 ]
+                
+                if let gestureReceiverEvent = gestureReceiverEvent {
+                    results.append(gestureReceiverEvent)
+                }
+                
+                return results
             }
             
             return []
@@ -242,31 +213,26 @@ extension SyntaxViewEvent {
             let pressNodeId = self.interactionPatchNodeId
             
             // Determine event for receiver of gesture data
-            let gestureReceiverEvent: PatchSyntaxResultType
+            var gestureReceiverEvent: PatchSyntaxResultType?
             
             let pressOutput = NodeIOCoordinate(portId: 0,
                                                nodeId: self.interactionPatchNodeId)
             
-            switch context {
-            case .layerInput(let layerInput):
-                let destCoordinate = NodeIOCoordinate(
-                    portType: .keyPath(.init(layerInput: layerInput,
-                                             portType: .packed)),
-                    nodeId: self.layerId)
-                gestureReceiverEvent = .connection(
-                    .init(from: pressOutput,
-                          to: destCoordinate))
-                
-            case .varName(let varName):
+            if let varName = varName {
                 gestureReceiverEvent = .stateWrite(varName, pressOutput)
             }
                         
             // Assume 0 until we handle cases with position
-            return [
+            var results: [PatchSyntaxResultType] = [
                 .node(.init(id: pressNodeId, kind: .patch(.pressInteraction))),
-                .portValues(assignedLayerValuesResult),
-                gestureReceiverEvent
+                .portValues(assignedLayerValuesResult)
             ]
+            
+            if let gestureReceiverEvent = gestureReceiverEvent {
+                results.append(gestureReceiverEvent)
+            }
+            
+            return results
         }
     }
     
