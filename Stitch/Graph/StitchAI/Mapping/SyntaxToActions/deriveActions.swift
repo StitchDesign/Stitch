@@ -1059,18 +1059,49 @@ extension PatchNodeEntity {
 }
 
 extension NodeEntity {
-    mutating func updateInputData(_ portData: NodeConnectionType, at index: NodeIOCoordinate) {
+    mutating func updateInputData(_ portData: NodeConnectionType,
+                                  at index: NodeIOCoordinate,
+                                  nodesDict: [UUID: NodeEntity]) {
         switch self.nodeTypeEntity {
         case .patch(var patchNode):
-            guard let portId = index.portId,
-                  var inputData = patchNode.inputs[safe: portId] else {
+            guard let portId = index.portId else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            // Determine if we need to extend inputs
+            if portId >= patchNode.inputs.count {
+                let defaultValues = patchNode.patch.rowDefinitions(for: patchNode.userVisibleType).inputs.last?.defaultValues ?? [.number(.zero)]
+                
+                (patchNode.inputs.count..<portId + 1).forEach { newPortId in
+                    patchNode.inputs.append(.init(id: .init(portId: newPortId,
+                                                            nodeId: self.id),
+                                                  portData: .values(defaultValues)))
+                }
+            }
+            
+            guard var inputData = patchNode.inputs[safe: portId] else {
                 fatalErrorIfDebug()
                 return
             }
             
             inputData.portData = portData
             patchNode.inputs[portId] = inputData
-            self.nodeTypeEntity = .patch(patchNode)
+            
+            // Determine node type
+            let nodeType = patchNode.patch
+                .deriveNodeValueType(portEntities: patchNode.inputs,
+                                     nodesDict: nodesDict)
+            let newPatchNode = PatchNodeEntity(id: patchNode.id,
+                                               patch: patchNode.patch,
+                                               inputs: patchNode.inputs,
+                                               canvasEntity: patchNode.canvasEntity,
+                                               userVisibleType: nodeType,
+                                               splitterNode: patchNode.splitterNode,
+                                               mathExpression: patchNode.mathExpression,
+                                               javaScriptNodeSettings: patchNode.javaScriptNodeSettings)
+            
+            self.nodeTypeEntity = .patch(newPatchNode)
             
         case .layer(var layerNode):
             guard let layerInputType = index.layerInput else {
@@ -1455,7 +1486,8 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
             }
             
             nodeEntity.updateInputData(.values(data.values),
-                                       at: data.inputCoordinate)
+                                       at: data.inputCoordinate,
+                                       nodesDict: self)
             self.updateValue(nodeEntity, forKey: nodeEntity.id)
             
         case .jsSettings(let data):
