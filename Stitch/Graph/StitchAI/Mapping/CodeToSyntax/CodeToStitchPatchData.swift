@@ -104,6 +104,7 @@ extension SwiftUIViewVisitor {
                         // var names are provided from already created nodes
                         varName: String?) -> SwiftParserPatchData? {
         let patchNode: SwiftParserPatchType
+        let id = UUID().uuidString
         
         if let subscriptExpr = node.calledExpression.as(SubscriptCallExprSyntax.self),
            // Backup check for binding declaration of the patch
@@ -120,8 +121,15 @@ extension SwiftUIViewVisitor {
         }
         
         guard let elements = node.arguments.first?.expression.as(ArrayExprSyntax.self)?.elements else {
-            fatalErrorIfDebug()
-            return nil
+            // Check if DeclReferenceExprSyntax, which should point to a PortValuesList
+            guard let labeledExpr = node.arguments.first?.expression.as(DeclReferenceExprSyntax.self) else {
+                fatalErrorIfDebug()
+                return nil
+            }
+            
+            return .init(id: id,
+                         patchType: patchNode,
+                         args: [.binding(labeledExpr.trimmedDescription)])
         }
         
         let patchNodeArgs = elements.compactMap { arg -> SwiftParserPatternBindingArg? in
@@ -159,8 +167,6 @@ extension SwiftUIViewVisitor {
                 return nil
             }
         }
-        
-        let id = UUID().uuidString
         
         return .init(id: id,
                      patchType: patchNode,

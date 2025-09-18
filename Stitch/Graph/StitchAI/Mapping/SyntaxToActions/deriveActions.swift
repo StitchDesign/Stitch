@@ -1267,6 +1267,10 @@ extension SwiftPatchCodeType {
 //                return []
 //            }
             
+        case .swiftFunctionScript:
+            // Can safely ignore as we don't create new nodes from the declaration of a JS script, that only happens when we reference it
+            return []
+            
         case .error(let error):
             throw error
             
