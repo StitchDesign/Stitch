@@ -17,15 +17,9 @@ struct SwiftSyntaxLayerActionsResult {
 }
 
 struct SwiftSyntaxPatchActionsResult {
-//    var actions: CurrentAIGraphData.PatchData
     var nodes: [NodeEntity]
     
     var stateVarConnections: [String: [NodeIOCoordinate]]
-    
-    // Tracks any upstream patches that connect to some state
-    // Key = state variable name
-    // Value = upstream coordinate
-//    var viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]
     
     var caughtErrors: [SwiftUISyntaxError]
 }
@@ -91,9 +85,7 @@ extension SwiftUIViewParserResult {
 //        print("PATCH DATA:\n\(debugPatchStrings)")
         
         let patchResult = await allPatchCode.derivePatchNodes(document: document)
-        
-//        let patchResults = self.bindingDeclarations.deriveStitchActions(existingData: interactionsPatchActionResult)
-        
+                
         return .init(graphData: .init(layer_data_list: layerResults.actions,
                                       patchNodes: patchResult.nodes,
                                       viewStatePatchConnections: patchResult.stateVarConnections),
@@ -130,67 +122,6 @@ extension Array where Element == AIGraphData_V0.LayerData {
         }
     }
     
-    /// Roles:
-    /// 1. Determines interaction patch nodes to make based on view events attached to view modifiers.
-    /// 2. Returns dictionary of a state var name to a newly created patch node's output coordinate.
-//    func createStateVarToInteractionNodeMap(nativePatchNodes: inout [String: CurrentAIGraphData.PatchNode],
-//                                            customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue],
-//                                            viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate],
-//                                            patchConnections: inout [CurrentAIGraphData.PatchConnection]) -> [String: CurrentAIGraphData.NodeIndexedCoordinate] {
-//        self.reduce(into: [String: CurrentAIGraphData.NodeIndexedCoordinate]()) { result, layerData in
-//            var createdPatchesAtThisNode = [Patch: CurrentAIGraphData
-//                .PatchNode]()
-//            
-//            layerData.view_events.forEach { viewEvent in
-//                let patch = viewEvent.viewEvent.patch
-//                let existingPatchNode = createdPatchesAtThisNode.get(patch)
-//                let patchNode = existingPatchNode ?? .init(node_id: UUID().uuidString,
-//                                                           node_name: .init(value: .patch(patch)))
-//                
-//                guard let upstreamStateCoordinate = viewEvent.viewEvent
-//                    .createConnectedPatchData(interactionPatchNodeId: patchNode.node_id,
-//                                              createdPatchesAtThisNode: &createdPatchesAtThisNode,
-//                                              patchConnections: &patchConnections) else {
-//                    return
-//                }
-//                
-//                // Update layer assignment for node
-//                customPatchInputValues.append(
-//                    .init(patch_input_coordinate: .init(node_id: patchNode.node_id,
-//                                                        port_index: 0),
-//                          value: layerData.node_id,
-//                          value_type: .init(value: .interactionId))
-//                )
-//                
-//                // Update view state connections
-//                viewStatePatchConnections.updateValue(upstreamStateCoordinate,
-//                                                      forKey: viewEvent.mutatedStateVar)
-//                
-//                // Update (possibly new) patch
-//                createdPatchesAtThisNode.updateValue(patchNode, forKey: patch)
-//                
-//                // Output coordinates to return
-//                result.updateValue(upstreamStateCoordinate,
-//                                   forKey: viewEvent.mutatedStateVar)
-//            }
-//            
-//            // Add any created patch nodes to the native nodes list
-//            createdPatchesAtThisNode.values.forEach { patchNode in
-//                nativePatchNodes.updateValue(patchNode,
-//                                             forKey: patchNode.node_id)
-//            }
-//            
-//            // Recursively explore children
-//            if let childrenDict = layerData.children?
-//                .createStateVarToInteractionNodeMap(nativePatchNodes: &nativePatchNodes,
-//                                                    customPatchInputValues: &customPatchInputValues,
-//                                                    viewStatePatchConnections: &viewStatePatchConnections,
-//                                                    patchConnections: &patchConnections) {
-//                result.merge(childrenDict, uniquingKeysWith: { $1 })
-//            }
-//        }
-//    }
-    
     /// Recursively gathers all view event data
     /// * key = layer id
     /// * value = view event data
@@ -209,56 +140,9 @@ extension Array where Element == AIGraphData_V0.LayerData {
     }
 }
 
-//extension LayerDataViewEvent {
-//    func updateInteractionData(layerId: UUID,
-//                               nativePatchNodes: inout [String: CurrentAIGraphData.PatchNode],
-//                               customPatchInputValues: inout [CurrentAIGraphData.CustomPatchInputValue],
-//                               viewStatePatchConnections: inout [String : AIGraphData_V0.NodeIndexedCoordinate],
-//                               patchConnections: inout [CurrentAIGraphData.PatchConnection]) {
-//            let patch = self.viewEvent.patch
-////            let existingPatchNode = createdPatchesAtThisNode.get(patch)
-//            let patchNode = CurrentAIGraphData
-//            .PatchNode(node_id: UUID().uuidString,
-//                       node_name: .init(value: .patch(patch)))
-//            
-//            guard let upstreamStateCoordinate = self
-//                .createConnectedPatchData(interactionPatchNodeId: patchNode.node_id,
-////                                          createdPatchesAtThisNode: &createdPatchesAtThisNode,
-//                                          patchConnections: &patchConnections) else {
-//                return
-//            }
-//            
-//            // Update layer assignment for node
-//            customPatchInputValues.append(
-//                .init(patch_input_coordinate: .init(node_id: patchNode.node_id,
-//                                                    port_index: 0),
-//                      value: layerId.uuidString,
-//                      value_type: .init(value: .interactionId))
-//            )
-//            
-//            // Update view state connections
-//            viewStatePatchConnections.updateValue(upstreamStateCoordinate,
-//                                                  forKey: self.mutatedStateVar)
-//            
-////            // Update (possibly new) patch
-////            createdPatchesAtThisNode.updateValue(patchNode, forKey: patch)
-////            
-////            // Output coordinates to return
-////            result.updateValue(upstreamStateCoordinate,
-////                               forKey: viewEvent.mutatedStateVar)
-////        
-////        // Add any created patch nodes to the native nodes list
-////        createdPatchesAtThisNode.values.forEach { patchNode in
-//            nativePatchNodes.updateValue(patchNode,
-//                                         forKey: patchNode.node_id)
-////        }
-//    }
-//}
-
 // Closures expected in patch Swift code
 enum SwiftPatchClosureType {
     case swiftPatchLogic([(String, SwiftPatchCodeType)])
-//    case jsNodeDeclaration(AIGraphData_V0.PreprocessedJSPatchNode)
     case viewEvent(SwiftPatchViewEvent)
 }
 
@@ -281,7 +165,6 @@ enum SwiftPatchCodeExpression {
     case portValuesInit([SyntaxViewModifierArgumentType])
     case ref(String)
     case jsRef(SwiftJsNodeCode)
-//    case jsNodeDeclaration(AIGraphData_V0.PreprocessedJSPatchNode)
 }
 
 extension SwiftPatchCodeExpression {
@@ -305,19 +188,6 @@ struct SwiftJsNodeCode {
     let fnName: String
     let ports: [SwiftPatchCodeType]
 }
-
-//enum PatchNodeInputPort {
-//    case portValue(PortValueCodeType)
-//    case ref(String)
-//    case subscriptRef(String, Int)
-//}
-
-// Types of values expected in Swift code
-//enum PortValueCodeType {
-//    case value(PortValueDescription)
-//    case ref(String)
-//    case memberAccessRef(MemberAccessExprSyntax)
-//}
 
 extension Array where Element == (String, SwiftParserInitializerType) {
     func getSwiftPatchCodeTypes() throws -> [(String, SwiftPatchCodeType)] {
@@ -405,45 +275,6 @@ extension SwiftParserInitializerType {
                 }
                 
                 return .expression(.portValuesInit(defaultArgs.map(\.value)))
-//                let gestureArg: String?
-//                
-//                // A little hacky--if PortValueDescription of position type, return a packed variable
-//                if (defaultArgs[safe: 1]?.value.simpleValue?.contains("position") ?? false) {
-//                    // TODO: see if position or translation
-//                    gestureArg = "position"
-//                }
-//                
-//                else {
-//                    // Find the property that's read from the gesture param
-//                    gestureArg = defaultArgs.compactMap { arg -> String? in
-//                        //                            guard let paramVarName = onChangeHandler.paramVars.first,
-//                        guard let paramVarName = viewEventParam,
-//                              let memberAccess = arg.value.firstMemberAccess else {
-//                            return nil
-//                        }
-//                        
-//                        var propertyString = memberAccess.trimmedDescription
-//                        let prefixStr = "\(paramVarName)."
-//                        
-//                        if propertyString.hasPrefix(prefixStr) {
-//                            propertyString = String(propertyString.dropFirst(prefixStr.count))
-//                        }
-//                        
-//                        return propertyString
-//                        
-//                    }.first
-//                }
-//                
-//                let viewEventData = LayerDataViewEvent(viewEvent: viewEvent,
-//                                                       gestureArg: gestureArg,
-//                                                       mutatedStateVar: varName)
-//                
-//                viewEventData
-//                    .updateInteractionData(layerId: viewEventLayerId,
-//                                           nativePatchNodes: &nativePatchNodes,
-//                                           customPatchInputValues: &customPatchInputValues,
-//                                           viewStatePatchConnections: &viewStatePatchConnections,
-//                                           patchConnections: &patchConnections)
                 
             default:
                 return nil
@@ -474,44 +305,12 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                                             viewEvent: SyntaxViewEvent?) throws -> [PatchSyntaxResultType] {
         switch expr {
         case .portValuesInit(let array):
-            // TODO: look here for handling args
-            
             guard let pvDescription = array.first else {
                 fatalErrorIfDebug()
                 return []
             }
             
             return try pvDescription.derivePortValues(viewEvent: viewEvent)
-            
-            // TODO: bake in the syntax logic from port values into upstream SwiftPatchCode logic
-//            switch portValuesResults.first {
-//            case .value(let pvDescription):
-//                let value = try PortValue(from: pvDescription)
-//                return [
-//                    .portData(.values([value]))
-//                ]
-//                
-//            case .stateRef(let ref):
-//                return try self
-//                    .getUpstreamPatchPortConnectionData(
-//                        expr: .ref(ref),
-//                        varName: varName,
-//                        portIndex: portIndex,
-//                        varNameToCode: varNameToCode,
-//                        existingStateVarConnections: existingStateVarConnections,
-//                        nodesDict: nodesDict,
-//                        viewEvent: viewEvent)
-//                
-//            case .stateRefInViewEvent(let memberAccessData):
-//                // TODO: this is how we handle member access data in state ref
-//                return memberAccessData.memberAccess
-//                    .createConnectedPatchData(viewEvent: memberAccessData.viewEvent,
-//                                              varName: varName,
-//                                              nodesDict: nodesDict)
-//            
-//            case .none:
-//                throw SwiftUISyntaxError.portValueDataDecodingFailure
-//            }
         
         case .ref(let ref):
             let portIndex = portIndex ?? 0
@@ -603,51 +402,8 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
         case .jsRef:
             fatalErrorIfDebug("Not expected here")
             return [.portData(.values([.number(.zero)]))]
-            
-//            guard let portIndex = portIndex else {
-//                fatalErrorIfDebug()
-//                return .values([.number(.zero)])
-//            }
-//            
-//            return .upstreamConnection(.init(portId: portIndex,
-//                                             nodeId: nodeId))
         }
     }
-    
-//    func getUpstreamPatchPortConnectionType(varName: String,
-//                                            portIndex: Int? = nil) throws -> NodeConnectionType {
-//        guard let value = self.get(varName) else {
-//            return .values([.number(.zero)])
-//        }
-//        
-//        return try self
-//            .getUpstreamPatchPortConnectionData(varName: varName,
-//                                                value: value,
-//                                                portIndex: portIndex)
-//    }
-       
-//    @MainActor
-//    func getUpstreamPatchPortConnectionData(varName: String,
-//                                            portIndex: Int? = nil,
-//                                            varNameToCode: [String: SwiftPatchCodeType],
-//                                            existingStateVarConnections: [String: NodeIOCoordinate],
-//                                            groupNodeId: UUID?,
-//                                            nodesDict: [UUID: NodeEntity],
-//                                            viewEvent: SyntaxViewEvent?) throws -> [PatchSyntaxResultType] {
-//        guard let value = self.get(varName) else {
-//            return [.portData(.values([.number(.zero)]))]
-//        }
-//        
-//        return try self
-//            .getUpstreamPatchPortConnectionData(value: value,
-//                                                varName: varName,
-//                                                portIndex: portIndex,
-//                                                varNameToCode: varNameToCode,
-//                                                existingStateVarConnections: existingStateVarConnections,
-//                                                groupNodeId: groupNodeId,
-//                                                nodesDict: nodesDict,
-//                                                viewEvent: viewEvent)
-//    }
      
     func getUpstreamPatchPortConnectionData(value: SwiftPatchCodeType,
                                             varName: String,
@@ -710,13 +466,6 @@ struct SwiftPatchNodeInputsResult {
     let otherData: [PatchSyntaxResultType]
 }
 
-//struct SwiftPatchNodeResult {
-//    let node: NodeEntity
-//    
-//    // Separated data that's inferred from ports, i.e. separate patch node creation
-//    let otherData: [PatchSyntaxResultType]
-//}
-
 extension Array where Element == SwiftPatchCodeType {
     func createSchemaList(nodeId: UUID,
                           varNameToCode: [String: SwiftPatchCodeType],
@@ -758,24 +507,6 @@ extension Array where Element == SwiftPatchCodeType {
                      otherData: otherData)
     }
 }
-
-//extension Array where Element == PatchSyntaxResultType {
-//    var portData: NodeConnectionType? {
-//        guard let firstResult = self.first else {
-//            return nil
-//        }
-//        
-//        assertInDebug(self.count == 1)
-//        
-//        switch firstResult {
-//        case .portData(let connectionType):
-//            return connectionType
-//            
-//        default:
-//            return nil
-//        }
-//    }
-//}
 
 extension SwiftPatchCodeType {
     func createSwiftUICode() -> String {
@@ -916,21 +647,6 @@ extension SwiftPatchNodeCode {
         var actionsList = portData.otherData
         actionsList += nodeResults
         return actionsList
-    }
-}
-
-// TODO: move
-import CryptoKit
-func deterministicUUID(from name: String) -> UUID {
-    let data = Data(name.precomposedStringWithCanonicalMapping.utf8)
-    let digest = SHA256.hash(data: data)
-    var bytes = Data(digest.prefix(16))
-    // Mark as "random" style with RFC variant (helps tooling)
-    bytes[6] = (bytes[6] & 0x0F) | 0x40  // pretend version 4
-    bytes[8] = (bytes[8] & 0x3F) | 0x80
-    return bytes.withUnsafeBytes { buf in
-        let b = buf.bindMemory(to: UInt8.self)
-        return UUID(uuid: (b[0],b[1],b[2],b[3], b[4],b[5], b[6],b[7], b[8],b[9], b[10],b[11],b[12],b[13],b[14],b[15]))
     }
 }
 
@@ -1244,29 +960,6 @@ extension SwiftPatchCodeType {
                 return []
             }
             
-//            switch subscriptCodeType {
-//            case .expression(let expr):
-//                switch expr {
-//                case .ref(let refName):
-//                    // Find upstream node
-//                    let upstreamNodeId = deterministicUUID(from: refName)
-//                    fatalError()
-//                    
-////                    guard let upstreamNode = varNameToCode.get(refName)?.derivePatchData(document: document,
-//                
-//                default:
-//                    fatalErrorIfDebug("Wasn't expected here")
-//                    return []
-//                }
-//            
-//            case .error(let swiftUISyntaxError):
-//                throw swiftUISyntaxError
-//            
-//            default:
-//                fatalErrorIfDebug("Wasn't expected here")
-//                return []
-//            }
-            
         case .swiftFunctionScript:
             // Can safely ignore as we don't create new nodes from the declaration of a JS script, that only happens when we reference it
             return []
@@ -1312,22 +1005,6 @@ extension Array where Element == SwiftPatchClosureType {
             case .viewEvent(let swiftPatchViewEvent):
                 // Create node for view event
                 let viewEventData = swiftPatchViewEvent.viewEvent
-//                let patch = viewEventData.type.patch
-//                
-//                // Start with default node
-//                var nodeEntity = patch.defaultNode(id: viewEventData.interactionPatchNodeId,
-//                                                          position: .zero,
-//                                                          zIndex: .zero,
-//                                                          graphDelegate: document.graph)
-//                    .createSchema()
-//                
-//                guard var patchNodeEntity = nodeEntity.nodeTypeEntity.patchNodeEntity else {
-//                    fatalErrorIfDebug()
-//                    continue
-//                }
-//                
-//                patchNodeEntity.inputs[0].portData = .values([.assignedLayer(.init(viewEventData.layerId))])
-//                nodeEntity.nodeTypeEntity = .patch(patchNodeEntity)
                 
                 // Get data from closure actions
                 let closureActionsResult = await swiftPatchViewEvent
@@ -1337,8 +1014,6 @@ extension Array where Element == SwiftPatchClosureType {
                                       existingNodesDict: existingNodesDict,
                                       viewEvent: viewEventData)
                 
-//                closureActionsResult.nodes = [nodeEntity] + closureActionsResult.nodes
-
                 result += closureActionsResult
             }
         }
@@ -1355,10 +1030,7 @@ extension Dictionary where Key == String, Value == [NodeIOCoordinate] {
     }
 }
 
-extension Dictionary where Key == UUID, Value == NodeEntity {
-    
-    // TODO: state var connections would be updated here, take copied code and set breakpoints
-    
+extension Dictionary where Key == UUID, Value == NodeEntity {    
     mutating func updateWithEventData(_ event: PatchSyntaxResultType,
                                       layerInputCoordinate: NodeIOCoordinate?,
                                       varName: String?,
@@ -1588,202 +1260,6 @@ extension Array where Element == (String, SwiftPatchCodeType) {
                      stateVarConnections: stateVarConnections,
                      caughtErrors: caughtErrors)
     }
-    
-//    @MainActor
-//    func deriveStitchActions(existingData: SwiftSyntaxPatchActionsResult?,
-//                             viewEventData: (SyntaxViewEvent, UUID, String?)? = nil) -> SwiftSyntaxPatchActionsResult {
-//        var newResult = existingData
-//        
-//        // MARK: data to be returned
-//        var caughtErrors: [SwiftUISyntaxError] = existingData?.caughtErrors ?? []
-//        var nativePatchNodes = (existingData ?? SwiftSyntaxPatchActionsResult())
-//            .actions.native_patches.reduce(into: [String: CurrentAIGraphData.PatchNode]()) { result, patchNode in
-//                result.updateValue(patchNode, forKey: patchNode.node_id)
-//            }
-//        var nativePatchValueTypeSettings = (existingData ?? SwiftSyntaxPatchActionsResult()).actions.native_patch_value_type_settings.reduce(into: [String: CurrentAIGraphData.NativePatchNodeValueTypeSetting]()) { result, settings in
-//            result.updateValue(settings, forKey: settings.node_id)
-//        }
-//        var patchConnections = existingData?.actions.patch_connections ?? []
-//        var customPatchInputValues = existingData?.actions.custom_patch_input_values ?? []
-//        var preprocessedJSNodes = existingData?.actions.javascript_patches ?? []
-//        
-//        // MARK: data we use as tracking
-//        // Maps some variable name to a node ID string
-//        var varNameIdMap = [String : String]()
-//        
-//        // Maps any declarations made of top-level outputs
-//        var varNameOutputPortMap = [String : SwiftParserSubscript]()
-//        
-//        // Maps patch functions references
-//        var varNamePatchNodeRefMap = [String : String]()
-//        
-//        // Tracks a variable name for each JS function name
-//        var varNameJsFnMap = [String : String]()
-//        
-//        // Tracks
-////        var viewEventProps = [String]()
-//        
-//        // Because patch data is decoded before layer data, we don't yet know the destination ports for layer edges, therefore, we just track the source patch to some state variable
-//        var viewStatePatchConnections = existingData?.viewStatePatchConnections ?? [:]
-//        
-//        // Create interaction patch nodes from layer data
-////        let stateVarToInteractionOutputsMap = layers.createStateVarToInteractionNodeMap(
-////            nativePatchNodes: &nativePatchNodes,
-////            customPatchInputValues: &customPatchInputValues,
-////            viewStatePatchConnections: &viewStatePatchConnections,
-////            patchConnections: &patchConnections
-////        )
-//        
-//        // First pass:
-//        // 1. Create patch nodes
-//        // 2. Make mappings of var names to specific data
-//        for (varName, initializerType) in self {
-//            switch initializerType {
-//            case .patchNode(let patchNodeData):
-//                let newPatchNode = patchNodeData
-//                    .createStitchData(varName: varName,
-//                                      varNameIdMap: &varNameIdMap,
-//                                      varNameJsFnMap: &varNameJsFnMap)
-//                nativePatchNodes.updateValue(newPatchNode,
-//                                             forKey: newPatchNode.node_id)
-//                
-//            case .subscriptRef(let subscriptData):
-//                // Track top-level bindings of some output port data
-//                varNameOutputPortMap.updateValue(subscriptData, forKey: varName)
-//                
-//                switch subscriptData.subscriptType {
-//                case .patchNode(let patchNodeData):
-//                    // Track more patch nodes
-//                    let newPatchNode = patchNodeData
-//                        .createStitchData(varName: varName,
-//                                          varNameIdMap: &varNameIdMap,
-//                                          varNameJsFnMap: &varNameJsFnMap)
-//                    nativePatchNodes.updateValue(newPatchNode,
-//                                                 forKey: newPatchNode.node_id)
-//                    
-//                case .ref:
-//                    continue
-//                }
-//                
-//            case .patchNodeRef(let patchNodeRef):
-//                varNamePatchNodeRefMap.updateValue(patchNodeRef, forKey: varName)
-//                
-//            case .stateMutation(let mutationData):
-//                // Save outputs that are assigned to this variable
-//                switch mutationData {
-//                case .subscriptRef(let subscriptData):
-//                    varNameOutputPortMap.updateValue(subscriptData, forKey: varName)
-//                    
-//                case .patchNodeRef(let patchNodeRef):
-//                    varNamePatchNodeRefMap.updateValue(patchNodeRef,
-//                                                       forKey: varName)
-//                    
-//                    // TODO: add case here where we do the custom patch node parsing
-//                case .arraySyntax(let arraySyntax):
-//                    // Find what we're parsing
-//                    guard let (viewEvent, viewEventLayerId, viewEventParam) = viewEventData,
-//                          let funcExpr = arraySyntax.elements.first?.expression.as(FunctionCallExprSyntax.self) else {
-//                        break
-//                    }
-//                    
-//                    let args: ViewConstructorType
-//                    do {
-//                        args = try SwiftUIViewVisitor.parseArguments(from: funcExpr)
-//                    } catch let error as SwiftUISyntaxError {
-//                        caughtErrors.append(error)
-//                        break
-//                    } catch {
-//                        fatalErrorIfDebug(error.localizedDescription)
-//                        break
-//                    }
-//                    
-//                    guard let defaultArgs = args.defaultArgs else {
-//                        break
-//                    }
-//                    
-//                    let gestureArg: String?
-//                    
-//                    // A little hacky--if PortValueDescription of position type, return a packed variable
-//                    if (defaultArgs[safe: 1]?.value.simpleValue?.contains("position") ?? false) {
-//                        // TODO: see if position or translation
-//                        gestureArg = "position"
-//                    }
-//                    
-//                    else {
-//                        // Find the property that's read from the gesture param
-//                        gestureArg = defaultArgs.compactMap { arg -> String? in
-//                            //                            guard let paramVarName = onChangeHandler.paramVars.first,
-//                            guard let paramVarName = viewEventParam,
-//                                  let memberAccess = arg.value.firstMemberAccess else {
-//                                return nil
-//                            }
-//                            
-//                            var propertyString = memberAccess.trimmedDescription
-//                            let prefixStr = "\(paramVarName)."
-//                            
-//                            if propertyString.hasPrefix(prefixStr) {
-//                                propertyString = String(propertyString.dropFirst(prefixStr.count))
-//                            }
-//                            
-//                            return propertyString
-//                            
-//                        }.first
-//                    }
-//                    
-//                    let viewEventData = LayerDataViewEvent(viewEvent: viewEvent,
-//                                                           gestureArg: gestureArg,
-//                                                           mutatedStateVar: varName)
-//                    
-//                    viewEventData
-//                        .updateInteractionData(layerId: viewEventLayerId,
-//                                               nativePatchNodes: &nativePatchNodes,
-//                                               customPatchInputValues: &customPatchInputValues,
-//                                               viewStatePatchConnections: &viewStatePatchConnections,
-//                                               patchConnections: &patchConnections)
-//                    
-//                default:
-//                    break
-//                }
-//                
-//            case .jsNodeScript, .declrRef, .arraySyntax, .viewBuilder:
-//                // Skipping here
-//                break
-//            }
-//        }
-//        
-//        // Second pass: derive custom values and edges
-//        for (varName, initializerType) in self {
-//            // Recursively calls argument data
-//            do {
-//                try initializerType
-//                    .parseStitchActions(varName: varName,
-//                                        varNameIdMap: varNameIdMap,
-//                                        varNameOutputPortMap: varNameOutputPortMap,
-//                                        customPatchInputValues: &customPatchInputValues,
-//                                        varNamePatchNodeRefMap: varNamePatchNodeRefMap,
-////                                        stateVarToInteractionOutputsMap: stateVarToInteractionOutputsMap,
-//                                        nativePatchNodes: nativePatchNodes,
-//                                        patchConnections: &patchConnections,
-//                                        viewStatePatchConnections: &viewStatePatchConnections,
-//                                        nativePatchValueTypeSettings: &nativePatchValueTypeSettings,
-//                                        preprocessedJSNodes: &preprocessedJSNodes,
-//                                        varNameJsFnMap: &varNameJsFnMap)
-//            } catch let error as SwiftUISyntaxError {
-//                caughtErrors.append(error)
-//            } catch {
-//                fatalErrorIfDebug(error.localizedDescription)
-//            }
-//        }
-//        
-//        return .init(actions: AIGraphData_V0
-//            .PatchData(javascript_patches: preprocessedJSNodes,
-//                       native_patches: Array<CurrentAIGraphData.PatchNode>(nativePatchNodes.values),
-//                       native_patch_value_type_settings: Array<CurrentAIGraphData.NativePatchNodeValueTypeSetting>(nativePatchValueTypeSettings.values),
-//                       patch_connections: patchConnections,
-//                       custom_patch_input_values: customPatchInputValues),
-//                     viewStatePatchConnections: viewStatePatchConnections,
-//                     caughtErrors: caughtErrors)
-//    }
 }
 
 extension Array where Element == String {

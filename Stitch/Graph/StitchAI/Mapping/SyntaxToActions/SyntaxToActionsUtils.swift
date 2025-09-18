@@ -7,6 +7,7 @@
 
 import Foundation
 import StitchSchemaKit
+import CryptoKit
 
 
 // TODO: remove, replace with `PortIOType` or something like that; but basic logic remains the same
@@ -76,5 +77,18 @@ extension CurrentStep.PortValue {
     var asSwiftSyntaxKind: SyntaxArgumentKind {
         // TODO: JUNE 24: Do you need all these different individual syntax-literal types? ... if so, then should map on
         .literal(.string)
+    }
+}
+
+func deterministicUUID(from name: String) -> UUID {
+    let data = Data(name.precomposedStringWithCanonicalMapping.utf8)
+    let digest = SHA256.hash(data: data)
+    var bytes = Data(digest.prefix(16))
+    // Mark as "random" style with RFC variant (helps tooling)
+    bytes[6] = (bytes[6] & 0x0F) | 0x40  // pretend version 4
+    bytes[8] = (bytes[8] & 0x3F) | 0x80
+    return bytes.withUnsafeBytes { buf in
+        let b = buf.bindMemory(to: UInt8.self)
+        return UUID(uuid: (b[0],b[1],b[2],b[3], b[4],b[5], b[6],b[7], b[8],b[9], b[10],b[11],b[12],b[13],b[14],b[15]))
     }
 }

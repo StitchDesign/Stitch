@@ -37,15 +37,6 @@ extension LayerPortDerivation {
     }
 }
 
-//extension Array where Element == LayerPortDerivation {
-//    init(_ portTypes: [PatchSyntaxResultType], input: LayerInputPort) {
-//        self = portTypes.map {
-//            LayerPortDerivation.init(input: input,
-//                                     inputData: $0)
-//        }
-//    }
-//}
-
 /// A constructor argument that was either a compile‑time literal (`"logo"`,
  /// `.center`, `12`) or an arbitrary Swift expression (`myGap`, `foo()`, etc.).
  enum Parameter<Value: Equatable>: Equatable {

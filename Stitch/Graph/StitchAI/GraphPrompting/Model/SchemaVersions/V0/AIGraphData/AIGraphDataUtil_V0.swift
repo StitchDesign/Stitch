@@ -39,12 +39,6 @@ extension AIGraphData_V0.GraphData {
             result.updateValue(node, forKey: node.id)
         }
         
-//        var jsNodes = [AIGraphData_V0.PreprocessedJSPatchNode]()
-//        var nativeNodes = [AIGraphData_V0.PatchNode]()
-//        var nodeTypeSettings = [AIGraphData_V0.NativePatchNodeValueTypeSetting]()
-//        var patchConnections = [AIGraphData_V0.PatchConnection]()
-//        var customPatchInputs = [AIGraphData_V0.CustomPatchInputValue]()
-        
         // Maps upstream patch output coordinate to some new created @State var name
         var viewStatePatchConnections: [String : [NodeIOCoordinate]] = [:]
         
@@ -60,34 +54,12 @@ extension AIGraphData_V0.GraphData {
         for nodeEntity in graphEntity.nodes {
             switch nodeEntity.nodeTypeEntity {
             case .patch(let patchNodeEntity):
-//                // JS node scenario
-//                if let jsData = patchNodeEntity.javaScriptNodeSettings {
-//                    jsNodes.append(.init(node_id: patchNodeEntity.id.uuidString,
-//                                         funcName: nodeEntity.title.toCamelCase(),
-//                                         sourceCode: jsData.script))
-//                }
-//                
-//                // Native node scenario
-//                else {
-                    // Interactions are handled within layers
-                    if patchNodeEntity.patch.isInteractionPatchNode {
-                        if let assignedLayer = patchNodeEntity.inputs.first?.portData.values?.first?.getInteractionId {
-                            patchToLayerAssignmentMap.updateValue(assignedLayer.id, forKey: patchNodeEntity.id)
-                        }
+                // Interactions are handled within layers
+                if patchNodeEntity.patch.isInteractionPatchNode {
+                    if let assignedLayer = patchNodeEntity.inputs.first?.portData.values?.first?.getInteractionId {
+                        patchToLayerAssignmentMap.updateValue(assignedLayer.id, forKey: patchNodeEntity.id)
                     }
-                    
-//                    // Non-interaction cases
-//                    else {
-//                        nativeNodes.append(.init(node_id: patchNodeEntity.id.uuidString,
-//                                                 node_name: .init(value: .patch(patchNodeEntity.patch))))
-//                        
-//                        // Update node type
-//                        if let type = patchNodeEntity.userVisibleType {
-//                            nodeTypeSettings.append(.init(node_id: patchNodeEntity.id.description,
-//                                                          value_type: .init(value: type)))
-//                        }
-//                    }
-//                }
+                }
                 
             default:
                 continue
@@ -103,14 +75,6 @@ extension AIGraphData_V0.GraphData {
                     switch inputData.portData {
                     case .values(let values):
                         continue
-//                        if let firstValue = values.first {
-//                            customPatchInputs.append(
-//                                .init(patch_input_coordinate: .init(node_id: patchNodeEntity.id.description,
-//                                                                    port_index: portIndex),
-//                                      value: firstValue.anyCodable,
-//                                      value_type: .init(value: firstValue.nodeType))
-//                            )
-//                        }
                         
                     case .upstreamConnection(let upstream):
                         if let upstreamPortIndex = upstream.portId {
@@ -122,15 +86,6 @@ extension AIGraphData_V0.GraphData {
                                                                             forKey: .init(portId: portIndex,
                                                                                           nodeId: patchNodeEntity.id))
                             }
-                            
-//                            else {
-//                                patchConnections.append(
-//                                    .init(src_port: .init(node_id: upstream.nodeId.description,
-//                                                          port_index: upstreamPortIndex),
-//                                          dest_port: .init(node_id: patchNodeEntity.id.description,
-//                                                           port_index: portIndex))
-//                                )
-//                            }
                         }
                     }
                 }
@@ -362,17 +317,11 @@ extension AIGraphData_V0.LayerData {
                         }
                     }
                     
-                    // MARK: definitely misisng arg info
+                    // MARK: definitely misisng arg info but works for now
                     return .init(viewEvent: .init(layerId: layerData.id,
                                                   type: viewEventName,
                                                   gestureArg: "g"),
                                  codeStatements: [(stateVarName, .expression(.ref("g.\(gestureProperty)")))])
-                    
-//                    return .init(viewEvent: .init(layerId: layerData.id,
-//                                                  type: viewEventName,
-//                                                  gestureArg: "g"),
-//                                 gestureArg: "g.\(gestureProperty)",
-//                                 mutatedStateVar: stateVarName)
                 }
             
             default:

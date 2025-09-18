@@ -250,44 +250,6 @@ extension AIGraphData_V0.CustomPatchInputValue {
     }
 }
 
-//extension AIGraphData_V0.LayerData: Codable {
-//    enum CodingKeys: String, CodingKey {
-//        case node_id
-//        case suggested_title
-//        case node_name
-//        case children
-//        case custom_layer_input_values
-//    }
-//    
-//    func encode(to encoder: Encoder) throws {
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encode(node_id, forKey: .node_id)
-//        try container.encode(node_name, forKey: .node_name)
-//        try container.encode(custom_layer_input_values, forKey: .custom_layer_input_values)
-//        
-//        try container.encodeIfPresent(suggested_title, forKey: .suggested_title)
-//        
-//        // Only encode children if group layer
-//        try container.encodeIfPresent(children, forKey: .children)
-//    }
-//    
-//    init(from decoder: any Decoder) throws {
-//        let container = try decoder.container(keyedBy: CodingKeys.self)
-//        node_id = try container.decode(String.self, forKey: .node_id)
-//        suggested_title = try container.decodeIfPresent(String.self, forKey: .suggested_title)
-//        node_name = try container.decode(AIGraphData_V0.StitchAIPatchOrLayer.self, forKey: .node_name)
-//        
-//        if let children = try container.decodeIfPresent([Self].self, forKey: .children) {
-//            self.children = children
-//        } else {
-//            // Make sure we have an empty list if layer is a group
-//            if node_name.value == .layer(.group) || node_name.value == .layer(.realityView) {
-//                self.children = []
-//            }
-//        }
-//    }
-//}
-
 // TODO: move
 extension AIGraphData_V0.PortValue {
     static func decodeFromAI(data: (any Codable & Sendable),
@@ -341,18 +303,6 @@ extension AIGraphData_V0.PortValue {
         }
     }
 }
-
-//extension Array where Element == AIGraphData_V0.LayerData {
-//    func allNestedCustomInputValues(callback: (String, LayerPortDerivation) -> ()) {
-//        for layerData in self {
-//            for customInputValue in layerData.custom_layer_input_values {
-//                callback(layerData.node_id, customInputValue)
-//            }
-//            
-//            layerData.children?.allNestedCustomInputValues(callback: callback)
-//        }
-//    }
-//}
 
 extension AIGraphData_V0.LayerData {
     func createSidebarLayerData(idMapping: [String: UUID] = [:]) -> SidebarLayerData {
