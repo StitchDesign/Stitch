@@ -20,7 +20,7 @@ struct SwiftSyntaxPatchActionsResult {
 //    var actions: CurrentAIGraphData.PatchData
     var nodes: [NodeEntity]
     
-    var stateVarConnections: [String: NodeIOCoordinate]
+    var stateVarConnections: [String: [NodeIOCoordinate]]
     
     // Tracks any upstream patches that connect to some state
     // Key = state variable name
@@ -469,7 +469,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                                             varName: String,
                                             portIndex: Int? = nil,
                                             varNameToCode: [String: SwiftPatchCodeType],
-                                            existingStateVarConnections: [String: NodeIOCoordinate],
+                                            existingStateVarConnections: [String: [NodeIOCoordinate]],
                                             nodesDict: [UUID: NodeEntity],
                                             viewEvent: SyntaxViewEvent?) throws -> [PatchSyntaxResultType] {
         switch expr {
@@ -523,7 +523,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                     .portData(.upstreamConnection(.init(portId: portIndex,
                                                         nodeId: inferredId)))
                 ]
-            } else if let upstreamStateVarCoordinate = existingStateVarConnections.get(ref) {
+            } else if let upstreamStateVarCoordinate = existingStateVarConnections.get(ref)?.first {
                 // Connection to some interaction patch node
                 return [
                     .portData(.upstreamConnection(upstreamStateVarCoordinate))
@@ -653,7 +653,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                                             varName: String,
                                             portIndex: Int? = nil,
                                             varNameToCode: [String: SwiftPatchCodeType],
-                                            existingStateVarConnections: [String: NodeIOCoordinate],
+                                            existingStateVarConnections: [String: [NodeIOCoordinate]],
                                             nodesDict: [UUID: NodeEntity],
                                             viewEvent: SyntaxViewEvent?) throws -> [PatchSyntaxResultType] {
         switch value {
@@ -720,7 +720,7 @@ struct SwiftPatchNodeInputsResult {
 extension Array where Element == SwiftPatchCodeType {
     func createSchemaList(nodeId: UUID,
                           varNameToCode: [String: SwiftPatchCodeType],
-                          existingStateVarConnections: [String: NodeIOCoordinate],
+                          existingStateVarConnections: [String: [NodeIOCoordinate]],
                           nodesDict: [UUID: NodeEntity],
                           viewEvent: SyntaxViewEvent?) throws -> SwiftPatchNodeInputsResult {
         var otherData = [PatchSyntaxResultType]()
@@ -881,7 +881,7 @@ extension SwiftPatchNodeCode {
     func defaultNodeEntityData(varName: String,
                                varNameToCode: [String: SwiftPatchCodeType],
                                groupNodeId: UUID?,
-                               existingStateVarConnections: [String: NodeIOCoordinate],
+                               existingStateVarConnections: [String: [NodeIOCoordinate]],
                                nodesDict: [UUID: NodeEntity],
                                viewEvent: SyntaxViewEvent?,
                                jsSettings: JavaScriptNodeSettings? = nil) throws -> [PatchSyntaxResultType] {
@@ -1093,7 +1093,7 @@ extension SwiftPatchCodeType {
                          varName: String?,
                          varNameToCode: [String: SwiftPatchCodeType],
                          viewEvent: SyntaxViewEvent?,
-                         existingStateVarConnections: [String: NodeIOCoordinate],
+                         existingStateVarConnections: [String: [NodeIOCoordinate]],
                          nodesDict: [UUID: NodeEntity]) async throws -> [PatchSyntaxResultType] {
         guard let aiManager = document.aiManager else {
             fatalErrorIfDebug()
@@ -1301,11 +1301,19 @@ extension Array where Element == SwiftPatchClosureType {
     }
 }
 
+extension Dictionary where Key == String, Value == [NodeIOCoordinate] {
+    mutating func updateValue(_ value: NodeIOCoordinate, forKey key: String) {
+        var currentValues = self.get(key) ?? []
+        currentValues.append(value)
+        self = self.updatedValue(currentValues, forKey: key)
+    }
+}
+
 extension Dictionary where Key == UUID, Value == NodeEntity {
     mutating func updateWithEventData(_ event: PatchSyntaxResultType,
                                       layerInputCoordinate: NodeIOCoordinate?,
                                       varName: String?,
-                                      stateVarConnections: inout [String: NodeIOCoordinate]) {
+                                      stateVarConnections: inout [String: [NodeIOCoordinate]]) {
         switch event {
         case .node(let nodeResult):
             switch nodeResult.kind {
@@ -1389,7 +1397,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
         case .connectionToLayerInput(let stateName):
             // Get upstream patch data from variable name
             guard let upstreamPatchCoordinate = stateVarConnections
-                .get(stateName),
+                .get(stateName)?.first,
                   let layerInputCoordinate = layerInputCoordinate else {
                 fatalErrorIfDebug()
                 return
@@ -1441,7 +1449,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
 extension Array where Element == (String, SwiftPatchCodeType) {
     @MainActor
     func derivePatchNodes(document: StitchDocumentViewModel,
-                          existingStateVarConnections: [String: NodeIOCoordinate],
+                          existingStateVarConnections: [String: [NodeIOCoordinate]],
                           existingNodesDict: [UUID: NodeEntity],
                           viewEvent: SyntaxViewEvent?) async -> SwiftSyntaxPatchActionsResult {
         // Create dictionary of self
@@ -1453,7 +1461,7 @@ extension Array where Element == (String, SwiftPatchCodeType) {
         var nodesDict = [UUID: NodeEntity]()
         
         // Tracks connections to state variables, used as layer inputs later
-        var stateVarConnections = [String: NodeIOCoordinate]()
+        var stateVarConnections = [String: [NodeIOCoordinate]]()
         
         var caughtErrors = [SwiftUISyntaxError]()
         
