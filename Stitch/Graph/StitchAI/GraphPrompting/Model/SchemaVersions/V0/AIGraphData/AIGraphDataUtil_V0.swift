@@ -342,25 +342,31 @@ extension AIGraphData_V0.LayerData {
                     let stateVarName = patch.createInteractionStateVarName(layerId: layerData.id,
                                                                            outputPortIndex: outputPortId)
                     
-                    // MARK: Come back here to see what we need
-                    fatalError()
-                    
                     // Check for state var names to override if redundant state vars were made for connected layer inputs
-//                    viewStatePatchConnections = viewStatePatchConnections.reduce(into: viewStatePatchConnections) { result, connectionData in
-//                        let (oldKey, viewStateUpstreamCoordinate) = connectionData
-//                        if viewStateUpstreamCoordinate == interactionOutputCoordinate {
-//                            // Update key
-//                            result.removeValue(forKey: oldKey)
-//                            result.updateValue(viewStateUpstreamCoordinate,
-//                                               forKey: stateVarName)
-//                        }
-//                    }
-//                    
-//                    // MARK: definitely misisng arg info
-//                    return .init(viewEvent: .init(layerId: layerData.id,
-//                                                  type: viewEventName,
-//                                                  gestureArg: "g"),
-//                                 codeStatements: [(stateVarName, .expression(.ref("g.\(gestureProperty)")))])
+                    viewStatePatchConnections = viewStatePatchConnections.reduce(into: viewStatePatchConnections) { result, connectionData in
+                        let (oldKey, viewStateUpstreamCoordinates) = connectionData
+                        
+                        // Multiple only expected when parsing AI result
+                        assertInDebug(viewStateUpstreamCoordinates.count == 1)
+                        
+                        guard let viewStateUpstreamCoordinate = viewStateUpstreamCoordinates.first else {
+                            fatalErrorIfDebug()
+                            return
+                        }
+                        
+                        if viewStateUpstreamCoordinate == interactionOutputCoordinate {
+                            // Update key
+                            result.removeValue(forKey: oldKey)
+                            result.updateValue(viewStateUpstreamCoordinate,
+                                               forKey: stateVarName)
+                        }
+                    }
+                    
+                    // MARK: definitely misisng arg info
+                    return .init(viewEvent: .init(layerId: layerData.id,
+                                                  type: viewEventName,
+                                                  gestureArg: "g"),
+                                 codeStatements: [(stateVarName, .expression(.ref("g.\(gestureProperty)")))])
                     
 //                    return .init(viewEvent: .init(layerId: layerData.id,
 //                                                  type: viewEventName,
