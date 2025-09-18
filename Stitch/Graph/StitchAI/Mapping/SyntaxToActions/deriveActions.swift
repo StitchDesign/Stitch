@@ -856,6 +856,10 @@ extension PatchSyntaxResultType {
         case .portData(let connectionType):
             return connectionType
             
+        case .connection(let edge):
+            // assumption here is that the `to` property is going "here"
+            return .upstreamConnection(edge.from)
+            
         default:
             return nil
         }
