@@ -69,6 +69,48 @@ extension Patch {
 }
 
 extension SyntaxViewEvent {
+    private func processDragEvent(varName: String?,
+                                  unpackOutputPortId: Int,
+                                  dragNodeResult: PatchSyntaxNodeResult,
+                                  assignedLayerValuesResult: PatchSyntaxPortValuesResult) -> [PatchSyntaxResultType] {
+        // Determine event for receiver of gesture data
+        var gestureReceiverEvent: PatchSyntaxResultType?
+        
+        // MARK: default to 0, which is the position output, since translate doesn't lead to consistently positive outcomes
+        let outputPortIndex = 0 //prefixValue == "position" ? 0 : 2
+        
+        if let varName = varName {
+            let unpackOutput = NodeIOCoordinate(portId: unpackOutputPortId,
+                                                nodeId: self.unpackPositionNodeId)
+            
+            // Most downstream reference used for node ID
+            gestureReceiverEvent = .stateWrite(varName, unpackOutput)
+        }
+        
+        let connection = PortEdgeData(
+            from: .init(portId: outputPortIndex,
+                        nodeId: self.interactionPatchNodeId),
+            to: .init(portId: 0, nodeId: self.unpackPositionNodeId))
+        
+        let unpackPositionNodeResult = PatchSyntaxNodeResult(
+            id: self.unpackPositionNodeId,
+            kind: .patch(.unpack)
+        )
+        
+        var results: [PatchSyntaxResultType] = [
+            .node(dragNodeResult),
+            .node(unpackPositionNodeResult),
+            .portValues(assignedLayerValuesResult),
+            .connection(connection)
+        ]
+        
+        if let gestureReceiverEvent = gestureReceiverEvent {
+            results.append(gestureReceiverEvent)
+        }
+        
+        return results
+    }
+    
     /// Determines the connections and intermediary patch nodes to be created between an interaction patch node and some state.
     func createConnectedPatchData(gestureArg: ExprSyntaxProtocol?,
                                   varName: String?) -> [PatchSyntaxResultType] {
@@ -111,81 +153,27 @@ extension SyntaxViewEvent {
                 return results
             }
             
-            guard let memberGestureArg = gestureArg.as(MemberAccessExprSyntax.self),
-                  let prefixValue = memberGestureArg.base?.trimmedDescription else {
+            guard let memberGestureArg = gestureArg.as(MemberAccessExprSyntax.self) else {
+//                  let prefixValue = memberGestureArg.base?.trimmedDescription else {
                 return []
             }
                         
             let suffixValue = memberGestureArg.declName.trimmedDescription
-            let outputPortIndex = prefixValue == "position" ? 0 : 2
-            
-            // Determine event for receiver of gesture data
-            var gestureReceiverEvent: PatchSyntaxResultType?
             
             if suffixValue == "x" || suffixValue == "width" {
-                if let varName = varName {
-                    let unpackOutput = NodeIOCoordinate(portId: 0,
-                                                        nodeId: self.unpackPositionNodeId)
-                    
-                    // Most downstream reference used for node ID
-                    gestureReceiverEvent = .stateWrite(varName, unpackOutput)
-                }
-                
-                let connection = PortEdgeData(
-                    from: .init(portId: outputPortIndex,
-                                nodeId: self.interactionPatchNodeId),
-                    to: .init(portId: 0, nodeId: self.unpackPositionNodeId))
-                
-                let unpackPositionNodeResult = PatchSyntaxNodeResult(
-                    id: self.unpackPositionNodeId,
-                    kind: .patch(.unpack)
-                )
-                
-                var results: [PatchSyntaxResultType] = [
-                    .node(dragNodeResult),
-                    .node(unpackPositionNodeResult),
-                    .portValues(assignedLayerValuesResult),
-                    .connection(connection)
-                ]
-                
-                if let gestureReceiverEvent = gestureReceiverEvent {
-                    results.append(gestureReceiverEvent)
-                }
-                
-                return results
+                return self
+                    .processDragEvent(varName: varName,
+                                      unpackOutputPortId: 0,
+                                      dragNodeResult: dragNodeResult,
+                                      assignedLayerValuesResult: assignedLayerValuesResult)
             }
             
             else if suffixValue == "y" || suffixValue == "height" {
-                if let varName = varName {
-                    let unpackOutput = NodeIOCoordinate(portId: 1,
-                                                        nodeId: self.unpackPositionNodeId)
-                    
-                    // Most downstream reference used for node ID
-                    gestureReceiverEvent = .stateWrite(varName, unpackOutput)
-                }
-                
-                let connection = PortEdgeData(
-                    from: .init(portId: outputPortIndex,
-                                nodeId: self.interactionPatchNodeId),
-                    to: .init(portId: 0, nodeId: self.unpackPositionNodeId))
-                
-                let unpackPositionNodeResult = PatchSyntaxNodeResult(
-                    id: self.unpackPositionNodeId,
-                    kind: .patch(.unpack)
-                )
-                
-                var results: [PatchSyntaxResultType] = [
-                    .node(dragNodeResult),
-                    .node(unpackPositionNodeResult),
-                    .portValues(assignedLayerValuesResult),
-                    .connection(connection)
-                ]
-                
-                if let gestureReceiverEvent = gestureReceiverEvent {
-                    results.append(gestureReceiverEvent)
-                }
-                
-                return results
+                return self
+                    .processDragEvent(varName: varName,
+                                      unpackOutputPortId: 1,
+                                      dragNodeResult: dragNodeResult,
+                                      assignedLayerValuesResult: assignedLayerValuesResult)
             }
             
             return []
