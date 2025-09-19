@@ -62,11 +62,22 @@ enum StrictViewConstructor {
     }
 }
 
+extension SyntaxViewName {
+    var hasTrackedViewConstructor: Bool {
+        switch self {
+        case .text, .image, .hStack, .vStack, .zStack, .circle, .ellipse, .rectangle, .scrollView, .stitchRealityView, .box, .cone, .cylinder, .sphere, .spacer, .lazyHStack, .lazyVStack:
+            return true
+        case .anyView, .angularGradient, .asyncImage, .button, .capsule, .canvas, .chart, .oval, .color, .colorPicker, .contentUnavailableView, .controlGroup, .datePicker, .divider, .disclosureGroup, .emptyView, .forEach, .form, .gauge, .geometryReader, .grid, .gridRow, .group, .groupBox, .labeledContent, .label, .lazyHGrid, .lazyVGrid, .link, .map, .material, .menu, .model3D, .navigationLink, .navigationStack, .navigationSplit, .navigationView, .outlineGroup, .path, .preview, .progressView, .radialGradient, .realityView, .roundedRectangle, .sceneView, .scrollViewReader, .section, .shareLink, .slider, .snapshotView, .spriteView, .stepper, .symbolEffect, .tabView, .textEditor, .textField, .timelineSchedule, .timelineView, .toggle, .tokenField, .toolBar, .videoPlayer, .viewThatFits, .list, .linearGradient, .secureField, .alignmentGuide, .table, .picker, .unevenRoundedRectangle:
+            return false
+        }
+    }
+}
+
 
 /// Runs every `…ViewConstructor.from(node)` helper once. If an enum is
 /// returned, attach it to the *current* SyntaxView.
 func createKnownViewConstructor(from node: FunctionCallExprSyntax,
-                                               arguments: [SyntaxViewArgumentData]) -> StrictViewConstructor? {
+                                arguments: [SyntaxViewArgumentData]) -> StrictViewConstructor? {
     
     guard let name = node.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text,
           let viewName = SyntaxViewName(rawValue: name) else {
@@ -144,7 +155,6 @@ func createKnownViewConstructor(from node: FunctionCallExprSyntax,
             .map { .scrollView($0) }
         
     case .anyView, .angularGradient, .asyncImage, .button, .capsule, .canvas, .chart, .color, .colorPicker, .contentUnavailableView, .controlGroup, .datePicker, .divider, .disclosureGroup, .emptyView, .forEach, .form, .gauge, .geometryReader, .grid, .gridRow, .group, .groupBox, .labeledContent, .label, .lazyHGrid, .lazyVGrid, .link, .map, .material, .menu, .model3D, .navigationLink, .navigationStack, .navigationSplit, .navigationView, .outlineGroup, .path, .preview, .progressView, .radialGradient, .realityView, .roundedRectangle, .sceneView,
-//            .scrollView,
             .scrollViewReader, .section, .shareLink, .slider, .snapshotView, .spriteView, .stepper, .symbolEffect, .tabView, .textEditor, .textField, .timelineSchedule, .timelineView, .toggle, .tokenField, .toolBar, .videoPlayer, .viewThatFits, .list, .linearGradient, .secureField, .alignmentGuide, .table, .picker, .unevenRoundedRectangle:
         return nil
     }
@@ -377,7 +387,8 @@ enum StitchRealityViewConstructor: FromSwiftUIViewToStitch {
     
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
-        args.isEmpty ? .plain : nil
+//        args.isEmpty ? .plain : nil
+        .plain
     }
 }
 

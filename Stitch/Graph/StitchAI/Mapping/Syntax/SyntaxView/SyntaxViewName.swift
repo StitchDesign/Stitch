@@ -60,11 +60,17 @@ extension SyntaxViewName {
     }
     
     var isSupported: Bool {
-        (try? self.deriveLayerData(id: .init(),
-                                   args: nil,
-                                   modifiers: [],
-                                   childrenLayers: [],
-                                   bindingDeclarations: [])) != nil
+        if self.hasTrackedViewConstructor {
+            return true
+        } else {
+            return (try? self.deriveLayerData(
+                id: .init(),
+                // BAD: `nil` argument will *always* skip tracked view constructors
+                args: nil,
+                modifiers: [],
+                childrenLayers: [],
+                bindingDeclarations: [])) != nil
+        }
     }
 }
 
