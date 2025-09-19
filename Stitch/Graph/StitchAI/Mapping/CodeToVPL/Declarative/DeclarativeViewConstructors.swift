@@ -1923,7 +1923,7 @@ struct FrameViewModifier: PortValuesPackModifiable {
     static let layerInputPort = LayerInputPort.size
     static let nodeType = NodeType.size
     
-    let args: [SyntaxViewModifierArgumentType]
+    let args: [SyntaxViewArgumentData]
 }
 
 // MARK: - Color View Modifiers
@@ -2090,77 +2090,23 @@ struct PositionViewModifier: PortValuesPackModifiable {
     static let layerInputPort = LayerInputPort.position
     static let nodeType = NodeType.position
     
-    let args: [SyntaxViewModifierArgumentType]
+    let args: [SyntaxViewArgumentData]
 }
 
 struct OffsetViewModifier: PortValuesPackModifiable {
     static let layerInputPort = LayerInputPort.position
     static let nodeType = NodeType.position
     
-    let args: [SyntaxViewModifierArgumentType]
+    let args: [SyntaxViewArgumentData]
 }
 
 // MARK: - Layout View Modifiers
 
-struct PaddingViewModifier: FromSwiftUIViewModifierToStitch {
-    let edges: SyntaxViewModifierArgumentType?
-    let length: SyntaxViewModifierArgumentType?
+struct PaddingViewModifier: PortValuesPackModifiable {
+    static let layerInputPort: LayerInputPort = .layerPadding
+    static let nodeType: NodeType = .padding
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
-        // For now, handle uniform padding only
-        guard let length = length else {
-            return [
-                LayerPortDerivation(
-                    input: .padding,
-                    value: .padding(StitchPadding(
-                        top: 16,
-                        right: 16,
-                        bottom: 16,
-                        left: 16
-                    ))
-                )
-            ]
-        }
-        
-        guard let lengthPortValue = try length.derivePortValues().first?.value,
-              let paddingValue: StitchPadding = lengthPortValue.getPadding else {
-            throw SwiftUISyntaxError.portValueNotFound(argument: length)
-        }
-   
-        return [LayerPortDerivation(input: .padding,
-                                    value: .padding(paddingValue))]
-    }
-    
-    static func from(_ arguments: [SyntaxViewArgumentData],
-                     modifierName: SyntaxViewModifierName) -> PaddingViewModifier? {
-        var edges: SyntaxViewModifierArgumentType?
-        var length: SyntaxViewModifierArgumentType?
-        
-        for arg in arguments {
-            switch arg.label {
-            case "edges", nil where edges == nil:
-                edges = arg.value
-            case "length", nil where length == nil:
-                length = arg.value
-            default: break
-            }
-        }
-        
-        // Handle .padding() with no arguments - uniform 16pt padding
-        if arguments.isEmpty {
-            let defaultPadding = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: "16", syntaxKind: .literal(.float))
-            )
-            return PaddingViewModifier(edges: nil, length: defaultPadding)
-        }
-        
-        // Handle .padding(X) - uniform X padding
-        if arguments.count == 1 && arguments.first?.label == nil {
-            length = arguments.first?.value
-        }
-        
-        return PaddingViewModifier(edges: edges, length: length)
-    }
+    let args: [SyntaxViewArgumentData]
 }
 
 struct ClippedViewModifier: FromSwiftUIViewModifierToStitch {
@@ -2661,7 +2607,7 @@ func createKnownViewModifier(modifierName: SyntaxViewModifierName,
         return CornerRadiusViewModifier.from(arguments, modifierName: modifierName)
             .map { .cornerRadius($0) }
     case .frame:
-        return FrameViewModifier.from(arguments, modifierName: modifierName)
+        return FrameViewModifier.from(arguments)
             .map { .frame($0) }
     case .foregroundColor:
         return ForegroundColorViewModifier.from(arguments, modifierName: modifierName)
@@ -2685,13 +2631,13 @@ func createKnownViewModifier(modifierName: SyntaxViewModifierName,
         return ColorInvertViewModifier.from(arguments, modifierName: modifierName)
             .map { .colorInvert($0) }
     case .position:
-        return PositionViewModifier.from(arguments, modifierName: modifierName)
+        return PositionViewModifier.from(arguments)
             .map { .position($0) }
     case .offset:
-        return OffsetViewModifier.from(arguments, modifierName: modifierName)
+        return OffsetViewModifier.from(arguments)
             .map { .offset($0) }
     case .padding:
-        return PaddingViewModifier.from(arguments, modifierName: modifierName)
+        return PaddingViewModifier.from(arguments)
             .map { .padding($0) }
     case .clipped:
         return ClippedViewModifier.from(arguments, modifierName: modifierName)

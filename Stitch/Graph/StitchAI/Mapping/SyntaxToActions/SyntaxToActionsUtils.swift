@@ -96,6 +96,11 @@ func deterministicUUID(from name: String) -> UUID {
 
 extension NodeType {
     func reorganizePortValueArgs(valuesMap: OrderedDictionary<String, [PatchSyntaxResultType]>) -> [PatchSyntaxResultType] {
+        let defaultOrder = valuesMap.flatMap { $0.value }
+        
+        // Ignore if any keys are empty
+        guard !valuesMap.keys.contains("") else { return defaultOrder }
+        
         switch self {
         case .position:
             guard let xValue = valuesMap["x"],
@@ -113,11 +118,49 @@ extension NodeType {
             
             return widthValue + heightValue
             
+        case .padding:
+            guard let top = valuesMap["top"],
+                  let right = valuesMap["right"],
+                  let bottom = valuesMap["bottom"],
+                  let left = valuesMap["left"] else {
+                break
+            }
+             
+            return top + right + bottom + left
+            
         default:
+            fatalError("Please fill in types we aren't supporting here!")
             break
         }
         
         // Backup just returns list in order
-        return valuesMap.flatMap { $0.value }
+        return defaultOrder
+    }
+}
+
+extension Array where Element == SyntaxViewArgumentData {
+    func reorderUnapckedValues(varName: String?,
+                               viewEvent: SyntaxViewEvent?,
+                               nodesDict: [UUID: NodeEntity],
+                               nodeType: NodeType? = nil) throws -> [PatchSyntaxResultType] {
+        // Recursively determine PortValue of each arg for key label
+        let orderedDict = OrderedDictionary<String, [PatchSyntaxResultType]>()
+        let portValuesMap = try self.reduce(into: orderedDict) { result, arg in
+            let results = try SyntaxViewName.derivePortValues(
+                from: arg.value,
+                varName: varName,
+                viewEvent: viewEvent,
+                nodesDict: nodesDict,
+                nodeType: nodeType)
+            
+            result.updateValue(results, forKey: arg.label?.stripQuotes() ?? "")
+        }
+        
+        guard let nodeType = nodeType else {
+            return portValuesMap.flatMap { $0.value }
+        }
+        
+        // Regoranize arguments to ensure packing works correctly
+        return nodeType.reorganizePortValueArgs(valuesMap: portValuesMap)
     }
 }

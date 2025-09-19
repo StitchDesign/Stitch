@@ -36,17 +36,19 @@ protocol PortValuesPackModifiable: FromSwiftUIViewModifierToStitch {
     
     static var nodeType: NodeType { get }
     
-    init(args: [SyntaxViewModifierArgumentType])
+    init(args: [SyntaxViewArgumentData])
     
-    var args: [SyntaxViewModifierArgumentType] { get }
+    var args: [SyntaxViewArgumentData] { get }
 }
 
 extension PortValuesPackModifiable {
     func createCustomValueEvents() throws -> [LayerPortDerivation] {
-        // Handle each argument argument
-        let layerPortEvents: [PatchSyntaxResultType] = try self.args.flatMap {
-            try $0.derivePortValues()
-        }
+        // Reorder arguments to match layer unpack ordering
+        let layerPortEvents = try self.args
+            .reorderUnapckedValues(varName: nil,
+                                   viewEvent: nil,
+                                   nodesDict: [:],
+                                   nodeType: Self.nodeType)
         
         let parsedValues = layerPortEvents.compactMap { event -> PortValue? in
             guard let value = event.portData?.values?.first else { return nil }
@@ -82,9 +84,14 @@ extension PortValuesPackModifiable {
                   value: packedValue)
         ]
     }
+
+    static func from(_ arguments: [SyntaxViewArgumentData]) -> Self? {
+        self.init(args: arguments)
+    }
     
+    // Required for protocol
     static func from(_ arguments: [SyntaxViewArgumentData],
                      modifierName: SyntaxViewModifierName) -> Self? {
-        self.init(args: arguments.map(\.value))
+        self.init(args: arguments)
     }
 }
