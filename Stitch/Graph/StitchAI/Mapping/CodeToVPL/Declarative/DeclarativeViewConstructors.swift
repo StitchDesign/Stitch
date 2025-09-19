@@ -565,6 +565,10 @@ enum HStackViewConstructor: FromSwiftUIViewToStitch {
                 
             case "spacing":
                 spacing = arg.value
+            
+            case .none:
+                spacing = arg.value
+                
             default:
                 // ignore other labels (content closure etc.)
                 break
@@ -656,6 +660,9 @@ enum VStackViewConstructor: FromSwiftUIViewToStitch {
                 alignment = arg.value
             case "spacing":
                 spacing = arg.value
+            case .none:
+                spacing = arg.value
+                
             default:
                 break // ignore content closure or unknown labels
             }
