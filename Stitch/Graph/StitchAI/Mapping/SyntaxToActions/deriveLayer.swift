@@ -818,25 +818,11 @@ extension SyntaxViewName {
                                                  nodesDict: nodesDict)
             
         case .tuple(let tupleArgs):
-            // Recursively determine PortValue of each arg for key label
-            let orderedDict = OrderedDictionary<String, [PatchSyntaxResultType]>()
-            let tuplePortValuesMap = try tupleArgs.reduce(into: orderedDict) { result, arg in
-                let results = try Self.derivePortValues(
-                    from: arg.value,
-                    varName: varName,
-                    viewEvent: viewEvent,
-                    nodesDict: nodesDict,
-                    nodeType: nodeType)
-                
-                result.updateValue(results, forKey: arg.label?.stripQuotes() ?? "")
-            }
-            
-            guard let nodeType = nodeType else {
-                return tuplePortValuesMap.flatMap { $0.value }
-            }
-            
-            // Regoranize arguments to ensure packing works correctly
-            return nodeType.reorganizePortValueArgs(valuesMap: tuplePortValuesMap)
+            return try tupleArgs
+                .reorderUnapckedValues(varName: varName,
+                                       viewEvent: viewEvent,
+                                       nodesDict: nodesDict,
+                                       nodeType: nodeType)
             
         case .array(let arrayArgs):
             // Recursively determine PortValue of each arg

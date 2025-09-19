@@ -584,7 +584,7 @@ extension LayerInputPort {
             return nil // Special case - handled elsewhere
         case .offsetInGroup:
             return .offset
-        case .padding:
+        case .layerPadding:
             return .padding
         case .isClipped:
             return .clipped

@@ -253,7 +253,11 @@ extension LayerInputObserver {
     func update(from schema: LayerInputEntity,
                 layerInputType: LayerInputPort,
                 layerNode: LayerNodeViewModel,
-                nodeId: NodeId) {        
+                nodeId: NodeId) {
+        if self.port == .layerPadding {
+            log("HI")
+        }
+        
         let portObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
         let unpackedObservers = portObserver._unpackedData.allPorts
         
