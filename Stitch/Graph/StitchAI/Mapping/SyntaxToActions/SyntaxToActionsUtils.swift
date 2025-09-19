@@ -8,7 +8,6 @@
 import Foundation
 import StitchSchemaKit
 import CryptoKit
-import OrderedCollections
 
 
 // TODO: remove, replace with `PortIOType` or something like that; but basic logic remains the same
@@ -95,34 +94,34 @@ func deterministicUUID(from name: String) -> UUID {
 }
 
 extension NodeType {
-    func reorganizePortValueArgs(valuesMap: OrderedDictionary<String, [PatchSyntaxResultType]>) -> [PatchSyntaxResultType] {
-        let defaultOrder = valuesMap.flatMap { $0.value }
+    func reorganizePortValueArgs(valuesMap: [(String, [PatchSyntaxResultType])]) -> [PatchSyntaxResultType] {
+        let defaultOrder = valuesMap.flatMap { $0.1 }
         
         // Ignore if any keys are empty
-        guard !valuesMap.keys.contains("") else { return defaultOrder }
+        guard !valuesMap.getKeys().contains("") else { return defaultOrder }
         
         switch self {
         case .position:
-            guard let xValue = valuesMap["x"],
-                  let yValue = valuesMap["y"] else {
+            guard let xValue = valuesMap.get("x"),
+                  let yValue = valuesMap.get("y") else {
                 break
             }
             
             return xValue + yValue
             
         case .size:
-            guard let widthValue = valuesMap["width"],
-                  let heightValue = valuesMap["height"] else {
+            guard let widthValue = valuesMap.get("width"),
+                  let heightValue = valuesMap.get("height") else {
                 break
             }
             
             return widthValue + heightValue
             
         case .padding:
-            guard let top = valuesMap["top"],
-                  let right = valuesMap["right"],
-                  let bottom = valuesMap["bottom"],
-                  let left = valuesMap["left"] else {
+            guard let top = valuesMap.get("top"),
+                  let right = valuesMap.get("right"),
+                  let bottom = valuesMap.get("bottom"),
+                  let left = valuesMap.get("left") else {
                 break
             }
              
@@ -144,7 +143,7 @@ extension Array where Element == SyntaxViewArgumentData {
                                nodesDict: [UUID: NodeEntity],
                                nodeType: NodeType? = nil) throws -> [PatchSyntaxResultType] {
         // Recursively determine PortValue of each arg for key label
-        let orderedDict = OrderedDictionary<String, [PatchSyntaxResultType]>()
+        let orderedDict = [(String, [PatchSyntaxResultType])]()
         let portValuesMap = try self.reduce(into: orderedDict) { result, arg in
             let results = try SyntaxViewName.derivePortValues(
                 from: arg.value,
@@ -153,11 +152,11 @@ extension Array where Element == SyntaxViewArgumentData {
                 nodesDict: nodesDict,
                 nodeType: nodeType)
             
-            result.updateValue(results, forKey: arg.label?.stripQuotes() ?? "")
+            result.append(((arg.label?.stripQuotes() ?? ""), results))
         }
         
         guard let nodeType = nodeType else {
-            return portValuesMap.flatMap { $0.value }
+            return portValuesMap.flatMap { $0.1 }
         }
         
         // Regoranize arguments to ensure packing works correctly
