@@ -8,6 +8,7 @@
 import Foundation
 import StitchSchemaKit
 import CryptoKit
+import OrderedCollections
 
 
 // TODO: remove, replace with `PortIOType` or something like that; but basic logic remains the same
@@ -90,5 +91,33 @@ func deterministicUUID(from name: String) -> UUID {
     return bytes.withUnsafeBytes { buf in
         let b = buf.bindMemory(to: UInt8.self)
         return UUID(uuid: (b[0],b[1],b[2],b[3], b[4],b[5], b[6],b[7], b[8],b[9], b[10],b[11],b[12],b[13],b[14],b[15]))
+    }
+}
+
+extension NodeType {
+    func reorganizePortValueArgs(valuesMap: OrderedDictionary<String, [PatchSyntaxResultType]>) -> [PatchSyntaxResultType] {
+        switch self {
+        case .position:
+            guard let xValue = valuesMap["x"],
+                  let yValue = valuesMap["y"] else {
+                break
+            }
+            
+            return xValue + yValue
+            
+        case .size:
+            guard let widthValue = valuesMap["width"],
+                  let heightValue = valuesMap["height"] else {
+                break
+            }
+            
+            return widthValue + heightValue
+            
+        default:
+            break
+        }
+        
+        // Backup just returns list in order
+        return valuesMap.flatMap { $0.value }
     }
 }
