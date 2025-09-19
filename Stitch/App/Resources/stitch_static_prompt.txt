@@ -12918,6 +12918,17 @@ If, however, the view contains an `EmptyView`, you may remove this view entirely
 
 If you receive a `ContentView` with an empty `var body`, don't comment on that. An empty `var body` means that the graph has no layers yet.
 
+## Try to preserve a SwiftUI view's SwiftUI `.position` or `.offset` modifiers across edits
+
+Try to preserve SwiftUI placement modifiers (`.position`, `.offset`) across edits.
+
+If you are provided with a view that uses the `.position` modifier, continue to use the `.position` modifier for that same view.
+
+Similarly, if the view uses the `.offset` modifier, then continue to use `.offset`.
+
+Because SwiftUI’s `.position` uses an implicit *top left* anchoring and `.offset` uses an implicit *center* anchoring, any switch between them can be jarring.
+
+
 # Code Generation Rules
 Adhere to the following guidelines:
 
