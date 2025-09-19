@@ -9,6 +9,7 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 import SwiftSyntax
+import OrderedCollections
 
 struct LayerDerivationResult {
     let layerData: CurrentAIGraphData.LayerData
@@ -805,7 +806,8 @@ extension SyntaxViewName {
     static func derivePortValues(from argument: SyntaxViewModifierArgumentType,
                                  varName: String?,
                                  viewEvent: SyntaxViewEvent?,
-                                 nodesDict: [UUID: NodeEntity]) throws -> [PatchSyntaxResultType] {
+                                 nodesDict: [UUID: NodeEntity],
+                                 nodeType: NodeType? = nil) throws -> [PatchSyntaxResultType] {
         switch argument {
         
         // Handles types like PortValueDescription
@@ -816,13 +818,25 @@ extension SyntaxViewName {
                                                  nodesDict: nodesDict)
             
         case .tuple(let tupleArgs):
-            // Recursively determine PortValue of each arg
-            return try tupleArgs.flatMap {
-                try Self.derivePortValues(from: $0.value,
-                                          varName: varName,
-                                          viewEvent: viewEvent,
-                                          nodesDict: nodesDict)
+            // Recursively determine PortValue of each arg for key label
+            let orderedDict = OrderedDictionary<String, [PatchSyntaxResultType]>()
+            let tuplePortValuesMap = try tupleArgs.reduce(into: orderedDict) { result, arg in
+                let results = try Self.derivePortValues(
+                    from: arg.value,
+                    varName: varName,
+                    viewEvent: viewEvent,
+                    nodesDict: nodesDict,
+                    nodeType: nodeType)
+                
+                result.updateValue(results, forKey: arg.label?.stripQuotes() ?? "")
             }
+            
+            guard let nodeType = nodeType else {
+                return tuplePortValuesMap.flatMap { $0.value }
+            }
+            
+            // Regoranize arguments to ensure packing works correctly
+            return nodeType.reorganizePortValueArgs(valuesMap: tuplePortValuesMap)
             
         case .array(let arrayArgs):
             // Recursively determine PortValue of each arg
@@ -833,7 +847,8 @@ extension SyntaxViewName {
                 return try Self.derivePortValues(from: $0,
                                                  varName: varName,
                                                  viewEvent: viewEvent,
-                                                 nodesDict: nodesDict)
+                                                 nodesDict: nodesDict,
+                                                 nodeType: nodeType)
             }
             
         case .simple(let data):
@@ -1007,7 +1022,14 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
                                           varName: varName)
             
         default:
-            return try firstArg.value.derivePortValues(viewEvent: viewEvent)
+            guard let secondArgString = complexType.arguments[safe: 1]?.value.simpleValue,
+                  let nodeType = NodeType(llmString: secondArgString.stripQuotes()) else {
+                fatalErrorIfDebug()
+                return []
+            }
+            
+            return try firstArg.value.derivePortValues(viewEvent: viewEvent,
+                                                       nodeType: nodeType)
         }
     
     case .binding, .color:
@@ -1056,10 +1078,12 @@ enum SyntaxArgumentConstructorContext {
 }
 
 extension SyntaxViewModifierArgumentType {
-    func derivePortValues(viewEvent: SyntaxViewEvent? = nil) throws -> [PatchSyntaxResultType] {
+    func derivePortValues(viewEvent: SyntaxViewEvent? = nil,
+                          nodeType: NodeType? = nil) throws -> [PatchSyntaxResultType] {
         try SyntaxViewName.derivePortValues(from: self,
                                             varName: nil,
                                             viewEvent: viewEvent,
-                                            nodesDict: [:])
+                                            nodesDict: [:],
+                                            nodeType: nodeType)
     }
 }
