@@ -146,6 +146,32 @@ Example 2: "Place the rectangle in the center" would produce this code:
    .offset([PortValueDescription(value: ["y":0,"x":0], value_type: "position")])
 ```
 
+### Do not use a SwiftUI Color as a view
+
+If you want to use a SwiftUI `Color` as a view, use a `Rectangle` view and the `.fill` view modifier for that color.
+
+For example, this vanilla SwiftUI:
+
+```swift
+Ellipse()
+    .background(Color.gray)
+```
+
+Becomes this instead:
+
+```swift
+Ellipse()
+    .background(Rectangle().fill([PortValueDescription(value: "#D9D9D9FF", value_type: "color")]))
+```
+
+NEVER directly use a color PortValueDescription as a view itself. For example, NEVER do this:
+
+```swift
+Rectangle()
+    .background([PortValueDescription(value: "#D9D9D9FF", value_type: "color")])
+```
+
+
 ### Permitted Usage of State in View Modifiers
 
 **This includes invocation of state variables for view modifiers, which must be processed by the view modifier in its looped form**. For example:
@@ -393,6 +419,8 @@ The listed views below are the only permitted views inside a `var body`:
 
 #### Disallowed Views
 * `GeometryReader`: use the "deviceInfo || Patch" native patch function for getting full device info, or "layerInfo || Patch" for getting sizing info on a specific view.
+* `Grid`: use an arrangement of HStacks and VStacks instead
+* `GridRow`: use an HStack instead
 
 The full list of unsupported views includes:
 ```

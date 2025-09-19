@@ -13055,6 +13055,32 @@ Rectangle()
 
 This means that for any value declared inside a view's constructor, a view modifier, or anywhere some value is declared, you must use a `[PortValueDescription]` object.
 
+ 
+### A 'SwiftUI Color as a view' instead becomes a SwiftUI `Rectangle` view + `.fill` view modifier
+
+If you want to use a SwiftUI `Color` as a view, use a `Rectangle` view and the `.fill` view modifier for that color.
+
+For example, this vanilla SwiftUI:
+
+```swift
+Ellipse()
+    .background(Color.gray)
+```
+
+Becomes this instead:
+
+```swift
+Ellipse()
+    .background(Rectangle().fill([PortValueDescription(value: "#D9D9D9FF", value_type: "color")]))
+```
+
+NEVER directly use a color PortValueDescription as a view itself. For example, NEVER do this:
+
+```swift
+Rectangle()
+    .background([PortValueDescription(value: "#D9D9D9FF", value_type: "color")])
+```
+
 ### Permitted Usage of State in View Modifiers
 
 **This includes invocation of state variables for view modifiers, which must be processed by the view modifier in its looped form**. For example:
@@ -13297,15 +13323,17 @@ For examples of proper invocation and prioritization of native patch nodes, cons
 The listed views below are the only permitted views inside a `var body`:
 
 ```
-["AngularGradient", "Canvas", "Oval", "Circle", "Ellipse", "Grid", "LazyHGrid", "LazyHStack", "LazyVGrid", "LazyVStack", "Map", "Material", "Model3D", "ProgressView", "RadialGradient", "Rectangle", "RoundedRectangle", "ScrollView", "Text", "TextField", "Toggle", "VideoPlayer", "VStack", "HStack", "ZStack", "Image", "LinearGradient", "SecureField"]
+["AngularGradient", "Canvas", "Oval", "Circle", "Ellipse" "LazyHGrid", "LazyHStack", "LazyVGrid", "LazyVStack", "Map", "Material", "Model3D", "ProgressView", "RadialGradient", "Rectangle", "RoundedRectangle", "ScrollView", "Text", "TextField", "Toggle", "VideoPlayer", "VStack", "HStack", "ZStack", "Image", "LinearGradient", "SecureField"]
 ```
 
 #### Disallowed Views
 * `GeometryReader`: use the "deviceInfo || Patch" native patch function for getting full device info, or "layerInfo || Patch" for getting sizing info on a specific view.
+* `Grid`: use an arrangement of HStacks and VStacks instead
+* `GridRow`: use an HStack instead
 
 The full list of unsupported views includes:
 ```
-["StitchRealityView", "Box", "Cone", "Cylinder", "Sphere", "AnyView", "AsyncImage", "Button", "Capsule", "Chart", "Color", "ColorPicker", "ContentUnavailableView", "ControlGroup", "DatePicker", "Divider", "DisclosureGroup", "EmptyView", "ForEach", "Form", "Gauge", "GeometryReader", "GridRow", "Group", "GroupBox", "LabeledContent", "Label", "Link", "Menu", "NavigationLink", "NavigationStack", "NavigationSplitView", "NavigationView", "OutlineGroup", "Path", "Preview", "RealityView", "SceneView", "ScrollViewReader", "Section", "ShareLink", "Slider", "SnapshotView", "Spacer", "SpriteView", "Stepper", "SymbolEffect", "TabView", "TextEditor", "TimelineSchedule", "TimelineView", "TokenField", "ToolBar", "ViewThatFits", "List", "AlignmentGuide", "Table", "Picker", "UnevenRoundedRectangle"]
+["StitchRealityView", "Box", "Cone", "Cylinder", "Sphere", "AnyView", "AsyncImage", "Button", "Capsule", "Chart", "Color", "ColorPicker", "ContentUnavailableView", "ControlGroup", "DatePicker", "Divider", "DisclosureGroup", "EmptyView", "ForEach", "Form", "Gauge", "GeometryReader", "Grid", "GridRow", "Group", "GroupBox", "LabeledContent", "Label", "Link", "Menu", "NavigationLink", "NavigationStack", "NavigationSplitView", "NavigationView", "OutlineGroup", "Path", "Preview", "RealityView", "SceneView", "ScrollViewReader", "Section", "ShareLink", "Slider", "SnapshotView", "Spacer", "SpriteView", "Stepper", "SymbolEffect", "TabView", "TextEditor", "TimelineSchedule", "TimelineView", "TokenField", "ToolBar", "ViewThatFits", "List", "AlignmentGuide", "Table", "Picker", "UnevenRoundedRectangle"]
 ```
 
 ### Supported View Modifiers
