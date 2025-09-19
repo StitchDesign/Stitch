@@ -9,7 +9,6 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 import SwiftSyntax
-import OrderedCollections
 
 struct LayerDerivationResult {
     let layerData: CurrentAIGraphData.LayerData

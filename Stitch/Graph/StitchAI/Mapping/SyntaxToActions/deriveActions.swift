@@ -974,8 +974,12 @@ extension SwiftPatchCodeType {
     }
 }
 
-extension Array where Element == (String, SwiftParserInitializerType) {
-    func get(_ name: String) -> SwiftParserInitializerType? {
+extension Sequence {
+    func getKeys<T>() -> Set<String> where Element == (String, T) {
+        self.map(\.0).toSet
+    }
+    
+    func get<T>(_ name: String) -> T? where Element == (String, T) {
         self.first { $0.0 == name }?.1
     }
 }
