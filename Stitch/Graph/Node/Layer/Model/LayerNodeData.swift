@@ -254,9 +254,6 @@ extension LayerInputObserver {
                 layerInputType: LayerInputPort,
                 layerNode: LayerNodeViewModel,
                 nodeId: NodeId) {
-        if self.port == .layerPadding {
-            log("HI")
-        }
         
         let portObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
         let unpackedObservers = portObserver._unpackedData.allPorts
