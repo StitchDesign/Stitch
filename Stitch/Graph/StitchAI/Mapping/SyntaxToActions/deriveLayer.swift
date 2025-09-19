@@ -456,13 +456,13 @@ extension SyntaxViewName {
             )
             
             // TODO: JULY 3: technically, we don't support `LazyHGrid` and `Grid`?
-        case .lazyVGrid, .lazyHGrid, .grid:
-            layerType = .group
-            customValues.append(
-                .init(id: id,
-                      input: .orientation,
-                      value: .orientation(.grid))
-            )
+//        case .lazyVGrid, .lazyHGrid, .grid:
+//            layerType = .group
+//            customValues.append(
+//                .init(id: id,
+//                      input: .orientation,
+//                      value: .orientation(.grid))
+//            )
             
             
         case .toggle:
