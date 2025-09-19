@@ -519,3 +519,136 @@ func performNodeSimilarityMatching(
         layerIdMapping: layerIdMapping
     )
 }
+
+extension Array where Element == NodeEntity {
+    
+    /// Calculates the bounding box for a node including all its canvas items
+    @MainActor
+    func getNodeBounds(_ node: NodeEntity) -> CGRect? {
+        switch node.nodeTypeEntity {
+        case .patch(let patchNode):
+            let size = CanvasItemId.node(node.id)
+                .getHardcodedSize(kind: node.kind, nodeType: patchNode.userVisibleType)
+                ?? CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
+                          height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
+            return CGRect(origin: patchNode.canvasEntity.position, size: size)
+
+        case .layer(let layerNode):
+            var bounds = CGRect.null
+
+            // Iterate through all layer input definitions to find canvas items
+            for inputDefinition in layerNode.layer.layerGraphNode.inputDefinitions {
+                let portData = layerNode[keyPath: inputDefinition.schemaPortKeyPath]
+
+                // Check packed canvas item
+                if let canvasItem = portData.packedData.canvasItem {
+                    // For layer inputs, the kind parameter is actually the layer type, not used for size calculation
+                    // The CanvasItemId.layerInput case uses the layerInputCoordinate to determine size
+                    let itemSize = CanvasItemId.layerInput(.init(
+                        node: node.id,
+                        keyPath: .init(layerInput: inputDefinition, portType: .packed)
+                    )).getHardcodedSize(kind: .layer(layerNode.layer), nodeType: nil)
+                        ?? CGSize(width: 100, height: 50)
+
+                    let itemBounds = CGRect(origin: canvasItem.position, size: itemSize)
+                    bounds = bounds.isNull ? itemBounds : bounds.union(itemBounds)
+                }
+
+                // Check unpacked canvas items
+                for (index, unpackedData) in portData.unpackedData.enumerated() {
+                    if let canvasItem = unpackedData.canvasItem {
+                        let itemSize = CanvasItemId.layerInput(.init(
+                            node: node.id,
+                            keyPath: .init(layerInput: inputDefinition, portType: .unpacked(index.asUnpackedPortType))
+                        )).getHardcodedSize(kind: .layer(layerNode.layer), nodeType: nil)
+                            ?? CGSize(width: 100, height: 50)
+
+                        let itemBounds = CGRect(origin: canvasItem.position, size: itemSize)
+                        bounds = bounds.isNull ? itemBounds : bounds.union(itemBounds)
+                    }
+                }
+            }
+
+            return bounds.isNull ? nil : bounds
+
+        case .group(let canvasEntity):
+            let size = CanvasItemId.node(node.id)
+                .getHardcodedSize(kind: node.kind, nodeType: nil)
+                ?? CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
+                          height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
+            return CGRect(origin: canvasEntity.position, size: size)
+
+        case .component(let component):
+            let size = CanvasItemId.node(node.id)
+                .getHardcodedSize(kind: node.kind, nodeType: nil)
+                ?? CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
+                          height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
+            return CGRect(origin: component.canvasEntity.position, size: size)
+        }
+    }
+
+    /// Check if a bounds overlaps with any existing node bounds
+    @MainActor
+    func hasCollision(bounds: CGRect,
+                     existingNodes: [NodeEntity],
+                     padding: CGFloat = 30) -> Bool {
+        // Add padding for visual breathing room
+        let paddedBounds = bounds.insetBy(dx: -padding, dy: -padding)
+
+        for node in existingNodes {
+            if let nodeBounds = self.getNodeBounds(node) {
+                if paddedBounds.intersects(nodeBounds) {
+                    return true
+                }
+            }
+        }
+
+        return false
+    }
+
+    /// Find a clear Y position by scanning downward from the start position
+    @MainActor
+    func findClearYPosition(startY: CGFloat,
+                           newNodesBounds: CGRect,
+                           nearbyNodes: [NodeEntity],
+                           maxScanDistance: CGFloat = 2000) -> CGFloat? {
+        var candidateY = startY
+        let stepSize: CGFloat = 50
+
+        // First, check the original position
+        var testBounds = newNodesBounds
+        testBounds.origin.y = candidateY
+        if !hasCollision(bounds: testBounds, existingNodes: nearbyNodes) {
+            return candidateY
+        }
+
+        // Try small adjustments first (more likely to find nearby space)
+        for offset in stride(from: stepSize, to: 200, by: stepSize) {
+            // Try below
+            testBounds.origin.y = startY + offset
+            if !hasCollision(bounds: testBounds, existingNodes: nearbyNodes) {
+                return startY + offset
+            }
+
+            // Try above (might have space above viewport)
+            testBounds.origin.y = startY - offset
+            if !hasCollision(bounds: testBounds, existingNodes: nearbyNodes) {
+                return startY - offset
+            }
+        }
+
+        // Scan further downward with larger steps
+        candidateY = startY + 200
+        while candidateY < startY + maxScanDistance {
+            testBounds.origin.y = candidateY
+            if !hasCollision(bounds: testBounds, existingNodes: nearbyNodes) {
+                return candidateY
+            }
+            candidateY += 100
+        }
+
+        // Ultimate fallback: place at max distance
+        return startY + maxScanDistance
+    }
+    
+}

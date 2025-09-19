@@ -294,11 +294,11 @@ extension Array where Element == NodeEntity {
     func getNode(_ id: UUID) -> NodeEntity? {
         self.first { $0.id == id }
     }
-    
+
     @MainActor
     func positionAIGeneratedNodesDuringApply(
         viewPortCenter: CGPoint,
-        graph: GraphReader,
+        existingNodes: [NodeEntity],
         matchedNodeIds: Set<UUID> = [],
         layerCanvasItemPositions: [LayerCanvasItemCoordinate: CGPoint] = [:]
     ) -> Self {
@@ -312,31 +312,31 @@ extension Array where Element == NodeEntity {
 
         // Horizontal spacing between depth‑columns
         let horizontalPadding: CGFloat = 120.0
-        
+
         let (depthMap, hasCycle) = Stitch.calculateAINodesAdjacency(nodes: self) // patchData.calculateAINodesAdjacency()
-        
+
         guard let depthMap = depthMap else {
             // log("positionAIGeneratedNodesDuringApply: DID NOT HAVE A depthMap")
             return self
         }
-        
+
         guard !hasCycle else {
             // log("positionAIGeneratedNodesDuringApply: HAD A CYCLE for depthMap \(depthMap)")
             return self
         }
-        
+
         // log("positionAIGeneratedNodesDuringApply: depthMap: \(depthMap)")
-        
+
         guard !depthMap.isEmpty else {
             //        fatalErrorIfDebug("Depth-map should never be empty")
             // log("positionAIGeneratedNodesDuringApply: Depth-map should never be empty") // can be empty if we have no nodes
             return self
         }
-        
+
         let depthLevels = depthMap.values.sorted().toOrderedSet
-        
+
         let createdNodes: IdSet = self.map(\.id).toSet
-        
+
         // Determine widest item (incl. padding) for each depth column
         var columnWidths: [Int: CGFloat] = [:]
         depthLevels.forEach { depth in
@@ -350,7 +350,7 @@ extension Array where Element == NodeEntity {
             }.max() ?? (CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER + horizontalPadding)
             columnWidths[depth] = maxWidth
         }
-        
+
         // Build cumulative X offsets so each column starts after the previous one
         var cumulativeXOffset: [Int: CGFloat] = [:]
         var runningX: CGFloat = 0
@@ -363,6 +363,69 @@ extension Array where Element == NodeEntity {
         let totalChainWidth = runningX
         let centeringOffset = -totalChainWidth / 2.0
         // log("🎯 Chain centering: totalWidth=\(totalChainWidth), centeringOffset=\(centeringOffset)")
+
+        // COLLISION DETECTION: Get existing nodes near viewport (exclude newly created nodes)
+        let searchRadius: CGFloat = 1500.0
+        let nearbyExistingNodes = existingNodes.filter { existingNode in
+            // Exclude the new nodes we're trying to position
+            if createdNodes.contains(existingNode.id) {
+                return false
+            }
+
+            // Check if node is within search radius of viewport
+            if let bounds = self.getNodeBounds(existingNode) {
+                let searchArea = CGRect(
+                    x: viewPortCenter.x - searchRadius,
+                    y: viewPortCenter.y - searchRadius,
+                    width: searchRadius * 2,
+                    height: searchRadius * 3 // More vertical range for scanning down
+                )
+                return searchArea.intersects(bounds)
+            }
+
+            return false
+        }
+
+        // Calculate the total height needed for all new nodes
+        let verticalPadding: CGFloat = 80.0
+        var totalHeight: CGFloat = 0
+
+        // Calculate max height for each depth level
+        depthLevels.forEach { depth in
+            let nodesAtLevel = createdNodes.compactMap { depthMap.get($0) == depth ? self.getNode($0) : nil }
+            let maxHeight = nodesAtLevel.flatMap { node in
+                node.canvasIds.map { canvasId in
+                    canvasId.getHardcodedSize(
+                        kind: node.kind,
+                        nodeType: node.nodeTypeEntity.patchNodeEntity?.userVisibleType)?.height ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER
+                }
+            }.max() ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER
+
+            let nodeCount = nodesAtLevel.count
+            totalHeight += CGFloat(nodeCount) * (maxHeight + verticalPadding)
+        }
+
+        // Create bounds for the entire new node cluster
+        let newNodesBounds = CGRect(
+            x: viewPortCenter.x + centeringOffset,
+            y: viewPortCenter.y,
+            width: totalChainWidth,
+            height: totalHeight
+        )
+
+        // Check for collisions and find clear Y position if needed
+        let clearY = self.findClearYPosition(
+            startY: viewPortCenter.y,
+            newNodesBounds: newNodesBounds,
+            nearbyNodes: nearbyExistingNodes
+        ) ?? viewPortCenter.y
+
+        // Calculate Y offset to apply to all positions
+        let yOffset = clearY - viewPortCenter.y
+
+        if yOffset != 0 {
+            log("🔄 AI nodes repositioned: Moving \(yOffset) points down to avoid overlaps")
+        }
 
         // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
         let updatedNodes = depthLevels.flatMap { depthLevel -> [NodeEntity] in
@@ -418,16 +481,16 @@ extension Array where Element == NodeEntity {
                         .getHardcodedSize(kind: createdNode.kind,
                                           nodeType: createdNode.nodeTypeEntity.patchNodeEntity?.userVisibleType) ?? CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
                               height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
-                    
+
                     // Add horizontal gap only
                     size.width += horizontalPadding
-                    
+
                     let newPosition = CGPoint(
                         x: viewPortCenter.x + centeringOffset + (cumulativeXOffset[depthLevel] ?? 0),
-                        y: viewPortCenter.y + CGFloat(rowIndexForDepth) * rowHeight
+                        y: viewPortCenter.y + CGFloat(rowIndexForDepth) * rowHeight + yOffset  // Apply collision avoidance offset
                     )
                     rowIndexForDepth += 1
-                    
+
                     // // log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
                     // log("positionAIGeneratedNodesDuringApply: newPosition: \(newPosition)")
                     return newPosition
