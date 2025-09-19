@@ -133,7 +133,7 @@ extension SwiftSyntaxActionsResult {
         // since those UUIDs have not been remapped yet
         let repositionedNodes = graphEntity.nodes.positionAIGeneratedNodesDuringApply(
             viewPortCenter: document.viewPortCenter,
-            graph: document.visibleGraph,
+            existingNodes: existingGraph.nodes,
             matchedNodeIds: matchedNodeIds,
             layerCanvasItemPositions: layerCanvasItemPositions)
         graphEntity.nodes = repositionedNodes
