@@ -12,7 +12,10 @@ import SwiftUI
 import RealityKit
 
 extension LayerSize {
-    static let DEFAULT_LAYER_GROUP_SIZE: Self = .init(width: .fill, height: .fill)
+//    static let DEFAULT_LAYER_GROUP_SIZE: Self = .init(width: .fill, height: .fill)
+    
+    // Note: more closely follows default SwiftUI stack/parent-view behavior: parent only takes up as much room as necessary
+    static let DEFAULT_LAYER_GROUP_SIZE: Self = .init(width: .hug, height: .hug)
 }
 
 // Used for VStack vs HStack on layer groups
