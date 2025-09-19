@@ -483,33 +483,34 @@ enum SphereViewConstructor: FromSwiftUIViewToStitch {
 //      • init(content:)                             (both defaults)
 //
 
-// TODO: could be a `struct`, since
-enum HStackViewConstructor: FromSwiftUIViewToStitch {
-    /// SwiftUI actually exposes *one* public initializer:
-    /// `init(alignment: VerticalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content)`
-    /// We model that with a single enum case whose associated values carry whatever the
-    /// call site provided—using `.center` and `nil` when the developer omitted them.
-    case parameters(alignment: SyntaxViewModifierArgumentType?,
-                    spacing:   SyntaxViewModifierArgumentType?)
+protocol ViewStackViewConstructor: FromSwiftUIViewToStitch {
+    static var orientation: StitchOrientation { get }
     
+    var alignmentArg: SyntaxViewModifierArgumentType? { get set }
+    var spacingArg: SyntaxViewModifierArgumentType? { get set }
+    
+    init(alignmentArg: SyntaxViewModifierArgumentType?,
+         spacingArg: SyntaxViewModifierArgumentType?)
+
+    func readMemberAccessAnchoring(memberAccess: MemberAccessExprSyntax) throws -> Anchoring
+}
+
+extension ViewStackViewConstructor {
     var layer: AIGraphData_V0.Layer { .group }
+    
+    init(alignment: SyntaxViewModifierArgumentType?,
+         spacing: SyntaxViewModifierArgumentType?) {
+        self.init(alignmentArg: alignment,
+                  spacingArg: spacing)
+    }
     
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
         nodeId: String
     ) throws -> CurrentAIGraphData.LayerData {
         var list: [LayerPortDerivation] = [
-            .init(input: .orientation, value: .orientation(.horizontal))
+            .init(input: .orientation, value: .orientation(Self.orientation))
         ]
-        
-        guard case let .parameters(alignmentArg, spacingArg) = self else {
-            return CurrentAIGraphData.LayerData(
-                node_id: nodeId,
-                node_name: .init(value: .layer(self.layer)),
-                children: childrenLayers.isEmpty ? nil : childrenLayers,
-                custom_layer_input_values: list
-            )
-        }
         
         switch alignmentArg {
         case .none:
@@ -518,12 +519,9 @@ enum HStackViewConstructor: FromSwiftUIViewToStitch {
                               value: .anchoring(.centerCenter)))
             
         case .memberAccess(let memberAccess):
-            // Alignment values without PortValueDescription
-            guard let vertAlignment = memberAccess.vertAlignLiteral else {
-                throw SwiftUISyntaxError.unsupportedConstructorForPortValueDecoding(.hStack(self))
-            }
+            let anchoring = try self.readMemberAccessAnchoring(memberAccess: memberAccess)
             list.append(.init(input: .layerGroupAlignment,
-                              value: .anchoring(vertAlignment.toAnchoring)))
+                              value: .anchoring(anchoring)))
             
         case .some(let alignmentArg):
             guard let value = try alignmentArg.derivePortValues().first?.value else {
@@ -553,7 +551,7 @@ enum HStackViewConstructor: FromSwiftUIViewToStitch {
     
     // MARK: Parse from SwiftSyntax
     static func from(_ args: [SyntaxViewArgumentData],
-                     viewName: SyntaxViewName) -> HStackViewConstructor? {
+                     viewName: SyntaxViewName) -> Self? {
         var alignment: SyntaxViewModifierArgumentType?
         var spacing: SyntaxViewModifierArgumentType?
         
@@ -575,102 +573,40 @@ enum HStackViewConstructor: FromSwiftUIViewToStitch {
             }
         }
         
-        return .parameters(alignment: alignment, spacing: spacing)
+        return .init(alignmentArg: alignment, spacingArg: spacing)
     }
+}
+
+struct HStackViewConstructor: ViewStackViewConstructor {
+    static let orientation: StitchOrientation = .horizontal
     
-}
-
-
-
-// MARK: VStackViewConstructor (new-style)
-enum VStackViewConstructor: FromSwiftUIViewToStitch {
-    /// SwiftUI exposes one public initializer:
-    /// `init(alignment: HorizontalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content)`
-    /// We capture what the call-site provided; defaults are implied when omitted.
-    case parameters(alignment: SyntaxViewModifierArgumentType?,
-                    spacing:   SyntaxViewModifierArgumentType?)
-
-    var layer: AIGraphData_V0.Layer { .group }
-
-    func createCustomValueEvents(
-        childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
-    ) throws -> CurrentAIGraphData.LayerData {
-        var list: [LayerPortDerivation] = [
-            .init(input: .orientation, value: .orientation(.vertical))
-        ]
-
-        guard case let .parameters(alignmentArg, spacingArg) = self else {
-            return CurrentAIGraphData.LayerData(
-                node_id: nodeId,
-                node_name: .init(value: .layer(self.layer)),
-                children: childrenLayers.isEmpty ? nil : childrenLayers,
-                custom_layer_input_values: list
-            )
+    var alignmentArg: SyntaxViewModifierArgumentType?
+    var spacingArg: SyntaxViewModifierArgumentType?
+    
+    func readMemberAccessAnchoring(memberAccess: MemberAccessExprSyntax) throws -> Anchoring {
+        // Alignment values without PortValueDescription
+        guard let vertAlignment = memberAccess.vertAlignLiteral else {
+            throw SwiftUISyntaxError.unsupportedConstructorForPortValueDecoding(.hStack(self))
         }
-
-        // --- alignment (HorizontalAlignment) → .layerGroupAlignment (Anchoring) ---
-        switch alignmentArg {
-        case .none:
-            // Default center when no alignment is provided
-            list.append(.init(input: .layerGroupAlignment,
-                              value: .anchoring(.centerCenter)))
-
-        case .memberAccess(let memberAccess):
-            // Prefer literal decode helper if available
-            if let horiz = memberAccess.horizAlignLiteral {
-                list.append(.init(input: .layerGroupAlignment,
-                                  value: .anchoring(horiz.toAnchoring)))
-            } else {
-                throw SwiftUISyntaxError.unsupportedConstructorForPortValueDecoding(.vStack(self))
-            }
-
-        case .some(let alignmentArg):
-            guard let value = try alignmentArg.derivePortValues().first else {
-                throw SwiftUISyntaxError.portValueNotFound(argument: alignmentArg)
-            }
-            list.append(.init(input: .layerGroupAlignment, inputData: [value]))
-        }
-
-        // --- spacing (CGFloat?) → .spacing ---
-        if let spacingArg = spacingArg {
-            guard let value = try spacingArg.derivePortValues().first else {
-                throw SwiftUISyntaxError.portValueNotFound(argument: spacingArg)
-            }
-            list.append(.init(input: .spacing, inputData: [value]))
-        }
-
-        return CurrentAIGraphData.LayerData(
-            node_id: nodeId,
-            node_name: .init(value: .layer(self.layer)),
-            children: childrenLayers.isEmpty ? nil : childrenLayers,
-            custom_layer_input_values: list
-        )
-    }
-
-    // MARK: Parse from SwiftSyntax
-    static func from(_ args: [SyntaxViewArgumentData],
-                     viewName: SyntaxViewName) -> VStackViewConstructor? {
-        var alignment: SyntaxViewModifierArgumentType?
-        var spacing:   SyntaxViewModifierArgumentType?
-
-        for arg in args {
-            switch arg.label {
-            case "alignment":
-                alignment = arg.value
-            case "spacing":
-                spacing = arg.value
-            case .none:
-                spacing = arg.value
-                
-            default:
-                break // ignore content closure or unknown labels
-            }
-        }
-
-        return .parameters(alignment: alignment, spacing: spacing)
+        return vertAlignment.toAnchoring
     }
 }
+
+struct VStackViewConstructor: ViewStackViewConstructor {
+    static let orientation: StitchOrientation = .vertical
+    
+    var alignmentArg: SyntaxViewModifierArgumentType?
+    var spacingArg: SyntaxViewModifierArgumentType?
+    
+    func readMemberAccessAnchoring(memberAccess: MemberAccessExprSyntax) throws -> Anchoring {
+        // Alignment values without PortValueDescription
+        guard let horizontalAlignment = memberAccess.horizAlignLiteral else {
+            throw SwiftUISyntaxError.unsupportedConstructorForPortValueDecoding(.vStack(self))
+        }
+        return horizontalAlignment.toAnchoring
+    }
+}
+
 //
 //// ── Helper: random-access a TupleExprElementListSyntax by Int index ────────────
 //extension LabeledExprListSyntax {
@@ -1547,7 +1483,7 @@ enum LazyHStackViewConstructor: FromSwiftUIViewToStitch {
                               value: .anchoring(.centerCenter)))
         case .memberAccess(let ma):
             guard let v = ma.vertAlignLiteral else {
-                throw SwiftUISyntaxError.unsupportedConstructorForPortValueDecoding(.hStack(HStackViewConstructor.parameters(alignment: nil, spacing: nil)))
+                throw SwiftUISyntaxError.unsupportedConstructorForPortValueDecoding(.hStack(HStackViewConstructor(alignment: nil, spacing: nil)))
             }
             list.append(.init(input: .layerGroupAlignment,
                               value: .anchoring(v.toAnchoring)))
@@ -1625,7 +1561,7 @@ enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
                 list.append(.init(input: .layerGroupAlignment,
                                   value: .anchoring(h.toAnchoring)))
             } else {
-                throw SwiftUISyntaxError.unsupportedConstructorForPortValueDecoding(.vStack(VStackViewConstructor.parameters(alignment: nil, spacing: nil)))
+                throw SwiftUISyntaxError.unsupportedConstructorForPortValueDecoding(.vStack(VStackViewConstructor(alignment: nil, spacing: nil)))
             }
         case .some(let arg):
             guard let value = try arg.derivePortValues().first else {
