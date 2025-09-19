@@ -47,14 +47,7 @@ struct StitchApp: App {
         WindowGroup {
              ASTExplorerView()
             
-            //                .onAppear {
-            //                    let prompt = try! StitchAIManager.aiCodeGenSystemPromptGenerator(
-            //                        requestType: .userPrompt,
-            //                        previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
-            //                        previewWindowBackgroundColor: .white)
-            //                    print("PROMPT HERE:")
-            //                    print(prompt)
-            //                }
+            // MARK: NOTE: TO REGENERATE THE STATIC SYSTEM PROMPT FILE, A GRAPH-STATE IS REQUIRED. SEE `GraphBaseView` FOR HOW WE USE `regenerateStitchStaticPromptFile`.
         }
     }
 #else

@@ -24,24 +24,26 @@ func regenerateStitchStaticPromptFile(graph: GraphState) {
     do {
         // Generate only the static content (data glossary + fixed instructions)
         let dataGlossaryPrompt = try StitchAIManager.stitchAIDataGlossarySystemPrompt(graph: graph)
+        let systemPrompt = try StitchAIManager.aiCodeEditSystemPromptGenerator()
         
         // The static prompt contains only cacheable, non-dynamic content
-        let staticPrompt = dataGlossaryPrompt
+        let staticPrompt = dataGlossaryPrompt + systemPrompt
         
-        // Try to write to Desktop for easy access
-        let desktopURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first
-        let outputURL = desktopURL?.appendingPathComponent("stitch_static_prompt_regenerated.txt")
-        
-        if let outputURL = outputURL {
-            do {
-                try staticPrompt.write(to: outputURL, atomically: true, encoding: .utf8)
-                print("✅ Successfully generated stitch_static_prompt_regenerated.txt on Desktop")
-                print("📂 Location: \(outputURL.path)")
-                print("💡 Copy this file to /Stitch/App/Resources/stitch_static_prompt.txt to update the static prompt")
-            } catch {
-                print("❌ Could not write to Desktop: \(error)")
-            }
-        }
+        // TODO: WRITE SOMEWHERE ELSE WHERE WE HAVE PROPER PERMISSIONS?
+        //        // Try to write to Desktop for easy access
+        //        let desktopURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first
+        //        let outputURL = desktopURL?.appendingPathComponent("stitch_static_prompt_regenerated.txt")
+        //
+        //        if let outputURL = outputURL {
+        //            do {
+        //                try staticPrompt.write(to: outputURL, atomically: true, encoding: .utf8)
+        //                print("✅ Successfully generated stitch_static_prompt_regenerated.txt on Desktop")
+        //                print("📂 Location: \(outputURL.path)")
+        //                print("💡 Copy this file to /Stitch/App/Resources/stitch_static_prompt.txt to update the static prompt")
+        //            } catch {
+        //                print("❌ Could not write to Desktop: \(error)")
+        //            }
+        //        }
         
         // Always print the content for manual copying
         print("📊 Generated static system prompt stats:")
