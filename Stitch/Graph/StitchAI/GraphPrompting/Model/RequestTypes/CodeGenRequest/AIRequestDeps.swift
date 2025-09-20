@@ -19,17 +19,20 @@ import SwiftUI
 struct AIRequestDeps: StitchAICodeCreator {
     
     let id: UUID
+    let aiProvider: AIProvider
     let userPrompt: String
     let swiftUICodeOfGraph: String
     let base64Image: String?
     
     @MainActor
     init(prompt: String,
+         aiProvider: AIProvider,
          swiftUICodeOfGraph: String,
          base64Image: String? = nil) {
         
         // The id of the user's inference call; does not change across retries etc.
         self.id = .init()
+        self.aiProvider = aiProvider
         self.userPrompt = prompt
         self.swiftUICodeOfGraph = swiftUICodeOfGraph
         self.base64Image = base64Image
@@ -50,8 +53,7 @@ struct AIRequestDeps: StitchAICodeCreator {
             user_prompt: userPrompt)
         
         // Determine which model to use based on current provider
-        let provider = AIProviderConfig.shared.currentProvider
-        let model: AIModel = switch provider {
+        let model: AIModel = switch aiProvider {
         case .openAI: 
             .openAI(document.openaiModel.asOpenAIModel)
         case .claude: 

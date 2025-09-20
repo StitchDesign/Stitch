@@ -44,8 +44,13 @@ let INSERT_NODE_MENU_SCROLL_LIST_BOTTOM_PADDING: CGFloat = INSERT_NODE_MENU_FOOT
 
 struct InsertNodeMenuView: View {
     @Environment(StitchStore.self) private var store
+    
     @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
+    
     @AppStorage(StitchAppSettings.CAN_SHARE_AI_DATA.rawValue) private var canShareAIData: Bool?
+    
+    @AppStorage(StitchAppSettings.AI_PROVIDER.rawValue)
+    private var aiProvider: AIProvider = .openAI
     
     @State private var showAILogsAlert = false
     @State private var showDataCollectionPopover = false
@@ -89,7 +94,8 @@ struct InsertNodeMenuView: View {
                         Text("Start Using Stitch AI"),
                         action: {
                             self.canShareAIData = true
-                            dispatch(SubmitUserPromptToAIProvider(prompt: queryString))
+                            dispatch(SubmitUserPromptToAIProvider(prompt: queryString,
+                                                                  aiProvider: aiProvider))
                         }
                     ),
                     secondaryButton: .default(
@@ -225,7 +231,8 @@ struct InsertNodeMenuView: View {
         // MARK: must follow logic for the data collection alert so that the menu doesn't disappear
         document.insertNodeMenuState.show = false
         
-        dispatch(SubmitUserPromptToAIProvider(prompt: queryString))
+        dispatch(SubmitUserPromptToAIProvider(prompt: queryString,
+                                              aiProvider: aiProvider))
     }
     
     func userSubmitted() {

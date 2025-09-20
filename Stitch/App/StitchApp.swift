@@ -19,6 +19,16 @@ struct StitchApp: App {
     // MARK: VERY important to pass the store StateObject into each view for perf
     @State private var store = StitchStore()
     
+    // AI Configuration - Persisted via @AppStorage
+    @AppStorage(StitchAppSettings.OPENAI_MODEL.rawValue)
+    private var openaiModel: OpenAIModel = OpenAIModel.gpt5Mini
+    
+    @AppStorage(StitchAppSettings.OPENAI_VERBOSITY.rawValue)
+    private var openaiVerbosity: OpenAIVerbosity = .low
+    
+    @AppStorage(StitchAppSettings.OPENAI_REASONING_EFFORT.rawValue)
+    private var openaiReasoningEffort: OpenAIReasoningEffort = .medium
+    
     private static var isFirebaseConfigValid: Bool {
         guard
             let url = Bundle.main.url(forResource: "GoogleService-Info", withExtension: "plist"),
@@ -67,6 +77,13 @@ struct StitchApp: App {
                     #endif
 
                     dispatch(DirectoryUpdatedOnAppOpen())
+                    
+                    // Resets OpenAI settings that can be toggled from debug builds
+                    #if DEBUG || RELEASE
+                    self.openaiModel = .gpt5Mini
+                    self.openaiVerbosity = .low
+                    self.openaiReasoningEffort = .low
+                    #endif
 
                     SentrySDK.start { options in
                         guard let secrets = try? Secrets() else {
