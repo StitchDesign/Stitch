@@ -196,9 +196,9 @@ func makeClaudeStreamingRequest(
             lineCount += 1
             
             // Skip empty lines
-            guard !line.isEmpty else { 
+            guard !line.isEmpty else {
                 // log("📝 Skipping empty line \(lineCount)")
-                continue 
+                continue
             }
             
             // log("📝 Received line \(lineCount): \(line.prefix(100))\(line.count > 100 ? "..." : "")")
@@ -206,24 +206,24 @@ func makeClaudeStreamingRequest(
             // Parse SSE format: "data: {json}"
             let jsonString = line.hasPrefix("data: ") ? String(line.dropFirst(6)) : line
             
-//            log("🔍 Processing JSON string: \(jsonString.prefix(200))\(jsonString.count > 200 ? "..." : "")")
+            //            log("🔍 Processing JSON string: \(jsonString.prefix(200))\(jsonString.count > 200 ? "..." : "")")
             
             // Handle stream completion
             if jsonString == "[DONE]" {
-//                log("✅ Stream completion marker received")
+                //                log("✅ Stream completion marker received")
                 break
             }
             
             // Parse JSON event
             guard let data = jsonString.data(using: .utf8),
                   let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-//                log("⚠️ Failed to parse JSON from line: \(line)")
+                //                log("⚠️ Failed to parse JSON from line: \(line)")
                 continue
             }
             
             eventCount += 1
             let eventType = json["type"] as? String
-//            log("🎯 Event \(eventCount): \(eventType ?? "unknown") - JSON keys: \(json.keys.joined(separator: ", "))")
+            //            log("🎯 Event \(eventCount): \(eventType ?? "unknown") - JSON keys: \(json.keys.joined(separator: ", "))")
             
             switch eventType {
             case "message_start":
@@ -268,13 +268,13 @@ func makeClaudeStreamingRequest(
                         // log("📝 Text delta received: '\(text)' (length: \(text.count))")
                         accumulatedContent += text
                         
-//                        // Clear thinking text once content starts
-//                        await MainActor.run {
-//                            if !document.streamingReasoningText.isEmpty {
-//                                document.streamingReasoningText = ""
-//                                // log("📱 Cleared thinking text - switching to content")
-//                            }
-//                        }
+                        //                        // Clear thinking text once content starts
+                        //                        await MainActor.run {
+                        //                            if !document.streamingReasoningText.isEmpty {
+                        //                                document.streamingReasoningText = ""
+                        //                                // log("📱 Cleared thinking text - switching to content")
+                        //                            }
+                        //                        }
                     } else {
                         //                        log("⚠️  Delta received but no 'thinking' or 'text' field found")
                     }

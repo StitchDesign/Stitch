@@ -141,6 +141,11 @@ extension StitchAICodeCreator {
                 }
                 
                 return .success(actionsResult.graphData)
+            } catch let error as URLError where error.code == .cancelled {
+                log("❌ OpenAI request cancelled by user")
+                
+                // User cancelled request, silent error
+                return .failure(SwiftUISyntaxError.userCancelledRequest)
             } catch {
                 return .failure(StitchStore.displayError(failure: error,
                                                          document: document))
