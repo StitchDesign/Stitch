@@ -12,6 +12,7 @@ enum SwiftUISyntaxError: Error, Sendable {
     case unexpectedEdgeDataFound
     case viewNodeNotFound
     case couldNotParseVarBody
+    case userCancelledRequest
     
     // Decoding from string
     case unsupportedSyntaxArgumentKind(String)
@@ -91,7 +92,8 @@ extension SwiftUISyntaxError {
                 .unsupportedViewModifierForLayer,
                 .unexpectedPatchInputRowCount,
                 .unsupportedConstructorForPortValueDecoding,
-                .portValueNotFound:
+                .portValueNotFound,
+                .userCancelledRequest:
             return true
             
         default:
