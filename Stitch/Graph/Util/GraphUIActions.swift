@@ -170,6 +170,7 @@ struct InsertNodeSelectionChanged: StitchDocumentEvent {
 /// fka `SubmitUserPromptToOpenAI`
 struct SubmitUserPromptToAIProvider: StitchStoreEvent {
     let prompt: String
+    let aiProvider: AIProvider
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         print("🔥 DEBUG: SubmitUserPromptToAIProvider called with prompt: \(prompt)")
@@ -193,6 +194,7 @@ struct SubmitUserPromptToAIProvider: StitchStoreEvent {
             
             let aiRequestDeps = AIRequestDeps(
                 prompt: prompt,
+                aiProvider: aiProvider,
                 swiftUICodeOfGraph: swiftUICodeOfGraph,
                 base64Image: base64ImageData)
             

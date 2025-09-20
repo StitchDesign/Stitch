@@ -11,40 +11,37 @@ struct OpenAIConfigurationPicker: View {
     @Bindable var document: StitchDocumentViewModel
     
     // AI Configuration - Persisted via @AppStorage
-    @AppStorage(StitchAppSettings.OPENAI_MODEL.rawValue) 
-    private var openaiModel: String = OpenAIModel.gpt5Mini.rawValue
+    @AppStorage(StitchAppSettings.OPENAI_MODEL.rawValue)
+    private var openaiModel: OpenAIModel = OpenAIModel.gpt5Mini
     
     @AppStorage(StitchAppSettings.OPENAI_VERBOSITY.rawValue) 
-    private var openaiVerbosity: String = "low"
+    private var openaiVerbosity: OpenAIVerbosity = .low
     
     @AppStorage(StitchAppSettings.OPENAI_REASONING_EFFORT.rawValue) 
-    private var openaiReasoningEffort: String = "medium"
+    private var openaiReasoningEffort: OpenAIReasoningEffort = .medium
     
     @AppStorage(StitchAppSettings.CLAUDE_MODEL.rawValue)
-    private var claudeModel: String = "claude-3-5-sonnet-20241022"
+    private var claudeModel: ClaudeModel = .claude4Sonnet
     
-    @State private var currentProvider = AIProviderConfig.shared.currentProvider
+    @AppStorage(StitchAppSettings.AI_PROVIDER.rawValue)
+    private var aiProvider: AIProvider = .openAI
 
     var currentModelDisplayName: String {
-        if currentProvider == .openAI {
-            return OpenAIModel(rawValue: openaiModel)?.displayName ?? "GPT-5"
-        } else {
-            return ClaudeModel(rawValue: claudeModel)?.displayName ?? "Claude"
-        }
+        self.aiProvider.displayName
     }
 
     var body: some View {
         Menu {
-            if currentProvider == .openAI {
+            if self.aiProvider == .openAI {
                 Section("OpenAI Model") {
                     ForEach(OpenAIModel.allCases) { model in
                         Button(action: {
-                            openaiModel = model.rawValue
+                            openaiModel = model
                             log("🎯 OpenAI Model changed to: \(model.rawValue)")
                         }) {
                             HStack {
                                 Text(model.displayName)
-                                if openaiModel == model.rawValue {
+                                if openaiModel == model {
                                     Spacer()
                                     Image(systemName: "checkmark")
                                 }
@@ -56,12 +53,12 @@ struct OpenAIConfigurationPicker: View {
                 Section("Verbosity") {
                     ForEach(OpenAIVerbosity.allCases) { verbosity in
                         Button(action: {
-                            openaiVerbosity = verbosity.rawValue
+                            openaiVerbosity = verbosity
                             log("🎯 Verbosity changed to: \(verbosity.rawValue)")
                         }) {
                             HStack {
                                 Text(verbosity.displayName)
-                                if openaiVerbosity == verbosity.rawValue {
+                                if openaiVerbosity == verbosity {
                                     Spacer()
                                     Image(systemName: "checkmark")
                                 }
@@ -73,12 +70,12 @@ struct OpenAIConfigurationPicker: View {
                 Section("Reasoning Effort") {
                     ForEach(OpenAIReasoningEffort.allCases) { effort in
                         Button(action: {
-                            openaiReasoningEffort = effort.rawValue
+                            openaiReasoningEffort = effort
                             log("🎯 Reasoning Effort changed to: \(effort.rawValue)")
                         }) {
                             HStack {
                                 Text(effort.displayName)
-                                if openaiReasoningEffort == effort.rawValue {
+                                if openaiReasoningEffort == effort {
                                     Spacer()
                                     Image(systemName: "checkmark")
                                 }
@@ -90,12 +87,12 @@ struct OpenAIConfigurationPicker: View {
                 Section("Claude Model") {
                     ForEach(ClaudeModel.allCases) { model in
                         Button(action: {
-                            claudeModel = model.rawValue
+                            claudeModel = model
                             log("🎯 Claude Model changed to: \(model.rawValue)")
                         }) {
                             HStack {
                                 Text(model.displayName)
-                                if claudeModel == model.rawValue {
+                                if claudeModel == model {
                                     Spacer()
                                     Image(systemName: "checkmark")
                                 }
@@ -113,12 +110,6 @@ struct OpenAIConfigurationPicker: View {
             }
         }
         .modifier(iPadTopBarButtonStyle())
-        .onAppear {
-            currentProvider = AIProviderConfig.shared.currentProvider
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .init("AIProviderChanged"))) { _ in
-            currentProvider = AIProviderConfig.shared.currentProvider
-        }
 //        .frame(width: 300)
         .frame(width: 180)
     }

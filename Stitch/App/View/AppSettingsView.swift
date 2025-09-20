@@ -143,6 +143,7 @@ enum StitchAppSettings: String {
     case CAN_SHARE_AI_DATA = "CanShareAIData"
     case EXPERIMENTAL_JS_NODE = "ExperimentalJsNode"
     case EXPERIMENTAL_NODE_SUMMARIES = "ExperimentalNodeSummaries"
+    case AI_PROVIDER = "ai_provider_preference"
     case OPENAI_MODEL = "OpenAIModel"
     case OPENAI_VERBOSITY = "OpenAIVerbosity"
     case OPENAI_REASONING_EFFORT = "OpenAIReasoningEffort"
@@ -172,9 +173,10 @@ struct AppSettingsView: View {
     @AppStorage(StitchAppSettings.EXPERIMENTAL_NODE_SUMMARIES.rawValue) private var enabledNodeSummaries: Bool = false
     
     @AppStorage(StitchAppSettings.CLAUDE_API_KEY.rawValue) private var claudeAPIKey: String = ""
+            
+    @AppStorage(StitchAppSettings.AI_PROVIDER.rawValue)
+    private var aiProvider: AIProvider = .openAI
     
-    @State private var currentAIProvider = AIProviderConfig.shared.currentProvider
-        
     let allCameraChoices = getCameraPickerOptions()
 
     var body: some View {
@@ -335,13 +337,12 @@ struct AppSettingsView: View {
                 Menu {
                     ForEach(AIProvider.allCases, id: \.self) { provider in
                         Button(provider.displayName) {
-                            currentAIProvider = provider
-                            AIProviderConfig.shared.currentProvider = provider
+                            self.aiProvider = provider
                         }
                     }
                 } label: {
                     HStack {
-                        Text(currentAIProvider.displayName)
+                        Text(self.aiProvider.displayName)
                         #if !targetEnvironment(macCatalyst)
                         Image(systemName: "chevron.up.chevron.down")
                         #endif
@@ -351,15 +352,12 @@ struct AppSettingsView: View {
             }
             StitchCaptionView("Choose between OpenAI and Claude for AI-powered features.")
         }
-        .onAppear {
-            currentAIProvider = AIProviderConfig.shared.currentProvider
-        }
     }
     
     @MainActor
     var claudeAPIKeyField: some View {
         VStack(alignment: .leading) {
-            if currentAIProvider == .claude {
+            if self.aiProvider == .claude {
                 HStack(alignment: .center) {
                     Text("Claude API Key").fontWeight(.bold)
                     SecureField("Enter your Claude API key", text: $claudeAPIKey)

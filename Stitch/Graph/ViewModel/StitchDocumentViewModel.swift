@@ -81,16 +81,6 @@ final class StitchDocumentViewModel: Sendable {
         UserDefaults.standard.string(forKey: StitchAppSettings.CLAUDE_MODEL.rawValue) ?? "claude-3-5-sonnet-20241022"
     }
     
-    // Get the appropriate model string based on current AI provider
-    @MainActor var currentAIModel: String {
-        switch AIProviderConfig.shared.currentProvider {
-        case .openAI:
-            return openaiModel
-        case .claude:
-            return claudeModel
-        }
-    }
-    
     // Remains false if an encoding action never happened (used for thumbnail creation)
     @MainActor var didDocumentChange: Bool = false
     

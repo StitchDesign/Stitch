@@ -33,27 +33,3 @@ enum AIProvider: String, CaseIterable, Codable {
         }
     }
 }
-
-/// Configuration for AI provider selection
-final class AIProviderConfig: @unchecked Sendable {
-    static let shared = AIProviderConfig()
-    
-    private let userDefaults = UserDefaults.standard
-    private let providerKey = "ai_provider_preference"
-    
-    var currentProvider: AIProvider {
-        get {
-            guard let rawValue = userDefaults.string(forKey: providerKey),
-                  let provider = AIProvider(rawValue: rawValue) else {
-                return .openAI // Default to OpenAI
-            }
-            return provider
-        }
-        set {
-            userDefaults.set(newValue.rawValue, forKey: providerKey)
-            NotificationCenter.default.post(name: .init("AIProviderChanged"), object: nil)
-        }
-    }
-    
-    private init() {}
-}
