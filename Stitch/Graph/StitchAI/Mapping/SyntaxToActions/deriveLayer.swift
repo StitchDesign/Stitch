@@ -807,6 +807,13 @@ extension SyntaxViewName {
                                  viewEvent: SyntaxViewEvent?,
                                  nodesDict: [UUID: NodeEntity],
                                  nodeType: NodeType? = nil) throws -> [PatchSyntaxResultType] {
+        if let viewEvent = viewEvent,
+           let resultFromViewEvent = try viewEvent
+            .derivePatchData(from: argument,
+                             varName: varName) {
+            return resultFromViewEvent
+        }
+        
         switch argument {
         
         // Handles types like PortValueDescription
@@ -862,35 +869,9 @@ extension SyntaxViewName {
             }
             
         case .stateAccess(let stateAccessRef):
-            // Check for tap case
-            if stateAccessRef == "STITCH_GRAPH_TIME" {
-                guard let viewEvent = viewEvent,
-                      let varName = varName else {
-                    return []
-                }
-                
-                let result = viewEvent
-                    .createConnectedPatchData(gestureArg: nil,
-                                              varName: varName)
-                return result
-            }
-            
             return [.connectionToLayerInput(stateAccessRef)]
-            
-        case .memberAccess(let memberAccess):
-            // Check for member syntax for view event arg, like `g.translation.width`
-            // Interaction nodes are already created with the parameter created from a view event, so this logic is here to determine specific connections and if unpack nodes should be made
-            guard let viewEvent = viewEvent,
-                  let varName = varName else {
-                fatalErrorIfDebug()
-                return []
-            }
-            
-            return memberAccess
-                .createConnectedPatchData(viewEvent: viewEvent,
-                                          varName: varName)
-            
-        case .closure, .viewEvent, .view:
+
+        case .memberAccess, .closure, .viewEvent, .view:
             throw SwiftUISyntaxError.portValueDecodingError(.portValueDecodingError(describe(argument)))
         }
     }

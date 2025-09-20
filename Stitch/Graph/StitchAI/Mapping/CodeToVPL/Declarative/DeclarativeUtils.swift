@@ -357,6 +357,47 @@ extension MemberAccessExprSyntax {
     }
 }
 
+extension SyntaxViewEvent {
+    func derivePatchData(from arg: SyntaxViewModifierArgumentType,
+                         varName: String?) throws -> [PatchSyntaxResultType]? {
+        switch arg {
+        case .stateAccess(let stateAccessRef):
+            // Check for tap case
+            if stateAccessRef == "STITCH_GRAPH_TIME" {
+                guard let varName = varName else {
+                    return []
+                }
+                
+                // If we get this, overwrite the event to use a tap gesture
+                var tapViewEvent = self
+                tapViewEvent.type = .tapGesture
+                
+                let result = tapViewEvent
+                    .createConnectedPatchData(gestureArg: nil,
+                                              varName: varName)
+                return result
+            }
+            
+        case .memberAccess(let memberAccess):
+            // Check for member syntax for view event arg, like `g.translation.width`
+            // Interaction nodes are already created with the parameter created from a view event, so this logic is here to determine specific connections and if unpack nodes should be made
+            guard let varName = varName else {
+                fatalErrorIfDebug()
+                return []
+            }
+            
+            return memberAccess
+                .createConnectedPatchData(viewEvent: self,
+                                          varName: varName)
+            
+        default:
+            break
+        }
+        
+        return nil
+    }
+}
+
 // ---------------------------------------------------------------
 //  1.  Helper on the *value* enum
 // ---------------------------------------------------------------
