@@ -11,7 +11,7 @@ import StitchSchemaKit
 
 struct EqualsExactlyPatchNode: PatchNodeDefinition {
     static let patch = Patch.equalsExactly
-    static let defaultUserVisibleType: UserVisibleType? = nil
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         let effectiveType = type ?? .number

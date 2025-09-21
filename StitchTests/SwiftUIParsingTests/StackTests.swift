@@ -7,7 +7,7 @@
 
 import XCTest
 @testable import Stitch
-import SwiftUICore
+import SwiftUI
 
 
 //final class StackTests: XCTestCase {
