@@ -164,6 +164,21 @@ class ConditionalRemovalRewriter: SyntaxRewriter {
             return ExprSyntax(newSequence)
         }
 
+        // Handle complex condition ternary: condition op value ? trueExpr : falseExpr
+        if elements.count == 5,
+           elements[1].as(BinaryOperatorExprSyntax.self) != nil,
+           let ternaryExpr = elements[3].as(UnresolvedTernaryExprSyntax.self) {
+            print("🟠 SequenceExprSyntax: Detected 5-element complex condition + ternary pattern!")
+            print("🟠 SequenceExprSyntax: Condition part 1: '\(elements[0].description.prefix(50))'")
+            print("🟠 SequenceExprSyntax: Binary operator: '\(elements[1].description.prefix(50))'")
+            print("🟠 SequenceExprSyntax: Condition part 2: '\(elements[2].description.prefix(50))'")
+            print("🟠 SequenceExprSyntax: Ternary expr: '\(ternaryExpr.description.prefix(50))'")
+            print("🟠 SequenceExprSyntax: False expr: '\(elements[4].description.prefix(50))'")
+            print("🟠 SequenceExprSyntax: Returning false expression: '\(elements[4].description)'")
+            // This is a ternary with complex condition, return false expression
+            return ExprSyntax(elements[4])
+        }
+
         print("🟠 SequenceExprSyntax: Not a ternary, using default behavior")
         // Not a ternary, continue with default behavior
         return super.visit(node)
