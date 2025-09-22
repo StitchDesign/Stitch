@@ -16,10 +16,24 @@ struct IgnoreConditionalStatements {
 
     /// Applies conditional removal to input code and returns the transformed code
     func processCode(_ input: String) -> String {
+        print("🟢 Processing input:")
+        print(input)
+        print("🟢 ---")
+
         let sourceFile = Parser.parse(source: input)
         let rewriter = ConditionalRemovalRewriter(viewMode: .sourceAccurate)
         let rewritten = rewriter.rewrite(sourceFile)
-        return rewritten.description
+        let result = rewritten.description
+
+        print("🟢 Result:")
+        print(result)
+        print("🟢 Result character-by-character:")
+        for (i, char) in result.enumerated() {
+            print("🟢 [\(i)]: '\(char)' (\\(char.asciiValue ?? 0))")
+        }
+        print("🟢 ---")
+
+        return result
     }
 
     /// Normalize whitespace for comparison (removes extra spaces/newlines but preserves structure)
