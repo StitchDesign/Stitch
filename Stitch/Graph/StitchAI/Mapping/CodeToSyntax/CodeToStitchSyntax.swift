@@ -235,12 +235,74 @@ extension SwiftUIViewVisitor {
                                  willParseView: Bool = true) -> SwiftUIViewParserResult {
 //        log("\n==== PARSING CODE ====\n\(swiftUICode)\n=====================\n")
 
+//        let swiftUICode = """
+//            struct ContentView: View {
+//             @State var color_B4AE5764_2D36_47ED_9322_C9DA3F456DF8: [PortValueDescription] = []
+//             @State var zIndex_B4AE5764_2D36_47ED_9322_C9DA3F456DF8: [PortValueDescription] = []
+//             @State var dragPosition_B4AE5764_2D36_47ED_9322_C9DA3F456DF8: [PortValueDescription] = [] 
+//
+//             var body: some View {
+//              VStack(alignment: .center, spacing: [PortValueDescription(value: "8", value_type: "spacing")]) {
+//               Rectangle()
+//                .fill(color_B4AE5764_2D36_47ED_9322_C9DA3F456DF8)
+//                .position(dragPosition_B4AE5764_2D36_47ED_9322_C9DA3F456DF8)
+//                .frame([PortValueDescription(value: ["width":"300.0","height":"6.0"], value_type: "size")])
+//                .zIndex(zIndex_B4AE5764_2D36_47ED_9322_C9DA3F456DF8)
+//                .simultaneousGesture(
+//                 DragGesture()
+//                  .onChanged { value in
+//                   dragPosition_B4AE5764_2D36_47ED_9322_C9DA3F456DF8 = [PortValueDescription(value: ["x": value.location.x, "y": value.location.y], value_type: "position")]
+//                  }
+//                )
+//              }
+//              .offset([PortValueDescription(value: ["x":0,"y":0], value_type: "position")])
+//              .frame([PortValueDescription(value: ["width":"hug","height":"hug"], value_type: "size")])
+//             }
+//
+//             func updateLayerInputs() {
+//              let loop_3F3F86B6_C152_454D_A5C1_251FFDAE291F = NATIVE_STITCH_PATCH_FUNCTIONS["loop || Patch"]([
+//               [PortValueDescription(value: 100, value_type: "number")]
+//              ])
+//              let random_12ABFF4A_F24D_4C9F_A8EF_57395CB5F596 = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
+//               loop_3F3F86B6_C152_454D_A5C1_251FFDAE291F[0],
+//               [PortValueDescription(value: 0, value_type: "number")],
+//               [PortValueDescription(value: 1, value_type: "number")]
+//              ])
+//              let random_2FBB0CDD_8D55_4FBF_A668_19C28397C08D = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
+//               loop_3F3F86B6_C152_454D_A5C1_251FFDAE291F[0],
+//               [PortValueDescription(value: 0, value_type: "number")],
+//               [PortValueDescription(value: 1, value_type: "number")]
+//              ])
+//              let random_E11FB589_99FB_425B_9FE2_4AB33F7EACD9 = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
+//               loop_3F3F86B6_C152_454D_A5C1_251FFDAE291F[0],
+//               [PortValueDescription(value: 0, value_type: "number")],
+//               [PortValueDescription(value: 1, value_type: "number")]
+//              ])
+//              let rgbColor_2AB36B51_5DB2_4EB5_B3C4_71F162F89654 = NATIVE_STITCH_PATCH_FUNCTIONS["rgbColor || Patch"]([
+//               random_2FBB0CDD_8D55_4FBF_A668_19C28397C08D[0],
+//               random_12ABFF4A_F24D_4C9F_A8EF_57395CB5F596[0],
+//               random_E11FB589_99FB_425B_9FE2_4AB33F7EACD9[0],
+//               [PortValueDescription(value: 1, value_type: "number")]
+//              ])
+//              
+//              // Set initial positions for rectangles if dragPosition is empty
+//                if dragPosition_B4AE5764_2D36_47ED_9322_C9DA3F456DF8.isEmpty {
+//                  dragPosition_B4AE5764_2D36_47ED_9322_C9DA3F456DF8 = PortValueDescription(value: ["x": 0, "y": 0], value_type: "position")
+//              }
+//              
+//              color_B4AE5764_2D36_47ED_9322_C9DA3F456DF8 = rgbColor_2AB36B51_5DB2_4EB5_B3C4_71F162F89654[0]
+//              zIndex_B4AE5764_2D36_47ED_9322_C9DA3F456DF8 = loop_3F3F86B6_C152_454D_A5C1_251FFDAE291F[0]
+//             }
+//            }
+//            """
+        
         // First extract the struct from mixed text (handles LLM responses with explanations)
         let extractedCode = extractStructContentView(from: swiftUICode)
         // log("extractedCode: \(extractedCode)")
         
         // Remove comments from the extracted code
-        let codeWithoutComments = removeComments(from: extractedCode)
+        //let codeWithoutComments = removeComments(from: extractedCode)
+        let codeWithoutComments = extractedCode // DO NOT REMOVE COMMENT
         // log("codeWithoutComments: \(codeWithoutComments)")
 
         // Preprocess the code to ensure single root view in var body
