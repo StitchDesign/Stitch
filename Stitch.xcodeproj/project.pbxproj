@@ -703,6 +703,7 @@
 		EC60B8652C18044D00984FC8 /* ProjectThumbnailActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC60B8642C18044D00984FC8 /* ProjectThumbnailActions.swift */; };
 		EC60E57C27178DDD00AABE71 /* LayerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC60E57B27178DDD00AABE71 /* LayerUtils.swift */; };
 		EC610CDF2E69DF56004E2431 /* ShimmerEffectViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC610CDE2E69DF56004E2431 /* ShimmerEffectViewModifier.swift */; };
+		EC62A0842E80FA4F00C61F73 /* SwiftUICodeParsingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC62A0832E80FA4F00C61F73 /* SwiftUICodeParsingTests.swift */; };
 		EC631402265C418D00BD45B2 /* LoopSelectNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC631401265C418D00BD45B2 /* LoopSelectNode.swift */; };
 		EC63B97A29FB0D8800C65A95 /* ExistingEdgesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC63B97929FB0D8800C65A95 /* ExistingEdgesView.swift */; };
 		EC650BD926864DF200C4CCC9 /* SoundImportNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC650BD826864DF200C4CCC9 /* SoundImportNode.swift */; };
@@ -1887,6 +1888,7 @@
 		EC60B8642C18044D00984FC8 /* ProjectThumbnailActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectThumbnailActions.swift; sourceTree = "<group>"; };
 		EC60E57B27178DDD00AABE71 /* LayerUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerUtils.swift; sourceTree = "<group>"; };
 		EC610CDE2E69DF56004E2431 /* ShimmerEffectViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerEffectViewModifier.swift; sourceTree = "<group>"; };
+		EC62A0832E80FA4F00C61F73 /* SwiftUICodeParsingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUICodeParsingTests.swift; sourceTree = "<group>"; };
 		EC631401265C418D00BD45B2 /* LoopSelectNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopSelectNode.swift; sourceTree = "<group>"; };
 		EC63B97929FB0D8800C65A95 /* ExistingEdgesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistingEdgesView.swift; sourceTree = "<group>"; };
 		EC650BD826864DF200C4CCC9 /* SoundImportNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundImportNode.swift; sourceTree = "<group>"; };
@@ -5153,6 +5155,7 @@
 			children = (
 				EC7062B62E15B53B0017A9F0 /* ModifierTests.swift */,
 				EC1FF4732E1740FA00B0D8FC /* SwiftUICodeParsingTestUtils.swift */,
+				EC62A0832E80FA4F00C61F73 /* SwiftUICodeParsingTests.swift */,
 				EC7062B82E15E47D0017A9F0 /* StackTests.swift */,
 				EC7062BA2E15E5350017A9F0 /* ConstructorTests.swift */,
 			);
@@ -6967,6 +6970,7 @@
 				EC14B1D129F84CEA002FDA4F /* inputEditTests.swift in Sources */,
 				ECBC95FB27613D9200508966 /* evalTests+2.swift in Sources */,
 				E42C0D052D47F87A00AA2BB1 /* openAIRequestTests.swift in Sources */,
+				EC62A0842E80FA4F00C61F73 /* SwiftUICodeParsingTests.swift in Sources */,
 				EC7062B92E15E47D0017A9F0 /* StackTests.swift in Sources */,
 				EC1FF4742E1740FA00B0D8FC /* SwiftUICodeParsingTestUtils.swift in Sources */,
 				EC6DF0AB29FA050F0052545E /* jsonPerfTests.swift in Sources */,

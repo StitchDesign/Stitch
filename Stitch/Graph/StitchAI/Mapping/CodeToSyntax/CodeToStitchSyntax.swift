@@ -18,6 +18,26 @@ enum ParseContext {
     case scrollContent   // ScrollView or other container content
 }
 
+/// SwiftSyntax rewriter that strips comments from code
+final class CommentStripper: SyntaxRewriter {
+    override func visit(_ token: TokenSyntax) -> TokenSyntax {
+        func stripComments(from trivia: Trivia) -> Trivia {
+            Trivia(pieces: trivia.compactMap { piece in
+                switch piece {
+                case .lineComment, .blockComment, .docLineComment, .docBlockComment:
+                    return nil
+                default:
+                    return piece
+                }
+            })
+        }
+
+        return token
+            .with(\.leadingTrivia, stripComments(from: token.leadingTrivia))
+            .with(\.trailingTrivia, stripComments(from: token.trailingTrivia))
+    }
+}
+
 /// SwiftSyntax visitor that extracts ViewNode structure from SwiftUI code
 final class SwiftUIViewVisitor: SyntaxVisitor {
     // Bypasses view parsing logic, used by some parsing helpers for gestures
@@ -214,12 +234,18 @@ extension SwiftUIViewVisitor {
                                  context: ParseContext = .topLevel,
                                  willParseView: Bool = true) -> SwiftUIViewParserResult {
 //        log("\n==== PARSING CODE ====\n\(swiftUICode)\n=====================\n")
-        
+
         // First extract the struct from mixed text (handles LLM responses with explanations)
         let extractedCode = extractStructContentView(from: swiftUICode)
+        // log("extractedCode: \(extractedCode)")
         
+        // Remove comments from the extracted code
+        let codeWithoutComments = removeComments(from: extractedCode)
+        // log("codeWithoutComments: \(codeWithoutComments)")
+
         // Preprocess the code to ensure single root view in var body
-        let preprocessedCode = preprocessSwiftUICode(extractedCode, context: context)
+        let preprocessedCode = preprocessSwiftUICode(codeWithoutComments, context: context)
+        // log("preprocessedCode: \(preprocessedCode)")
         
         // log("DEBUG: swiftUICode: \n\(swiftUICode)")
         // log("DEBUG: preprocessedCode: \n\(preprocessedCode)")
@@ -351,6 +377,26 @@ extension SwiftUIViewVisitor {
         return text
     }
     
+    /// Removes comments from Swift code using SwiftSyntax
+    private static func removeComments(from code: String) -> String {
+        let sourceFile = Parser.parse(source: code)
+        let stripped = CommentStripper().visit(sourceFile)
+        let result = stripped.description
+
+        // Collapse consecutive blank lines (3+ newlines become 2 newlines)
+        // This handles the case where removing a comment leaves an extra blank line
+        var collapsedResult = result
+        while collapsedResult.contains("\n\n\n") {
+            collapsedResult = collapsedResult.replacingOccurrences(of: "\n\n\n", with: "\n\n")
+        }
+        return collapsedResult
+    }
+
+    /// Test helper to expose removeComments for unit testing
+    static func testRemoveComments(from code: String) -> String {
+        return removeComments(from: code)
+    }
+
     /// Preprocesses SwiftUI code to wrap multiple top-level views in var body with VStack
     private static func preprocessSwiftUICode(_ code: String, context: ParseContext) -> String {
         // Only apply VStack wrapping for top-level parsing context
