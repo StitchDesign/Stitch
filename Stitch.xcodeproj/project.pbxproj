@@ -740,6 +740,8 @@
 		EC6EDC2D27FF907300843E62 /* SidebarListItemSelectionActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6EDC2C27FF907300843E62 /* SidebarListItemSelectionActions.swift */; };
 		EC6EDC3227FF93CF00843E62 /* SidebarSelectionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6EDC3127FF93CF00843E62 /* SidebarSelectionState.swift */; };
 		EC6EDC3427FF943700843E62 /* SidebarVisibilityState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6EDC3327FF943700843E62 /* SidebarVisibilityState.swift */; };
+		EC6FFFE82E81D3E200A6547F /* IgnoreConditionalStatements.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6FFFE72E81D3E200A6547F /* IgnoreConditionalStatements.swift */; };
+		EC6FFFEA2E81D56500A6547F /* ConditionalRemovalRewriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6FFFE92E81D56500A6547F /* ConditionalRemovalRewriter.swift */; };
 		EC7062B32E14BFC50017A9F0 /* ScrollViewCodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7062B22E14BFC50017A9F0 /* ScrollViewCodeExamples.swift */; };
 		EC7062B52E14C02E0017A9F0 /* RotationModifierCodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7062B42E14C02E0017A9F0 /* RotationModifierCodeExamples.swift */; };
 		EC7062B72E15B53B0017A9F0 /* ModifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7062B62E15B53B0017A9F0 /* ModifierTests.swift */; };
@@ -1924,6 +1926,8 @@
 		EC6EDC2C27FF907300843E62 /* SidebarListItemSelectionActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemSelectionActions.swift; sourceTree = "<group>"; };
 		EC6EDC3127FF93CF00843E62 /* SidebarSelectionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarSelectionState.swift; sourceTree = "<group>"; };
 		EC6EDC3327FF943700843E62 /* SidebarVisibilityState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarVisibilityState.swift; sourceTree = "<group>"; };
+		EC6FFFE72E81D3E200A6547F /* IgnoreConditionalStatements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IgnoreConditionalStatements.swift; sourceTree = "<group>"; };
+		EC6FFFE92E81D56500A6547F /* ConditionalRemovalRewriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalRemovalRewriter.swift; sourceTree = "<group>"; };
 		EC7062B22E14BFC50017A9F0 /* ScrollViewCodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollViewCodeExamples.swift; sourceTree = "<group>"; };
 		EC7062B42E14C02E0017A9F0 /* RotationModifierCodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RotationModifierCodeExamples.swift; sourceTree = "<group>"; };
 		EC7062B62E15B53B0017A9F0 /* ModifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModifierTests.swift; sourceTree = "<group>"; };
@@ -5153,6 +5157,7 @@
 			children = (
 				EC7062B62E15B53B0017A9F0 /* ModifierTests.swift */,
 				EC1FF4732E1740FA00B0D8FC /* SwiftUICodeParsingTestUtils.swift */,
+				EC6FFFE72E81D3E200A6547F /* IgnoreConditionalStatements.swift */,
 				EC7062B82E15E47D0017A9F0 /* StackTests.swift */,
 				EC7062BA2E15E5350017A9F0 /* ConstructorTests.swift */,
 			);
@@ -5432,6 +5437,7 @@
 			children = (
 				B5F8EEE62E3C2B59009432C5 /* CodeToStitchModel.swift */,
 				EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */,
+				EC6FFFE92E81D56500A6547F /* ConditionalRemovalRewriter.swift */,
 				B5F8EEE02E3C2A00009432C5 /* CodeToStitchPatchData.swift */,
 				B5F8EEE22E3C2A2E009432C5 /* CodeToStitchLayerData.swift */,
 				B5F8EEE42E3C2A3E009432C5 /* CodeToStitchUtil.swift */,
@@ -6455,6 +6461,7 @@
 				EC49149E293596E100D74344 /* SplitTextNode.swift in Sources */,
 				EC27A0CE2AF47CDF00FFD018 /* FromHSLToColor.swift in Sources */,
 				EC4A720D274C09360026B233 /* WirelessBroadcasterNode.swift in Sources */,
+				EC6FFFEA2E81D56500A6547F /* ConditionalRemovalRewriter.swift in Sources */,
 				EC8967022B4E1D3B0066879B /* EdgeStyle.swift in Sources */,
 				B596608D2C1A430C00BE75D7 /* NodeIO.swift in Sources */,
 				ECD50AC8285D34930009B564 /* ShortcutsUtils.swift in Sources */,
@@ -6955,6 +6962,7 @@
 				B57575F92A187E0600CDB0BA /* previewLayerTests.swift in Sources */,
 				B54C37B82818FB5E00D81E43 /* VersionableTestsUtils.swift in Sources */,
 				EC981F74273049F800B25F14 /* sidebarTests.swift in Sources */,
+				EC6FFFE82E81D3E200A6547F /* IgnoreConditionalStatements.swift in Sources */,
 				B54C37B52818FA9700D81E43 /* VersionableTests.swift in Sources */,
 				8BD59DA526CCB93400F38DFF /* SchemaConversionTests.swift in Sources */,
 				B54C37C1281C965000D81E43 /* TestUtils.swift in Sources */,

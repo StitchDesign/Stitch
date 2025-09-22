@@ -214,12 +214,15 @@ extension SwiftUIViewVisitor {
                                  context: ParseContext = .topLevel,
                                  willParseView: Bool = true) -> SwiftUIViewParserResult {
 //        log("\n==== PARSING CODE ====\n\(swiftUICode)\n=====================\n")
-        
+
         // First extract the struct from mixed text (handles LLM responses with explanations)
         let extractedCode = extractStructContentView(from: swiftUICode)
-        
+
+        // Remove conditional statements and ternary expressions
+        let noConditionalsCode = removeConditionals(from: extractedCode)
+
         // Preprocess the code to ensure single root view in var body
-        let preprocessedCode = preprocessSwiftUICode(extractedCode, context: context)
+        let preprocessedCode = preprocessSwiftUICode(noConditionalsCode, context: context)
         
         // log("DEBUG: swiftUICode: \n\(swiftUICode)")
         // log("DEBUG: preprocessedCode: \n\(preprocessedCode)")
@@ -417,6 +420,14 @@ extension SwiftUIViewVisitor {
         }
         
         return count
+    }
+
+    /// Removes conditional statements and ternary expressions from Swift code
+    private static func removeConditionals(from code: String) -> String {
+        let sourceFile = Parser.parse(source: code)
+        let rewriter = ConditionalRemovalRewriter(viewMode: .sourceAccurate)
+        let rewritten = rewriter.rewrite(sourceFile)
+        return rewritten.description
     }
 }
 
