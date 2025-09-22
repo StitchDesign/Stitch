@@ -130,17 +130,38 @@ class ConditionalRemovalRewriter: SyntaxRewriter {
         }
 
         // Handle ternary expressions
-        // Pattern: condition ? trueExpr : falseExpr
-        // In SwiftSyntax, this appears as 3 elements: condition, UnresolvedTernaryExprSyntax, falseExpr
+        // Pattern 1: condition ? trueExpr : falseExpr (3 elements)
+        // Pattern 2: lhs = condition ? trueExpr : falseExpr (5 elements)
         if elements.count == 3,
            let ternaryExpr = elements[1].as(UnresolvedTernaryExprSyntax.self) {
-            print("🟠 SequenceExprSyntax: Detected ternary pattern!")
+            print("🟠 SequenceExprSyntax: Detected 3-element ternary pattern!")
             print("🟠 SequenceExprSyntax: Condition: '\(elements[0].description.prefix(50))'")
             print("🟠 SequenceExprSyntax: Ternary expr: '\(ternaryExpr.description.prefix(50))'")
             print("🟠 SequenceExprSyntax: False expr: '\(elements[2].description.prefix(50))'")
             print("🟠 SequenceExprSyntax: Returning false expression: '\(elements[2].description)'")
             // This is a ternary expression, return only the false expression (element 2)
             return ExprSyntax(elements[2])
+        }
+
+        // Handle assignment with ternary: lhs = condition ? trueExpr : falseExpr
+        if elements.count == 5,
+           elements[1].as(AssignmentExprSyntax.self) != nil,
+           let ternaryExpr = elements[3].as(UnresolvedTernaryExprSyntax.self) {
+            print("🟠 SequenceExprSyntax: Detected 5-element assignment + ternary pattern!")
+            print("🟠 SequenceExprSyntax: LHS: '\(elements[0].description.prefix(50))'")
+            print("🟠 SequenceExprSyntax: Assignment: '\(elements[1].description.prefix(50))'")
+            print("🟠 SequenceExprSyntax: Condition: '\(elements[2].description.prefix(50))'")
+            print("🟠 SequenceExprSyntax: Ternary expr: '\(ternaryExpr.description.prefix(50))'")
+            print("🟠 SequenceExprSyntax: False expr: '\(elements[4].description.prefix(50))'")
+            print("🟠 SequenceExprSyntax: Returning assignment with false expression")
+
+            // Reconstruct as: lhs = falseExpr
+            let newSequence = SequenceExprSyntax(elements: ExprListSyntax([
+                elements[0], // lhs
+                elements[1], // =
+                elements[4]  // falseExpr
+            ]))
+            return ExprSyntax(newSequence)
         }
 
         print("🟠 SequenceExprSyntax: Not a ternary, using default behavior")
