@@ -18,7 +18,7 @@ struct FeatureFlags {
      
      May or may not be good to expose to most beta testers.
      */
-    static let USE_SWIFTUI_IMPLEMENTATION: Bool = true
+    static let USE_SWIFTUI_IMPLEMENTATION: Bool = false
 //    static let USE_SWIFTUI_IMPLEMENTATION: Bool = false
     
     /*
@@ -30,7 +30,7 @@ struct FeatureFlags {
      
      See `adjustPosition`.
      */
-#if DEBUG || DEV_DEBUG
+#if DEV_DEBUG
      static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = true
 #else
     static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = false
