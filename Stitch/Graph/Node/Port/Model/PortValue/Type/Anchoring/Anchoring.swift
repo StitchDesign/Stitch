@@ -158,7 +158,8 @@ func adjustPosition(size: CGSize, // child's size
                     parentSize: CGSize,
                     ignoreOffsetTransform: Bool = false) -> CGPoint {
 
-    if FeatureFlags.USE_SWIFTUI_IMPLEMENTATION {
+//    if FeatureFlags.USE_SWIFTUI_IMPLEMENTATION {
+    if FeatureFlags.USE_SWIFTUI_IMPLEMENTATION && FeatureFlags.PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT {
         if anchor == .topLeft {
             // AI used .position(x,y) which places CENTER of child at (x,y) from top-left
             // Convert to center-origin coordinates for .offset()

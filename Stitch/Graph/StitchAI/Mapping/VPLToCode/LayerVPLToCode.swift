@@ -102,8 +102,8 @@ extension LayerNodeEntity {
         // ───────── Not yet handled ─────────
         case .shape, .colorFill, .hitArea, .canvasSketch, .progressIndicator, .switchLayer, .videoStreaming:
             fatalErrorIfDebug("Gradient layers (\(self.layer)) require proper color extraction implementation")
-//            throw SwiftUISyntaxError.unsupportedSyntaxViewLayer(self.layer)
-            return nil
+            throw SwiftUISyntaxError.unsupportedSyntaxViewLayer(self.layer)
+            // return nil
         }
     }
     
