@@ -18,8 +18,12 @@ struct FeatureFlags {
      
      May or may not be good to expose to most beta testers.
      */
+
+#if DEV_DEBUG
+    static let USE_SWIFTUI_IMPLEMENTATION: Bool = true
+#else
     static let USE_SWIFTUI_IMPLEMENTATION: Bool = false
-//    static let USE_SWIFTUI_IMPLEMENTATION: Bool = false
+#endif
     
     /*
      Traditionally, Stitch `position = 0,0 + anchoring = .topLeft` placed the child's TOP LEFT EDGE on the top left corner of the parent.
@@ -31,7 +35,7 @@ struct FeatureFlags {
      See `adjustPosition`.
      */
 #if DEV_DEBUG
-     static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = true
+    static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = true
 #else
     static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = false
 #endif
