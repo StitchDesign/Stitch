@@ -12,17 +12,27 @@ import StitchSchemaKit
 struct FeatureFlags {
     static let USE_COMMENT_BOX_FLAG: Bool = false
     static let USE_COMPONENTS = false
-    static let USE_AI_MODE = true
     
-    // For changes that move Stitch's implementation details closer to SwiftUI,
-    // but which may not be good to expose to most beta testers quite yet.
-    // TODO: set false for
+    /*
+     Used for changes that move Stitch closer to SwiftUI's implementation details.
+     
+     May or may not be good to expose to most beta testers.
+     */
     static let USE_SWIFTUI_IMPLEMENTATION: Bool = true
 //    static let USE_SWIFTUI_IMPLEMENTATION: Bool = false
     
-    // TODO: SET FALSE BEFORE NEXT RELEASE / just use Stitch AI Reasoning ?
-    static let SHOW_AI_TABLE_ROWS_VIEWER = true
-
+    /*
+     Traditionally, Stitch `position = 0,0 + anchoring = .topLeft` placed the child's TOP LEFT EDGE on the top left corner of the parent.
+     
+     However, SwiftUI `child.position(0,0)` places the child's CENTER on the top left corner of the parent.
+     
+     For best AI support, we want to follow SwiftUI as closely as possible. But switching from anchoring a child's edge to its center is a noticeable break of legacy projects.
+     
+     See `adjustPosition`.
+     */
+    // static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = true
+    static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = false
+    
     // TODO: why did the `Stitch AI Reasoning` build-scheme
     // TODO: remove before proper release
     // TODO: put this behind a different compiler flag? ... Want to make available for Adam as well.
