@@ -30,8 +30,11 @@ struct FeatureFlags {
      
      See `adjustPosition`.
      */
-    // static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = true
+#if DEBUG || DEV_DEBUG
+     static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = true
+#else
     static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = false
+#endif
     
     // TODO: why did the `Stitch AI Reasoning` build-scheme
     // TODO: remove before proper release
