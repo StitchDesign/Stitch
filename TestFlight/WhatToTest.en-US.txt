@@ -1,1 +1,1 @@
-Introducing AI Node, a new way to create a custom patch node with AI.
+We've reworked our AI from the ground up to create a vastly improved AI experience, including the ability to edit existing documents.
