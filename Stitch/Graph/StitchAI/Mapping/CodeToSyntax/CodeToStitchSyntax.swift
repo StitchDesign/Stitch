@@ -218,6 +218,7 @@ extension SwiftUIViewVisitor {
         // First extract the struct from mixed text (handles LLM responses with explanations)
         let extractedCode = extractStructContentView(from: swiftUICode)
 
+        // TODO: DO NOT FILTER OUT CONDITIONALS (`if`, ternary, etc.)
         // Remove conditional statements and ternary expressions
         let noConditionalsCode = removeConditionals(from: extractedCode)
 
