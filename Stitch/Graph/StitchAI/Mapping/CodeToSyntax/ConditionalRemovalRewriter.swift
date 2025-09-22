@@ -119,23 +119,42 @@ class ConditionalRemovalRewriter: SyntaxRewriter {
 
     /// Handle sequence expressions that might contain ternary operators
     override func visit(_ node: SequenceExprSyntax) -> ExprSyntax {
+        print("🟠 SequenceExprSyntax: Called! Parent: \(node.parent?.syntaxNodeType)")
+        print("🟠 SequenceExprSyntax: \(node.elements.count) elements")
+
         // Check if this is a ternary expression pattern: condition ? trueExpr : falseExpr
         let elements = Array(node.elements)
 
-        // Handle ternary expressions
-        if elements.count == 5,
-           elements[1].as(UnresolvedTernaryExprSyntax.self) != nil,
-           elements[3].as(UnresolvedTernaryExprSyntax.self) != nil {
-            // This is a ternary expression, return only the false expression (element 4)
-            return ExprSyntax(elements[4])
+        for (i, element) in elements.enumerated() {
+            print("🟠 Element [\(i)]: \(element.syntaxNodeType) - '\(element.description.prefix(50))'")
         }
 
+        // Handle ternary expressions
+        // Pattern: condition ? trueExpr : falseExpr
+        // In SwiftSyntax, this appears as 3 elements: condition, UnresolvedTernaryExprSyntax, falseExpr
+        if elements.count == 3,
+           let ternaryExpr = elements[1].as(UnresolvedTernaryExprSyntax.self) {
+            print("🟠 SequenceExprSyntax: Detected ternary pattern!")
+            print("🟠 SequenceExprSyntax: Condition: '\(elements[0].description.prefix(50))'")
+            print("🟠 SequenceExprSyntax: Ternary expr: '\(ternaryExpr.description.prefix(50))'")
+            print("🟠 SequenceExprSyntax: False expr: '\(elements[2].description.prefix(50))'")
+            print("🟠 SequenceExprSyntax: Returning false expression: '\(elements[2].description)'")
+            // This is a ternary expression, return only the false expression (element 2)
+            return ExprSyntax(elements[2])
+        }
+
+        print("🟠 SequenceExprSyntax: Not a ternary, using default behavior")
         // Not a ternary, continue with default behavior
         return super.visit(node)
     }
 
     /// Replaces ternary expressions with the false condition
     override func visit(_ node: TernaryExprSyntax) -> ExprSyntax {
+        print("🔴 TernaryExprSyntax: Called! Parent: \(node.parent?.syntaxNodeType)")
+        print("🔴 TernaryExprSyntax: Condition: '\(node.condition.description.prefix(50))'")
+        print("🔴 TernaryExprSyntax: True expr: '\(node.thenExpression.description.prefix(50))'")
+        print("🔴 TernaryExprSyntax: False expr: '\(node.elseExpression.description.prefix(50))'")
+        print("🔴 TernaryExprSyntax: Returning false expression: '\(node.elseExpression.description)'")
         // Return only the false choice (the expression after :)
         return ExprSyntax(node.elseExpression)
     }
