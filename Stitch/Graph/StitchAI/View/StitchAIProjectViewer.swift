@@ -30,7 +30,7 @@ struct StitchAIProjectViewer: View {
     let store: StitchStore
     @Bindable var document: StitchDocumentViewModel
 
-    func validateJSON() {        
+    func validateJSON() {
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
         
         // Apply AI result to fake document
@@ -56,13 +56,19 @@ struct StitchAIProjectViewer: View {
                               alertState: store.alertState)
             VStack {
                 HStack {
-                    TextField("Insert SwiftUI Code",
-                              text: $swiftUICode)
-                    .focusedValue(\.focusedField, .aiPreviewerTextField)
-                    .onSubmit {
+                    
+//                    TextField("Insert SwiftUI Code",
+//                              text: $swiftUICode)
+                    
+                    // IMPORTANT: use `TextEditor` so that new lines are preserved when pasting code; otherwise code comments will wipe out genuine code
+                    TextEditor(text: $swiftUICode)
+                        .focusedValue(\.focusedField, .aiPreviewerTextField)
+
+                    Button("Submit") {
                         validateJSON()
                     }
                 }
+                .frame(height: 120)
                 .padding()
                 .background(.ultraThinMaterial)
                 
