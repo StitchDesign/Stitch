@@ -127,15 +127,14 @@ struct iPadGraphTopBarButtons: View {
     
     var body: some View {
         Group {
-            // COMMENTED OUT: Tab picker for switching between Patches/Layers
-            // Picker("", selection: $document.selectedTab) {
-            //     ForEach(ProjectTab.allCases) { projectTab in
-            //         Image(systemName: projectTab.systemIcon)
-            //             .tag(projectTab)
-            //     }
-            // }
-            // .pickerStyle(.segmented)
-                                    
+            Picker("", selection: $document.selectedTab) {
+                ForEach(ProjectTab.allCases) { projectTab in
+                    Image(systemName: projectTab.systemIcon)
+                        .tag(projectTab)
+                }
+            }
+            .pickerStyle(.segmented)
+                        
             // go up a traversal level
             iPadNavBarButton(action: { dispatch(GoUpOneTraversalLevel()) },
                              iconName: .sfSymbol(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME))
@@ -195,10 +194,6 @@ struct iPadGraphTopBarButtons: View {
                 action: PREVIEW_FULL_SCREEN_ACTION,
                 iconName: .sfSymbol(isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME))
 
-            // toggle right sidebar (layer inspector)
-            iPadNavBarButton(action: { dispatch(LayerInspectorToggled()) },
-                             iconName: .sfSymbol("sidebar.right"))
-            
             // the misc (...) button
             miscButton
                 .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)

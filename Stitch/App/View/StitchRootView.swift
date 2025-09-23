@@ -46,11 +46,11 @@ struct StitchRootView: View {
     
     @ViewBuilder
     var viewByPlatform: some View {
-//#if targetEnvironment(macCatalyst)
+#if targetEnvironment(macCatalyst)
                 splitView
-//#else
-//                StitchNavStack(store: store)
-//#endif
+#else
+                StitchNavStack(store: store)
+#endif
     }
     
     var body: some View {

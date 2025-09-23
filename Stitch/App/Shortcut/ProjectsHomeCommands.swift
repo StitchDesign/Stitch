@@ -152,39 +152,37 @@ struct ProjectsHomeCommands: Commands {
             }
             
             if activeProject {
-//#if !targetEnvironment(macCatalyst)
-                // COMMENTED OUT: Keyboard shortcuts for switching between Patches/Layers tabs
-                // SwiftUIShortcutView(title: "Show Layers",
-                //                     key: "2",
-                //                     eventModifiers: .command,
-                //                     disabled: !activeProject) {
-                //     self.store.currentDocument?.selectedTab = .layer
-                // }
+#if !targetEnvironment(macCatalyst)
+                SwiftUIShortcutView(title: "Show Layers",
+                                    key: "2",
+                                    eventModifiers: .command,
+                                    disabled: !activeProject) {
+                    self.store.currentDocument?.selectedTab = .layer
+                }
 
-                // SwiftUIShortcutView(title: "Show Patches",
-                //                     key: "1",
-                //                     eventModifiers: .command,
-                //                     disabled: !activeProject) {
-                //     self.store.currentDocument?.selectedTab = .patch
-                // }                
-//#endif
+                SwiftUIShortcutView(title: "Show Patches",
+                                    key: "1",
+                                    eventModifiers: .command,
+                                    disabled: !activeProject) {
+                    self.store.currentDocument?.selectedTab = .patch
+                }                
+#endif
                 
-//#if targetEnvironment(macCatalyst)
+#if targetEnvironment(macCatalyst)
                 let cmdDotLabel = "Toggle Sidebars"
-//#else
-//                let cmdDotLabel = "Toggle Tab"
-//#endif
+#else
+                let cmdDotLabel = "Toggle Tab"
+#endif
                 
                 SwiftUIShortcutView(title: cmdDotLabel,
                                     key: ".",
                                     eventModifiers: .command,
                                     disabled: !activeProject) {
-//#if targetEnvironment(macCatalyst)
+#if targetEnvironment(macCatalyst)
                     dispatch(ToggleSidebars())
-//#else
-                    // COMMENTED OUT: Tab toggle functionality
-                    // self.store.currentDocument?.selectedTab.toggle()
-//#endif
+#else
+                    self.store.currentDocument?.selectedTab.toggle()
+#endif
                 }
             }
             
