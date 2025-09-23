@@ -332,7 +332,6 @@ extension Patch {
             }
         } // for
         
-        // log("deriveNodeValueType: returning nil")
         return nil
     }
 }

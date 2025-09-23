@@ -723,15 +723,10 @@ extension Patch {
             if providedNodeType == nil {
                 // Find default node type
                 // Derive node type
-                log("defaultNodeEntity: had ports, will derive node value type for patch \(self), id: \(nodeId)")
                 nodeType = self.deriveNodeValueType(portEntities: ports,
                                                     nodesDict: nodesDict)
-                log("defaultNodeEntity: had ports, will derive node value type for patch \(self), id: \(nodeId): found nodeType: \(nodeType)")
-            } else {
-                log("defaultNodeEntity: had ports but using provided nodeType \(providedNodeType) for patch \(self), id: \(nodeId)")
             }
         } else {
-            log("defaultNodeEntity: did NOT have ports, for patch \(self), id: \(nodeId), providedNodeType: \(providedNodeType)")
             let inputsValues = self.createDefaultIOValues(nodeIO: .input, nodeType: nodeType)
 
             // Create port entities from node definition
@@ -756,18 +751,11 @@ extension Patch {
             splitterNode: nil,
             mathExpression: nil,
             javaScriptNodeSettings: jsSettings)
-        
-        log("defaultNodeEntity: patch \(self), id: \(nodeId): nodeType: \(nodeType)")
-        log("defaultNodeEntity: patch \(self), id: \(nodeId): patchNodeEntity.userVisibleType: \(patchNodeEntity.userVisibleType)")
-        
+                
         let node = NodeEntity(id: nodeId,
                               nodeTypeEntity: .patch(patchNodeEntity),
                               title: jsSettings?.suggestedTitle ?? "")
-        
-        
-        
-        log("defaultNodeEntity: patch \(self), id: \(nodeId): node.nodeTypeEntity.patchNodeEntity?.userVisibleType: \(node.nodeTypeEntity.patchNodeEntity?.userVisibleType)")
-        
+                
         return node
     }
 }
@@ -822,7 +810,6 @@ extension NodeEntity {
                 let defaultValues = patchNode.patch.rowDefinitions(for: patchNode.userVisibleType).inputs.last?.defaultValues ?? [.number(.zero)]
                 
                 (patchNode.inputs.count..<portId + 1).forEach { newPortId in
-                    log("updateInputData: patchNode \(patchNode.patch) will receive a new port for port \(newPortId)")
                     patchNode.inputs.append(.init(id: .init(portId: newPortId,
                                                             nodeId: self.id),
                                                   portData: .values(defaultValues)))
@@ -836,16 +823,12 @@ extension NodeEntity {
             
             inputData.portData = portData
             patchNode.inputs[portId] = inputData
-            
-            log("updateInputData: will derive node value type for patchNode \(patchNode.patch) with inputs \(patchNode.inputs)")
-            
+                        
             // Determine node type
             let nodeType = patchNode.patch
                 .deriveNodeValueType(portEntities: patchNode.inputs,
                                      nodesDict: nodesDict)
-            
-            log("updateInputData: will derive node value type for patchNode \(patchNode.patch) with inputs \(patchNode.inputs): had nodeType \(nodeType)")
-            
+                        
             let newPatchNode = PatchNodeEntity(id: patchNode.id,
                                                patch: patchNode.patch,
                                                inputs: patchNode.inputs,
@@ -1073,7 +1056,6 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
             
             switch nodeResult.kind {
             case .patch(let patch):
-                log("updateWithEventData: will create defaultNodeEntity for patch \(patch), id: \(nodeResult.id), nodeType: \(nodeResult.nodeType)")
                 let nodeEntity = patch
                     .defaultNodeEntity(nodeId: nodeResult.id,
                                        nodeType: nodeResult.nodeType,
