@@ -706,25 +706,29 @@ extension Patch {
     
     func defaultNodeEntity(nodeId: UUID,
                            ports: [NodePortInputEntity]? = nil,
+                           nodeType providedNodeType: NodeType? = nil,
                            nodesDict: [UUID: NodeEntity],
                            jsSettings: JavaScriptNodeSettings? = nil) -> NodeEntity {
-        var nodeType: NodeType? = self.graphNode.defaultUserVisibleType
+        var nodeType: NodeType? = providedNodeType ?? self.graphNode.defaultUserVisibleType
         let portEntities: [NodePortInputEntity]
-        
+
         let canvasEntity = CanvasNodeEntity(position: .zero,
                                             zIndex: .zero,
                                             parentGroupNodeId: nil)
-        
+
         if let ports = ports {
             portEntities = ports
-            
-            // Find default node type
-            // Derive node type
-            nodeType = self.deriveNodeValueType(portEntities: ports,
-                                                nodesDict: nodesDict)
+
+            // Only derive node type if not already provided
+            if providedNodeType == nil {
+                // Find default node type
+                // Derive node type
+                nodeType = self.deriveNodeValueType(portEntities: ports,
+                                                    nodesDict: nodesDict)
+            }
         } else {
-            let inputsValues = self.createDefaultIOValues(nodeIO: .input)
-            
+            let inputsValues = self.createDefaultIOValues(nodeIO: .input, nodeType: nodeType)
+
             // Create port entities from node definition
             portEntities = inputsValues
                 .enumerated()
@@ -737,6 +741,7 @@ extension Patch {
                 }
         }
         
+        
         let patchNodeEntity = PatchNodeEntity(
             id: nodeId,
             patch: self,
@@ -746,10 +751,11 @@ extension Patch {
             splitterNode: nil,
             mathExpression: nil,
             javaScriptNodeSettings: jsSettings)
-        
+                
         let node = NodeEntity(id: nodeId,
                               nodeTypeEntity: .patch(patchNodeEntity),
                               title: jsSettings?.suggestedTitle ?? "")
+                
         return node
     }
 }
@@ -798,6 +804,9 @@ extension NodeEntity {
             
             // Determine if we need to extend inputs
             if portId >= patchNode.inputs.count {
+                
+                
+                // How are we able to extend inputs before we know the proper derived node type ?
                 let defaultValues = patchNode.patch.rowDefinitions(for: patchNode.userVisibleType).inputs.last?.defaultValues ?? [.number(.zero)]
                 
                 (patchNode.inputs.count..<portId + 1).forEach { newPortId in
@@ -814,11 +823,12 @@ extension NodeEntity {
             
             inputData.portData = portData
             patchNode.inputs[portId] = inputData
-            
+                        
             // Determine node type
             let nodeType = patchNode.patch
                 .deriveNodeValueType(portEntities: patchNode.inputs,
                                      nodesDict: nodesDict)
+                        
             let newPatchNode = PatchNodeEntity(id: patchNode.id,
                                                patch: patchNode.patch,
                                                inputs: patchNode.inputs,
@@ -1048,8 +1058,9 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
             case .patch(let patch):
                 let nodeEntity = patch
                     .defaultNodeEntity(nodeId: nodeResult.id,
+                                       nodeType: nodeResult.nodeType,
                                        nodesDict: self)
-                
+
                 self.updateValue(nodeEntity,
                                  forKey: nodeEntity.id)
                 
