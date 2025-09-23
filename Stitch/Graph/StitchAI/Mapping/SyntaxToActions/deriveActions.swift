@@ -707,28 +707,34 @@ extension Patch {
     
     func defaultNodeEntity(nodeId: UUID,
                            ports: [NodePortInputEntity]? = nil,
+                           nodeType providedNodeType: NodeType? = nil,
                            nodesDict: [UUID: NodeEntity],
                            jsSettings: JavaScriptNodeSettings? = nil) -> NodeEntity {
-        var nodeType: NodeType? = self.graphNode.defaultUserVisibleType
+        var nodeType: NodeType? = providedNodeType ?? self.graphNode.defaultUserVisibleType
         let portEntities: [NodePortInputEntity]
-        
+
         let canvasEntity = CanvasNodeEntity(position: .zero,
                                             zIndex: .zero,
                                             parentGroupNodeId: nil)
-        
+
         if let ports = ports {
             portEntities = ports
-            
-            // Find default node type
-            // Derive node type
-            log("defaultNodeEntity: had ports, will derive node value type for patch \(self), id: \(nodeId)")
-            nodeType = self.deriveNodeValueType(portEntities: ports,
-                                                nodesDict: nodesDict)
-            log("defaultNodeEntity: had ports, will derive node value type for patch \(self), id: \(nodeId): found nodeType: \(nodeType)")
+
+            // Only derive node type if not already provided
+            if providedNodeType == nil {
+                // Find default node type
+                // Derive node type
+                log("defaultNodeEntity: had ports, will derive node value type for patch \(self), id: \(nodeId)")
+                nodeType = self.deriveNodeValueType(portEntities: ports,
+                                                    nodesDict: nodesDict)
+                log("defaultNodeEntity: had ports, will derive node value type for patch \(self), id: \(nodeId): found nodeType: \(nodeType)")
+            } else {
+                log("defaultNodeEntity: had ports but using provided nodeType \(providedNodeType) for patch \(self), id: \(nodeId)")
+            }
         } else {
-            log("defaultNodeEntity: did NOT have ports, for patch \(self), id: \(nodeId)")
-            let inputsValues = self.createDefaultIOValues(nodeIO: .input)
-            
+            log("defaultNodeEntity: did NOT have ports, for patch \(self), id: \(nodeId), providedNodeType: \(providedNodeType)")
+            let inputsValues = self.createDefaultIOValues(nodeIO: .input, nodeType: nodeType)
+
             // Create port entities from node definition
             portEntities = inputsValues
                 .enumerated()
@@ -1068,11 +1074,12 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
             
             switch nodeResult.kind {
             case .patch(let patch):
-                log("updateWithEventData: will create defaultNodeEntity for patch \(patch), id: \(nodeResult.id)")
+                log("updateWithEventData: will create defaultNodeEntity for patch \(patch), id: \(nodeResult.id), nodeType: \(nodeResult.nodeType)")
                 let nodeEntity = patch
                     .defaultNodeEntity(nodeId: nodeResult.id,
+                                       nodeType: nodeResult.nodeType,
                                        nodesDict: self)
-                
+
                 self.updateValue(nodeEntity,
                                  forKey: nodeEntity.id)
                 
