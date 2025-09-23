@@ -219,13 +219,15 @@ extension StitchDocumentViewModel {
             let isFirstLayer = graph.layersSidebarViewModel.items.isEmpty
             let isDisplayingAiPreviewer = self.storeDelegate?.isShowingAIPreviewer ?? false
             
-            // Open sidebars if first created layer
+            // Open sidebars on Catalyst if first created layer
             // and not an AI request
             // and not in AI table reading mode
+            #if targetEnvironment(macCatalyst)
             if isFirstLayer && !self.isLoadingAI && !isDisplayingAiPreviewer {
                 self.leftSidebarOpen = true
                 self.storeDelegate?.showsLayerInspector = true
             }
+            #endif
             
             graph.updateLayerSidebar(with: layerNode)
         }
