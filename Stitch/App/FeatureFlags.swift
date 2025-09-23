@@ -12,18 +12,20 @@ import StitchSchemaKit
 struct FeatureFlags {
     static let USE_COMMENT_BOX_FLAG: Bool = false
     static let USE_COMPONENTS = false
+
+    /*
+     SwiftUI has no different equivalent of Stitch's 9-point anchoring.
+     
+     One approach is to simply hide anchoring
+     */
+    static let HIDE_ANCHORING_INPUT: Bool = false
     
     /*
      Used for changes that move Stitch closer to SwiftUI's implementation details.
      
      May or may not be good to expose to most beta testers.
      */
-
-#if DEV_DEBUG
-    static let USE_SWIFTUI_IMPLEMENTATION: Bool = true
-#else
-    static let USE_SWIFTUI_IMPLEMENTATION: Bool = false
-#endif
+    static let ALLOW_POSITION_LAYER_INPUT_ON_LAYOUT_CHILDREN: Bool = true
     
     /*
      Traditionally, Stitch `position = 0,0 + anchoring = .topLeft` placed the child's TOP LEFT EDGE on the top left corner of the parent.
@@ -34,15 +36,15 @@ struct FeatureFlags {
      
      See `adjustPosition`.
      */
+    
+    // NOTE: THIS BREAKS POSITIONING ON MANY OLDER PROJECTS
 #if DEV_DEBUG
     static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = true
 #else
     static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = false
 #endif
     
-    // TODO: why did the `Stitch AI Reasoning` build-scheme
-    // TODO: remove before proper release
-    // TODO: put this behind a different compiler flag? ... Want to make available for Adam as well.
+    
 #if STITCH_AI_REASONING || DEBUG || DEV_DEBUG
 //    static let SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON = true
     static let SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON = false

@@ -90,7 +90,7 @@ struct PreviewCommonPositionModifier: ViewModifier {
         // An implementation that is a little bit closer to SwiftUI;
         // really, LayerInputPort.position should correspond to SwiftUI's .position view modifier, etc.;
         // Helpful for simplifying confusion between .offsetInGroup vs .position
-        else if FeatureFlags.USE_SWIFTUI_IMPLEMENTATION {
+        else if FeatureFlags.ALLOW_POSITION_LAYER_INPUT_ON_LAYOUT_CHILDREN {
             let offset = viewModel.offsetInGroup.getSize?.asCGSize(parentSize) ?? .zero
              
            content
