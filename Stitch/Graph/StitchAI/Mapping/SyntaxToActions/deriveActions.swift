@@ -637,7 +637,6 @@ extension SwiftPatchNodeCode {
                               nodesDict: nodesDict,
                               viewEvent: viewEvent)
         
-        log("defaultNodeEntityData: will create defaultNodeEntity for patch \(patch), id: \(nodeId)")
         let node = self.patch.defaultNodeEntity(nodeId: nodeId,
                                                 ports: portData.ports,
                                                 nodesDict: nodesDict,

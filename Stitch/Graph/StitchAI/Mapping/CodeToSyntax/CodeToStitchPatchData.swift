@@ -293,15 +293,13 @@ extension Patch {
         let nodeValueTypeDynamicPortIndices = self.nonStaticTypedInputPorts ?? .init()
         
         for (portIndex, portData) in portEntities.enumerated() {
-            log("deriveNodeValueType: portIndex: \(portIndex)")
-            log("deriveNodeValueType: portData: \(portData)")
             
             // Determine a custom node value type if this node supports value types
             let checkForValueTypeHere = nodeValueTypeDynamicPortIndices.contains(portIndex)
-            log("deriveNodeValueType: checkForValueTypeHere: \(checkForValueTypeHere)")
+            // log("deriveNodeValueType: checkForValueTypeHere: \(checkForValueTypeHere)")
             
             guard checkForValueTypeHere else {
-                log("deriveNodeValueType: did not have checkForValueTypeHere")
+                // log("deriveNodeValueType: did not have checkForValueTypeHere")
                 continue
             }
             
@@ -312,7 +310,7 @@ extension Patch {
                       let upstreamPatchNode = upstreamNode.nodeTypeEntity.patchNodeEntity else {
                     // MARK: if layer connection we won't have this data, just skip and hope it works out on the next input
 //                    fatalErrorIfDebug()
-                    log("deriveNodeValueType: no upstream patch node")
+                    // log("deriveNodeValueType: no upstream patch node")
                     continue
                 }
                 
@@ -325,16 +323,16 @@ extension Patch {
                     continue
                 }
                 
-                log("deriveNodeValueType: upstreamOutputValue.first?.toNodeType: \(upstreamOutputValue.first?.toNodeType)")
+                // log("deriveNodeValueType: upstreamOutputValue.first?.toNodeType: \(upstreamOutputValue.first?.toNodeType)")
                 return upstreamOutputValue.first?.toNodeType
                 
             case .values(let values):
-                log("deriveNodeValueType: values.first?.toNodeType: \(values.first?.toNodeType)")
+                // log("deriveNodeValueType: values.first?.toNodeType: \(values.first?.toNodeType)")
                 return values.first?.toNodeType
             }
         } // for
         
-        log("deriveNodeValueType: returning nil")
+        // log("deriveNodeValueType: returning nil")
         return nil
     }
 }
