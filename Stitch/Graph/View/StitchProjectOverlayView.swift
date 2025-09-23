@@ -22,6 +22,15 @@ struct StitchProjectOverlayView: View {
         store.showsLayerInspector ? FloatingWindowView.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : FloatingWindowView.xOffset
     }
     
+    // Hides previewer when layers tab is selected on iPad
+    var isIpadTabPressed: Bool {
+        #if targetEnvironment(macCatalyst)
+        true
+        #else
+        document.selectedTab == .patch
+        #endif
+    }
+    
     var body: some View {
         VStack {
             if document.groupNodeFocused?.component != nil {
@@ -57,7 +66,7 @@ struct StitchProjectOverlayView: View {
             HStack(spacing: .zero) {
                 Spacer()
                 // Floating preview kept outside NavigationSplitView for animation purposes
-                if !showFullScreen {
+                if !showFullScreen && isIpadTabPressed {
                     FloatingWindowView(
                         store: store,
                         document: document,

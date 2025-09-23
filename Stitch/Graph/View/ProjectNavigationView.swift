@@ -30,21 +30,20 @@ struct ProjectNavigationView: View {
 #if !targetEnvironment(macCatalyst)
         // Use a ZStack so SwiftUI can animate insertion/removal with `.transition`
         ZStack {
-            if document.selectedTab == .patch {
-                graphView
-                    .ignoresSafeArea()
-                    .transition(.opacity)
-                    .id(ProjectTab.patch)   // ← make the views distinct
-            } else { // .layer
-                ZStack {
-                    ipadLayerView
-                    
-                    // Layer Inspector Fly‑out must sit above preview window
-                    flyout
-                }
+            graphView
+                .ignoresSafeArea()
                 .transition(.opacity)
-                .id(ProjectTab.layer)
+                .id(ProjectTab.patch)   // ← make the views distinct
+            
+            ZStack {
+                ipadLayerView
+                
+                // Layer Inspector Fly‑out must sit above preview window
+                flyout
             }
+            .opacity(document.selectedTab == .layer ? 1 : 0)
+            .transition(.opacity)
+            .id(ProjectTab.layer)
         }
         .animation(.easeInOut(duration: 0.25), value: document.selectedTab)
         .animation(.easeInOut(duration: 0.25), value: document.selectedTab)
