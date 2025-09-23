@@ -36,21 +36,11 @@ struct ProjectNavigationView: View {
                     .transition(.opacity)
                     .id(ProjectTab.patch)   // ← make the views distinct
             } else { // .layer
-                HStack(spacing: .zero) {
-                    StitchSidebarView(syncStatus: fileManager.syncStatus)
-                        .width(Self.iPadSidebarWidth)
+                ZStack {
+                    ipadLayerView
                     
-                    Spacer(minLength: 0)
-                    
-                    IPadPrototypePreview(store: store,
-                                         namespace: graphNamespace)
-                    
-                    Spacer(minLength: 0)
-                    
-                    LayerInspectorView(graph: graph,
-                                       document: document)
-                    .ignoresSafeArea()
-                    .width(Self.iPadSidebarWidth)
+                    // Layer Inspector Fly‑out must sit above preview window
+                    flyout
                 }
                 .transition(.opacity)
                 .id(ProjectTab.layer)
@@ -112,4 +102,25 @@ struct ProjectNavigationView: View {
             }
         }
     }
+    
+#if !targetEnvironment(macCatalyst)
+    var ipadLayerView: some View {
+        HStack(spacing: .zero) {
+            StitchSidebarView(syncStatus: fileManager.syncStatus)
+                .width(Self.iPadSidebarWidth)
+            
+            Spacer(minLength: 0)
+            
+            IPadPrototypePreview(store: store,
+                                 namespace: graphNamespace)
+            
+            Spacer(minLength: 0)
+            
+            LayerInspectorView(graph: graph,
+                               document: document)
+            .ignoresSafeArea()
+            .width(Self.iPadSidebarWidth)
+        }
+    }
+#endif
 }
