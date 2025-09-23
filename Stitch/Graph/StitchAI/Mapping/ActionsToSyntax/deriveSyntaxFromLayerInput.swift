@@ -78,6 +78,10 @@ extension SwiftUISyntaxError: Encodable {
 extension SwiftUISyntaxError {
     /// Errors that should allow request to continue.
     var shouldFailSilently: Bool {
+        #if DEV_DEBUG
+        return false
+        #endif
+        
         switch self {
         case .unsupportedSyntaxArgumentKind,
                 .unsupportedSyntaxArgument,
