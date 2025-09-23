@@ -105,14 +105,12 @@ struct CatalystTopBarGraphButtons: View {
 //                }
 //            }
                         
-            #if DEV_DEBUG
             // TODO: only show when no nodes are on-screen?
             // and so should be placed on the far left?
             CatalystNavBarButton(.FIND_NODE_ON_GRAPH,
                                  toolTip: "Find Node") {
                 dispatch(FindSomeCanvasItemOnGraph())
             }
-            #endif
             
             if !isDebugMode {
                 CatalystNavBarButton(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME,
