@@ -637,6 +637,7 @@ extension SwiftPatchNodeCode {
                               nodesDict: nodesDict,
                               viewEvent: viewEvent)
         
+        log("defaultNodeEntityData: will create defaultNodeEntity for patch \(patch), id: \(nodeId)")
         let node = self.patch.defaultNodeEntity(nodeId: nodeId,
                                                 ports: portData.ports,
                                                 nodesDict: nodesDict,
@@ -720,9 +721,12 @@ extension Patch {
             
             // Find default node type
             // Derive node type
+            log("defaultNodeEntity: had ports, will derive node value type for patch \(self), id: \(nodeId)")
             nodeType = self.deriveNodeValueType(portEntities: ports,
                                                 nodesDict: nodesDict)
+            log("defaultNodeEntity: had ports, will derive node value type for patch \(self), id: \(nodeId): found nodeType: \(nodeType)")
         } else {
+            log("defaultNodeEntity: did NOT have ports, for patch \(self), id: \(nodeId)")
             let inputsValues = self.createDefaultIOValues(nodeIO: .input)
             
             // Create port entities from node definition
@@ -737,6 +741,7 @@ extension Patch {
                 }
         }
         
+        
         let patchNodeEntity = PatchNodeEntity(
             id: nodeId,
             patch: self,
@@ -747,9 +752,17 @@ extension Patch {
             mathExpression: nil,
             javaScriptNodeSettings: jsSettings)
         
+        log("defaultNodeEntity: patch \(self), id: \(nodeId): nodeType: \(nodeType)")
+        log("defaultNodeEntity: patch \(self), id: \(nodeId): patchNodeEntity.userVisibleType: \(patchNodeEntity.userVisibleType)")
+        
         let node = NodeEntity(id: nodeId,
                               nodeTypeEntity: .patch(patchNodeEntity),
                               title: jsSettings?.suggestedTitle ?? "")
+        
+        
+        
+        log("defaultNodeEntity: patch \(self), id: \(nodeId): node.nodeTypeEntity.patchNodeEntity?.userVisibleType: \(node.nodeTypeEntity.patchNodeEntity?.userVisibleType)")
+        
         return node
     }
 }
@@ -798,9 +811,13 @@ extension NodeEntity {
             
             // Determine if we need to extend inputs
             if portId >= patchNode.inputs.count {
+                
+                
+                // How are we able to extend inputs before we know the proper derived node type ?
                 let defaultValues = patchNode.patch.rowDefinitions(for: patchNode.userVisibleType).inputs.last?.defaultValues ?? [.number(.zero)]
                 
                 (patchNode.inputs.count..<portId + 1).forEach { newPortId in
+                    log("updateInputData: patchNode \(patchNode.patch) will receive a new port for port \(newPortId)")
                     patchNode.inputs.append(.init(id: .init(portId: newPortId,
                                                             nodeId: self.id),
                                                   portData: .values(defaultValues)))
@@ -815,10 +832,15 @@ extension NodeEntity {
             inputData.portData = portData
             patchNode.inputs[portId] = inputData
             
+            log("updateInputData: will derive node value type for patchNode \(patchNode.patch) with inputs \(patchNode.inputs)")
+            
             // Determine node type
             let nodeType = patchNode.patch
                 .deriveNodeValueType(portEntities: patchNode.inputs,
                                      nodesDict: nodesDict)
+            
+            log("updateInputData: will derive node value type for patchNode \(patchNode.patch) with inputs \(patchNode.inputs): had nodeType \(nodeType)")
+            
             let newPatchNode = PatchNodeEntity(id: patchNode.id,
                                                patch: patchNode.patch,
                                                inputs: patchNode.inputs,
@@ -1046,6 +1068,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
             
             switch nodeResult.kind {
             case .patch(let patch):
+                log("updateWithEventData: will create defaultNodeEntity for patch \(patch), id: \(nodeResult.id)")
                 let nodeEntity = patch
                     .defaultNodeEntity(nodeId: nodeResult.id,
                                        nodesDict: self)
