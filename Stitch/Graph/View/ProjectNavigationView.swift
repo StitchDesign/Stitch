@@ -36,6 +36,9 @@ struct ProjectNavigationView: View {
                 .id(ProjectTab.patch)   // ← make the views distinct
             
             ZStack {
+                Stitch.APP_BACKGROUND_COLOR
+                    .edgesIgnoringSafeArea(.all)
+                
                 ipadLayerView
                 
                 // Layer Inspector Fly‑out must sit above preview window
