@@ -9,6 +9,35 @@ import Testing
 import SwiftUI
 @testable import Stitch
 
+/// Mock UserDefaults for testing
+class MockUserDefaults: UserDefaults {
+    private var storage: [String: Any] = [:]
+    
+    override func object(forKey defaultName: String) -> Any? {
+        return storage[defaultName]
+    }
+    
+    override func string(forKey defaultName: String) -> String? {
+        return storage[defaultName] as? String
+    }
+    
+    override func set(_ value: Any?, forKey defaultName: String) {
+        storage[defaultName] = value
+    }
+    
+    override func setValue(_ value: Any?, forKey key: String) {
+        storage[key] = value
+    }
+    
+    override func removeObject(forKey defaultName: String) {
+        storage.removeValue(forKey: defaultName)
+    }
+    
+    func reset() {
+        storage.removeAll()
+    }
+}
+
 @Suite("Claude Streaming Performance Metrics")
 struct Stitch_AI_Metrics {
     
@@ -21,22 +50,82 @@ struct Stitch_AI_Metrics {
         "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAACAA0DASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
     ]
     
+    // Mock test API key - reads from environment variable or provides fallback
+    static let testClaudeAPIKey: String = {
+        // Try to get from environment variable first
+        if let envKey = ProcessInfo.processInfo.environment["CLAUDE_API_KEY"], !envKey.isEmpty {
+            return envKey
+        }
+        // Try to get from test configuration file (you could add this)
+        // if let configKey = loadTestConfig()["claude_api_key"] as? String { return configKey }
+        
+        // Fallback to placeholder (tests will be skipped)
+        return "test-claude-api-key-placeholder"
+    }()
+    
+    // MARK: - Test Setup & Mocking
+    
+    /// Setup mock UserDefaults with Claude API key
+    static func setupMockUserDefaults() -> MockUserDefaults {
+        let mockDefaults = MockUserDefaults()
+        
+        // Set the Claude API key in mock UserDefaults
+        mockDefaults.setValue(testClaudeAPIKey, forKey: StitchAppSettings.CLAUDE_API_KEY.rawValue)
+        
+        if testClaudeAPIKey != "test-claude-api-key-placeholder" {
+            print("🔧 Mock UserDefaults setup with Claude API key: \(testClaudeAPIKey.prefix(10))...")
+        } else {
+            print("⚠️ Using placeholder API key - set CLAUDE_API_KEY environment variable for actual testing")
+        }
+        
+        return mockDefaults
+    }
+    
     // MARK: - Helper Methods
     
-    /// Create a test document for Claude requests
+    /// Create a test document for Claude requests with proper environment setup
     @MainActor
     static func createTestDocument() -> StitchDocumentViewModel {
-        return StitchDocumentViewModel.createEmpty()
+        let doc = StitchDocumentViewModel.createEmpty()
+        
+        // Setup the API key in UserDefaults for the test
+        // This ensures StitchStore.claudeAPIKey will find it
+        if testClaudeAPIKey != "test-claude-api-key-placeholder" {
+            UserDefaults.standard.setValue(testClaudeAPIKey, forKey: StitchAppSettings.CLAUDE_API_KEY.rawValue)
+            print("🔧 Test document created with API key configured")
+        } else {
+            print("⚠️ Test document created without valid API key")
+        }
+        
+        return doc
     }
     
     /// Check if Claude API key is configured
     static func hasValidAPIKey() -> Bool {
-        guard let apiKey = StitchStore.claudeAPIKey, !apiKey.isEmpty else {
-            print("⚠️ Claude API key not found in StitchStore.claudeAPIKey")
+        // Check if we have a valid test API key from environment
+        let hasEnvKey = testClaudeAPIKey != "test-claude-api-key-placeholder"
+        
+        // Check if StitchStore has the key
+        let hasStoreKey: Bool = {
+            if let apiKey = StitchStore.claudeAPIKey, !apiKey.isEmpty {
+                return true
+            }
+            return false
+        }()
+        
+        if hasEnvKey {
+            print("✅ Claude API key configured from environment variable")
+            return true
+        } else if hasStoreKey {
+            print("✅ Claude API key configured in StitchStore")
+            return true
+        } else {
+            print("⚠️ No valid Claude API key found")
+            print("💡 To run tests with real API:")
+            print("   • Set environment variable: export CLAUDE_API_KEY=your-api-key")
+            print("   • Or configure in StitchStore before running tests")
             return false
         }
-        print("✅ Claude API key configured")
-        return true
     }
     
     // MARK: - Performance Tests
@@ -68,7 +157,7 @@ struct Stitch_AI_Metrics {
                     // Call the actual makeClaudeStreamingRequest function
                     let response = try await makeClaudeStreamingRequest(
                         previewWindowPrompt: "Analyze this image and create appropriate processing nodes",
-                        userPrompt: "What do you see in this image? Create nodes to process and transform this visual content.",
+                        userPrompt: "Create SwiftUI code design from this image.",
                         base64Image: base64Image,
                         model: .claude4Sonnet,
                         document: document
@@ -134,7 +223,7 @@ struct Stitch_AI_Metrics {
             do {
                 let response = try await makeClaudeStreamingRequest(
                     previewWindowPrompt: "Create basic text processing nodes",
-                    userPrompt: "Create a text node that displays 'Hello World' with custom styling and formatting options",
+                    userPrompt: "Create SwiftUI code design from this image.",
                     base64Image: nil, // No image for text-only comparison
                     model: .claude4Sonnet,
                     document: document
@@ -323,5 +412,29 @@ struct Stitch_AI_Metrics {
         print("\n💡 Compare these results with image request metrics to measure image processing overhead.")
         print("   • Expected: Text-only requests should be faster due to no image processing")
         print("   • Use this baseline to understand image analysis impact on response times")
+    }
+    
+    // MARK: - Test Configuration Helpers
+    
+    /// Load test configuration from a file (optional)
+    static func loadTestConfig() -> [String: Any] {
+        // You could implement loading from a test config file here
+        // For example: read from TestConfig.plist or .env file
+        return [:]
+    }
+    
+    /// Print test environment information
+    static func printTestEnvironmentInfo() {
+        print("\n🔧 Test Environment Information:")
+        print("   • Claude API Key Source: \(testClaudeAPIKey == "test-claude-api-key-placeholder" ? "Placeholder (no real key)" : "Environment Variable")")
+        print("   • Test Images: \(sampleImages.count) samples")
+        print("   • StitchStore API Key Available: \(StitchStore.claudeAPIKey != nil)")
+        
+        if let envKeys = ProcessInfo.processInfo.environment["CLAUDE_API_KEY"] {
+            print("   • Environment CLAUDE_API_KEY: \(envKeys.prefix(10))...")
+        } else {
+            print("   • Environment CLAUDE_API_KEY: Not set")
+            print("   💡 Set with: export CLAUDE_API_KEY=your-api-key")
+        }
     }
 }
