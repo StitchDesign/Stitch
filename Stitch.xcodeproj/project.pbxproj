@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -1190,6 +1190,13 @@
 			remoteGlobalIDString = 200BD856254F66EB00692903;
 			remoteInfo = prototype;
 		};
+		B509DC7E2E83C3DD0037BCD8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 200BD84F254F66EB00692903 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 200BD856254F66EB00692903;
+			remoteInfo = Stitch;
+		};
 		E4CC7D1728F48EF6008EA1C0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 200BD84F254F66EB00692903 /* Project object */;
@@ -1257,6 +1264,7 @@
 		B504CFD02D2F953C00E245DA /* DebugModePopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugModePopover.swift; sourceTree = "<group>"; };
 		B506CEC92A26B19300FD9F37 /* NodeFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeFieldsView.swift; sourceTree = "<group>"; };
 		B5072B872DD2FCFB00C4597B /* StitchAITips.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAITips.swift; sourceTree = "<group>"; };
+		B509DC7A2E83C3DD0037BCD8 /* Stitch AI Metrics.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Stitch AI Metrics.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B50AD52F292C9DDF003CC61E /* InsertNodeMenuNodeDescriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuNodeDescriptionView.swift; sourceTree = "<group>"; };
 		B50AD533292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuSearchResults.swift; sourceTree = "<group>"; };
 		B50AD535292C9F69003CC61E /* InsertNodeMenuSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuSearchBar.swift; sourceTree = "<group>"; };
@@ -2344,6 +2352,10 @@
 		ECFF41F12E7B6B8300BADA9A /* AIPositioningHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPositioningHelpers.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		B509DC7B2E83C3DD0037BCD8 /* Stitch AI Metrics */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "Stitch AI Metrics"; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		200BD854254F66EB00692903 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -2416,6 +2428,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B509DC772E83C3DD0037BCD8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E4CC7D0828F48EF6008EA1C0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -2435,6 +2454,7 @@
 				B5F5FD412B3755C200BBD9A2 /* TestFlight */,
 				208AFA8D25D45B440035B250 /* StitchTests */,
 				E4CC7D0E28F48EF6008EA1C0 /* StitchQuickLookExtension */,
+				B509DC7B2E83C3DD0037BCD8 /* Stitch AI Metrics */,
 				200BD858254F66EB00692903 /* Products */,
 				EC15E4282602A08B006F2E08 /* Frameworks */,
 				E4D9CC6C2D44176800370C0A /* ci_scripts */,
@@ -2448,6 +2468,7 @@
 				200BD857254F66EB00692903 /* Stitch.app */,
 				208AFA8C25D45B440035B250 /* StitchTests.xctest */,
 				E4CC7D0B28F48EF6008EA1C0 /* StitchQuickLookExtension.appex */,
+				B509DC7A2E83C3DD0037BCD8 /* Stitch AI Metrics.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -5740,6 +5761,29 @@
 			productReference = 208AFA8C25D45B440035B250 /* StitchTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		B509DC792E83C3DD0037BCD8 /* Stitch AI Metrics */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B509DC872E83C3DD0037BCD8 /* Build configuration list for PBXNativeTarget "Stitch AI Metrics" */;
+			buildPhases = (
+				B509DC762E83C3DD0037BCD8 /* Sources */,
+				B509DC772E83C3DD0037BCD8 /* Frameworks */,
+				B509DC782E83C3DD0037BCD8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B509DC7F2E83C3DD0037BCD8 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				B509DC7B2E83C3DD0037BCD8 /* Stitch AI Metrics */,
+			);
+			name = "Stitch AI Metrics";
+			packageProductDependencies = (
+			);
+			productName = "Stitch AI Metrics";
+			productReference = B509DC7A2E83C3DD0037BCD8 /* Stitch AI Metrics.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		E4CC7D0A28F48EF6008EA1C0 /* StitchQuickLookExtension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E4CC7D2028F48EF7008EA1C0 /* Build configuration list for PBXNativeTarget "StitchQuickLookExtension" */;
@@ -5764,7 +5808,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastSwiftUpdateCheck = 1400;
+				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					200BD856254F66EB00692903 = {
@@ -5772,6 +5816,10 @@
 					};
 					208AFA8B25D45B440035B250 = {
 						CreatedOnToolsVersion = 12.1;
+						TestTargetID = 200BD856254F66EB00692903;
+					};
+					B509DC792E83C3DD0037BCD8 = {
+						CreatedOnToolsVersion = 26.0.1;
 						TestTargetID = 200BD856254F66EB00692903;
 					};
 					E4CC7D0A28F48EF6008EA1C0 = {
@@ -5816,6 +5864,7 @@
 				200BD856254F66EB00692903 /* Stitch */,
 				208AFA8B25D45B440035B250 /* StitchTests */,
 				E4CC7D0A28F48EF6008EA1C0 /* StitchQuickLookExtension */,
+				B509DC792E83C3DD0037BCD8 /* Stitch AI Metrics */,
 			);
 		};
 /* End PBXProject section */
@@ -5861,6 +5910,13 @@
 				B5175C8C28877E2700BF71B6 /* Unsupported Version.stitch in Resources */,
 				B5C0E0AB299AD5FE00322A1E /* Camera App.stitch in Resources */,
 				B5305CE7285150E2008F11F4 /* beach.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B509DC782E83C3DD0037BCD8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6990,6 +7046,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B509DC762E83C3DD0037BCD8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E4CC7D0728F48EF6008EA1C0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -7006,6 +7069,11 @@
 			isa = PBXTargetDependency;
 			target = 200BD856254F66EB00692903 /* Stitch */;
 			targetProxy = 208AFA9125D45B440035B250 /* PBXContainerItemProxy */;
+		};
+		B509DC7F2E83C3DD0037BCD8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 200BD856254F66EB00692903 /* Stitch */;
+			targetProxy = B509DC7E2E83C3DD0037BCD8 /* PBXContainerItemProxy */;
 		};
 		E4CC7D1828F48EF6008EA1C0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -7412,6 +7480,189 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = "Stitch AI V1";
+		};
+		B509DC802E83C3DD0037BCD8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7KKD7RH9A6;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.stitchdesign.aimetrics.Stitch-AI-Metrics";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Stitch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Stitch";
+			};
+			name = Debug;
+		};
+		B509DC812E83C3DD0037BCD8 /* Stitch AI Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7KKD7RH9A6;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.stitchdesign.aimetrics.Stitch-AI-Metrics";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Stitch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Stitch";
+			};
+			name = "Stitch AI Testing";
+		};
+		B509DC822E83C3DD0037BCD8 /* Stitch AI V1 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7KKD7RH9A6;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.stitchdesign.aimetrics.Stitch-AI-Metrics";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Stitch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Stitch";
+			};
+			name = "Stitch AI V1";
+		};
+		B509DC832E83C3DD0037BCD8 /* Stitch AI Reasoning */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7KKD7RH9A6;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.stitchdesign.aimetrics.Stitch-AI-Metrics";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Stitch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Stitch";
+			};
+			name = "Stitch AI Reasoning";
+		};
+		B509DC842E83C3DD0037BCD8 /* Local Only */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7KKD7RH9A6;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.stitchdesign.aimetrics.Stitch-AI-Metrics";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Stitch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Stitch";
+			};
+			name = "Local Only";
+		};
+		B509DC852E83C3DD0037BCD8 /* Dev Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7KKD7RH9A6;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.stitchdesign.aimetrics.Stitch-AI-Metrics";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Stitch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Stitch";
+			};
+			name = "Dev Debug";
+		};
+		B509DC862E83C3DD0037BCD8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7KKD7RH9A6;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.stitchdesign.aimetrics.Stitch-AI-Metrics";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Stitch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Stitch";
+			};
+			name = Release;
 		};
 		B521A0F62DE1243E00662B13 /* Stitch AI Reasoning */ = {
 			isa = XCBuildConfiguration;
@@ -8115,6 +8366,20 @@
 				B5B54E29295A2AC400D1E45D /* Local Only */,
 				B571BFB7285BD3C000FE8726 /* Dev Debug */,
 				208AFA9425D45B440035B250 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B509DC872E83C3DD0037BCD8 /* Build configuration list for PBXNativeTarget "Stitch AI Metrics" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B509DC802E83C3DD0037BCD8 /* Debug */,
+				B509DC812E83C3DD0037BCD8 /* Stitch AI Testing */,
+				B509DC822E83C3DD0037BCD8 /* Stitch AI V1 */,
+				B509DC832E83C3DD0037BCD8 /* Stitch AI Reasoning */,
+				B509DC842E83C3DD0037BCD8 /* Local Only */,
+				B509DC852E83C3DD0037BCD8 /* Dev Debug */,
+				B509DC862E83C3DD0037BCD8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
