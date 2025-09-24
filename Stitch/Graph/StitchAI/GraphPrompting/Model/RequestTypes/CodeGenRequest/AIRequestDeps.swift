@@ -179,9 +179,11 @@ extension StitchAICodeCreator {
             .deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations,
                                  document: document)
         
-        print("Derived Stitch layer data:\n\(actionsResult)")
+//        print("Derived Stitch layer data:\n\(actionsResult)")
         
         return actionsResult
+//        return SwiftSyntaxActionsResult.empty
+        
     }
 }
 

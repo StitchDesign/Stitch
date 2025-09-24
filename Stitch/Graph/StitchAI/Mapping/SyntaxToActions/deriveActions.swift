@@ -64,6 +64,14 @@ struct SwiftSyntaxActionsResult {
     var graphData: CurrentAIGraphData.GraphData
     
     var caughtErrors: [SwiftUISyntaxError]
+    
+    static var empty: Self {
+        SwiftSyntaxActionsResult(
+            graphData: CurrentAIGraphData.GraphData.init(layer_data_list: [],
+                                                         patchNodes: [],
+                                                         viewStatePatchConnections: [:]),
+            caughtErrors: [])
+    }
 }
 
 extension SwiftUIViewParserResult {
