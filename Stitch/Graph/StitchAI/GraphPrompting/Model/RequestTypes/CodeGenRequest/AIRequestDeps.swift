@@ -173,16 +173,16 @@ extension StitchAICodeCreator {
             throw StitchAIManagerError.emptyAIResponse
         }
 
-        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
-        
-        let actionsResult = try await codeParserResult
-            .deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations,
-                                 document: document)
+//        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
+//        
+//        let actionsResult = try await codeParserResult
+//            .deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations,
+//                                 document: document)
         
 //        print("Derived Stitch layer data:\n\(actionsResult)")
         
-        return actionsResult
-//        return SwiftSyntaxActionsResult.empty
+//        return actionsResult
+        return SwiftSyntaxActionsResult.empty
         
     }
 }
