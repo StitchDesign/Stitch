@@ -52,15 +52,8 @@ struct Stitch_AI_Metrics {
     
     // Mock test API key - reads from environment variable or provides fallback
     static let testClaudeAPIKey: String = {
-        // Try to get from environment variable first
-        if let envKey = ProcessInfo.processInfo.environment["CLAUDE_API_KEY"], !envKey.isEmpty {
-            return envKey
-        }
-        // Try to get from test configuration file (you could add this)
-        // if let configKey = loadTestConfig()["claude_api_key"] as? String { return configKey }
-        
-        // Fallback to placeholder (tests will be skipped)
-        return "test-claude-api-key-placeholder"
+        guard let secrets = try? Secrets() else { return "" }
+        return secrets._claudeApiTestingKey ?? ""
     }()
     
     // MARK: - Test Setup & Mocking
@@ -103,7 +96,7 @@ struct Stitch_AI_Metrics {
     /// Check if Claude API key is configured
     static func hasValidAPIKey() -> Bool {
         // Check if we have a valid test API key from environment
-        let hasEnvKey = testClaudeAPIKey != "test-claude-api-key-placeholder"
+        let hasEnvKey = testClaudeAPIKey != ""
         
         // Check if StitchStore has the key
         let hasStoreKey: Bool = {
