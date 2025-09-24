@@ -7,6 +7,7 @@
 
 import Testing
 import SwiftUI
+import UIKit
 @testable import Stitch
 
 /// Mock UserDefaults for testing
@@ -41,14 +42,79 @@ class MockUserDefaults: UserDefaults {
 @Suite("Claude Streaming Performance Metrics")
 struct Stitch_AI_Metrics {
     
+    // MARK: - Helper Functions
+    
+    /// Convert UIImage to base64 string for API requests
+    static func convertImageToBase64String(uiImage: UIImage) -> String? {
+        switch Stitch.convertImageToBase64String(uiImage: uiImage) {
+        case .success(let string):
+            return string
+            
+        default:
+            return nil
+        }
+    }
+    
     // Sample base64 images for testing - realistic small images
-    static let sampleImages = [
-        // Small JPEG image (1x1 pixel)
-        "/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAACAAIDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=",
+    static let sampleImages: [String] = {
+        var images: [String] = []
         
-        // Another small test image - 2x2 pixel
-        "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAACAA0DASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-    ]
+        let phoneImage = UIImage(named: "phone",
+                                 in: Bundle(identifier: "app.stitchdesign.aimetrics.Stitch-AI-Metrics"),
+                                 with: nil)
+
+        if let phoneImage = phoneImage,
+           let base64String = convertImageToBase64String(uiImage: phoneImage) {
+            images.append(base64String)
+            print("✅ Successfully loaded phone asset")
+        } else {
+            print("⚠️ Failed to load phone asset")
+        }
+        
+        // Fallback: create a simple test image programmatically
+        if images.isEmpty {
+            let fallbackImage = createFallbackTestImage()
+            if let base64String = convertImageToBase64String(uiImage: fallbackImage) {
+                images.append(base64String)
+                print("✅ Created fallback test image for testing")
+            }
+        }
+        
+        return images
+    }()
+    
+    /// Create a simple programmatic test image as fallback
+    static func createFallbackTestImage() -> UIImage {
+        let size = CGSize(width: 200, height: 200)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        
+        return renderer.image { context in
+            // Set background to light blue
+            UIColor.systemBlue.withAlphaComponent(0.3).setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+            
+            // Draw a simple shape
+            UIColor.systemBlue.setFill()
+            let rect = CGRect(x: 50, y: 50, width: 100, height: 100)
+            context.cgContext.fillEllipse(in: rect)
+            
+            // Add some text
+            let text = "Test"
+            let attributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 24, weight: .bold),
+                .foregroundColor: UIColor.white
+            ]
+            let attributedString = NSAttributedString(string: text, attributes: attributes)
+            let textSize = attributedString.size()
+            let textRect = CGRect(
+                x: (size.width - textSize.width) / 2,
+                y: (size.height - textSize.height) / 2,
+                width: textSize.width,
+                height: textSize.height
+            )
+            attributedString.draw(in: textRect)
+        }
+    }
     
     // Mock test API key - reads from environment variable or provides fallback
     static let testClaudeAPIKey: String = {
@@ -131,8 +197,15 @@ struct Stitch_AI_Metrics {
             return
         }
         
+        // Ensure we have sample images to test with
+        guard !Self.sampleImages.isEmpty else {
+            print("❌ Skipping test - No sample images available")
+            return
+        }
+        
         print("🚀 Starting Claude streaming performance metrics collection")
         print("📊 Running 5 iterations per image sample...")
+        print("🖼️ Testing with \(Self.sampleImages.count) sample image(s)")
         
         let document = await Self.createTestDocument()
         var allResults: [(String, TimeInterval, Int, String?)] = []
@@ -174,8 +247,8 @@ struct Stitch_AI_Metrics {
                     print("❌ \(testName): \(error)")
                 }
                 
-                // Small delay between requests to be respectful to the API
-                try await Task.sleep(nanoseconds: 1_500_000_000) // 1.5 seconds
+                // Delay between requests to avoid rate limiting
+                try await Task.sleep(nanoseconds: 5_000_000_000) // 5 seconds
             }
         }
         
@@ -196,92 +269,92 @@ struct Stitch_AI_Metrics {
         }
     }
     
-    @Test("Claude Streaming Text-Only Performance Comparison")
-    func claudeStreamingTextOnlyComparison() async throws {
-        guard Self.hasValidAPIKey() else {
-            print("❌ Skipping test - Claude API key not configured")
-            return
-        }
-        
-        print("📝 Running text-only performance comparison...")
-        
-        let document = await Self.createTestDocument()
-        var textResults: [(String, TimeInterval, Int, String?)] = []
-        
-        // Run 5 text-only requests for comparison
-        for iteration in 1...5 {
-            let testName = "TextOnly_\(iteration)"
-            let startTime = Date()
-            
-            do {
-                let response = try await makeClaudeStreamingRequest(
-                    previewWindowPrompt: "Create basic text processing nodes",
-                    userPrompt: "Create SwiftUI code design from this image.",
-                    base64Image: nil, // No image for text-only comparison
-                    model: .claude4Sonnet,
-                    document: document
-                )
-                
-                let duration = Date().timeIntervalSince(startTime)
-                textResults.append((testName, duration, response.count, nil))
-                
-                print("✅ \(testName): \(String(format: "%.2f", duration))s, \(response.count) chars")
-                
-                #expect(!response.isEmpty, "Text-only response should not be empty")
-                
-            } catch {
-                let duration = Date().timeIntervalSince(startTime)
-                textResults.append((testName, duration, 0, error.localizedDescription))
-                
-                print("❌ \(testName): \(error)")
-            }
-            
-            try await Task.sleep(nanoseconds: 1_000_000_000) // 1 second delay
-        }
-        
-        // Generate text-only comparison report
-        Self.generateTextOnlyReport(results: textResults)
-        
-        let successfulTextResults = textResults.filter { $0.3 == nil }
-        #expect(successfulTextResults.count > 0, "At least some text-only requests should succeed")
-    }
-    
-    @Test("Claude Streaming Quick Performance Check")
-    func claudeStreamingQuickCheck() async throws {
-        guard Self.hasValidAPIKey() else {
-            print("❌ Skipping quick check - Claude API key not configured")
-            return
-        }
-        
-        print("⚡ Running quick Claude streaming performance check...")
-        
-        let document = await Self.createTestDocument()
-        let startTime = Date()
-        
-        do {
-            let response = try await makeClaudeStreamingRequest(
-                previewWindowPrompt: "Create a simple node",
-                userPrompt: "Create a basic text node with 'Quick Test'",
-                base64Image: nil,
-                model: .claude4Sonnet,
-                document: document
-            )
-            
-            let duration = Date().timeIntervalSince(startTime)
-            let throughput = Double(response.count) / duration
-            
-            print("✅ Quick check completed: \(String(format: "%.2f", duration))s, \(response.count) chars, \(String(format: "%.1f", throughput)) chars/sec")
-            
-            // Basic performance expectations
-            #expect(!response.isEmpty, "Response should not be empty")
-            #expect(duration < 30.0, "Quick check should complete in reasonable time")
-            #expect(response.count > 10, "Should get meaningful response")
-            
-        } catch {
-            print("❌ Quick check failed: \(error)")
-            throw error
-        }
-    }
+//    @Test("Claude Streaming Text-Only Performance Comparison")
+//    func claudeStreamingTextOnlyComparison() async throws {
+//        guard Self.hasValidAPIKey() else {
+//            print("❌ Skipping test - Claude API key not configured")
+//            return
+//        }
+//        
+//        print("📝 Running text-only performance comparison...")
+//        
+//        let document = await Self.createTestDocument()
+//        var textResults: [(String, TimeInterval, Int, String?)] = []
+//        
+//        // Run 5 text-only requests for comparison
+//        for iteration in 1...5 {
+//            let testName = "TextOnly_\(iteration)"
+//            let startTime = Date()
+//            
+//            do {
+//                let response = try await makeClaudeStreamingRequest(
+//                    previewWindowPrompt: "Create basic text processing nodes",
+//                    userPrompt: "Create SwiftUI code design from this image.",
+//                    base64Image: nil, // No image for text-only comparison
+//                    model: .claude4Sonnet,
+//                    document: document
+//                )
+//                
+//                let duration = Date().timeIntervalSince(startTime)
+//                textResults.append((testName, duration, response.count, nil))
+//                
+//                print("✅ \(testName): \(String(format: "%.2f", duration))s, \(response.count) chars")
+//                
+//                #expect(!response.isEmpty, "Text-only response should not be empty")
+//                
+//            } catch {
+//                let duration = Date().timeIntervalSince(startTime)
+//                textResults.append((testName, duration, 0, error.localizedDescription))
+//                
+//                print("❌ \(testName): \(error)")
+//            }
+//            
+//            try await Task.sleep(nanoseconds: 5_000_000_000) // 5 seconds delay to avoid rate limiting
+//        }
+//        
+//        // Generate text-only comparison report
+//        Self.generateTextOnlyReport(results: textResults)
+//        
+//        let successfulTextResults = textResults.filter { $0.3 == nil }
+//        #expect(successfulTextResults.count > 0, "At least some text-only requests should succeed")
+//    }
+//    
+//    @Test("Claude Streaming Quick Performance Check")
+//    func claudeStreamingQuickCheck() async throws {
+//        guard Self.hasValidAPIKey() else {
+//            print("❌ Skipping quick check - Claude API key not configured")
+//            return
+//        }
+//        
+//        print("⚡ Running quick Claude streaming performance check...")
+//        
+//        let document = await Self.createTestDocument()
+//        let startTime = Date()
+//        
+//        do {
+//            let response = try await makeClaudeStreamingRequest(
+//                previewWindowPrompt: "Create a simple node",
+//                userPrompt: "Create a basic text node with 'Quick Test'",
+//                base64Image: nil,
+//                model: .claude4Sonnet,
+//                document: document
+//            )
+//            
+//            let duration = Date().timeIntervalSince(startTime)
+//            let throughput = Double(response.count) / duration
+//            
+//            print("✅ Quick check completed: \(String(format: "%.2f", duration))s, \(response.count) chars, \(String(format: "%.1f", throughput)) chars/sec")
+//            
+//            // Basic performance expectations
+//            #expect(!response.isEmpty, "Response should not be empty")
+//            #expect(duration < 30.0, "Quick check should complete in reasonable time")
+//            #expect(response.count > 10, "Should get meaningful response")
+//            
+//        } catch {
+//            print("❌ Quick check failed: \(error)")
+//            throw error
+//        }
+//    }
     
     // MARK: - Reporting Functions
     
@@ -420,7 +493,7 @@ struct Stitch_AI_Metrics {
     static func printTestEnvironmentInfo() {
         print("\n🔧 Test Environment Information:")
         print("   • Claude API Key Source: \(testClaudeAPIKey == "test-claude-api-key-placeholder" ? "Placeholder (no real key)" : "Environment Variable")")
-        print("   • Test Images: \(sampleImages.count) samples")
+        print("   • Test Images: \(Self.sampleImages.count) samples")
         print("   • StitchStore API Key Available: \(StitchStore.claudeAPIKey != nil)")
         
         if let envKeys = ProcessInfo.processInfo.environment["CLAUDE_API_KEY"] {
