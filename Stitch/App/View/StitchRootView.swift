@@ -86,7 +86,16 @@ struct StitchRootView: View {
                         } // if let document
                     } // .overlay
             }
-        }    
+        }
+        
+//        .inspector(isPresented: $store.showsLayerInspector) {
+////            Text("graph: Inspector here")
+//            if let document = store.currentDocument {
+//                LayerInspectorView(graph: document.visibleGraph,
+//                                   document: document)
+//            }
+//        }
+        
         .modifier(StitchRootModifier())
         .onAppear {
             // TODO: move this to the start of StitchStore instead?

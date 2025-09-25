@@ -85,20 +85,6 @@ struct StitchNavStack: View {
                                 StitchProjectView(store: store,
                                                   document: document,
                                                   alertState: store.alertState)
-//#if targetEnvironment(macCatalyst)
-//                .inspector(isPresented: $store.showsLayerInspector) {
-////                    LayerInspectorView(graph: document.visibleGraph,
-////                                       document: document)
-//                    Text("graph: Inspector here")
-//                }
-//#endif
-//#if targetEnvironment(macCatalyst)
-//                .inspector(isPresented: $store.showsLayerInspector) {
-//                    LayerInspectorView(graph: document.visibleGraph,
-//                                       document: document)
-//                }
-//#endif
-                                
                                 .onDisappear {
                                     document.aiManager?.cancelCurrentRequest()
                                     
@@ -113,13 +99,6 @@ struct StitchNavStack: View {
                                 }
                             }
                         }
-#if targetEnvironment(macCatalyst)
-                .inspector(isPresented: $store.showsLayerInspector) {
-//                    LayerInspectorView(graph: document.visibleGraph,
-//                                       document: document)
-                    Text("graph: Inspector here")
-                }
-#endif
                         
                     case .aiPreviewer(let document, _):
                         StitchAIProjectViewer(store: store,
@@ -130,13 +109,6 @@ struct StitchNavStack: View {
                     }
                     
                 }
-#if targetEnvironment(macCatalyst)
-                .inspector(isPresented: $store.showsLayerInspector) {
-//                    LayerInspectorView(graph: document.visibleGraph,
-//                                       document: document)
-                    Text("Inspector here")
-                }
-#endif
                 .onChange(of: store.navPath.first) { _, currentProject in
                     let currentGraphId = currentProject?.project?.id
                     
