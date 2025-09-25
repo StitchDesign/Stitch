@@ -77,66 +77,75 @@ struct StitchNavStack: View {
         NavigationStack(path: $store.navPath) {
             ProjectsHomeViewWrapper()
                 .navigationDestination(for: StitchAppRouter.self) { router in
+//                    Text("something in navigationDestination...")
                     
                     switch router {
                     case .project(let projectLoader):
                         ZStack { // Attempt to keep view-identity the same
-                            if let document = projectLoader.documentViewModel {
-                                StitchProjectView(store: store,
-                                                  document: document,
-                                                  alertState: store.alertState)
-                                .onDisappear {
-                                    document.aiManager?.cancelCurrentRequest()
-                                    
-                                    // Remove document from project loader
-                                    // MARK: logic needs to be here as its the one place guaranteed to have the project
-                                    projectLoader.documentViewModel = nil
-                                    
-                                    // Close mac screen sharing if still visible
-#if targetEnvironment(macCatalyst)
-                                    dismissWindow(id: RecordingView.windowId)
-#endif
-                                }
-                            }
+                            Text("something in navigationDestination: had document...")
+//                            if let document = projectLoader.documentViewModel {
+//                                Text("something in navigationDestination: had document...")
+                                
+//                                StitchProjectView(store: store,
+//                                                  document: document,
+//                                                  alertState: store.alertState)
+//                                .onDisappear {
+//                                    document.aiManager?.cancelCurrentRequest()
+//                                    
+//                                    // Remove document from project loader
+//                                    // MARK: logic needs to be here as its the one place guaranteed to have the project
+//                                    projectLoader.documentViewModel = nil
+//                                    
+////                                    // Close mac screen sharing if still visible
+////#if targetEnvironment(macCatalyst)
+////                                    dismissWindow(id: RecordingView.windowId)
+////#endif
+//                                }
+                                
+//                            } else {
+//                                Text("something in navigationDestination: did NOT have document...")
+//                            }
                         }
                         
                     case .aiPreviewer(let document, _):
-                        StitchAIProjectViewer(store: store,
-                                              document: document)
+                        Text("ai previewer")
+//                        StitchAIProjectViewer(store: store,
+//                                              document: document)
                         
                     case .graphGenerationTableView:
-                        GraphGenerationTableView(store: store)
+                        Text("graphGenerationTableView")
+                        // GraphGenerationTableView(store: store)
                     }
                     
                 }
-                .onChange(of: store.navPath.first) { _, currentProject in
-                    let currentGraphId = currentProject?.project?.id
-                    
-                    if !store.isCurrentProjectSelected,
-                       let document = store.currentDocument {
-                        document.aiManager?.cancelCurrentRequest()
-                    }
-                    
-                    // Rest undo if project closed
-                    if !store.isCurrentProjectSelected {
-                        store.environment.undoManager.undoManager.removeAllActions()
-                    }
-                    
-                    // Remove references to other StitchDocuments to release them from memory
-                    // Logic here needed for drag-and-drop import with existing document open
-                    store.allProjectUrls?.forEach { projectLoader in
-                        if projectLoader.id != currentGraphId &&
-                            projectLoader.documentViewModel != nil {
-                            projectLoader.documentViewModel?.aiManager?.cancelCurrentRequest()
-                            
-                            // In case references are stored here (but probably not)
-                            projectLoader.lastEncodedDocument = nil
-                            
-                            // Remove document from memory
-                            projectLoader.documentViewModel = nil
-                        }
-                    }
-                }
+//                .onChange(of: store.navPath.first) { _, currentProject in
+//                    let currentGraphId = currentProject?.project?.id
+//                    
+//                    if !store.isCurrentProjectSelected,
+//                       let document = store.currentDocument {
+//                        document.aiManager?.cancelCurrentRequest()
+//                    }
+//                    
+//                    // Rest undo if project closed
+//                    if !store.isCurrentProjectSelected {
+//                        store.environment.undoManager.undoManager.removeAllActions()
+//                    }
+//                    
+//                    // Remove references to other StitchDocuments to release them from memory
+//                    // Logic here needed for drag-and-drop import with existing document open
+//                    store.allProjectUrls?.forEach { projectLoader in
+//                        if projectLoader.id != currentGraphId &&
+//                            projectLoader.documentViewModel != nil {
+//                            projectLoader.documentViewModel?.aiManager?.cancelCurrentRequest()
+//                            
+//                            // In case references are stored here (but probably not)
+//                            projectLoader.lastEncodedDocument = nil
+//                            
+//                            // Remove document from memory
+//                            projectLoader.documentViewModel = nil
+//                        }
+//                    }
+//                }
             
             // TODO: change color of top navigation bar; .red only gives a slight tint (and just on homescreen)
             //                .toolbarBackground(Color(.lightModeWhiteDarkModeBlack),
@@ -146,11 +155,13 @@ struct StitchNavStack: View {
             
         } // NavigationStack
         
+//        .navigationSplitViewStyle(.balanced)
+        
         // Does this event fire when Toolbar freaks out?
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name(rawValue: "renewToolbar")),
-                   perform: { notification in
-            log("StitchNavStack: received 'renewToolbar' notification, name: \(notification.name), description: \(notification.description)", .logToServer)
-        })
+//        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name(rawValue: "renewToolbar")),
+//                   perform: { notification in
+//            log("StitchNavStack: received 'renewToolbar' notification, name: \(notification.name), description: \(notification.description)", .logToServer)
+//        })
     }
 }
 
@@ -161,16 +172,16 @@ struct StitchNavStack: View {
 
  We don't use back-swipe pop anywhere; user can still exit project via back button.
  */
-extension UINavigationController: UIGestureRecognizerDelegate {
-    override open func viewDidLoad() {
-        super.viewDidLoad()
-        interactivePopGestureRecognizer?.delegate = self
-    }
-
-    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        return false
-    }
-}
+//extension UINavigationController: UIGestureRecognizerDelegate {
+//    override open func viewDidLoad() {
+//        super.viewDidLoad()
+//        interactivePopGestureRecognizer?.delegate = self
+//    }
+//
+//    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+//        return false
+//    }
+//}
 
 // struct CatalystNavStack_Previews: PreviewProvider {
 //    static var previews: some View {

@@ -17,18 +17,19 @@ struct StitchSidebarView: View {
     let syncStatus: iCloudSyncStatus
 
     var body: some View {
-        if let document = store.currentDocument,
-           let graph = store.currentDocument?.visibleGraph {
-            ProjectSidebarView(graph: graph,
-                               document: document,
-                               syncStatus: syncStatus)
-
-        } else {
-            if !(store.navPath.first == .graphGenerationTableView) {
-                ProjectSidebarEmptyView(document: nil)
-            }
-            
-        }
+        Text("I am love")
+//        if let document = store.currentDocument,
+//           let graph = store.currentDocument?.visibleGraph {
+//            ProjectSidebarView(graph: graph,
+//                               document: document,
+//                               syncStatus: syncStatus)
+//
+//        } else {
+//            if !(store.navPath.first == .graphGenerationTableView) {
+//                ProjectSidebarEmptyView(document: nil)
+//            }
+//            
+//        }
     }
 }
 
@@ -55,7 +56,7 @@ struct ProjectSidebarView: View {
         }
         
         // Needed so that sidebar-footer does not rise up when iPad full keyboard on-screen
-        .edgesIgnoringSafeArea(.bottom)
+//        .edgesIgnoringSafeArea(.bottom)
     }
 }
 

@@ -32,26 +32,26 @@ struct StitchProjectView: View {
                     document: document,
                     alertState: alertState,
                     routerNamespace: routerNamespace)
-        
-            #if !targetEnvironment(macCatalyst)
-            // TODO: loses animation when exiting full screen mode
-            // TODO: why, for iPad and iPhone, must be ignore the safe areas here, rather than further down in the hierarchy? ... perhaps connected with the hiding of the toolbar?
-            .modifier(MaybeIgnoreSafeAreasModifier(hideAllSafeAreas: isFullScreen))
-
-            //            // TODO: Why doesn't this work to ignore safe areas?
-            //                            .ignoresSafeArea(isFullScreen ? [.all] : [])
-            //                            .onChange(of: isFullScreen, { oldValue, newValue in
-            //                                log("onChange of: isFullScreen: oldValue: \(oldValue)")
-            //                                log("onChange of: isFullScreen: newValue: \(newValue)")
-            //                            })
-            #endif
-
-            .modifier(ProjectToolbarViewModifier(document: document,
-                                                 graph: graphState,
-                                                 // In reality this won't be nil
-                                                 projectName: graphState.name,
-                                                 projectId: graphState.projectId,
-                                                 isFullScreen: $isFullScreen))
+//        
+//            #if !targetEnvironment(macCatalyst)
+//            // TODO: loses animation when exiting full screen mode
+//            // TODO: why, for iPad and iPhone, must be ignore the safe areas here, rather than further down in the hierarchy? ... perhaps connected with the hiding of the toolbar?
+////            .modifier(MaybeIgnoreSafeAreasModifier(hideAllSafeAreas: isFullScreen))
+//
+//            //            // TODO: Why doesn't this work to ignore safe areas?
+//            //                            .ignoresSafeArea(isFullScreen ? [.all] : [])
+//            //                            .onChange(of: isFullScreen, { oldValue, newValue in
+//            //                                log("onChange of: isFullScreen: oldValue: \(oldValue)")
+//            //                                log("onChange of: isFullScreen: newValue: \(newValue)")
+//            //                            })
+//            #endif
+//
+//            .modifier(ProjectToolbarViewModifier(document: document,
+//                                                 graph: graphState,
+//                                                 // In reality this won't be nil
+//                                                 projectName: graphState.name,
+//                                                 projectId: graphState.projectId,
+//                                                 isFullScreen: $isFullScreen))
             .onAppear {
                 // Hide sample projects modal
                 store.showsSampleProjectModal = false

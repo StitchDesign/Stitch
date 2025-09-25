@@ -99,11 +99,11 @@ struct StitchApp: App {
                     #if !DEBUG
                     Self.configureFirebaseIfPossible()
                     #endif
-
-                    // Close mac sharing window in case open
-                    #if targetEnvironment(macCatalyst)
-                    dismissWindow(id: RecordingView.windowId)
-                    #endif
+//
+//                    // Close mac sharing window in case open
+//                    #if targetEnvironment(macCatalyst)
+//                    dismissWindow(id: RecordingView.windowId)
+//                    #endif
 
                 }
                 .environment(self.store)
@@ -120,18 +120,18 @@ struct StitchApp: App {
         //        .windowStyle(HiddenTitleBarWindowStyle())
         //        .windowStyle(.hiddenTitleBar)
         //        #endif
+//        
+//        .commands {
+//            StitchCommands(store: store,
+//                           activeReduxFocusedField: store.currentDocument?.reduxFocusedField)
+//
+//        }
         
-        .commands {
-            StitchCommands(store: store,
-                           activeReduxFocusedField: store.currentDocument?.reduxFocusedField)
-
-        }
-        
-        #if targetEnvironment(macCatalyst)
-        WindowGroup("Screen Sharing", id: "mac-screen-sharing") {
-            MacScreenSharingView(store: store)
-        }
-        #endif
+//        #if targetEnvironment(macCatalyst)
+//        WindowGroup("Screen Sharing", id: "mac-screen-sharing") {
+//            MacScreenSharingView(store: store)
+//        }
+//        #endif
     }
 #endif
 }

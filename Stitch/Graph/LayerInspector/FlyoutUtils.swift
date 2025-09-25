@@ -93,14 +93,25 @@ struct FlyoutToggled: StitchDocumentEvent {
 }
 
 struct LeftSidebarSet: StitchDocumentEvent {
-    
+
     let open: Bool
-    
+
     func handle(state: StitchDocumentViewModel) {
         // Reset flyout
         state.visibleGraph.closeFlyout()
         state.showCatalystProjectTitleModal = false
-        
+
         state.leftSidebarOpen = open
+    }
+}
+
+struct LeftSidebarToggled: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
+        // Reset flyout
+        state.visibleGraph.closeFlyout()
+        state.showCatalystProjectTitleModal = false
+
+        // Toggle the sidebar state
+        state.leftSidebarOpen.toggle()
     }
 }

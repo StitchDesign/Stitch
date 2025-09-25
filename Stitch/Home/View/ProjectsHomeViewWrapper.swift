@@ -27,12 +27,19 @@ struct ProjectsHomeViewWrapper: View {
             .toolbar {
 
                 #if targetEnvironment(macCatalyst)
-                // HACK: places an item in center of toolbar, so that trailing buttons stay on right-side even when nav bar title removed
-                ToolbarItem(placement: .secondaryAction) {
-                    StitchTextView(string: "Stitch Projects",
-                                   font: WINDOW_NAVBAR_FONT)
-                    // Hack also works if we hide this view
-                    //                    .width(1).opacity(0)
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+#if targetEnvironment(macCatalyst)
+                        UIApplication.shared.sendAction(#selector(UIResponder.toggleSidebar), to: nil, from: nil, for: nil)
+#endif
+                    } label: {
+                        Image(systemName: "sidebar.leading")
+                    }
+                    .help("Show/Hide Sidebar")
+                }
+                ToolbarItem(placement: .principal) {
+                    Text("Stitch Projects")
+                        .font(.headline)
                 }
                 #endif
 

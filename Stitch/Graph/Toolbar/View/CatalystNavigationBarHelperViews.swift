@@ -57,9 +57,15 @@ struct CatalystTopBarGraphButtons: View {
     let hasActiveGroupFocused: Bool
     let isFullscreen: Bool
     let isPreviewWindowShown: Bool
-    
+
     var body: some View {
         Group {
+            // Add left sidebar toggle button as first button
+            CatalystNavBarButton("sidebar.left",
+                                 toolTip: "Toggle Layer Sidebar") {
+                dispatch(LeftSidebarToggled())
+            }
+
             CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME,
                                  toolTip: "Go up one traversal level") {
                 dispatch(GoUpOneTraversalLevel())

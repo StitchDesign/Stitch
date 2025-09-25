@@ -124,17 +124,17 @@ struct StitchRootView: View {
     // TODO: why doesn't `mySwiftUIScene.windowStyle(.hidden)` compile even when behind `#if targetEnvironment(macCatalyst)` flag ?
     @MainActor
     func hideTitleAndSetMinimumWindowSize() {
-#if targetEnvironment(macCatalyst)
-        if let windowScene = (UIApplication.shared.connectedScenes.first as? UIWindowScene) {
-            windowScene.titlebar?.titleVisibility = .hidden
-            windowScene.titlebar?.toolbarStyle = .unified
-            windowScene.sizeRestrictions?.minimumSize = .init(
-                width: .STITCH_APP_WINDOW_MINIMUM_WIDTH,
-                height: .STITCH_APP_WINDOW_MINIMUM_HEIGHT)
-        } else {
-            fatalErrorIfDebug("StitchRootView: unable to retrieve UIWindowScene")
-        }
-#endif
+//#if targetEnvironment(macCatalyst)
+//        if let windowScene = (UIApplication.shared.connectedScenes.first as? UIWindowScene) {
+//            windowScene.titlebar?.titleVisibility = .hidden
+//            windowScene.titlebar?.toolbarStyle = .unified
+//            windowScene.sizeRestrictions?.minimumSize = .init(
+//                width: .STITCH_APP_WINDOW_MINIMUM_WIDTH,
+//                height: .STITCH_APP_WINDOW_MINIMUM_HEIGHT)
+//        } else {
+//            fatalErrorIfDebug("StitchRootView: unable to retrieve UIWindowScene")
+//        }
+//#endif
     }
     
     var iPhoneBody: some View {
@@ -150,11 +150,15 @@ struct StitchRootView: View {
         NavigationSplitView(
             columnVisibility: $columnVisibility,
             sidebar: {
-                topLevelSidebar
+                Text("Love")
+                //topLevelSidebar
                 
-                // Needed on Catalyst to prevent sidebar button from sliding into traffic light buttons
+                // Fix for macOS Tahoe: Use proper toolbar configuration instead of hiding
 //#if targetEnvironment(macCatalyst)
-//                    .toolbar(.hidden)
+//                    .toolbar(.automatic, for: .navigationBar)
+//                    .toolbarBackground(.visible, for: .navigationBar)
+//                    // Add padding to prevent overlap with traffic lights
+//                    .safeAreaPadding(.leading, 80)
 //#endif
             },
             // Apple's 'detail view' = the view to the right of the sidebar
@@ -172,32 +176,32 @@ struct StitchRootView: View {
         
         // On iPad's graph view, we use a custom top bar, and so do not have the native bar's sidebar-icon for opening or closing sidebar;
         // instead we listen to redux state.
-#if !targetEnvironment(macCatalyst)
-        .onChange(of: isShowingDrawer) { newValue in
-            columnVisibility = newValue ? .all : .detailOnly
-        }
-        .onChange(of: self.store.currentDocument.isDefined) { isProjectOpened in
-            // If we close graph while sidebar is open,
-            // we need to also close sidebar
-            // since otherwise the native nav bar's sidebar icon can get lost.
-            // (Finicky.)
-            if !isProjectOpened {
-                columnVisibility = .detailOnly
-            }
-        }
-#endif
+//#if !targetEnvironment(macCatalyst)
+//        .onChange(of: isShowingDrawer) { newValue in
+//            columnVisibility = newValue ? .all : .detailOnly
+//        }
+//        .onChange(of: self.store.currentDocument.isDefined) { isProjectOpened in
+//            // If we close graph while sidebar is open,
+//            // we need to also close sidebar
+//            // since otherwise the native nav bar's sidebar icon can get lost.
+//            // (Finicky.)
+//            if !isProjectOpened {
+//                columnVisibility = .detailOnly
+//            }
+//        }
+//#endif
         
-        // Update Redux when drawer state changes
-        .onChange(of: self.columnVisibility) { _, newColumnVisibility in
-            switch newColumnVisibility {
-            case .all, .doubleColumn:
-                dispatch(ShowDrawer())
-            case .automatic, .detailOnly:
-                dispatch(HideDrawer())
-            default:
-                dispatch(HideDrawer())
-            }
-        }
+//        // Update Redux when drawer state changes
+//        .onChange(of: self.columnVisibility) { _, newColumnVisibility in
+//            switch newColumnVisibility {
+//            case .all, .doubleColumn:
+//                dispatch(ShowDrawer())
+//            case .automatic, .detailOnly:
+//                dispatch(HideDrawer())
+//            default:
+//                dispatch(HideDrawer())
+//            }
+//        }
     }
     
     static let STITCH_ROOT_VIEW_COORDINATE_SPACE = "STITCH_ROOT_VIEW_COORDINATE_SPACE"
