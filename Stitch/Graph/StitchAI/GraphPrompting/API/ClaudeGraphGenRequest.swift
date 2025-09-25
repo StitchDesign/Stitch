@@ -267,7 +267,22 @@ func makeClaudeStreamingRequest(
                         // This is regular text content
                         // log("📝 Text delta received: '\(text)' (length: \(text.count))")
                         accumulatedContent += text
+                        print("accumulated text: \n\(accumulatedContent)")
                         
+                        let fakeDoc = StitchDocumentViewModel.createEmpty()
+                        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(accumulatedContent)
+                        
+                        // Syntax → Actions
+                        var stitchActionsResult = try await codeParserResult.deriveStitchActions(
+                            bindingDeclarations: codeParserResult.bindingDeclarations,
+                            document: fakeDoc)
+                        
+                        await MainActor.run {
+                            stitchActionsResult
+                                .createAIGraph(document: fakeDoc)
+                        }
+                        
+                        print("streamed graph:\n\(fakeDoc.graph.createSchema())")
                         //                        // Clear thinking text once content starts
                         //                        await MainActor.run {
                         //                            if !document.streamingReasoningText.isEmpty {

@@ -50,12 +50,17 @@ extension Array where Element == AIGraphData_V0.LayerData {
                 let coordinate = portDerivation.coordinate
                 
                 portDerivation.inputData.forEach { inputData in
-                    // Parse actions at this input, which may include patch data in the event of view events
-                    nodesDict.updateWithEventData(inputData,
-                                                  layerInputCoordinate: .init(portType: .keyPath(coordinate),
-                                                                              nodeId: layerNodeEntity.id),
-                                                  varName: nil,
-                                                  stateVarConnections: &stateVarConnections)
+                    do {
+                        // Parse actions at this input, which may include patch data in the event of view events
+                        try nodesDict.updateWithEventData(inputData,
+                                                          layerInputCoordinate: .init(portType: .keyPath(coordinate),
+                                                                                      nodeId: layerNodeEntity.id),
+                                                          varName: nil,
+                                                          stateVarConnections: &stateVarConnections)
+                    } catch {
+                        // TODO: need to handle errors silently
+                        fatalErrorIfDebug("createLayerNodes error: \(error)")
+                    }
                 }
             }
             

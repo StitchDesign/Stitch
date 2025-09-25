@@ -1107,22 +1107,40 @@ extension Array where Element == SwiftPatchClosureType {
 
             switch closureType {
             case .swiftPatchLogic(let codeStatements):
-                let patchResult = await codeStatements
-                    .derivePatchNodes(document: document,
-                                      existingStateVarConnections: result.stateVarConnections,
-                                      existingNodesDict: existingNodesDict,
-                                      viewEvent: nil)
-                result += patchResult
+                
+                do {
+                    let patchResult = try await codeStatements
+                        .derivePatchNodes(document: document,
+                                          existingStateVarConnections: result.stateVarConnections,
+                                          existingNodesDict: existingNodesDict,
+                                          viewEvent: nil)
+                    result += patchResult
+                } catch let error as SwiftUISyntaxError {
+                    result.caughtErrors.append(error)
+                } catch {
+                    // Handle other errors if needed
+                    log("derivePatchNodes error: \(error.localizedDescription)")
+                }
             
             case .viewEvent(let swiftPatchViewEvent):
                 let viewEventData = swiftPatchViewEvent.viewEvent
-                let closureActionsResult = await swiftPatchViewEvent
-                    .codeStatements
-                    .derivePatchNodes(document: document,
-                                      existingStateVarConnections: result.stateVarConnections,
-                                      existingNodesDict: existingNodesDict,
-                                      viewEvent: viewEventData)
-                result += closureActionsResult
+                
+                // Get data from closure actions
+                do {
+                    let closureActionsResult = try await swiftPatchViewEvent
+                        .codeStatements
+                        .derivePatchNodes(document: document,
+                                          existingStateVarConnections: result.stateVarConnections,
+                                          existingNodesDict: existingNodesDict,
+                                          viewEvent: viewEventData)
+                    
+                    result += closureActionsResult
+                } catch let error as SwiftUISyntaxError {
+                    result.caughtErrors.append(error)
+                } catch {
+                    // Handle other errors if needed
+                    log("derivePatchNodes viewEvent error: \(error.localizedDescription)")
+                }
             }
         }
         
@@ -1142,7 +1160,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
     mutating func updateWithEventData(_ event: PatchSyntaxResultType,
                                       layerInputCoordinate: NodeIOCoordinate?,
                                       varName: String?,
-                                      stateVarConnections: inout [String: [NodeIOCoordinate]]) {
+                                      stateVarConnections: inout [String: [NodeIOCoordinate]]) throws {
         switch event {
         case .node(let nodeResult):
             // Skip if node already made
@@ -1232,13 +1250,12 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
             guard let upstreamPatchCoordinates = stateVarConnections
                 .get(stateName),
                   let layerInputCoordinate = layerInputCoordinate else {
-                fatalErrorIfDebug()
-                return
+                throw SwiftUISyntaxError.unexpectedUpstreamLayerCoordinate
             }
             
             // Multiple upstream coordinates means an unpacking scenario
             if upstreamPatchCoordinates.count > 1 {
-                upstreamPatchCoordinates.enumerated().forEach { index, upstreamPatchCoordinate in
+                try upstreamPatchCoordinates.enumerated().forEach { index, upstreamPatchCoordinate in
                     var layerInputCoordinate = layerInputCoordinate
                     guard let unapckedPortType = UnpackedPortType(rawValue: index),
                           var layerKeyPath = layerInputCoordinate.keyPath else {
@@ -1253,7 +1270,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
                     // Recursively call with extrapolated upstream patch data
                     let event = PatchSyntaxResultType.connection(.init(from: upstreamPatchCoordinate,
                                                                        to: layerInputCoordinate))
-                    return self
+                    return try self
                         .updateWithEventData(event,
                                              layerInputCoordinate: layerInputCoordinate,
                                              varName: stateName,
@@ -1271,7 +1288,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
                 // Recursively call with extrapolated upstream patch data
                 let event = PatchSyntaxResultType.connection(.init(from: upstreamPatchCoordinate,
                                                                    to: layerInputCoordinate))
-                return self
+                return try self
                     .updateWithEventData(event,
                                          layerInputCoordinate: layerInputCoordinate,
                                          varName: stateName,
@@ -1348,10 +1365,16 @@ extension Array where Element == (String, SwiftPatchCodeType) {
                     nodesDict: mergedNodesDict)
                 
                 for event in events {
-                    nodesDict.updateWithEventData(event,
-                                                  layerInputCoordinate: nil,
-                                                  varName: varName,
-                                                  stateVarConnections: &stateVarConnections)
+                    do {
+                        try nodesDict.updateWithEventData(event,
+                                                          layerInputCoordinate: nil,
+                                                          varName: varName,
+                                                          stateVarConnections: &stateVarConnections)
+                    } catch let error as SwiftUISyntaxError {
+                        caughtErrors.append(error)
+                    } catch {
+                        fatalErrorIfDebug("derivePatchNodesSync error: \(error.localizedDescription)")
+                    }
                 }
 
             } catch let error as SwiftUISyntaxError {
@@ -1415,10 +1438,10 @@ extension Array where Element == (String, SwiftPatchCodeType) {
                     nodesDict: mergedNodesDict)
                 
                 for event in events {
-                    nodesDict.updateWithEventData(event,
-                                                  layerInputCoordinate: nil,
-                                                  varName: varName,
-                                                  stateVarConnections: &stateVarConnections)
+                    try nodesDict.updateWithEventData(event,
+                                                      layerInputCoordinate: nil,
+                                                      varName: varName,
+                                                      stateVarConnections: &stateVarConnections)
                 }
 
             } catch let error as SwiftUISyntaxError {
