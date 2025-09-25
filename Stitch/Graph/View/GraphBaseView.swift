@@ -109,21 +109,18 @@ struct GraphBaseView: View {
             //#endif
 
             nodesView
-                          
-            // IMPORTANT: applying .inspector outside of this ZStack causes displacement of graph contents when graph zoom != 1
-            Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
-                .frame(width: 1, height: 1)
-            #if targetEnvironment(macCatalyst)
-                .inspector(isPresented: $store.showsLayerInspector) {
-                    LayerInspectorView(graph: graph,
-                                       document: document)
-                }
-            #endif
         } // ZStack
         
         .modifier(ActivelyDrawnEdge(graph: graph,
                                     scale: document.graphMovement.zoomData))
         .coordinateSpace(name: Self.coordinateNamespace)
+        
+        #if targetEnvironment(macCatalyst)
+        .inspector(isPresented: $store.showsLayerInspector) {
+            LayerInspectorView(graph: graph,
+                               document: document)
+        }
+        #endif
         
         .bottomCenterToast(willShow: document.llmRecording.showRatingToast,
                            config: .init(duration: 15),
