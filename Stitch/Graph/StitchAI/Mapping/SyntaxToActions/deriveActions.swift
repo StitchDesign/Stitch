@@ -857,17 +857,11 @@ extension NodeEntity {
 
 extension SwiftPatchCodeType {
     @MainActor
-    func derivePatchData(document: StitchDocumentViewModel,
-                         varName: String?,
-                         varNameToCode: [String: SwiftPatchCodeType],
-                         viewEvent: SyntaxViewEvent?,
-                         existingStateVarConnections: [String: [NodeIOCoordinate]],
-                         nodesDict: [UUID: NodeEntity]) async throws -> [PatchSyntaxResultType] {
-        guard let aiManager = document.aiManager else {
-            fatalErrorIfDebug()
-            return []
-        }
-        
+    func derivePatchDataSync(varName: String?,
+                            varNameToCode: [String: SwiftPatchCodeType],
+                            viewEvent: SyntaxViewEvent?,
+                            existingStateVarConnections: [String: [NodeIOCoordinate]],
+                            nodesDict: [UUID: NodeEntity]) throws -> [PatchSyntaxResultType] {
         switch self {
         case .expression(let codeType):
             switch codeType {
@@ -895,40 +889,16 @@ extension SwiftPatchCodeType {
                 }
                 
                 // recursion
-                return try await refCode.derivePatchData(
-                    document: document,
+                return try refCode.derivePatchDataSync(
                     varName: varName,
                     varNameToCode: varNameToCode,
                     viewEvent: viewEvent,
                     existingStateVarConnections: existingStateVarConnections,
                     nodesDict: nodesDict)
             
-            case .jsRef(let jsData):
-                guard let sourceCode = varNameToCode.get(jsData.fnName)?
-                    .jsScript,
-                      let varName = varName else {
-                    fatalErrorIfDebug()
-                    return []
-                }
-
-                // Get AI info
-                let jsNodeRequest = AIJSNodeSettingsFromScritptRequest(existingScript: sourceCode)
-                
-                let jsSettings = try await jsNodeRequest
-                    .request(document: document,
-                             aiManager: aiManager)
-                
-                // TODO: double check empty list below
-
-                return try SwiftPatchNodeCode(patch: .javascript,
-                                              ports: [])
-                .defaultNodeEntityData(varName: varName,
-                                       varNameToCode: varNameToCode,
-                                       groupNodeId: nil,
-                                       existingStateVarConnections: existingStateVarConnections,
-                                       nodesDict: nodesDict,
-                                       viewEvent: viewEvent,
-                                       jsSettings: jsSettings)
+            case .jsRef:
+                // Return empty for JS references in sync mode - async version will handle this
+                return []
             
             case .portValuesInit(let args):
                 // Check for PortValueDescription
@@ -981,6 +951,56 @@ extension SwiftPatchCodeType {
             fatalErrorIfDebug("Wasn't expected here")
             return []
         }
+    }
+    
+    @MainActor
+    func derivePatchData(document: StitchDocumentViewModel,
+                         varName: String?,
+                         varNameToCode: [String: SwiftPatchCodeType],
+                         viewEvent: SyntaxViewEvent?,
+                         existingStateVarConnections: [String: [NodeIOCoordinate]],
+                         nodesDict: [UUID: NodeEntity]) async throws -> [PatchSyntaxResultType] {
+        // Handle the async jsRef case
+        if case .expression(.jsRef(let jsData)) = self {
+            guard let aiManager = document.aiManager else {
+                fatalErrorIfDebug()
+                return []
+            }
+            
+            guard let sourceCode = varNameToCode.get(jsData.fnName)?
+                .jsScript,
+                  let varName = varName else {
+                fatalErrorIfDebug()
+                return []
+            }
+
+            // Get AI info
+            let jsNodeRequest = AIJSNodeSettingsFromScritptRequest(existingScript: sourceCode)
+            
+            let jsSettings = try await jsNodeRequest
+                .request(document: document,
+                         aiManager: aiManager)
+            
+            // TODO: double check empty list below
+
+            return try SwiftPatchNodeCode(patch: .javascript,
+                                          ports: [])
+            .defaultNodeEntityData(varName: varName,
+                                   varNameToCode: varNameToCode,
+                                   groupNodeId: nil,
+                                   existingStateVarConnections: existingStateVarConnections,
+                                   nodesDict: nodesDict,
+                                   viewEvent: viewEvent,
+                                   jsSettings: jsSettings)
+        }
+        
+        // For all other cases, delegate to the synchronous version
+        return try derivePatchDataSync(
+            varName: varName,
+            varNameToCode: varNameToCode,
+            viewEvent: viewEvent,
+            existingStateVarConnections: existingStateVarConnections,
+            nodesDict: nodesDict)
     }
 }
 
