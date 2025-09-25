@@ -114,13 +114,13 @@ struct GraphBaseView: View {
         .modifier(ActivelyDrawnEdge(graph: graph,
                                     scale: document.graphMovement.zoomData))
         .coordinateSpace(name: Self.coordinateNamespace)
-        
-        #if targetEnvironment(macCatalyst)
-        .inspector(isPresented: $store.showsLayerInspector) {
-            LayerInspectorView(graph: graph,
-                               document: document)
-        }
-        #endif
+//        
+//        #if targetEnvironment(macCatalyst)
+//        .inspector(isPresented: $store.showsLayerInspector) {
+//            LayerInspectorView(graph: graph,
+//                               document: document)
+//        }
+//        #endif
         
         .bottomCenterToast(willShow: document.llmRecording.showRatingToast,
                            config: .init(duration: 15),

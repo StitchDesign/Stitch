@@ -64,6 +64,14 @@ struct ProjectNavigationView: View {
     
     var graphView: some View {
         GraphBaseView(store: store, document: document)
+        
+        // still causes left sidebar button to disappear
+//        #if targetEnvironment(macCatalyst)
+//        .inspector(isPresented: $store.showsLayerInspector) {
+//            LayerInspectorView(graph: graph,
+//                               document: document)
+//        }
+//        #endif
             .overlay {
                 StitchProjectOverlayView(document: document,
                                          store: store,

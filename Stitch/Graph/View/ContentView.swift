@@ -75,6 +75,13 @@ struct ContentView: View, KeyboardReadable {
                 .ignoresSafeArea(edges: showFullScreen.isTrue ? [.all] : [.bottom])
                 .ignoresSafeArea([.keyboard])
 #endif
+
+//#if targetEnvironment(macCatalyst)
+//                .inspector(isPresented: $store.showsLayerInspector) {
+//                    LayerInspectorView(graph: document.visibleGraph,
+//                                       document: document)
+//                }
+//#endif
         }
         
         // TODO: remove these? just access from document in the relevant view?
