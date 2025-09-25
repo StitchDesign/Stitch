@@ -91,6 +91,26 @@ extension SwiftUIViewParserResult {
                                       viewStatePatchConnections: patchResult.stateVarConnections),
                      caughtErrors: self.caughtErrors + layerResults.caughtErrors)// + patchResults.caughtErrors)
     }
+    
+    @MainActor
+    func deriveStitchActionsSync(bindingDeclarations: [(String, SwiftParserInitializerType)]) throws -> SwiftSyntaxActionsResult {
+        // Extract layer data
+        let layerResults = self.viewStack.deriveStitchActions(bindingDeclarations: bindingDeclarations)
+        
+        let interactionsPatchActionResult = layerResults.actions.getPatchResultsFromViewEvents()
+        
+        let patchCodeStatements = try SwiftPatchClosureType.swiftPatchLogic(self.bindingDeclarations.getSwiftPatchCodeTypes())
+
+        // Prepend view event data for code from `updateLayerInputs`
+        let allPatchCode: [SwiftPatchClosureType] = interactionsPatchActionResult.map { .viewEvent($0) } + [patchCodeStatements]
+        
+        let patchResult = allPatchCode.derivePatchNodesSync()
+                
+        return .init(graphData: .init(layer_data_list: layerResults.actions,
+                                      patchNodes: patchResult.nodes,
+                                      viewStatePatchConnections: patchResult.stateVarConnections),
+                     caughtErrors: self.caughtErrors + layerResults.caughtErrors)// + patchResults.caughtErrors)
+    }
 }
 
 extension Array where Element == SyntaxView {
@@ -527,6 +547,17 @@ extension SwiftPatchCodeType {
             
         default:
             return nil
+        }
+    }
+    
+    var containsJsRef: Bool {
+        switch self {
+        case .expression(.jsRef):
+            return true
+        case .subscriptType(let codeType, _):
+            return codeType.containsJsRef
+        default:
+            return false
         }
     }
 }
@@ -1016,7 +1047,7 @@ extension Sequence {
 
 extension Array where Element == SwiftPatchClosureType {
     @MainActor
-    func derivePatchNodes(document: StitchDocumentViewModel) async -> SwiftSyntaxPatchActionsResult {
+    func derivePatchNodesSync() -> SwiftSyntaxPatchActionsResult {
         var result = SwiftSyntaxPatchActionsResult(nodes: [],
                                                    stateVarConnections: [:],
                                                    caughtErrors: [])
@@ -1028,7 +1059,54 @@ extension Array where Element == SwiftPatchClosureType {
 
             switch closureType {
             case .swiftPatchLogic(let codeStatements):
-                
+                let patchResult = codeStatements
+                    .derivePatchNodesSync(existingStateVarConnections: result.stateVarConnections,
+                                         existingNodesDict: existingNodesDict,
+                                         viewEvent: nil)
+                result += patchResult
+            
+            case .viewEvent(let swiftPatchViewEvent):
+                let viewEventData = swiftPatchViewEvent.viewEvent
+                let closureActionsResult = swiftPatchViewEvent
+                    .codeStatements
+                    .derivePatchNodesSync(existingStateVarConnections: result.stateVarConnections,
+                                         existingNodesDict: existingNodesDict,
+                                         viewEvent: viewEventData)
+                result += closureActionsResult
+            }
+        }
+        
+        return result
+    }
+    
+    @MainActor
+    func derivePatchNodes(document: StitchDocumentViewModel) async -> SwiftSyntaxPatchActionsResult {
+        // Check if any closure contains async operations
+        let hasAsyncOperations = self.contains { closureType in
+            switch closureType {
+            case .swiftPatchLogic(let codeStatements):
+                return codeStatements.contains { (_, code) in code.containsJsRef }
+            case .viewEvent(let swiftPatchViewEvent):
+                return swiftPatchViewEvent.codeStatements.contains { (_, code) in code.containsJsRef }
+            }
+        }
+        
+        if !hasAsyncOperations {
+            // Use sync version if no async operations needed
+            return derivePatchNodesSync()
+        }
+        
+        var result = SwiftSyntaxPatchActionsResult(nodes: [],
+                                                   stateVarConnections: [:],
+                                                   caughtErrors: [])
+        
+        for closureType in self {
+            let existingNodesDict = result.nodes.reduce(into: [:]) { result, node in
+                result.updateValue(node, forKey: node.id)
+            }
+
+            switch closureType {
+            case .swiftPatchLogic(let codeStatements):
                 let patchResult = await codeStatements
                     .derivePatchNodes(document: document,
                                       existingStateVarConnections: result.stateVarConnections,
@@ -1037,17 +1115,13 @@ extension Array where Element == SwiftPatchClosureType {
                 result += patchResult
             
             case .viewEvent(let swiftPatchViewEvent):
-                // Create node for view event
                 let viewEventData = swiftPatchViewEvent.viewEvent
-                
-                // Get data from closure actions
                 let closureActionsResult = await swiftPatchViewEvent
                     .codeStatements
                     .derivePatchNodes(document: document,
                                       existingStateVarConnections: result.stateVarConnections,
                                       existingNodesDict: existingNodesDict,
                                       viewEvent: viewEventData)
-                
                 result += closureActionsResult
             }
         }
@@ -1242,10 +1316,9 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
 
 extension Array where Element == (String, SwiftPatchCodeType) {
     @MainActor
-    func derivePatchNodes(document: StitchDocumentViewModel,
-                          existingStateVarConnections: [String: [NodeIOCoordinate]],
-                          existingNodesDict: [UUID: NodeEntity],
-                          viewEvent: SyntaxViewEvent?) async -> SwiftSyntaxPatchActionsResult {
+    func derivePatchNodesSync(existingStateVarConnections: [String: [NodeIOCoordinate]],
+                             existingNodesDict: [UUID: NodeEntity],
+                             viewEvent: SyntaxViewEvent?) -> SwiftSyntaxPatchActionsResult {
         // Create dictionary of self
         let varNameToCode = self.reduce(into: [String: SwiftPatchCodeType]()) { result, data in
             result.updateValue(data.1, forKey: data.0)
@@ -1260,6 +1333,72 @@ extension Array where Element == (String, SwiftPatchCodeType) {
         var caughtErrors = [SwiftUISyntaxError]()
         
         // Create patch nodes and input values
+        for (varName, code) in self {
+            do {
+                let mergedStateVarConnections = existingStateVarConnections
+                    .merging(stateVarConnections) { $1 }
+                let mergedNodesDict = existingNodesDict
+                    .merging(nodesDict) { $1 }
+                             
+                let events = try code.derivePatchDataSync(
+                    varName: varName,
+                    varNameToCode: varNameToCode,
+                    viewEvent: viewEvent,
+                    existingStateVarConnections: mergedStateVarConnections,
+                    nodesDict: mergedNodesDict)
+                
+                for event in events {
+                    nodesDict.updateWithEventData(event,
+                                                  layerInputCoordinate: nil,
+                                                  varName: varName,
+                                                  stateVarConnections: &stateVarConnections)
+                }
+
+            } catch let error as SwiftUISyntaxError {
+                caughtErrors.append(error)
+            } catch {
+                fatalErrorIfDebug(error.localizedDescription)
+                log("deriveStitchActions: error.localizedDescription: \(error.localizedDescription)")
+                continue
+            }
+        }
+        
+        return .init(nodes: [NodeEntity](nodesDict.values),
+                     stateVarConnections: stateVarConnections,
+                     caughtErrors: caughtErrors)
+    }
+    
+    @MainActor
+    func derivePatchNodes(document: StitchDocumentViewModel,
+                          existingStateVarConnections: [String: [NodeIOCoordinate]],
+                          existingNodesDict: [UUID: NodeEntity],
+                          viewEvent: SyntaxViewEvent?) async -> SwiftSyntaxPatchActionsResult {
+        // Check if any element needs async processing (contains jsRef)
+        let hasAsyncOperations = self.contains { (_, code) in
+            code.containsJsRef
+        }
+        
+        if !hasAsyncOperations {
+            // Use sync version if no async operations needed
+            return derivePatchNodesSync(existingStateVarConnections: existingStateVarConnections,
+                                       existingNodesDict: existingNodesDict,
+                                       viewEvent: viewEvent)
+        }
+        
+        // Create dictionary of self
+        let varNameToCode = self.reduce(into: [String: SwiftPatchCodeType]()) { result, data in
+            result.updateValue(data.1, forKey: data.0)
+        }
+        
+        // Instantiate dictionary of nodes to return as array later
+        var nodesDict = [UUID: NodeEntity]()
+        
+        // Tracks connections to state variables, used as layer inputs later
+        var stateVarConnections = [String: [NodeIOCoordinate]]()
+        
+        var caughtErrors = [SwiftUISyntaxError]()
+        
+        // Create patch nodes and input values with async support
         for (varName, code) in self {
             do {
                 let mergedStateVarConnections = existingStateVarConnections
