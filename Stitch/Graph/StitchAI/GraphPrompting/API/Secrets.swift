@@ -26,6 +26,9 @@ struct Secrets: Equatable {
     let openAIModelGraphCreation: String
     let openAIModelJsNode: String
     let openAIModelGraphDescription: String
+    
+    // only used for testing metrics
+    let _claudeApiTestingKey: String?
         
     let sentryDSN: String
     
@@ -53,7 +56,6 @@ extension Secrets: Decodable {
         case graphGenerationUserPromptTableName = "SUPABASE_USER_PROMPT_TABLE_NAME"
         case graphGenerationInferenceCallResultTableName = "SUPABASE_INFERENCE_CALL_RESULT_TABLE_NAME"
         
-        // case jsNodeUserPromptTableName = "SUPABASE_JAVASCRIPT_USER_PROMPT_TABLE_NAME"
         case jsNodeInferenceCallResultTableName = "SUPABASE_JAVASCRIPT_INFERENCE_CALL_RESULT_TABLE_NAME"
         
         case openAIAPIKey = "OPEN_AI_API_KEY"
@@ -62,5 +64,23 @@ extension Secrets: Decodable {
         case openAIModelGraphDescription = "OPEN_AI_MODEL_GRAPH_DESCRIPTION"
                 
         case sentryDSN = "SENTRY_DSN"
+        
+        case claudeApiTestingKey = "CLAUDE_API_TESTING_KEY"
+    }
+    
+    init(from decoder: any Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        
+        self.supabaseURL = try values.decode(String.self, forKey: .supabaseURL)
+        self.supabaseAnonKey = try values.decode(String.self, forKey: .supabaseAnonKey)
+        self.graphGenerationUserPromptTableName = try values.decode(String.self, forKey: .graphGenerationUserPromptTableName)
+        self.graphGenerationInferenceCallResultTableName = try values.decode(String.self, forKey: .graphGenerationInferenceCallResultTableName)
+        self.jsNodeInferenceCallResultTableName = try values.decode(String.self, forKey: .jsNodeInferenceCallResultTableName)
+        self.openAIAPIKey = try values.decode(String.self, forKey: .openAIAPIKey)
+        self.openAIModelGraphCreation = try values.decode(String.self, forKey: .openAIModelGraphCreation)
+        self.openAIModelJsNode = try values.decode(String.self, forKey: .openAIModelJsNode)
+        self.openAIModelGraphDescription = try values.decode(String.self, forKey: .openAIModelGraphDescription)
+        self.sentryDSN = try values.decode(String.self, forKey: .sentryDSN)
+        self._claudeApiTestingKey = try values.decodeIfPresent(String.self, forKey: .claudeApiTestingKey)
     }
 }
