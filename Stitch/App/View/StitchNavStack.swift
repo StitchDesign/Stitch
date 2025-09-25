@@ -77,19 +77,23 @@ struct StitchNavStack: View {
         NavigationStack(path: $store.navPath) {
             ProjectsHomeViewWrapper()
                 .navigationDestination(for: StitchAppRouter.self) { router in
-                    
+                    // Text("destination view here")
+
                     switch router {
                     case .project(let projectLoader):
+//                         Text("destination view here: had project")
+                        
                         ZStack { // Attempt to keep view-identity the same
                             if let document = projectLoader.documentViewModel {
+//                                Text("destination view here: had document")
                                 StitchProjectView(store: store,
                                                   document: document,
                                                   alertState: store.alertState)
                                 .onDisappear {
                                     document.aiManager?.cancelCurrentRequest()
-                                    
-                                    // Remove document from project loader
-                                    // MARK: logic needs to be here as its the one place guaranteed to have the project
+//                                    
+//                                    // Remove document from project loader
+//                                    // MARK: logic needs to be here as its the one place guaranteed to have the project
                                     projectLoader.documentViewModel = nil
                                     
                                     // Close mac screen sharing if still visible
@@ -101,11 +105,13 @@ struct StitchNavStack: View {
                         }
                         
                     case .aiPreviewer(let document, _):
-                        StitchAIProjectViewer(store: store,
-                                              document: document)
+                        Text("destination view here: had ai previewer")
+                        //                        StitchAIProjectViewer(store: store,
+                        //                                              document: document)
                         
                     case .graphGenerationTableView:
-                        GraphGenerationTableView(store: store)
+                        Text("destination view here: had graph generation table")
+                        //                        GraphGenerationTableView(store: store)
                     }
                     
                 }

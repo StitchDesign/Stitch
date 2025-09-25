@@ -51,25 +51,26 @@ struct ProjectNavigationView: View {
         .animation(.easeInOut(duration: 0.25), value: document.selectedTab)
         .animation(.easeInOut(duration: 0.25), value: document.selectedTab)
 #else
-        // iPhone / compact width
-        ZStack {
-            graphView
-            
-            // Layer Inspector Fly‑out must sit above preview window
-            flyout
-        }
-        .transition(.opacity)
+        graphView
+//        // iPhone / compact width
+//        ZStack {
+//            graphView
+//            
+//            // Layer Inspector Fly‑out must sit above preview window
+//            flyout
+//        }
+//        .transition(.opacity)
 #endif
     }
     
     var graphView: some View {
         GraphBaseView(store: store, document: document)
-            .overlay {
-                StitchProjectOverlayView(document: document,
-                                         store: store,
-                                         showFullScreen: isFullScreen,
-                                         graphNamespace: graphNamespace)
-            }
+//            .overlay {
+//                StitchProjectOverlayView(document: document,
+//                                         store: store,
+//                                         showFullScreen: isFullScreen,
+//                                         graphNamespace: graphNamespace)
+//            }
     }
     
     @ViewBuilder
@@ -79,30 +80,33 @@ struct ProjectNavigationView: View {
     }
 
     var body: some View {
-        mainProjectView
-        #if !targetEnvironment(macCatalyst)
-            .animation(.stitchAnimation, value: document.selectedTab)
-        #endif
-            .alert(item: $graph.migrationWarning) { warningMessage in
-            Alert(title: Text("Document Migration Warning"),
-                  message: Text(warningMessage.rawValue),
-                  dismissButton: .default(.init("OK")) {
-                // Encoding new document ensures this warning won't load again
-                document.encodeProjectInBackground()
-            })
-        }
-        .onChange(of: document.graphUpdaterId) {
-            // log("ProjectNavigationView: .onChange(of: document.visibleGraph.graphUpdaterId)")
-            document.visibleGraph.updateGraphData(document)
-        }
-        .onChange(of: document.isCameraEnabled) { _, isCameraEnabled in
-            if !isCameraEnabled {
-                // Tear down if no nodes enabled camera
-                document.deactivateCamera()
-                
-                document.teardownSingleton(keyPath: \.cameraFeedManager)
-            }
-        }
+        
+        GraphBaseView(store: store, document: document)
+        
+//        mainProjectView
+//        #if !targetEnvironment(macCatalyst)
+//            .animation(.stitchAnimation, value: document.selectedTab)
+//        #endif
+//            .alert(item: $graph.migrationWarning) { warningMessage in
+//            Alert(title: Text("Document Migration Warning"),
+//                  message: Text(warningMessage.rawValue),
+//                  dismissButton: .default(.init("OK")) {
+//                // Encoding new document ensures this warning won't load again
+//                document.encodeProjectInBackground()
+//            })
+//        }
+//        .onChange(of: document.graphUpdaterId) {
+//            // log("ProjectNavigationView: .onChange(of: document.visibleGraph.graphUpdaterId)")
+//            document.visibleGraph.updateGraphData(document)
+//        }
+//        .onChange(of: document.isCameraEnabled) { _, isCameraEnabled in
+//            if !isCameraEnabled {
+//                // Tear down if no nodes enabled camera
+//                document.deactivateCamera()
+//                
+//                document.teardownSingleton(keyPath: \.cameraFeedManager)
+//            }
+//        }
     }
     
 #if !targetEnvironment(macCatalyst)

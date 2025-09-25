@@ -32,38 +32,38 @@ struct GraphBaseView: View {
         // so our touch-responsive interfaces must ignore them to.
 
         nodesAndCursor
-            .onAppear {
-                
-                // MARK: UNCOMMENT TO REGENERATE STATIC SYSTEM PROMPT
-                //                #if DEV_DEBUG || DEBUG
-                //                // Regenerate static prompt file for Claude caching (development only)
-                //                // Wait a bit for the store to initialize, then regenerate static prompt
-                //                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                //                    regenerateStitchStaticPromptFile(graph: graph)
-                //                }
-                //                #endif
-                
-                #if targetEnvironment(macCatalyst)
-                if self.spaceHeld || document.keypressState.isSpacePressed {
-                    NSCursor.openHand.push()
-                }
-                #endif
-                dispatch(ColorSchemeReceived(colorScheme: colorScheme))
-                dispatch(SafeAreaInsetsReceived(insets: safeAreaInsets))
-            }
-            .onChange(of: colorScheme) { _, color in
-                //                log("GraphBaseView: onChange of ColorScheme")
-                dispatch(ColorSchemeReceived(colorScheme: color))
-            }
-            .onChange(of: safeAreaInsets) { _, insets in
-                //                log("GraphBaseView: onChange of safeAreaInsets")
-                dispatch(SafeAreaInsetsReceived(insets: insets))
-            }
+//            .onAppear {
+//                
+//                // MARK: UNCOMMENT TO REGENERATE STATIC SYSTEM PROMPT
+//                //                #if DEV_DEBUG || DEBUG
+//                //                // Regenerate static prompt file for Claude caching (development only)
+//                //                // Wait a bit for the store to initialize, then regenerate static prompt
+//                //                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+//                //                    regenerateStitchStaticPromptFile(graph: graph)
+//                //                }
+//                //                #endif
+//                
+//                #if targetEnvironment(macCatalyst)
+//                if self.spaceHeld || document.keypressState.isSpacePressed {
+//                    NSCursor.openHand.push()
+//                }
+//                #endif
+//                dispatch(ColorSchemeReceived(colorScheme: colorScheme))
+//                dispatch(SafeAreaInsetsReceived(insets: safeAreaInsets))
+//            }
+//            .onChange(of: colorScheme) { _, color in
+//                //                log("GraphBaseView: onChange of ColorScheme")
+//                dispatch(ColorSchemeReceived(colorScheme: color))
+//            }
+//            .onChange(of: safeAreaInsets) { _, insets in
+//                //                log("GraphBaseView: onChange of safeAreaInsets")
+//                dispatch(SafeAreaInsetsReceived(insets: insets))
+//            }
 
-        #if targetEnvironment(macCatalyst)
-            .modifier(GraphHoverViewModifier(spaceHeld: self.$spaceHeld,
-                                             document: document))
-        #endif
+//        #if targetEnvironment(macCatalyst)
+//            .modifier(GraphHoverViewModifier(spaceHeld: self.$spaceHeld,
+//                                             document: document))
+//        #endif
     }
 
     @ViewBuilder @MainActor
@@ -71,26 +71,26 @@ struct GraphBaseView: View {
         NodesView(document: document,
                   graph: graph,
                   groupTraversedToChild: document.groupTraversedToChild)
-        .overlay {
-            // Show debug mode tip view
-            if document.isDebugMode {
-                TopLeftCornerView {
-                    DebugModePopover()
-                }
-            }
-            
-            switch document.llmRecording.modal {
-                
-            case .editBeforeSubmit:
-                TopLeftCornerView {
-                    EditBeforeSubmitModalView(document: document, graph: graph)
-                }
-           
-            case .none, .ratingToast, .submitExistingGraphAsTrainingExample, .aiNodePromptEntry:
-                // Either not applicable, or handled elsewhere
-                EmptyView()
-            }
-        }
+//        .overlay {
+//            // Show debug mode tip view
+//            if document.isDebugMode {
+//                TopLeftCornerView {
+//                    DebugModePopover()
+//                }
+//            }
+//            
+//            switch document.llmRecording.modal {
+//                
+//            case .editBeforeSubmit:
+//                TopLeftCornerView {
+//                    EditBeforeSubmitModalView(document: document, graph: graph)
+//                }
+//           
+//            case .none, .ratingToast, .submitExistingGraphAsTrainingExample, .aiNodePromptEntry:
+//                // Either not applicable, or handled elsewhere
+//                EmptyView()
+//            }
+//        }
     }
     
     @ViewBuilder @MainActor
@@ -122,25 +122,25 @@ struct GraphBaseView: View {
         }
         #endif
         
-        .bottomCenterToast(willShow: document.llmRecording.showRatingToast,
-                           config: .init(duration: 15),
-                           onExpireAction: { dispatch(AIRatingToastExpired()) },
-                           toastContent: { StitchAIRatingToast() })
+//        .bottomCenterToast(willShow: document.llmRecording.showRatingToast,
+//                           config: .init(duration: 15),
+//                           onExpireAction: { dispatch(AIRatingToastExpired()) },
+//                           toastContent: { StitchAIRatingToast() })
         
-        .background {
-            GeometryReader { geometry in
-                Color.clear
-                    .onChange(of: geometry.frame(in: .local), initial: true) { oldValue, newValue in
-                        // log("SIZE READING: GraphBaseView: local frame: newValue: \(newValue)")
-                        dispatch(SetDeviceScreenSize(frame: newValue))
-                    }
-                    .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
-                        // log("SIZE READING: GraphBaseView: global frame: newValue: \(newValue)")
-                        dispatch(SetGraphPosition(graphPosition: newValue.origin))
-                        dispatch(SetSidebarWidth(frame: newValue))
-                    }
-            } // GeometryReader
-        } // .background
+//        .background {
+//            GeometryReader { geometry in
+//                Color.clear
+//                    .onChange(of: geometry.frame(in: .local), initial: true) { oldValue, newValue in
+//                        // log("SIZE READING: GraphBaseView: local frame: newValue: \(newValue)")
+//                        dispatch(SetDeviceScreenSize(frame: newValue))
+//                    }
+//                    .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
+//                        // log("SIZE READING: GraphBaseView: global frame: newValue: \(newValue)")
+//                        dispatch(SetGraphPosition(graphPosition: newValue.origin))
+//                        dispatch(SetSidebarWidth(frame: newValue))
+//                    }
+//            } // GeometryReader
+//        } // .background
     }
 }
 

@@ -28,41 +28,42 @@ struct StitchProjectView: View {
     }
 
     var body: some View {
+//        Text("I am a StitchProjectView")
         ContentView(store: store,
                     document: document,
                     alertState: alertState,
                     routerNamespace: routerNamespace)
         
-            #if !targetEnvironment(macCatalyst)
-            // TODO: loses animation when exiting full screen mode
-            // TODO: why, for iPad and iPhone, must be ignore the safe areas here, rather than further down in the hierarchy? ... perhaps connected with the hiding of the toolbar?
-            .modifier(MaybeIgnoreSafeAreasModifier(hideAllSafeAreas: isFullScreen))
+//            #if !targetEnvironment(macCatalyst)
+//            // TODO: loses animation when exiting full screen mode
+//            // TODO: why, for iPad and iPhone, must be ignore the safe areas here, rather than further down in the hierarchy? ... perhaps connected with the hiding of the toolbar?
+//            .modifier(MaybeIgnoreSafeAreasModifier(hideAllSafeAreas: isFullScreen))
+//
+//            //            // TODO: Why doesn't this work to ignore safe areas?
+//            //                            .ignoresSafeArea(isFullScreen ? [.all] : [])
+//            //                            .onChange(of: isFullScreen, { oldValue, newValue in
+//            //                                log("onChange of: isFullScreen: oldValue: \(oldValue)")
+//            //                                log("onChange of: isFullScreen: newValue: \(newValue)")
+//            //                            })
+//            #endif
 
-            //            // TODO: Why doesn't this work to ignore safe areas?
-            //                            .ignoresSafeArea(isFullScreen ? [.all] : [])
-            //                            .onChange(of: isFullScreen, { oldValue, newValue in
-            //                                log("onChange of: isFullScreen: oldValue: \(oldValue)")
-            //                                log("onChange of: isFullScreen: newValue: \(newValue)")
-            //                            })
-            #endif
-
-            .modifier(ProjectToolbarViewModifier(document: document,
-                                                 graph: graphState,
-                                                 // In reality this won't be nil
-                                                 projectName: graphState.name,
-                                                 projectId: graphState.projectId,
-                                                 isFullScreen: $isFullScreen))
-            .onAppear {
-                // Hide sample projects modal
-                store.showsSampleProjectModal = false
-            }
-            .onDisappear {
-                // Create new thumbnail image
-                store.createThumbnail(from: document)
-                
-                // TODO: listen to presses of the NavigationStack's back button instead?
-                dispatch(CloseGraph())
-            }
+//            .modifier(ProjectToolbarViewModifier(document: document,
+//                                                 graph: graphState,
+//                                                 // In reality this won't be nil
+//                                                 projectName: graphState.name,
+//                                                 projectId: graphState.projectId,
+//                                                 isFullScreen: $isFullScreen))
+//            .onAppear {
+//                // Hide sample projects modal
+//                store.showsSampleProjectModal = false
+//            }
+//            .onDisappear {
+//                // Create new thumbnail image
+//                store.createThumbnail(from: document)
+//                
+//                // TODO: listen to presses of the NavigationStack's back button instead?
+//                dispatch(CloseGraph())
+//            }
     }
 }
 
