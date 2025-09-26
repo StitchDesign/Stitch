@@ -273,7 +273,8 @@ func makeClaudeStreamingRequest(
 
                         // EAGER PARSING: Check if we should attempt to parse the accumulated content
                         if streamingContext.shouldAttemptParse(newTokens: text) {
-                            log("🔄 Attempting eager parse at \(streamingContext.totalTokenCount) tokens")
+                            log("🔄 PHASE 1 (STREAMING): Attempting eager parse at \(streamingContext.totalTokenCount) tokens")
+                            log("🔄 Current content length: \(accumulatedContent.count) characters")
 
                             // Capture current content for async parsing
                             let contentToparse = accumulatedContent
@@ -284,7 +285,9 @@ func makeClaudeStreamingRequest(
 
                                 switch parseResult {
                                 case .success(let actionsResult):
-                                    log("✅ Eager parse successful - applying partial graph")
+                                    log("✅ PHASE 1 SUCCESS: Eager parse successful - applying partial graph")
+                                    log("✅   Found \(actionsResult.graphData.patchNodes.count) patch nodes")
+                                    log("✅   Found \(actionsResult.graphData.layer_data_list.count) layer groups")
 
                                     // Apply the partial result with streaming mode
                                     var mutableResult = actionsResult
@@ -293,6 +296,8 @@ func makeClaudeStreamingRequest(
                                         viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
                                         isStreaming: true
                                     )
+
+                                    log("✅ PHASE 1 COMPLETE: Partial graph applied successfully")
 
                                 case .failed(let error):
                                     log("❌ Eager parse failed: \(error)")
@@ -331,7 +336,8 @@ func makeClaudeStreamingRequest(
                 log("🏁 Claude stream completed - message_stop received")
 
                 // FINAL RECONCILIATION: Parse complete content with full reconciliation (Phase 2)
-                log("🎯 Starting Phase 2: Final reconciliation with complete content")
+                log("🎯 PHASE 2 START: Final reconciliation with complete content")
+                log("🎯 Total content accumulated: \(accumulatedContent.count) characters")
 
                 let accContent = accumulatedContent
                 Task { @MainActor in
@@ -339,7 +345,9 @@ func makeClaudeStreamingRequest(
 
                     switch finalParseResult {
                     case .success(let actionsResult):
-                        log("✅ Final parse successful - applying complete graph with reconciliation")
+                        log("✅ PHASE 2 SUCCESS: Final parse successful - applying complete graph with reconciliation")
+                        log("✅   Final \(actionsResult.graphData.patchNodes.count) patch nodes")
+                        log("✅   Final \(actionsResult.graphData.layer_data_list.count) layer groups")
 
                         // Apply the final result with complete reconciliation (no streaming mode)
                         var mutableResult = actionsResult
@@ -348,6 +356,8 @@ func makeClaudeStreamingRequest(
                             viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
                             isStreaming: false  // Phase 2: Full reconciliation
                         )
+
+                        log("✅ PHASE 2 COMPLETE: Complete graph applied with full reconciliation")
 
                         // Log final streaming statistics
                         let stats = streamingContext.getStats()

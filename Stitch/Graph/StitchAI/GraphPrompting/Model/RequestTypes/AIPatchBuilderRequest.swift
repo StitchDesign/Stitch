@@ -111,6 +111,25 @@ extension SwiftSyntaxActionsResult {
         let previousSidebarSelection = document.graph.layersSidebarViewModel.primary
         var matchedNodeIds = Set<UUID>()
 
+        // Debug: Log initial graph state (important for empty graph scenarios)
+        log("📊 Initial graph state:")
+        log("📊   Existing nodes: \(existingGraph.nodes.count)")
+        log("📊   Previous sidebar selection: \(previousSidebarSelection.count)")
+        log("📊   Is streaming: \(isStreaming)")
+
+        if existingGraph.nodes.isEmpty {
+            log("📊 🆕 EMPTY GRAPH SCENARIO: Starting with no existing nodes")
+        } else {
+            log("📊 Existing nodes:")
+            for node in existingGraph.nodes {
+                if case .patch(let patchEntity) = node.nodeTypeEntity {
+                    log("📊   Existing patch node \(node.id): \(patchEntity.patch) at \(patchEntity.canvasEntity.position)")
+                } else if case .layer(let layerEntity) = node.nodeTypeEntity {
+                    log("📊   Existing layer node \(node.id): \(layerEntity.layer) at \(layerEntity.debugPositionString)")
+                }
+            }
+        }
+
         var viewStatePatchConnections = self.graphData.viewStatePatchConnections
         
         // STEP 2: Perform comprehensive node similarity matching using extracted pure function

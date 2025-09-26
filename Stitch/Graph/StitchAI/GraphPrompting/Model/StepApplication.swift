@@ -302,9 +302,21 @@ extension Array where Element == NodeEntity {
         matchedNodeIds: Set<UUID> = [],
         layerCanvasItemPositions: [LayerCanvasItemCoordinate: CGPoint] = [:]
     ) -> Self {
-        // log("🚀 positionAIGeneratedNodesDuringApply called with \(self.count) nodes, \(matchedNodeIds.count) matched nodes, \(layerCanvasItemPositions.count) preserved positions")
-        // log("🚀 Matched node IDs: \(matchedNodeIds)")
-        // log("🚀 Preserved position coordinates: \(layerCanvasItemPositions.keys.map(\.id))")
+        log("🚀 positionAIGeneratedNodesDuringApply called:")
+        log("🚀   Input nodes: \(self.count)")
+        log("🚀   ViewPort center: \(viewPortCenter)")
+        log("🚀   Existing nodes: \(existingNodes.count)")
+        log("🚀   Matched nodes: \(matchedNodeIds.count) - \(matchedNodeIds)")
+        log("🚀   Layer canvas positions: \(layerCanvasItemPositions.count)")
+
+        // Log all input node positions
+        for node in self {
+            if case .patch(let patchEntity) = node.nodeTypeEntity {
+                log("🚀   Input patch node \(node.id): \(patchEntity.patch) at \(patchEntity.canvasEntity.position)")
+            } else if case .layer(let layerEntity) = node.nodeTypeEntity {
+                log("🚀   Input layer node \(node.id): \(layerEntity.layer) at \(layerEntity.debugPositionString)")
+            }
+        }
 
         // TODO: if we have a chain of nodes, shift our starting point further west
         //    var viewPortCenter = viewPortCenter
@@ -536,6 +548,18 @@ extension Array where Element == NodeEntity {
             }
         }
         
+        // Log final positioning results
+        log("🚀 positionAIGeneratedNodesDuringApply completed:")
+        log("🚀   Output nodes: \(updatedNodes.count)")
+
+        for node in updatedNodes {
+            if case .patch(let patchEntity) = node.nodeTypeEntity {
+                log("🚀   Final patch node \(node.id): \(patchEntity.patch) at \(patchEntity.canvasEntity.position)")
+            } else if case .layer(let layerEntity) = node.nodeTypeEntity {
+                log("🚀   Final layer node \(node.id): \(layerEntity.layer) at \(layerEntity.debugPositionString)")
+            }
+        }
+
         return updatedNodes
     }
 }

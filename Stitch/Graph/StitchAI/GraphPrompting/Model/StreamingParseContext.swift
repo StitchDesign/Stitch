@@ -107,6 +107,13 @@ extension StreamingParseContext {
             let parseTime = CFAbsoluteTimeGetCurrent() - startTime
             log("✅ Parse SUCCESS in \(String(format: "%.2f", parseTime * 1000))ms - Found \(actionsResult.graphData.patchNodes.count) patch nodes, \(actionsResult.graphData.layer_data_list.count) layer groups")
 
+            // Debug: Log node IDs to track stability
+            let nodeIds = actionsResult.graphData.patchNodes.map { $0.id }
+            log("✅   Patch node IDs: \(nodeIds)")
+
+            let layerIds = actionsResult.graphData.layer_data_list.map { UUID($0.node_id) ?? UUID() }
+            log("✅   Layer IDs: \(layerIds)")
+
             return .success(actionsResult)
 
         } catch {

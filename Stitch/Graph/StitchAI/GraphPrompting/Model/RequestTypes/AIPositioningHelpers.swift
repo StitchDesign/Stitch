@@ -433,6 +433,14 @@ func performNodeSimilarityMatching(
         }
     }
 
+    // Debug: Log all new nodes being created
+    log("🆕 Creating \(inputs.newPatchNodes.count) new patch nodes:")
+    for node in inputs.newPatchNodes {
+        if case .patch(let patchEntity) = node.nodeTypeEntity {
+            log("🆕   New patch node \(node.id): \(patchEntity.patch) at initial position \(patchEntity.canvasEntity.position)")
+        }
+    }
+
     // Apply preserved positions to matched patch nodes
     var updatedPatchNodes = inputs.newPatchNodes
     for i in 0..<updatedPatchNodes.count {
@@ -539,6 +547,15 @@ func performNodeSimilarityMatching(
 
         log("📱 Streaming mode: Preserving \(unmatchedExistingNodes.count) unmatched existing nodes")
 
+        // Debug: Log details about preserved nodes
+        for node in unmatchedExistingNodes {
+            if case .patch(let patchEntity) = node.nodeTypeEntity {
+                log("📱   Preserving patch node \(node.id): \(patchEntity.patch) at position \(patchEntity.canvasEntity.position)")
+            } else if case .layer(let layerEntity) = node.nodeTypeEntity {
+                log("📱   Preserving layer node \(node.id): \(layerEntity.layer) at position \(layerEntity.debugPositionString)")
+            }
+        }
+
         // Add unmatched existing nodes to the final result
         finalPatchNodes.append(contentsOf: unmatchedExistingNodes)
 
@@ -582,6 +599,21 @@ func performNodeSimilarityMatching(
         let totalExisting = inputs.existingNodes.count
         let matched = matchedNodeIds.count
         log("🏁 Complete mode: \(totalExisting - matched) existing nodes will be removed")
+    }
+
+    // Debug: Log final results
+    log("🎯 Final matching results:")
+    log("🎯   Total nodes: \(finalPatchNodes.count)")
+    log("🎯   Matched node IDs: \(finalMatchedNodeIds.count)")
+    log("🎯   Layer canvas positions: \(layerCanvasItemPositions.count)")
+
+    // Debug: Log all final node positions
+    for node in finalPatchNodes {
+        if case .patch(let patchEntity) = node.nodeTypeEntity {
+            log("🎯   Final patch node \(node.id): \(patchEntity.patch) at position \(patchEntity.canvasEntity.position)")
+        } else if case .layer(let layerEntity) = node.nodeTypeEntity {
+            log("🎯   Final layer node \(node.id): \(layerEntity.layer) at position \(layerEntity.debugPositionString)")
+        }
     }
 
     return NodeMatchingResults(
@@ -723,5 +755,81 @@ extension Array where Element == NodeEntity {
         // Ultimate fallback: place at max distance
         return startY + maxScanDistance
     }
-    
+
+}
+
+// MARK: - Helper Extensions for Debugging
+
+extension LayerNodeEntity {
+    /// Returns the position of the first canvas item found in any of the layer's inputs
+    var firstCanvasPosition: CGPoint? {
+        // Iterate through all layer input definitions to find first canvas item
+        for inputDefinition in layer.layerGraphNode.inputDefinitions {
+            let portData = self[keyPath: inputDefinition.schemaPortKeyPath]
+
+            // Check packed data first
+            if let canvasItem = portData.packedData.canvasItem {
+                return canvasItem.position
+            }
+
+            // Check unpacked data
+            for unpackedData in portData.unpackedData {
+                if let canvasItem = unpackedData.canvasItem {
+                    return canvasItem.position
+                }
+            }
+        }
+        return nil
+    }
+
+    /// Returns all canvas positions found in the layer's inputs
+    var allCanvasPositions: [CGPoint] {
+        var positions: [CGPoint] = []
+
+        // Iterate through all layer input definitions to collect canvas items
+        for inputDefinition in layer.layerGraphNode.inputDefinitions {
+            let portData = self[keyPath: inputDefinition.schemaPortKeyPath]
+
+            // Check packed data
+            if let canvasItem = portData.packedData.canvasItem {
+                positions.append(canvasItem.position)
+            }
+
+            // Check unpacked data
+            for unpackedData in portData.unpackedData {
+                if let canvasItem = unpackedData.canvasItem {
+                    positions.append(canvasItem.position)
+                }
+            }
+        }
+        return positions
+    }
+
+    /// Returns a debug string with position info, showing first canvas position or "(no canvas items)"
+    var debugPositionString: String {
+        if let position = firstCanvasPosition {
+            return "(\(position.x), \(position.y))"
+        } else {
+            return "(no canvas items)"
+        }
+    }
+}
+
+extension NodeEntity {
+    /// Returns a debug string showing the node's position based on its type
+    var debugPosition: String {
+        switch nodeTypeEntity {
+        case .patch(let patchEntity):
+            let pos = patchEntity.canvasEntity.position
+            return "(\(pos.x), \(pos.y))"
+        case .layer(let layerEntity):
+            return layerEntity.debugPositionString
+        case .group(let canvasEntity):
+            let pos = canvasEntity.position
+            return "(\(pos.x), \(pos.y))"
+        case .component(let componentEntity):
+            let pos = componentEntity.canvasEntity.position
+            return "(\(pos.x), \(pos.y))"
+        }
+    }
 }
