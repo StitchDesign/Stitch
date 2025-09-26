@@ -277,11 +277,30 @@ func makeClaudeStreamingRequest(
                             bindingDeclarations: codeParserResult.bindingDeclarations,
                             isStreaming: true)
                         
-                        Task(priority: .high) { @MainActor [weak fakeDoc] in
-                            guard let fakeDoc else { return }
-                            stitchActionsResult.createAIGraph(document: fakeDoc)
-                            print("streamed graph:\n\(fakeDoc.graph.createSchema())")
-                        }
+                        // TODO: matching logic from createAIGraph
+//                        let matchingResults = performNodeSimilarityMatching(inputs: matchingInputs)
+//
+//                        // Apply results
+//                        let updatedPatchNodes = matchingResults.updatedPatchNodes
+//                        matchedNodeIds = matchingResults.matchedNodeIds
+//                        let layerCanvasItemPositions = matchingResults.layerCanvasItemPositions
+//                        let newNodesForSelectedOldNodes = matchingResults.newNodesForSelectedOldNodes
+//                        let layerIdMapping = matchingResults.layerIdMapping
+//                        
+//                        // STEP 2: Perform comprehensive node similarity matching using extracted pure function
+//                        let matchingInputs = NodeMatchingInputs(
+//                            existingNodes: existingGraph.nodes,
+//                            newPatchNodes: self.graphData.patchNodes,
+//                            newLayerDataList: self.graphData.layer_data_list,
+//                            previousSidebarSelection: previousSidebarSelection
+//                        )
+                        
+                        // TODO: this is where we would process the streamed request but something broke
+//                        Task(priority: .high) { @MainActor [weak fakeDoc] in
+//                            guard let fakeDoc else { return }
+//                            stitchActionsResult.createAIGraph(document: fakeDoc)
+//                            print("streamed graph:\n\(fakeDoc.graph.createSchema())")
+//                        }
                         
                         //                        // Clear thinking text once content starts
                         //                        await MainActor.run {

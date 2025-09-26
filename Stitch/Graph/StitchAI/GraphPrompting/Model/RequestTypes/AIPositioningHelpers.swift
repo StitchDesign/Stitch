@@ -606,49 +606,36 @@ extension Array where Element == NodeEntity {
         return false
     }
 
-    /// Find a clear Y position by scanning downward from the start position
-    @MainActor
-    func findClearYPosition(startY: CGFloat,
-                           newNodesBounds: CGRect,
-                           nearbyNodes: [NodeEntity],
-                           maxScanDistance: CGFloat = 2000) -> CGFloat? {
-        var candidateY = startY
-        let stepSize: CGFloat = 50
-
-        // First, check the original position
-        var testBounds = newNodesBounds
-        testBounds.origin.y = candidateY
-        if !hasCollision(bounds: testBounds, existingNodes: nearbyNodes) {
-            return candidateY
-        }
-
-        // Try small adjustments first (more likely to find nearby space)
-        for offset in stride(from: stepSize, to: 200, by: stepSize) {
-            // Try below
-            testBounds.origin.y = startY + offset
-            if !hasCollision(bounds: testBounds, existingNodes: nearbyNodes) {
-                return startY + offset
-            }
-
-            // Try above (might have space above viewport)
-            testBounds.origin.y = startY - offset
-            if !hasCollision(bounds: testBounds, existingNodes: nearbyNodes) {
-                return startY - offset
-            }
-        }
-
-        // Scan further downward with larger steps
-        candidateY = startY + 200
-        while candidateY < startY + maxScanDistance {
-            testBounds.origin.y = candidateY
-            if !hasCollision(bounds: testBounds, existingNodes: nearbyNodes) {
-                return candidateY
-            }
-            candidateY += 100
-        }
-
-        // Ultimate fallback: place at max distance
-        return startY + maxScanDistance
-    }
+//    /// Find a clear Y position by scanning downward from the start position
+//    @MainActor
+//    func findClearYPosition(startY: CGFloat,
+//                           newNodesBounds: CGRect,
+//                           maxScanDistance: CGFloat = 2000) -> CGFloat? {
+//        var candidateY = startY
+//        let stepSize: CGFloat = 50
+//
+//        // First, check the original position
+//        var testBounds = newNodesBounds
+//        testBounds.origin.y = candidateY
+//
+//        // Try small adjustments first (more likely to find nearby space)
+//        for offset in stride(from: stepSize, to: 200, by: stepSize) {
+//            // Try below
+//            testBounds.origin.y = startY + offset
+//
+//            // Try above (might have space above viewport)
+//            testBounds.origin.y = startY - offset
+//        }
+//
+//        // Scan further downward with larger steps
+//        candidateY = startY + 200
+//        while candidateY < startY + maxScanDistance {
+//            testBounds.origin.y = candidateY
+//            candidateY += 100
+//        }
+//
+//        // Ultimate fallback: place at max distance
+//        return startY + maxScanDistance
+//    }
     
 }
