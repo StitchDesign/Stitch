@@ -308,8 +308,8 @@ extension Array where Element == NodeEntity {
         //    var viewPortCenter = viewPortCenter
         //    viewPortCenter.x -= 500 // We actually shift left a little bit, so nodes look like they're crawling from left to right
 
-        // Horizontal spacing between depth‑columns
-        let horizontalPadding: CGFloat = 120.0
+        // Horizontal spacing between depth‑columns (increased to prevent nodes from touching)
+        let horizontalPadding: CGFloat = 200.0
 
         let (depthMap, hasCycle) = Stitch.calculateAINodesAdjacency(nodes: self) // patchData.calculateAINodesAdjacency()
 
@@ -425,8 +425,8 @@ extension Array where Element == NodeEntity {
             log("🔄 AI nodes repositioned: Moving \(yOffset) points down to avoid overlaps")
         }
 
-        // Track row index per depth level to avoid stacking nodes at same position
-        var rowIndexPerDepth: [Int: Int] = [:]
+        // Position nodes within each depth level, starting from row 0 for each depth
+        // No global accumulation across depth levels
 
         // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
         let updatedNodes = depthLevels.flatMap { depthLevel -> [NodeEntity] in
@@ -448,13 +448,10 @@ extension Array where Element == NodeEntity {
                             }
                     }
                     .max() ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER
-                return maxH + verticalPadding
+                let calculatedRowHeight = maxH + verticalPadding
+                log("🔧 Depth \(depthLevel): rowHeight=\(calculatedRowHeight), verticalPadding=\(verticalPadding), maxH=\(maxH)")
+                return calculatedRowHeight
             }()
-
-            // Initialize row index for this depth level if not already set
-            if rowIndexPerDepth[depthLevel] == nil {
-                rowIndexPerDepth[depthLevel] = 0
-            }
 
             // TODO: just rewrite the adjacency // logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
             // Find all the created-nodes at this depth-level,
@@ -514,13 +511,18 @@ extension Array where Element == NodeEntity {
                     // Add horizontal gap only
                     size.width += horizontalPadding
 
-                    // Use the base row for this depth level plus the node's index within this level
-                    let baseRow = rowIndexPerDepth[depthLevel] ?? 0
-                    let currentRow = baseRow + nodeIndex
+                    // Position within this depth level only (no global accumulation)
+                    let currentRow = nodeIndex
+                    log("📍 Node \(createdNode.id): currentRow=\(currentRow), nodeIndex=\(nodeIndex) (depth \(depthLevel))")
+
+                    // Add horizontal stagger for multiple nodes at same depth to avoid cramping
+                    let horizontalStagger: CGFloat = CGFloat(nodeIndex) * 50.0
+
                     let newPosition = CGPoint(
-                        x: viewPortCenter.x + centeringOffset + (cumulativeXOffset[depthLevel] ?? 0),
+                        x: viewPortCenter.x + centeringOffset + (cumulativeXOffset[depthLevel] ?? 0) + horizontalStagger,
                         y: viewPortCenter.y + CGFloat(currentRow) * rowHeight + yOffset  // Apply collision avoidance offset
                     )
+                    log("📐 Position calc: y = \(viewPortCenter.y) + \(currentRow) * \(rowHeight) + \(yOffset) = \(newPosition.y)")
 
                     // // log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
                     // log("positionAIGeneratedNodesDuringApply: newPosition: \(newPosition)")
@@ -566,8 +568,8 @@ extension Array where Element == NodeEntity {
                 return createdNode
             }
 
-            // Update the row index for the next depth level
-            rowIndexPerDepth[depthLevel] = (rowIndexPerDepth[depthLevel] ?? 0) + createdNodesAtThisLevel.count
+            // Nodes positioned within their depth level - no global accumulation needed
+            log("🔢 Depth \(depthLevel): Positioned \(createdNodesAtThisLevel.count) nodes within this depth level")
 
             return processedNodes
         }
