@@ -31,6 +31,7 @@ struct ProjectsHomeViewWrapper: View {
             ToolbarItem(placement: .secondaryAction) {
                 StitchTextView(string: "Stitch Projects",
                                font: WINDOW_NAVBAR_FONT)
+                .padding(.horizontal)
                 // Hack also works if we hide this view
                 //                    .width(1).opacity(0)
             }
@@ -43,15 +44,7 @@ struct ProjectsHomeViewWrapper: View {
                         iconName: APP_SETTINGS_ICON_NAME)
                 } else {
 #if targetEnvironment(macCatalyst)
-                    
-                    //                        if FeatureFlags.SHOW_AI_TABLE_ROWS_VIEWER {
-                    //                            CatalystNavBarButton("tablecells",
-                    //                                                 toolTip: "Open AI Table Viewer") { [weak store] in
-                    //                                store?.navPath = [.graphGenerationTableView]
-                    //                            }
-                    //                            // Resolves issue where hover was still active after entering newly created project and then exiting
-                    //                            .id(UUID())
-                    //                        }
+
                     
 #if STITCH_AI_REASONING || DEV_DEBUG
                     CatalystNavBarButton("document.viewfinder.fill",
@@ -72,58 +65,54 @@ struct ProjectsHomeViewWrapper: View {
                                          .id(UUID())
 #endif
                     
-                    CatalystNavBarButton(.NEW_PROJECT_SF_SYMBOL_NAME,
-                                         toolTip: "New Project") { [weak store] in
-                        store?.createNewProjectSideEffect(isProjectImport: false)
+                    ControlGroup {
+                        CatalystNavBarButton(.NEW_PROJECT_SF_SYMBOL_NAME,
+                                             toolTip: "New Project") { [weak store] in
+                            store?.createNewProjectSideEffect(isProjectImport: false)
+                        }
+                        // Resolves issue where hover was still active after entering newly created project and then exiting
+                                             .id(UUID())
+                        
+                        CatalystNavBarButton(.OPEN_SAMPLE_PROJECTS_MODAL,
+                                             toolTip: "Open Sample Projects") { [weak store] in
+                            store?.conditionallToggleSampleProjectsModal()
+                        }
+                        // Resolves issue where hover was still active after entering newly created project and then exiting
+                                             .id(UUID())
+                        
+                        TopBarFeedbackButtonsView(document: nil)
+                        // Hides the little arrow on Catalyst
+                            .menuIndicator(.hidden)
+                            .buttonStyle(.borderless)
+                            .id(UUID())
+                        
+                        CatalystNavBarButton(.SETTINGS_SF_SYMBOL_NAME,
+                                             toolTip: "Open Settings") {
+                            SHOW_APP_SETTINGS_ACTION()
+                        }
+                                             .id(UUID())
                     }
-                    // Resolves issue where hover was still active after entering newly created project and then exiting
-                                         .id(UUID())
-                    
-                    CatalystNavBarButton(.OPEN_SAMPLE_PROJECTS_MODAL,
-                                         toolTip: "Open Sample Projects") { [weak store] in
-                        store?.conditionallToggleSampleProjectsModal()
-                    }
-                    // Resolves issue where hover was still active after entering newly created project and then exiting
-                                         .id(UUID())
-                    
-                    TopBarFeedbackButtonsView(document: nil)
-                    // Hides the little arrow on Catalyst
-                        .menuIndicator(.hidden)
-                        .buttonStyle(.borderless)
-                        .id(UUID())
-                    
-                    CatalystNavBarButton(.SETTINGS_SF_SYMBOL_NAME,
-                                         toolTip: "Open Settings") {
-                        SHOW_APP_SETTINGS_ACTION()
-                    }
-                                         .id(UUID())
                     
 #else
                     
-                    
-#if STITCH_AI_REASONING || DEV_DEBUG
-                    //                        iPadNavBarButton(action: { [weak store] in
-                    //                            store?.navPath = [.graphGenerationTableView]
-                    //                        },
-                    //                                         iconName: .sfSymbol("tablecells"))
-#endif
-                    
-                    iPadNavBarButton(action: { [weak store] in
-                        store?.createNewProjectSideEffect(isProjectImport: false)
-                    },
-                                     iconName: NEW_PROJECT_ICON_NAME)
-                    
-                    iPadNavBarButton(action: { [weak store] in
-                        store?.conditionallToggleSampleProjectsModal()
-                    },
-                                     iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL))
-                    
-                    TopBarFeedbackButtonsView(document: nil,
-                                              showLabel: false)
-                    .modifier(iPadTopBarButtonStyle())
-                    
-                    iPadNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
-                                     iconName: PROJECT_SETTINGS_ICON_NAME)
+                    ControlGroup {
+                        iPadNavBarButton(action: { [weak store] in
+                            store?.createNewProjectSideEffect(isProjectImport: false)
+                        },
+                                         iconName: NEW_PROJECT_ICON_NAME)
+                        
+                        iPadNavBarButton(action: { [weak store] in
+                            store?.conditionallToggleSampleProjectsModal()
+                        },
+                                         iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL))
+                        
+                        TopBarFeedbackButtonsView(document: nil,
+                                                  showLabel: false)
+                        .modifier(iPadTopBarButtonStyle())
+                        
+                        iPadNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
+                                         iconName: PROJECT_SETTINGS_ICON_NAME)
+                    }
 #endif
                     
                 }
