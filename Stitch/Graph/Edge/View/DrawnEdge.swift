@@ -11,7 +11,7 @@ import StitchSchemaKit
 
 // TODO: `curve` and `line` edges require less information than circuit edges; we could rework some of the edge-related views to not have to do as many calculations
 struct DrawnEdge: View {
-    static let ANIMATION_DURATION = TimeHelpers.ThreeTenthsOfASecondInSeconds
+    static let ANIMATION_DURATION = 0.1
 
     @AppStorage(StitchAppSettings.EDGE_STYLE.rawValue) private var edgeStyle: EdgeStyle = EdgeStyle.defaultEdgeStyle
 

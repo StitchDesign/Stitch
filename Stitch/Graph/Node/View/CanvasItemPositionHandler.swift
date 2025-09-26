@@ -21,7 +21,7 @@ struct CanvasItemPositionHandler: ViewModifier {
             .canvasPosition(id: node.id,
                             position: node.position)
         
-            .animation(.linear, value: node.position)
+            .animation(.linear(duration: 0.1), value: node.position)
         
             .gesture(CanvasItemDragHandler(document: document,
                                            graph: graph,
