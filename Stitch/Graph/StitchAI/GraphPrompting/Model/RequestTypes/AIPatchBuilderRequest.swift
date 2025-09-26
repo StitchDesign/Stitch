@@ -109,7 +109,9 @@ extension SwiftSyntaxActionsResult {
         document.graph.updateGraphData(document)
         
         // Report errors
-        result.errors.displayErrors(document: document)
+        if !isStreaming {
+            result.errors.displayErrors(document: document)            
+        }
     }
     
     func createAIGraph(docId: UUID,
