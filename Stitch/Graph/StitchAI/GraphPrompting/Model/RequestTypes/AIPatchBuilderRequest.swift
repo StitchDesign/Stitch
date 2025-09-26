@@ -27,10 +27,13 @@ struct AIPatchBuilderFunctionInputsSchema: Encodable {
 extension Array where Element == AIGraphData_V0.LayerData {
     func createLayerNodes(layerGroupId: UUID?,
                           nodesDict: inout [UUID: NodeEntity],
-                          stateVarConnections: inout [String: [NodeIOCoordinate]]) {
+                          stateVarConnections: inout [String: [NodeIOCoordinate]],
+                          isStreaming: Bool) {
         self.forEach { layerData in
             guard let layer = layerData.node_name.value.layer else {
-                fatalErrorIfDebug()
+                if !isStreaming {
+                    fatalErrorIfDebug()
+                }
                 return
             }
             
@@ -57,8 +60,10 @@ extension Array where Element == AIGraphData_V0.LayerData {
                                                           varName: nil,
                                                           stateVarConnections: &stateVarConnections)
                     } catch {
-                        // TODO: need to handle errors silently
-                        fatalErrorIfDebug("createLayerNodes error: \(error)")
+                        if !isStreaming {
+                            // TODO: need to handle errors silently
+                            fatalErrorIfDebug("createLayerNodes error: \(error)")
+                        }
                     }
                 }
             }
@@ -68,7 +73,8 @@ extension Array where Element == AIGraphData_V0.LayerData {
                 children
                     .createLayerNodes(layerGroupId: layerNodeEntity.id,
                                       nodesDict: &nodesDict,
-                                      stateVarConnections: &stateVarConnections)
+                                      stateVarConnections: &stateVarConnections,
+                                      isStreaming: isStreaming)
             }
         }
     }
@@ -82,17 +88,21 @@ struct StitchAIGraphEntityResult {
 extension SwiftSyntaxActionsResult {
     @MainActor
     func applyAIGraph(to document: StitchDocumentViewModel,
-                      viewStatePatchConnections: [String : [NodeIOCoordinate]]) async {
+                      viewStatePatchConnections: [String : [NodeIOCoordinate]],
+                      isStreaming: Bool) {
         // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
-        self.processAIGraph(document: document)
+        self.processAIGraph(document: document,
+                            isStreaming: isStreaming)
         document.encodeProjectInBackground()
     }
     
     @MainActor
-    func processAIGraph(document: StitchDocumentViewModel) {
+    func processAIGraph(document: StitchDocumentViewModel,
+                        isStreaming: Bool) {
         let result = self.createAIGraph(docId: document.graph.id.value,
                                         viewPortCenter: document.viewPortCenter,
-                                        groupNodeFocused: document.groupNodeFocused?.groupNodeId)
+                                        groupNodeFocused: document.groupNodeFocused?.groupNodeId,
+                                        isStreaming: isStreaming)
         
         // Update topological data--needs to be forced here because of script building using this data
         document.graph.update(from: result.graph)
@@ -104,7 +114,8 @@ extension SwiftSyntaxActionsResult {
     
     func createAIGraph(docId: UUID,
                        viewPortCenter: CGPoint,
-                       groupNodeFocused: UUID?) -> StitchAIGraphEntityResult {
+                       groupNodeFocused: UUID?,
+                       isStreaming: Bool) -> StitchAIGraphEntityResult {
         // STEP 1: Capture existing state for similarity matching
 //        let existingGraph = document.graph.createSchema()
 //        let previousSidebarSelection = document.graph.layersSidebarViewModel.primary
@@ -125,7 +136,8 @@ extension SwiftSyntaxActionsResult {
         self.graphData.layer_data_list
             .createLayerNodes(layerGroupId: nil,
                               nodesDict: &nodesDict,
-                              stateVarConnections: &viewStatePatchConnections)
+                              stateVarConnections: &viewStatePatchConnections,
+                              isStreaming: isStreaming)
         
         graphEntity.nodes = Array(nodesDict.values)
         

@@ -42,7 +42,8 @@ struct StitchAIProjectViewer: View {
     
             await MainActor.run {
                 stitchActionsResult
-                    .processAIGraph(document: document)
+                    .processAIGraph(document: document,
+                                    isStreaming: false)
             }
         }
     }
