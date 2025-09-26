@@ -335,7 +335,8 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                                             varNameToCode: [String: SwiftPatchCodeType],
                                             existingStateVarConnections: [String: [NodeIOCoordinate]],
                                             nodesDict: [UUID: NodeEntity],
-                                            viewEvent: SyntaxViewEvent?) throws -> [PatchSyntaxResultType] {
+                                            viewEvent: SyntaxViewEvent?,
+                                            isStreaming: Bool) throws -> [PatchSyntaxResultType] {
         switch expr {
         case .portValuesInit(let array):
             guard let pvDescription = array.first else {
@@ -372,7 +373,8 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                             varNameToCode: varNameToCode,
                             existingStateVarConnections: existingStateVarConnections,
                             nodesDict: nodesDict,
-                            viewEvent: viewEvent)
+                            viewEvent: viewEvent,
+                            isStreaming: isStreaming)
                     
                 case .subscriptType(let subscriptType, let newPortIndex):
                     switch subscriptType {
@@ -385,15 +387,20 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                                 varNameToCode: varNameToCode,
                                 existingStateVarConnections: existingStateVarConnections,
                                 nodesDict: nodesDict,
-                                viewEvent: viewEvent)
+                                viewEvent: viewEvent,
+                                isStreaming: isStreaming)
                         
                     default:
-                        fatalErrorIfDebug()
+                        if !isStreaming {
+                            fatalErrorIfDebug()
+                        }
                         return [.portData(.values([.number(.zero)]))]
                     }
                     
                 default:
-                    fatalErrorIfDebug()
+                    if !isStreaming {
+                        fatalErrorIfDebug()
+                    }
                     return [.portData(.values([.number(.zero)]))]
                 }
             } else {
@@ -401,7 +408,9 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                 let nodeId = deterministicUUID(from: ref)
                 
                 // If this fails--a node wasn't made that should have been created
-                assertInDebug(nodesDict.keys.contains(nodeId))
+                if !isStreaming {
+                    assertInDebug(nodesDict.keys.contains(nodeId))
+                }
                 
                 return [
                     .portData(.upstreamConnection(.init(portId: portIndex,
@@ -444,7 +453,8 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                                             varNameToCode: [String: SwiftPatchCodeType],
                                             existingStateVarConnections: [String: [NodeIOCoordinate]],
                                             nodesDict: [UUID: NodeEntity],
-                                            viewEvent: SyntaxViewEvent?) throws -> [PatchSyntaxResultType] {
+                                            viewEvent: SyntaxViewEvent?,
+                                            isStreaming: Bool) throws -> [PatchSyntaxResultType] {
         switch value {
         case .expression(let expr):
             return try self.getUpstreamPatchPortConnectionData(
@@ -454,7 +464,8 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                 varNameToCode: varNameToCode,
                 existingStateVarConnections: existingStateVarConnections,
                 nodesDict: nodesDict,
-                viewEvent: viewEvent)
+                viewEvent: viewEvent,
+                isStreaming: isStreaming)
         
         case .subscriptType(let swiftPatchCodeType, let int):
             // Nested port indices (aka a 2D access) not supported
@@ -470,7 +481,8 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                         varNameToCode: varNameToCode,
                         existingStateVarConnections: existingStateVarConnections,
                         nodesDict: nodesDict,
-                        viewEvent: viewEvent)
+                        viewEvent: viewEvent,
+                        isStreaming: isStreaming)
                 
                 
             case .error(let error):
@@ -521,7 +533,8 @@ extension Array where Element == SwiftPatchCodeType {
                         varNameToCode: varNameToCode,
                         existingStateVarConnections: existingStateVarConnections,
                         nodesDict: nodesDict,
-                        viewEvent: viewEvent)
+                        viewEvent: viewEvent,
+                        isStreaming: isStreaming)
                 
                 // We always expect the relevant port data to be at the end
                 guard let lastItem = portDataResult.last,
@@ -1002,7 +1015,8 @@ extension SwiftPatchCodeType {
                         varNameToCode: varNameToCode,
                         existingStateVarConnections: existingStateVarConnections,
                         nodesDict: nodesDict,
-                        viewEvent: viewEvent)
+                        viewEvent: viewEvent,
+                        isStreaming: isStreaming)
 
                 return result
                 
