@@ -26,10 +26,12 @@ struct LayerPortDerivation {
 }
 
 extension Array where Element == PatchSyntaxResultType {
-    func createUnpackedEvents(layerInputPort: LayerInputPort) throws -> [LayerPortDerivation] {
+    func createUnpackedEvents(layerInputPort: LayerInputPort, isStreaming: Bool = false) throws -> [LayerPortDerivation] {
         let unpackedPortEvents = self.enumerated().map { portIndex, layerPortEvent in
             guard let unpackedPortIndex = UnpackedPortType(rawValue: portIndex) else {
-                fatalErrorIfDebug()
+                if !isStreaming {
+                    fatalErrorIfDebug()
+                }
                 return LayerPortDerivation(input: layerInputPort,
                                            inputData: [layerPortEvent])
             }
@@ -171,6 +173,7 @@ extension SyntaxViewModifierName {
     func deriveDefaultPortValueForArgumentlessViewModifier(
 //        layer: CurrentAIGraphData.Layer,
 //        layerInput: CurrentLayerInputPort
+        isStreaming: Bool = false
     ) throws -> CurrentAIGraphData.PortValue? {
         
         // defaultValue
@@ -226,7 +229,9 @@ extension SyntaxViewModifierName {
             
         case .scrollDisabled:
             // TODO: come back here; .scrollDisabled out to set scroll-enabled x and y BOTH false ?
-            fatalErrorIfDebug()
+            if !isStreaming {
+                fatalErrorIfDebug()
+            }
             return .bool(false)
             
         case .cornerRadius, .blur, .rotationEffect, .rotation3DEffect:
@@ -245,7 +250,8 @@ extension SyntaxViewName {
                          args: ViewConstructorType?,
                          modifiers: [SyntaxViewModifier],
                          childrenLayers: [CurrentAIGraphData.LayerData],
-                         bindingDeclarations: [(String, SwiftParserInitializerType)]) throws -> LayerDerivationResult {
+                         bindingDeclarations: [(String, SwiftParserInitializerType)],
+                         isStreaming: Bool = false) throws -> LayerDerivationResult {
         var silentErrors = [SwiftUISyntaxError]()
         var layerData: CurrentAIGraphData.LayerData
         let layerType: CurrentAIGraphData.Layer
@@ -273,7 +279,8 @@ extension SyntaxViewName {
             let customInputValuesFromViewConstructor = try self
                 .deriveInputValuesData(args: args,
                                        id: id,
-                                       layerType: layerType)
+                                       layerType: layerType,
+                                       isStreaming: isStreaming)
                     
             layerData.custom_layer_input_values += customInputValuesFromViewConstructor.inputValues
             silentErrors += customInputValuesFromViewConstructor.silentErrors
@@ -285,7 +292,8 @@ extension SyntaxViewName {
                 return try Self.deriveCustomValuesFromViewModifier(
                     id: id,
                     layerType: layerType,
-                    modifier: modifier)
+                    modifier: modifier,
+                    isStreaming: isStreaming)
             } catch let error as SwiftUISyntaxError {
                 silentErrors.append(error)
                 return nil
@@ -313,7 +321,9 @@ extension SyntaxViewName {
             } catch let error as SwiftUISyntaxError {
                 silentErrors.append(error)
             } catch {
-                fatalErrorIfDebug(error.localizedDescription)
+                if !isStreaming {
+                    fatalErrorIfDebug(error.localizedDescription)
+                }
             }
         }
         
@@ -335,7 +345,8 @@ extension SyntaxViewName {
     
     func deriveInputValuesData(args: [SyntaxViewArgumentData],
                                id: UUID,
-                               layerType: CurrentAIGraphData.Layer) throws -> LayerInputValuesDerivationResult {
+                               layerType: CurrentAIGraphData.Layer,
+                               isStreaming: Bool = false) throws -> LayerInputValuesDerivationResult {
         var silentErrors = [SwiftUISyntaxError]()
         
         // Else fall back to legacy style:
@@ -343,7 +354,8 @@ extension SyntaxViewName {
             do {
                 return try self
                     .deriveCustomValuesFromConstructorArgument(layerType: layerType,
-                                                               arg: arg)
+                                                               arg: arg,
+                                                               isStreaming: isStreaming)
             } catch let error as SwiftUISyntaxError {
                 silentErrors.append(error)
                 return []
@@ -539,7 +551,8 @@ extension SyntaxViewName {
     }
     
     func deriveCustomValuesFromConstructorArgument(layerType: CurrentAIGraphData.Layer,
-                                                   arg: SyntaxViewArgumentData
+                                                   arg: SyntaxViewArgumentData,
+                                                   isStreaming: Bool = false
     ) throws -> [LayerPortDerivation] {
         
 //        if arg.value.allArgumentTypesFlattened.isEmpty && self == .scrollView {
@@ -566,7 +579,8 @@ extension SyntaxViewName {
             let values = try SyntaxViewName.derivePortValues(
                 from: argFlatType.toSyntaxViewModifierArgumentType,
                 port: port,
-                context: .viewConstructor(self, port))
+                context: .viewConstructor(self, port),
+                isStreaming: isStreaming)
             
             // log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: values: \(values)")
             
@@ -578,7 +592,8 @@ extension SyntaxViewName {
     
     private static func deriveCustomValuesFromViewModifier(id: UUID,
                                                            layerType: CurrentAIGraphData.Layer,
-                                                           modifier: SyntaxViewModifier) throws -> LayerInputViewModification? {
+                                                           modifier: SyntaxViewModifier,
+                                                           isStreaming: Bool = false) throws -> LayerInputViewModification? {
         
         
         // TODO: derivation result needs to be used for inferring the value type to decode from some view modifier
@@ -594,7 +609,8 @@ extension SyntaxViewName {
                 from: modifier.arguments.defaultArgs ?? [],
                 modifierName: modifier.name,
                 port: port,
-                layerType: layerType)
+                layerType: layerType,
+                isStreaming: isStreaming)
             
             return .layerInputValues(newValues)
             
@@ -604,7 +620,8 @@ extension SyntaxViewName {
                 from: modifier.arguments.defaultArgs ?? [],
                 modifierName: modifier.name,
                 port: port,
-                layerType: layerType)
+                layerType: layerType,
+                isStreaming: isStreaming)
             
             // Add the anchoring value as an additional layer port derivation
             newValues.append(LayerPortDerivation(input: .anchoring, 
@@ -631,7 +648,8 @@ extension SyntaxViewName {
         from arguments: [SyntaxViewArgumentData],
         modifierName: SyntaxViewModifierName,
         port: CurrentAIGraphData.LayerInputPort,
-        layerType: CurrentAIGraphData.Layer
+        layerType: CurrentAIGraphData.Layer,
+        isStreaming: Bool = false
     ) throws -> [LayerPortDerivation] {
         // Try to use ViewModifierConstructor for structured parsing first
         if let viewModifierConstructor = createKnownViewModifier(modifierName: modifierName, arguments: arguments) {
@@ -648,7 +666,7 @@ extension SyntaxViewName {
         // Note: some modifiers can have no arguments, e.g. `.padding()`, `.clipped()`
         // In such a case, we return a default value for that SwiftUI view modifier.
         guard !arguments.isEmpty else {
-            guard let value = try modifierName.deriveDefaultPortValueForArgumentlessViewModifier() else {
+            guard let value = try modifierName.deriveDefaultPortValueForArgumentlessViewModifier(isStreaming: isStreaming) else {
                 return []
             }
             
@@ -663,7 +681,8 @@ extension SyntaxViewName {
         let portDataFromArgs = try arguments.flatMap {
             try Self.derivePortValues(from: $0.value,
                                       port: port,
-                                      context: .viewModifier(port))
+                                      context: .viewModifier(port),
+                                      isStreaming: isStreaming)
         }
         
         // Scenarios where we assumed packed value or connection
@@ -673,7 +692,8 @@ extension SyntaxViewName {
            let derivedPortData = try Self
             .derivePortValues(from: argument.value,
                               port: port,
-                              context: .viewModifier(port)).first?.inputData {
+                              context: .viewModifier(port),
+                              isStreaming: isStreaming).first?.inputData {
             return [
                 .init(coordinate: .init(layerInput: port,
                                         portType: .packed),
@@ -684,7 +704,9 @@ extension SyntaxViewName {
         // Unpacked scenarios
         return portDataFromArgs.enumerated().compactMap { (portIndex, portDataFromArg) -> LayerPortDerivation? in
             guard let unpackedType = UnpackedPortType(rawValue: portIndex) else {
-                fatalErrorIfDebug()
+                if !isStreaming {
+                    fatalErrorIfDebug()
+                }
                 return nil
             }
             
@@ -698,7 +720,8 @@ extension SyntaxViewName {
     // in practice, this function is mostly helpful for handling the PortValueDescriptions returned by our LLM
     static func derivePortValues(from argument: SyntaxViewModifierArgumentType,
                                  port: LayerInputPort,
-                                 context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivation] {
+                                 context: SyntaxArgumentConstructorContext?,
+                                 isStreaming: Bool = false) throws -> [LayerPortDerivation] {
         switch argument {
         case .memberAccess(let memberAccess):
             // need to return PortValue, but need to know which is the relevant type
@@ -793,7 +816,8 @@ extension SyntaxViewName {
                 .derivePortValues(from: argument,
                                   varName: nil,
                                   viewEvent: nil,
-                                  nodesDict: [:])
+                                  nodesDict: [:],
+                                  isStreaming: isStreaming)
             
             return [
                 .init(input: port,
@@ -806,7 +830,8 @@ extension SyntaxViewName {
                                  varName: String?,
                                  viewEvent: SyntaxViewEvent?,
                                  nodesDict: [UUID: NodeEntity],
-                                 nodeType: NodeType? = nil) throws -> [PatchSyntaxResultType] {
+                                 nodeType: NodeType? = nil,
+                                 isStreaming: Bool = false) throws -> [PatchSyntaxResultType] {
         if let viewEvent = viewEvent,
            let resultFromViewEvent = try viewEvent
             .derivePatchData(from: argument,
@@ -821,7 +846,8 @@ extension SyntaxViewName {
             return try handleComplexArgumentType(complexType,
                                                  varName: varName,
                                                  viewEvent: viewEvent,
-                                                 nodesDict: nodesDict)
+                                                 nodesDict: nodesDict,
+                                                 isStreaming: isStreaming)
             
         case .tuple(let tupleArgs):
             return try tupleArgs
@@ -840,7 +866,8 @@ extension SyntaxViewName {
                                                  varName: varName,
                                                  viewEvent: viewEvent,
                                                  nodesDict: nodesDict,
-                                                 nodeType: nodeType)
+                                                 nodeType: nodeType,
+                                                 isStreaming: isStreaming)
             }
             
         case .simple(let data):
@@ -880,7 +907,8 @@ extension SyntaxViewName {
     static func deriveCustomValuesFromRotationLayerInputTranslation(id: UUID,
                                                                     layerType: CurrentAIGraphData.Layer,
                                                                     modifier: SyntaxViewModifier,
-                                                                    document: StitchDocumentViewModel) throws -> [LayerPortDerivation] {
+                                                                    document: StitchDocumentViewModel,
+                                                                    isStreaming: Bool = false) throws -> [LayerPortDerivation] {
         var customValues = [LayerPortDerivation]()
         
         guard let angleArgument = modifier.arguments.defaultArgs?[safe: 0],
@@ -908,7 +936,8 @@ extension SyntaxViewName {
                 .derivePortValues(from: axisArgument.value,
                                   // port will be ignored
                                   port: .rotationX,
-                                  context: nil)  // we can ignore context here
+                                  context: nil,  // we can ignore context here
+                                  isStreaming: isStreaming)
             guard let xAxis = axisPortValues[safe: 0],
                   let yAxis = axisPortValues[safe: 1],
                   let zAxis = axisPortValues[safe: 2] else {
@@ -925,7 +954,8 @@ extension SyntaxViewName {
             let portValues = try Self.derivePortValues(from: angleArgument.value,
                                                        // port is ignored
                                                        port: .rotationX,
-                                                       context: nil)
+                                                       context: nil,
+                                                       isStreaming: isStreaming)
             assertInDebug(portValues.count == 1)
             guard let angleArgumentValue = portValues.first else {
                 throw SwiftUISyntaxError.incorrectParsing(message: "Unable to parse PortValue from angle data.")
@@ -941,7 +971,8 @@ extension SyntaxViewName {
 func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
                                varName: String?,
                                viewEvent: SyntaxViewEvent?,
-                               nodesDict: [UUID: NodeEntity]) throws -> [PatchSyntaxResultType] {
+                               nodesDict: [UUID: NodeEntity],
+                               isStreaming: Bool = false) throws -> [PatchSyntaxResultType] {
     
     let complexTypeName = SyntaxValueName(rawValue: complexType.typeName)
     switch complexTypeName {
@@ -957,11 +988,14 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
             .derivePortValues(from: firstArg.value,
                               varName: varName,
                               viewEvent: viewEvent,
-                              nodesDict: nodesDict)
+                              nodesDict: nodesDict,
+                              isStreaming: isStreaming)
         
     case .portValueDescription:
         guard let firstArg = complexType.arguments.first else {
-            fatalErrorIfDebug()
+            if !isStreaming {
+                fatalErrorIfDebug()
+            }
             return []
         }
         
@@ -979,7 +1013,9 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
             
         case .memberAccess(let memberAccess):
             guard let viewEvent = viewEvent else {
-                fatalErrorIfDebug()
+                if !isStreaming {
+                    fatalErrorIfDebug()
+                }
                 return []
             }
 
@@ -990,12 +1026,15 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
         default:
             guard let secondArgString = complexType.arguments[safe: 1]?.value.simpleValue,
                   let nodeType = NodeType(llmString: secondArgString.stripQuotes()) else {
-                fatalErrorIfDebug()
+                if !isStreaming {
+                    fatalErrorIfDebug()
+                }
                 return []
             }
             
             return try firstArg.value.derivePortValues(viewEvent: viewEvent,
-                                                       nodeType: nodeType)
+                                                       nodeType: nodeType,
+                                                       isStreaming: isStreaming)
         }
     
     case .binding, .color:
@@ -1045,11 +1084,13 @@ enum SyntaxArgumentConstructorContext {
 
 extension SyntaxViewModifierArgumentType {
     func derivePortValues(viewEvent: SyntaxViewEvent? = nil,
-                          nodeType: NodeType? = nil) throws -> [PatchSyntaxResultType] {
+                          nodeType: NodeType? = nil,
+                          isStreaming: Bool = false) throws -> [PatchSyntaxResultType] {
         try SyntaxViewName.derivePortValues(from: self,
                                             varName: nil,
                                             viewEvent: viewEvent,
                                             nodesDict: [:],
-                                            nodeType: nodeType)
+                                            nodeType: nodeType,
+                                            isStreaming: isStreaming)
     }
 }
