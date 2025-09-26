@@ -87,32 +87,16 @@ extension SwiftSyntaxActionsResult {
     @MainActor
     mutating func createAIGraph(document: StitchDocumentViewModel) {
         // STEP 1: Capture existing state for similarity matching
-        let existingGraph = document.graph.createSchema()
-        let previousSidebarSelection = document.graph.layersSidebarViewModel.primary
-        var matchedNodeIds = Set<UUID>()
+//        let existingGraph = document.graph.createSchema()
+//        let previousSidebarSelection = document.graph.layersSidebarViewModel.primary
+//        var matchedNodeIds = Set<UUID>()
 
         var viewStatePatchConnections = self.graphData.viewStatePatchConnections
-        
-        // STEP 2: Perform comprehensive node similarity matching using extracted pure function
-        let matchingInputs = NodeMatchingInputs(
-            existingNodes: existingGraph.nodes,
-            newPatchNodes: self.graphData.patchNodes,
-            newLayerDataList: self.graphData.layer_data_list,
-            previousSidebarSelection: previousSidebarSelection
-        )
 
-        let matchingResults = performNodeSimilarityMatching(inputs: matchingInputs)
-
-        // Apply results
-        let updatedPatchNodes = matchingResults.updatedPatchNodes
-        matchedNodeIds = matchingResults.matchedNodeIds
-        let layerCanvasItemPositions = matchingResults.layerCanvasItemPositions
-        let newNodesForSelectedOldNodes = matchingResults.newNodesForSelectedOldNodes
-        let layerIdMapping = matchingResults.layerIdMapping
-
-        // Sync patch graph nodes in document before parsing layers, which may need data from there
-        var graphEntity = document.graph.createSchema()
-        graphEntity.nodes = updatedPatchNodes
+        // Instantiate new GraphEntity instance, starting with known patch nodes
+        var graphEntity = GraphEntity.createEmpty()
+        graphEntity.id = document.graph.id.value
+        graphEntity.nodes = self.graphData.patchNodes
 
         var nodesDict = graphEntity.nodes.reduce(into: [UUID: NodeEntity]()) { result, nodeEntity in
             result.updateValue(nodeEntity, forKey: nodeEntity.id)
@@ -126,10 +110,9 @@ extension SwiftSyntaxActionsResult {
         
         graphEntity.nodes = Array(nodesDict.values)
         
-        // Create nested sidebar layer data AFTER idMap gets updated from above layer logic
-        // Pass the layer ID mapping to preserve matched layer IDs
+        // Create nested sidebar layer data
         let newSidebarData = self.graphData.layer_data_list.compactMap {
-            $0.createSidebarLayerData(idMapping: layerIdMapping)
+            $0.createSidebarLayerData()
         }
         
         graphEntity.orderedSidebarLayers = newSidebarData
@@ -137,10 +120,7 @@ extension SwiftSyntaxActionsResult {
         // Can't build the depth map from the `patch_data`,
         // since those UUIDs have not been remapped yet
         let repositionedNodes = graphEntity.nodes.positionAIGeneratedNodesDuringApply(
-            viewPortCenter: document.viewPortCenter,
-            existingNodes: existingGraph.nodes,
-            matchedNodeIds: matchedNodeIds,
-            layerCanvasItemPositions: layerCanvasItemPositions)
+            viewPortCenter: document.viewPortCenter)
         graphEntity.nodes = repositionedNodes
         
         // Make group Id map current context
@@ -159,8 +139,11 @@ extension SwiftSyntaxActionsResult {
         document.graph.updateGraphData(document)
 
         // STEP 3: Restore sidebar selections for matched nodes
-        document.graph.layersSidebarViewModel.primary = newNodesForSelectedOldNodes
-        log("Restored sidebar selection for \(newNodesForSelectedOldNodes.count) matched nodes")
+        
+        // TODO: come back to sidebar selection
+
+        //        document.graph.layersSidebarViewModel.primary = newNodesForSelectedOldNodes
+//        log("Restored sidebar selection for \(newNodesForSelectedOldNodes.count) matched nodes")
 
         // Report errors
         caughtErrors.displayErrors(document: document)

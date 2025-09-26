@@ -227,10 +227,9 @@ extension StitchDocumentViewModel {
 ///   - nodeId: The node's UUID for coordinate matching
 ///   - preservedPositions: Previously captured canvas item positions
 ///   - updateCanvasPosition: Closure to apply new positions to canvas items
-private func restoreLayerCanvasItemPositions(
+private func positionLayerCanvasItems(
     in layerNodeEntity: inout LayerNodeEntity,
     nodeId: UUID,
-    preservedPositions: [LayerCanvasItemCoordinate: CGPoint],
     updateCanvasPosition: (CanvasItemId) -> CGPoint
 ) {
     for inputDefinition in layerNodeEntity.layer.layerGraphNode.inputDefinitions {
@@ -239,23 +238,18 @@ private func restoreLayerCanvasItemPositions(
         switch portData.mode {
         case .packed:
             if var canvas = portData.packedData.canvasItem {
-                let coordinate = LayerCanvasItemCoordinate(
-                    nodeId: nodeId,
-                    port: inputDefinition,
-                    mode: .packed
-                )
+//                let coordinate = LayerCanvasItemCoordinate(
+//                    nodeId: nodeId,
+//                    port: inputDefinition,
+//                    mode: .packed
+//                )
 
-                if let preservedPosition = preservedPositions[coordinate] {
-                    // log("  ♻️ Restoring packed position for \(inputDefinition): \(preservedPosition)")
-                    canvas.position = preservedPosition
-                } else {
-                    let newPosition = updateCanvasPosition(.layerInput(.init(
-                        node: nodeId,
-                        keyPath: .init(layerInput: inputDefinition, portType: .packed)
-                    )))
-                    // log("  🆕 New packed position for \(inputDefinition): \(newPosition)")
-                    canvas.position = newPosition
-                }
+                let newPosition = updateCanvasPosition(.layerInput(.init(
+                    node: nodeId,
+                    keyPath: .init(layerInput: inputDefinition, portType: .packed)
+                )))
+                // log("  🆕 New packed position for \(inputDefinition): \(newPosition)")
+                canvas.position = newPosition
                 portData.packedData.canvasItem = canvas
             }
 
@@ -263,23 +257,18 @@ private func restoreLayerCanvasItemPositions(
             portData.unpackedData = portData.unpackedData.enumerated().map { (index, unpackedData) in
                 var unpackedData = unpackedData
                 if var canvas = unpackedData.canvasItem {
-                    let coordinate = LayerCanvasItemCoordinate(
-                        nodeId: nodeId,
-                        port: inputDefinition,
-                        mode: .unpacked(index: index)
-                    )
+//                    let coordinate = LayerCanvasItemCoordinate(
+//                        nodeId: nodeId,
+//                        port: inputDefinition,
+//                        mode: .unpacked(index: index)
+//                    )
 
-                    if let preservedPosition = preservedPositions[coordinate] {
-                        // log("  ♻️ Restoring unpacked[\(index)] position for \(inputDefinition): \(preservedPosition)")
-                        canvas.position = preservedPosition
-                    } else {
-                        let newPosition = updateCanvasPosition(.layerInput(.init(
-                            node: nodeId,
-                            keyPath: .init(layerInput: inputDefinition, portType: .unpacked(index.asUnpackedPortType))
-                        )))
-                        // log("  🆕 New unpacked[\(index)] position for \(inputDefinition): \(newPosition)")
-                        canvas.position = newPosition
-                    }
+                    let newPosition = updateCanvasPosition(.layerInput(.init(
+                        node: nodeId,
+                        keyPath: .init(layerInput: inputDefinition, portType: .unpacked(index.asUnpackedPortType))
+                    )))
+                    // log("  🆕 New unpacked[\(index)] position for \(inputDefinition): \(newPosition)")
+                    canvas.position = newPosition
                     unpackedData.canvasItem = canvas
                 }
                 return unpackedData
@@ -297,11 +286,7 @@ extension Array where Element == NodeEntity {
 
     @MainActor
     func positionAIGeneratedNodesDuringApply(
-        viewPortCenter: CGPoint,
-        existingNodes: [NodeEntity],
-        matchedNodeIds: Set<UUID> = [],
-        layerCanvasItemPositions: [LayerCanvasItemCoordinate: CGPoint] = [:]
-    ) -> Self {
+        viewPortCenter: CGPoint) -> Self {
         // log("🚀 positionAIGeneratedNodesDuringApply called with \(self.count) nodes, \(matchedNodeIds.count) matched nodes, \(layerCanvasItemPositions.count) preserved positions")
         // log("🚀 Matched node IDs: \(matchedNodeIds)")
         // log("🚀 Preserved position coordinates: \(layerCanvasItemPositions.keys.map(\.id))")
@@ -365,26 +350,26 @@ extension Array where Element == NodeEntity {
         // log("🎯 Chain centering: totalWidth=\(totalChainWidth), centeringOffset=\(centeringOffset)")
 
         // COLLISION DETECTION: Get existing nodes near viewport (exclude newly created nodes)
-        let searchRadius: CGFloat = 1500.0
-        let nearbyExistingNodes = existingNodes.filter { existingNode in
-            // Exclude the new nodes we're trying to position
-            if createdNodes.contains(existingNode.id) {
-                return false
-            }
-
-            // Check if node is within search radius of viewport
-            if let bounds = self.getNodeBounds(existingNode) {
-                let searchArea = CGRect(
-                    x: viewPortCenter.x - searchRadius,
-                    y: viewPortCenter.y - searchRadius,
-                    width: searchRadius * 2,
-                    height: searchRadius * 3 // More vertical range for scanning down
-                )
-                return searchArea.intersects(bounds)
-            }
-
-            return false
-        }
+//        let searchRadius: CGFloat = 1500.0
+//        let nearbyExistingNodes = existingNodes.filter { existingNode in
+//            // Exclude the new nodes we're trying to position
+//            if createdNodes.contains(existingNode.id) {
+//                return false
+//            }
+//
+//            // Check if node is within search radius of viewport
+//            if let bounds = self.getNodeBounds(existingNode) {
+//                let searchArea = CGRect(
+//                    x: viewPortCenter.x - searchRadius,
+//                    y: viewPortCenter.y - searchRadius,
+//                    width: searchRadius * 2,
+//                    height: searchRadius * 3 // More vertical range for scanning down
+//                )
+//                return searchArea.intersects(bounds)
+//            }
+//
+//            return false
+//        }
 
         // Calculate the total height needed for all new nodes
         let verticalPadding: CGFloat = 80.0
@@ -406,26 +391,25 @@ extension Array where Element == NodeEntity {
         }
 
         // Create bounds for the entire new node cluster
-        let newNodesBounds = CGRect(
-            x: viewPortCenter.x + centeringOffset,
-            y: viewPortCenter.y,
-            width: totalChainWidth,
-            height: totalHeight
-        )
+//        let newNodesBounds = CGRect(
+//            x: viewPortCenter.x + centeringOffset,
+//            y: viewPortCenter.y,
+//            width: totalChainWidth,
+//            height: totalHeight
+//        )
 
         // Check for collisions and find clear Y position if needed
-        let clearY = self.findClearYPosition(
-            startY: viewPortCenter.y,
-            newNodesBounds: newNodesBounds,
-            nearbyNodes: nearbyExistingNodes
-        ) ?? viewPortCenter.y
+//        let clearY = self.findClearYPosition(
+//            startY: viewPortCenter.y,
+//            newNodesBounds: newNodesBounds
+//        ) ?? viewPortCenter.y
 
         // Calculate Y offset to apply to all positions
-        let yOffset = clearY - viewPortCenter.y
-
-        if yOffset != 0 {
-            log("🔄 AI nodes repositioned: Moving \(yOffset) points down to avoid overlaps")
-        }
+//        let yOffset = clearY - viewPortCenter.y
+//
+//        if yOffset != 0 {
+//            log("🔄 AI nodes repositioned: Moving \(yOffset) points down to avoid overlaps")
+//        }
 
         // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
         let updatedNodes = depthLevels.flatMap { depthLevel -> [NodeEntity] in
@@ -468,13 +452,13 @@ extension Array where Element == NodeEntity {
 
                 // log("positionAIGeneratedNodesDuringApply: on createdNode \(createdNode.id) \(createdNode.kind)")
 
-                let isNodeMatched = matchedNodeIds.contains(createdNode.id)
-
-                // Skip positioning for matched PATCH nodes only - layer nodes need canvas item handling
-                if isNodeMatched && createdNode.nodeTypeEntity.patchNodeEntity != nil {
-                    // log("⏭️ Skipping positioning for matched patch node \(createdNode.id)")
-                    return createdNode
-                }
+//                let isNodeMatched = matchedNodeIds.contains(createdNode.id)
+//
+//                // Skip positioning for matched PATCH nodes only - layer nodes need canvas item handling
+//                if isNodeMatched && createdNode.nodeTypeEntity.patchNodeEntity != nil {
+//                    // log("⏭️ Skipping positioning for matched patch node \(createdNode.id)")
+//                    return createdNode
+//                }
                 
                 let updateCanvasPosition = { (canvasId: CanvasItemId) -> CGPoint in
                     var size: CGSize = canvasId
@@ -487,7 +471,7 @@ extension Array where Element == NodeEntity {
 
                     let newPosition = CGPoint(
                         x: viewPortCenter.x + centeringOffset + (cumulativeXOffset[depthLevel] ?? 0),
-                        y: viewPortCenter.y + CGFloat(rowIndexForDepth) * rowHeight + yOffset  // Apply collision avoidance offset
+                        y: viewPortCenter.y + CGFloat(rowIndexForDepth) * rowHeight
                     )
                     rowIndexForDepth += 1
 
@@ -504,14 +488,12 @@ extension Array where Element == NodeEntity {
                     createdNode.nodeTypeEntity = .patch(patchNode)
                     
                 case .layer(var layerNodeEntity):
-                    let isLayerMatched = matchedNodeIds.contains(createdNode.id)
                     // log("🎯 Processing layer \(createdNode.id), matched: \(isLayerMatched)")
 
                     // Use pure function to restore canvas item positions
-                    restoreLayerCanvasItemPositions(
+                    positionLayerCanvasItems(
                         in: &layerNodeEntity,
                         nodeId: createdNode.id,
-                        preservedPositions: layerCanvasItemPositions,
                         updateCanvasPosition: updateCanvasPosition
                     )
 
