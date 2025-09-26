@@ -159,14 +159,14 @@ struct DrawnEdge: View {
     var commonLine: some View {
         switch edgeStyle {
         case .curve:
-            CurveLine(from: from, to: to)
+            AnimatableCurveLine(from: from, to: to)
                 .stroke(color,
                         style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH * edgeScaleEffect,
                                            lineCap: .round,
                                            lineJoin: .round))
 
         case .line:
-            StraightLine(from: from, to: to)
+            AnimatableStraightLine(from: from, to: to)
                 .stroke(color,
                         style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH * edgeScaleEffect,
                                            lineCap: .round,

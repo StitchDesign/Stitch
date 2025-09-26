@@ -12,12 +12,14 @@ struct AnimatableStraightLine: Shape {
     var from: CGPoint
     var to: CGPoint
 
-    var animatableData: AnimatablePair<Double, Double> {
+    var animatableData: AnimatablePair<AnimatablePair<Double, Double>, AnimatablePair<Double, Double>> {
         get {
-            AnimatablePair(to.x, to.y)
+            AnimatablePair(AnimatablePair(from.x, from.y), AnimatablePair(to.x, to.y))
         } set(newValue) {
-            to.x = newValue.first
-            to.y = newValue.second
+            from.x = newValue.first.first
+            from.y = newValue.first.second
+            to.x = newValue.second.first
+            to.y = newValue.second.second
         }
     }
 
