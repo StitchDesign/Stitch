@@ -44,54 +44,122 @@ struct ProjectsHomeViewWrapper: View {
                         iconName: APP_SETTINGS_ICON_NAME)
                 } else {
 #if targetEnvironment(macCatalyst)
-
                     
-#if STITCH_AI_REASONING || DEV_DEBUG
-                    CatalystNavBarButton("document.viewfinder.fill",
-                                         toolTip: "Open AI Preview") { [weak store] in
-                        guard let store = store else {
-                            return
-                        }
-                        let (document, encoder) = store.createAIDocumentPreviewer()
-                        if store.navPath.isEmpty {
-                            store.navPath = [.aiPreviewer(document, encoder)]
-                        } else {
-                            store.navPath = []
-                        }
-                        //                            store.showAIResponseViewer.toggle()
-                        
-                    }
-                    // Resolves issue where hover was still active after entering newly created project and then exiting
-                                         .id(UUID())
-#endif
                     
-                    ControlGroup {
-                        CatalystNavBarButton(.NEW_PROJECT_SF_SYMBOL_NAME,
-                                             toolTip: "New Project") { [weak store] in
-                            store?.createNewProjectSideEffect(isProjectImport: false)
+//#if STITCH_AI_REASONING || DEV_DEBUG
+//                    CatalystNavBarButton("document.viewfinder.fill",
+//                                         toolTip: "Open AI Preview") { [weak store] in
+//                        guard let store = store else {
+//                            return
+//                        }
+//                        let (document, encoder) = store.createAIDocumentPreviewer()
+//                        if store.navPath.isEmpty {
+//                            store.navPath = [.aiPreviewer(document, encoder)]
+//                        } else {
+//                            store.navPath = []
+//                        }
+//                        //                            store.showAIResponseViewer.toggle()
+//                        
+//                    }
+//                    // Resolves issue where hover was still active after entering newly created project and then exiting
+//                                         .id(UUID())
+//#endif
+                    
+                    
+                    
+                    if #available(macCatalyst 26.0, *) {
+                        ControlGroup {
+                            Button(action: { [weak store] in
+                                
+                            },
+                                   label: {
+                                Image(systemName: .NEW_PROJECT_SF_SYMBOL_NAME)
+                            })
+                            .buttonStyle(.glass)
+//                            .buttonBorderShape(.automatic)
+                            
+                            Button(action: {
+                                SHOW_APP_SETTINGS_ACTION()
+                            },
+                                   label: {
+                                Image(systemName: .SETTINGS_SF_SYMBOL_NAME)
+                            })
+                            .buttonStyle(.glass)
+                            
+                            Button(action: { [weak store] in
+                                store?.conditionallToggleSampleProjectsModal()
+                            },
+                                   label: {
+                                Image(systemName: .OPEN_SAMPLE_PROJECTS_MODAL)
+                            })
+                            .buttonStyle(.glass)
+                            //                        .buttonStyle(.automatic)
                         }
-                        // Resolves issue where hover was still active after entering newly created project and then exiting
-                                             .id(UUID())
-                        
-                        CatalystNavBarButton(.OPEN_SAMPLE_PROJECTS_MODAL,
-                                             toolTip: "Open Sample Projects") { [weak store] in
-                            store?.conditionallToggleSampleProjectsModal()
-                        }
-                        // Resolves issue where hover was still active after entering newly created project and then exiting
-                                             .id(UUID())
-                        
-                        TopBarFeedbackButtonsView(document: nil)
-                        // Hides the little arrow on Catalyst
-                            .menuIndicator(.hidden)
-                            .buttonStyle(.borderless)
-                            .id(UUID())
-                        
-                        CatalystNavBarButton(.SETTINGS_SF_SYMBOL_NAME,
-                                             toolTip: "Open Settings") {
-                            SHOW_APP_SETTINGS_ACTION()
-                        }
-                                             .id(UUID())
+//                        .buttonStyle(.glass)
                     }
+//                        else {
+//                            Button(action: { [weak store] in
+//
+//                            },
+//                                   label: {
+//                                Image(systemName: "circle.fill")
+//                            })
+//                            // Fallback on earlier versions
+//                        }
+                    
+                    //                        Button(action: { [weak store] in
+                    //                            store?.createNewProjectSideEffect(isProjectImport: false)
+                    //                        },
+                    //                               label: {
+                    //                            Image(systemName: .NEW_PROJECT_SF_SYMBOL_NAME)
+                    //                        })
+                    ////                        .buttonStyle(.glassProminent)
+                    //
+//                    Button(action: { [weak store] in
+//                        store?.conditionallToggleSampleProjectsModal()
+//                    },
+//                           label: {
+//                        Image(systemName: .OPEN_SAMPLE_PROJECTS_MODAL)
+//                    })
+//                    .buttonStyle(.plain)
+                    //                        .buttonSizing(.flexible)
+                    
+//                    Button(action: {
+//                        SHOW_APP_SETTINGS_ACTION()
+//                    },
+//                           label: {
+//                        Image(systemName: .SETTINGS_SF_SYMBOL_NAME)
+//                    })
+                    //                        .buttonSizing(.fitted)
+                    
+                    //                        CatalystNavBarButton(.NEW_PROJECT_SF_SYMBOL_NAME,
+                    //                                             toolTip: "New Project") { [weak store] in
+                    //                            store?.createNewProjectSideEffect(isProjectImport: false)
+                    //                        }
+                    //                        // Resolves issue where hover was still active after entering newly created project and then exiting
+                    //                                             .id(UUID())
+                    
+                    //                        CatalystNavBarButton(.OPEN_SAMPLE_PROJECTS_MODAL,
+                    //                                             toolTip: "Open Sample Projects") { [weak store] in
+                    //                            store?.conditionallToggleSampleProjectsModal()
+                    //                        }
+                    //                        // Resolves issue where hover was still active after entering newly created project and then exiting
+                    //                                             .id(UUID())
+                    
+                    //                        TopBarFeedbackButtonsView(document: nil)
+                    //                        // Hides the little arrow on Catalyst
+                    //                            .menuIndicator(.hidden)
+                    //                            .buttonStyle(.borderless)
+                    //                            .id(UUID())
+                    
+                    //                        CatalystNavBarButton(.SETTINGS_SF_SYMBOL_NAME,
+                    //                                             toolTip: "Open Settings") {
+                    //                            SHOW_APP_SETTINGS_ACTION()
+                    //                        }
+                    //                                             .id(UUID())
+                    
+                  // }  // ControlGroup
+//                    .buttonStyle(.glass)
                     
 #else
                     
