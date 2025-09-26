@@ -116,10 +116,19 @@ struct GraphBaseView: View {
         .coordinateSpace(name: Self.coordinateNamespace)
         
         #if targetEnvironment(macCatalyst)
-        .inspector(isPresented: $store.showsLayerInspector) {
-            LayerInspectorView(graph: graph,
-                               document: document)
+        .overlay(alignment: .trailing) {
+            if store.showsLayerInspector {
+                LayerInspectorView(graph: graph,
+                                   document: document)
+                .frame(width: LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+                .transition(.move(edge: .trailing))
+            }
         }
+        
+        //        .inspector(isPresented: $store.showsLayerInspector) {
+        //            LayerInspectorView(graph: graph,
+        //                               document: document)
+        //        }
         #endif
         
         .bottomCenterToast(willShow: document.llmRecording.showRatingToast,
