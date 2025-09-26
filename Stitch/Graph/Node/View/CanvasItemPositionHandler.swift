@@ -20,6 +20,9 @@ struct CanvasItemPositionHandler: ViewModifier {
             .zIndex(zIndex)
             .canvasPosition(id: node.id,
                             position: node.position)
+        
+            .animation(.linear, value: node.position)
+        
             .gesture(CanvasItemDragHandler(document: document,
                                            graph: graph,
                                            canvasItemId: node.id))
