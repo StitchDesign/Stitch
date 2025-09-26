@@ -93,6 +93,15 @@ func assertInDebug(_ conditional: Bool) {
 #endif
 }
 
+func assertInDebugIfNotEagerParsing(_ conditional: Bool) {
+    if FeatureFlags.DO_NOT_CRASH_DURING_EAGER_PARSING {
+        return
+    }
+#if DEBUG || DEV_DEBUG || STITCH_AI_TESTING
+    assert(conditional)
+#endif
+}
+
 /* ----------------------------------------------------------------
  Logging
  ---------------------------------------------------------------- */

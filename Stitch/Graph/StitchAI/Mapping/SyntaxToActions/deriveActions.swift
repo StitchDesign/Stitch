@@ -368,7 +368,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                 let nodeId = deterministicUUID(from: ref)
                 
                 // If this fails--a node wasn't made that should have been created
-                assertInDebug(nodesDict.keys.contains(nodeId))
+                assertInDebugIfNotEagerParsing(nodesDict.keys.contains(nodeId))
                 
                 return [
                     .portData(.upstreamConnection(.init(portId: portIndex,
@@ -425,7 +425,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
         
         case .subscriptType(let swiftPatchCodeType, let int):
             // Nested port indices (aka a 2D access) not supported
-            assertInDebug(portIndex == nil)
+            assertInDebugIfNotEagerParsing(portIndex == nil)
             
             switch swiftPatchCodeType {
             case .expression(let expr):
@@ -1445,7 +1445,7 @@ extension SyntaxView {
                 
                 if !layer.isGroupForAI {
                     // Make sure non-grouped layer has no children
-                    assertInDebug(childResults.actions.isEmpty)
+                    assertInDebugIfNotEagerParsing(childResults.actions.isEmpty)
                     layerData.children = nil
                 }
         
