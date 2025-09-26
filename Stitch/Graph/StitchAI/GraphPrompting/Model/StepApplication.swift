@@ -305,267 +305,7 @@ private func restoreLayerCanvasItemPositions(
     }
 }
 
-// MARK: - Topological Insertion System
-
-struct TopologicalRelationship {
-    let newNode: UUID
-    let upstreamOf: Set<UUID>      // Nodes that depend on this new node
-    let downstreamOf: Set<UUID>    // Nodes this new node depends on
-    let parallelTo: Set<UUID>      // Independent nodes at same depth
-    let insertionStrategy: InsertionStrategy
-}
-
-enum InsertionStrategy {
-    case westInsert(shiftNodes: Set<UUID>, shiftAmount: CGFloat)
-    case eastAppend(afterNode: UUID?)
-    case depthInsert(atDepth: Int, position: Int)
-}
-
-struct PositionRegistry {
-    var preservedPositions: [UUID: CGPoint] = [:]
-    var affectedNodes: Set<UUID> = []
-
-    func shouldPreserve(_ nodeId: UUID) -> Bool {
-        return !affectedNodes.contains(nodeId)
-    }
-}
-
-// MARK: - Topological Analysis Functions
-
-private func analyzeTopologicalRelationships(
-    newNode: NodeEntity,
-    existingNodes: [NodeEntity],
-    depthMap: [UUID: Int]
-) -> TopologicalRelationship {
-    var upstreamOf: Set<UUID> = []
-    var downstreamOf: Set<UUID> = []
-    var parallelTo: Set<UUID> = []
-
-    let newNodeDepth = depthMap[newNode.id] ?? 0
-    log("🔍 TOPO-ANALYSIS: Starting analysis for \(newNode.title) at depth \(newNodeDepth)")
-
-    // Analyze each existing node's relationship to new node
-    for existingNode in existingNodes {
-        let existingDepth = depthMap[existingNode.id] ?? 0
-
-        if feeds(newNode, into: existingNode) {
-            upstreamOf.insert(existingNode.id)
-            log("  → \(newNode.title) feeds into \(existingNode.title) (depth \(existingDepth))")
-        } else if feeds(existingNode, into: newNode) {
-            downstreamOf.insert(existingNode.id)
-            log("  ← \(existingNode.title) feeds into \(newNode.title) (depth \(existingDepth))")
-        } else if existingDepth == newNodeDepth {
-            parallelTo.insert(existingNode.id)
-            log("  ↔ \(newNode.title) parallel to \(existingNode.title) (both depth \(existingDepth))")
-        } else {
-            log("  ⊗ \(newNode.title) independent of \(existingNode.title) (depths: \(newNodeDepth) vs \(existingDepth))")
-        }
-    }
-
-    // Determine insertion strategy based on relationships
-    let strategy: InsertionStrategy
-    log("📋 TOPO-STRATEGY: Selecting insertion strategy for \(newNode.title)")
-    log("   Feeds into \(upstreamOf.count) nodes, fed by \(downstreamOf.count) nodes, parallel to \(parallelTo.count) nodes")
-
-    if !upstreamOf.isEmpty {
-        // New node feeds into existing nodes - insert west and shift them east
-        let shiftAmount: CGFloat = 250.0 // Node width + padding
-        strategy = .westInsert(shiftNodes: upstreamOf, shiftAmount: shiftAmount)
-        log("   ✅ Selected westInsert: shift \(upstreamOf.count) downstream nodes east by \(shiftAmount)")
-        let nodesToShift = upstreamOf.compactMap { nodeId in
-            existingNodes.first { $0.id == nodeId }?.title
-        }.joined(separator: ", ")
-        log("      Nodes to shift: \(nodesToShift)")
-    } else if !downstreamOf.isEmpty {
-        // New node depends on existing nodes - append to east
-        let eastmostNode = findEastmostNode(in: downstreamOf, existingNodes: existingNodes)
-        strategy = .eastAppend(afterNode: eastmostNode)
-        let eastmostTitle = existingNodes.first { $0.id == eastmostNode }?.title ?? "Unknown"
-        log("   ✅ Selected eastAppend: position after eastmost upstream node \(eastmostTitle)")
-    } else {
-        // Parallel node - insert at appropriate position within depth level
-        strategy = .depthInsert(atDepth: newNodeDepth, position: parallelTo.count)
-        log("   ✅ Selected depthInsert: position \(parallelTo.count) at depth \(newNodeDepth)")
-    }
-
-    return TopologicalRelationship(
-        newNode: newNode.id,
-        upstreamOf: upstreamOf,
-        downstreamOf: downstreamOf,
-        parallelTo: parallelTo,
-        insertionStrategy: strategy
-    )
-}
-
-private func feeds(_ sourceNode: NodeEntity, into targetNode: NodeEntity) -> Bool {
-    // Check if sourceNode's output feeds into any of targetNode's inputs
-    switch targetNode.nodeTypeEntity {
-    case .patch(let patchEntity):
-        return patchEntity.inputs.contains { input in
-            if case .upstreamConnection(let coordinate) = input.portData {
-                return coordinate.nodeId == sourceNode.id
-            }
-            return false
-        }
-    case .layer(let layerEntity):
-        // Check layer input connections
-        for inputDefinition in layerEntity.layer.layerGraphNode.inputDefinitions {
-            let portData = layerEntity[keyPath: inputDefinition.schemaPortKeyPath]
-
-            switch portData.mode {
-            case .packed:
-                if case .upstreamConnection(let coordinate) = portData.packedData.inputPort {
-                    if coordinate.nodeId == sourceNode.id {
-                        return true
-                    }
-                }
-            case .unpacked:
-                for unpackedData in portData.unpackedData {
-                    if case .upstreamConnection(let coordinate) = unpackedData.inputPort {
-                        if coordinate.nodeId == sourceNode.id {
-                            return true
-                        }
-                    }
-                }
-            }
-        }
-        return false
-    case .group, .component:
-        return false
-    }
-}
-
-private func findEastmostNode(in nodeIds: Set<UUID>, existingNodes: [NodeEntity]) -> UUID? {
-    // For now, return the first node. In full implementation, would find eastmost positioned node
-    return nodeIds.first
-}
-
-private func applyEastwardShift(to node: NodeEntity, shiftAmount: CGFloat) {
-    switch node.nodeTypeEntity {
-    case .patch(let patchEntity):
-        let currentPosition = patchEntity.canvasEntity.position
-        let newPosition = CGPoint(
-            x: currentPosition.x + shiftAmount,
-            y: currentPosition.y
-        )
-        log("    ↗️ Shifting \(node.title) from \(currentPosition.x) to \(newPosition.x)")
-
-        // Note: This only logs the intended shift. The actual position update would need
-        // to be applied to the node entity in the graph state
-
-    case .layer(let layerEntity):
-        // Handle layer canvas items if they exist
-        for inputDef in layerEntity.layer.layerGraphNode.inputDefinitions {
-            let portData = layerEntity[keyPath: inputDef.schemaPortKeyPath]
-
-            switch portData.mode {
-            case .packed:
-                if let canvas = portData.packedData.canvasItem {
-                    let currentPos = canvas.position
-                    let newPos = CGPoint(x: currentPos.x + shiftAmount, y: currentPos.y)
-                    log("    ↗️ Shifting layer \(node.title) canvas item \(inputDef.label) from \(currentPos.x) to \(newPos.x)")
-                }
-            case .unpacked:
-                for (index, unpackedData) in portData.unpackedData.enumerated() {
-                    if let canvas = unpackedData.canvasItem {
-                        let currentPos = canvas.position
-                        let newPos = CGPoint(x: currentPos.x + shiftAmount, y: currentPos.y)
-                        log("    ↗️ Shifting layer \(node.title) unpacked[\(index)] \(inputDef.label) from \(currentPos.x) to \(newPos.x)")
-                    }
-                }
-            }
-        }
-
-    case .group(let canvasEntity):
-        let currentPosition = canvasEntity.position
-        let newPosition = CGPoint(
-            x: currentPosition.x + shiftAmount,
-            y: currentPosition.y
-        )
-        log("    ↗️ Shifting group \(node.title) from \(currentPosition.x) to \(newPosition.x)")
-
-    case .component(let componentEntity):
-        let currentPosition = componentEntity.canvasEntity.position
-        let newPosition = CGPoint(
-            x: currentPosition.x + shiftAmount,
-            y: currentPosition.y
-        )
-        log("    ↗️ Shifting component \(node.title) from \(currentPosition.x) to \(newPosition.x)")
-    }
-}
-
-private func hasValidPosition(_ node: NodeEntity) -> Bool {
-    switch node.nodeTypeEntity {
-    case .patch(let patchEntity):
-        return patchEntity.canvasEntity.position != CGPoint.zero
-
-    case .layer(let layerEntity):
-        // For layers, check if any canvas items have valid positions
-        for inputDef in layerEntity.layer.layerGraphNode.inputDefinitions {
-            let portData = layerEntity[keyPath: inputDef.schemaPortKeyPath]
-
-            switch portData.mode {
-            case .packed:
-                if let canvas = portData.packedData.canvasItem,
-                   canvas.position != CGPoint.zero {
-                    return true
-                }
-            case .unpacked:
-                for unpackedData in portData.unpackedData {
-                    if let canvas = unpackedData.canvasItem,
-                       canvas.position != CGPoint.zero {
-                        return true
-                    }
-                }
-            }
-        }
-        return false
-
-    case .group(let canvasEntity):
-        return canvasEntity.position != CGPoint.zero
-
-    case .component(let componentEntity):
-        return componentEntity.canvasEntity.position != CGPoint.zero
-    }
-}
-
-private func getPositionString(_ node: NodeEntity) -> String {
-    switch node.nodeTypeEntity {
-    case .patch(let patchEntity):
-        let pos = patchEntity.canvasEntity.position
-        return "(\(Int(pos.x)),\(Int(pos.y)))"
-
-    case .layer(let layerEntity):
-        var positions: [String] = []
-        for inputDef in layerEntity.layer.layerGraphNode.inputDefinitions {
-            let portData = layerEntity[keyPath: inputDef.schemaPortKeyPath]
-
-            switch portData.mode {
-            case .packed:
-                if let canvas = portData.packedData.canvasItem {
-                    let pos = canvas.position
-                    positions.append("\(inputDef.label):(\(Int(pos.x)),\(Int(pos.y)))")
-                }
-            case .unpacked:
-                for (index, unpackedData) in portData.unpackedData.enumerated() {
-                    if let canvas = unpackedData.canvasItem {
-                        let pos = canvas.position
-                        positions.append("\(inputDef.label)[\(index)]:(\(Int(pos.x)),\(Int(pos.y)))")
-                    }
-                }
-            }
-        }
-        return positions.joined(separator: ", ")
-
-    case .group(let canvasEntity):
-        let pos = canvasEntity.position
-        return "(\(Int(pos.x)),\(Int(pos.y)))"
-
-    case .component(let componentEntity):
-        let pos = componentEntity.canvasEntity.position
-        return "(\(Int(pos.x)),\(Int(pos.y)))"
-    }
-}
+// MARK: - Simple Helper Functions for Node Positioning
 
 extension Array where Element == NodeEntity {
     func getNode(_ id: UUID) -> NodeEntity? {
@@ -602,50 +342,9 @@ extension Array where Element == NodeEntity {
 
         // DEBUG: Show depth assignment for each node
         log("🗺️ Depth assignments:")
-        var loopNodes: [(NodeEntity, Int)] = []
-        var layerNodes: [(NodeEntity, Int)] = []
-
         for (nodeId, depth) in depthMap {
             if let node = self.getNode(nodeId) {
                 log("   Node \(node.title) (\(nodeId.debugFriendlyId)): depth \(depth)")
-
-                // Track Loop nodes and Layer nodes for scenario testing
-                if case .patch(let patchEntity) = node.nodeTypeEntity,
-                   case .loop = patchEntity.patch {
-                    loopNodes.append((node, depth))
-                } else if case .layer = node.nodeTypeEntity {
-                    layerNodes.append((node, depth))
-                }
-            }
-        }
-
-        // LOOP NODE SCENARIO TEST: Verify Loop nodes are positioned upstream of layer nodes they feed
-        if !loopNodes.isEmpty && !layerNodes.isEmpty {
-            log("🔍 LOOP-SCENARIO-TEST: Analyzing Loop node positioning")
-            for (loopNode, loopDepth) in loopNodes {
-                log("   Loop node \(loopNode.title) at depth \(loopDepth)")
-
-                // Find layer nodes that this loop feeds into
-                let fedLayerNodes = layerNodes.filter { (layerNode, layerDepth) in
-                    feeds(loopNode, into: layerNode)
-                }
-
-                if !fedLayerNodes.isEmpty {
-                    let layerTitles = fedLayerNodes.map { $0.0.title }.joined(separator: ", ")
-                    let layerDepths = fedLayerNodes.map { $0.1 }.sorted()
-                    log("   → Loop \(loopNode.title) feeds into layers: \(layerTitles)")
-                    log("   → Expected: Loop depth (\(loopDepth)) < Layer depths (\(layerDepths))")
-
-                    let isCorrectlyPositioned = fedLayerNodes.allSatisfy { (_, layerDepth) in
-                        loopDepth < layerDepth
-                    }
-
-                    if isCorrectlyPositioned {
-                        log("   ✅ PASS: Loop node correctly positioned upstream")
-                    } else {
-                        log("   ❌ FAIL: Loop node incorrectly positioned - may cause stacking")
-                    }
-                }
             }
         }
 
@@ -759,7 +458,7 @@ extension Array where Element == NodeEntity {
             // log("positionAIGeneratedNodesDuringApply: on depthLevel: \(depthLevel)")
 
             // ───────── vertical layout helpers ─────────
-            let verticalPadding: CGFloat = 80.0
+            let verticalPadding: CGFloat = 100.0  // Increased padding to prevent stacking
             // Tallest observer at this depth
             let rowHeight: CGFloat = {
                 let maxH = createdNodes.compactMap { depthMap.get($0) == depthLevel ? self.getNode($0) : nil }
@@ -774,140 +473,42 @@ extension Array where Element == NodeEntity {
                     }
                     .max() ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER
                 let calculatedRowHeight = maxH + verticalPadding
-                log("🔧 Depth \(depthLevel): rowHeight=\(calculatedRowHeight), verticalPadding=\(verticalPadding), maxH=\(maxH)")
+                log("📏 Depth \(depthLevel): rowHeight=\(calculatedRowHeight), verticalPadding=\(verticalPadding), maxH=\(maxH)")
                 return calculatedRowHeight
             }()
 
-            // TODO: just rewrite the adjacency // logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
-            // Find all the created-nodes at this depth-level,
-            // and adjust their positions
+            // Find all the created-nodes at this depth-level
             let createdNodesAtThisLevel: [NodeEntity] = createdNodes.compactMap {
                 if depthMap.get($0) == depthLevel {
                     return self.getNode($0)
                 }
-                // THIS JUST MEANS WE COULD NOT FIND THE NODE AT THIS LEVEL
-                 // log("positionAIGeneratedNodesDuringApply: Could not get depth level for \($0.debugFriendlyId)")
                 return nil
             }
 
-            // TOPOLOGICAL INSERTION: Separate new nodes from existing nodes
-            let allExistingNodes = existingNodes.filter { node in
-                // Include both nodes that existed before AND nodes created in previous iterations
-                !createdNodes.contains(node.id) || (depthMap[node.id] != depthLevel)
-            }
+            // Sort nodes at this depth level by their ID for deterministic ordering
+            let sortedNodesAtLevel = createdNodesAtThisLevel.sorted { $0.id.uuidString < $1.id.uuidString }
 
-            // For each new node at this level, analyze its topological relationships
-            var topologicallyOrderedNodes: [NodeEntity] = []
-            var positionRegistry = PositionRegistry()
-
-            for newNode in createdNodesAtThisLevel {
-                let isNewNode = createdNodes.contains(newNode.id)
-
-                if isNewNode {
-                    // Analyze topological relationships for new nodes
-                    let relationship = analyzeTopologicalRelationships(
-                        newNode: newNode,
-                        existingNodes: allExistingNodes + topologicallyOrderedNodes,
-                        depthMap: depthMap
-                    )
-
-                    log("🔗 TOPO: Analyzing \(newNode.title) (\(newNode.id.debugFriendlyId))")
-                    log("  → Feeds into: \(relationship.upstreamOf.map { $0.debugFriendlyId })")
-                    log("  → Fed by: \(relationship.downstreamOf.map { $0.debugFriendlyId })")
-                    log("  → Strategy: \(relationship.insertionStrategy)")
-
-                    // Add affected nodes to registry
-                    switch relationship.insertionStrategy {
-                    case .westInsert(let shiftNodes, _):
-                        positionRegistry.affectedNodes.formUnion(shiftNodes)
-                    case .eastAppend, .depthInsert:
-                        break
-                    }
-                }
-
-                topologicallyOrderedNodes.append(newNode)
-            }
-
-            // STEP: Detect position conflicts (anti-stacking logic)
-            let currentPositions = createdNodesAtThisLevel.compactMap { node -> CGPoint? in
-                return node.nodeTypeEntity.patchNodeEntity?.canvasEntity.position
-            }
-
-            // Find positions that appear more than once (conflicts)
-            var positionCounts: [CGPoint: Int] = [:]
-            currentPositions.forEach { position in
-                positionCounts[position] = (positionCounts[position] ?? 0) + 1
-            }
-            let conflictedPositions = Set(positionCounts.compactMap { (position, count) in
-                count > 1 ? position : nil
-            })
-
-            if !conflictedPositions.isEmpty {
-                log("🚨 Position conflicts detected at depth \(depthLevel): \(conflictedPositions.count) conflicted positions")
-            }
-
-            // MINIMAL-DISRUPTION INSERTION: Apply position shifts for westInsert strategies
-            for newNode in createdNodesAtThisLevel {
-                let isNewNode = createdNodes.contains(newNode.id)
-
-                if isNewNode {
-                    let relationship = analyzeTopologicalRelationships(
-                        newNode: newNode,
-                        existingNodes: allExistingNodes + topologicallyOrderedNodes.filter { $0.id != newNode.id },
-                        depthMap: depthMap
-                    )
-
-                    switch relationship.insertionStrategy {
-                    case .westInsert(let shiftNodes, let shiftAmount):
-                        log("🔄 TOPO: Applying westInsert for \(newNode.title) - shifting \(shiftNodes.count) nodes east by \(shiftAmount)")
-
-                        // Apply eastward shift to downstream nodes
-                        for nodeId in shiftNodes {
-                            if let nodeToShift = allExistingNodes.first(where: { $0.id == nodeId }) {
-                                applyEastwardShift(to: nodeToShift, shiftAmount: shiftAmount)
-                            }
-                        }
-
-                    case .eastAppend, .depthInsert:
-                        // No immediate position shifts needed for these strategies
-                        break
-                    }
+            // Check which nodes are true root nodes (no upstream connections)
+            let rootNodes = sortedNodesAtLevel.filter { node in
+                node.inputs.allSatisfy { input in
+                    if case .upstreamConnection = input { return false }
+                    return true
                 }
             }
 
-            // TOPOLOGICAL POSITIONING: Use topologically ordered nodes instead of arbitrary enumeration
-            let processedNodes = topologicallyOrderedNodes.enumerated().map { (nodeIndex, createdNode) in
+            if !rootNodes.isEmpty {
+                let rootTitles = rootNodes.map { $0.title }.joined(separator: ", ")
+                log("🌳 Root nodes at depth \(depthLevel): \(rootTitles)")
+            }
+
+            // Process nodes at this depth level with pure topological ordering
+            var rowCounter = 0
+            let processedNodes = sortedNodesAtLevel.map { createdNode in
                 var createdNode = createdNode
+                let currentRow = rowCounter
+                rowCounter += 1
 
-                // log("positionAIGeneratedNodesDuringApply: on createdNode \(createdNode.id) \(createdNode.kind)")
-
-                let isNodeMatched = matchedNodeIds.contains(createdNode.id)
-
-                // POSITION PRESERVATION: Check if this node should preserve its current position
-                if positionRegistry.shouldPreserve(createdNode.id) {
-                    // This node is not affected by topological insertions - preserve its position
-                    let shouldPreservePosition = hasValidPosition(createdNode)
-
-                    if shouldPreservePosition {
-                        let positionString = getPositionString(createdNode)
-                        log("✓ TOPO: Preserving position for \(createdNode.title) at \(positionString)")
-                        return createdNode
-                    } else {
-                        log("⚠️ TOPO: Node \(createdNode.title) marked for preservation but has invalid position, proceeding with normal positioning")
-                    }
-                }
-
-                // Skip positioning for matched PATCH nodes only if they have a unique, valid position
-                if isNodeMatched && createdNode.nodeTypeEntity.patchNodeEntity != nil {
-                    let currentPosition = createdNode.nodeTypeEntity.patchNodeEntity?.canvasEntity.position ?? CGPoint.zero
-                    let hasPositionConflict = conflictedPositions.contains(currentPosition)
-
-                    if currentPosition != CGPoint.zero && !hasPositionConflict {
-                        // log("⏭️ Skipping positioning for matched patch node \(createdNode.id) with unique position \(currentPosition)")
-                        return createdNode
-                    }
-                    // log("🔄 Matched patch node \(createdNode.id) has conflicted or zero position, applying repositioning")
-                }
+                log("📍 Assigning row \(currentRow) to \(createdNode.title) (\(createdNode.id.debugFriendlyId))")
 
                 let updateCanvasPosition = { (canvasId: CanvasItemId) -> CGPoint in
                     var size: CGSize = canvasId
@@ -918,22 +519,18 @@ extension Array where Element == NodeEntity {
                     // Add horizontal gap only
                     size.width += horizontalPadding
 
-                    // Position within this depth level only (no global accumulation)
-                    let currentRow = nodeIndex
-                    log("📍 Node \(createdNode.id): currentRow=\(currentRow), nodeIndex=\(nodeIndex) (depth \(depthLevel))")
-
-                    // Add horizontal stagger for multiple nodes at same depth to avoid cramping
-                    let horizontalStagger: CGFloat = CGFloat(nodeIndex) * 50.0
-
                     let cumulativeX = cumulativeXOffset[depthLevel] ?? 0
                     let baseX = viewPortCenter.x + centeringOffset + cumulativeX
-                    let finalX = baseX + horizontalStagger
 
-                    let newPosition = CGPoint(
-                        x: finalX,
-                        y: viewPortCenter.y + CGFloat(currentRow) * rowHeight + yOffset  // Apply collision avoidance offset
-                    )
-                    log("📐 \(createdNode.title): depth=\(depthLevel), viewport=\(viewPortCenter.x), centering=\(centeringOffset), cumulative=\(cumulativeX), stagger=\(horizontalStagger) → finalX=\(finalX)")
+                    // Calculate Y position - use baseline for root nodes, row offset for others
+                    let baseY = if depthLevel == 0 && rootNodes.contains(where: { $0.id == createdNode.id }) {
+                        viewPortCenter.y  // Root nodes at baseline
+                    } else {
+                        viewPortCenter.y + CGFloat(currentRow) * rowHeight + yOffset
+                    }
+
+                    let newPosition = CGPoint(x: baseX, y: baseY)
+                    log("📐 \(createdNode.title): x=\(baseX) (depth \(depthLevel)), y=\(baseY) (row \(currentRow), isRoot: \(rootNodes.contains(where: { $0.id == createdNode.id })))")
 
                     // // log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
                     // log("positionAIGeneratedNodesDuringApply: newPosition: \(newPosition)")
@@ -979,31 +576,23 @@ extension Array where Element == NodeEntity {
                 return createdNode
             }
 
-            // ENHANCED LOGGING: Provide comprehensive summary for this depth level
-            let newNodesAtLevel = createdNodesAtThisLevel.filter { createdNodes.contains($0.id) }
-            let preservedNodes = processedNodes.filter { positionRegistry.shouldPreserve($0.id) }
-            let repositionedNodes = processedNodes.count - preservedNodes.count
+            // Summary logging for this depth level
+            log("📊 Depth \(depthLevel) summary: \(processedNodes.count) nodes positioned")
 
-            log("📊 TOPO-SUMMARY for depth \(depthLevel):")
-            log("   Total nodes processed: \(processedNodes.count)")
-            log("   New nodes: \(newNodesAtLevel.count)")
-            log("   Preserved positions: \(preservedNodes.count)")
-            log("   Repositioned: \(repositionedNodes)")
-
-            if !newNodesAtLevel.isEmpty {
-                let newNodeTitles = newNodesAtLevel.map { $0.title }.joined(separator: ", ")
-                log("   New nodes added: \(newNodeTitles)")
+            if !processedNodes.isEmpty {
+                let nodePositions = processedNodes.compactMap { node -> String? in
+                    switch node.nodeTypeEntity {
+                    case .patch(let patchEntity):
+                        let pos = patchEntity.canvasEntity.position
+                        return "\(node.title):(\(Int(pos.x)),\(Int(pos.y)))"
+                    case .layer:
+                        return "\(node.title):(layer)"
+                    default:
+                        return "\(node.title):(other)"
+                    }
+                }.joined(separator: ", ")
+                log("   Final positions: \(nodePositions)")
             }
-
-            if !conflictedPositions.isEmpty {
-                log("   ⚠️ Position conflicts resolved: \(conflictedPositions.count)")
-            }
-
-            let finalPositionsAtLevel = processedNodes.compactMap { node -> String? in
-                let positionStr = getPositionString(node)
-                return "\(node.title):\(positionStr)"
-            }.joined(separator: " | ")
-            log("   Final positions: \(finalPositionsAtLevel)")
 
             return processedNodes
         }
