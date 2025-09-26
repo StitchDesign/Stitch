@@ -233,6 +233,9 @@ private func restoreLayerCanvasItemPositions(
     preservedPositions: [LayerCanvasItemCoordinate: CGPoint],
     updateCanvasPosition: (CanvasItemId) -> CGPoint
 ) {
+    var canvasItemIndex = 0  // Counter for Y-offset staggering
+    let canvasItemVerticalStagger: CGFloat = 80.0
+
     for inputDefinition in layerNodeEntity.layer.layerGraphNode.inputDefinitions {
         var portData = layerNodeEntity[keyPath: inputDefinition.schemaPortKeyPath]
 
@@ -246,15 +249,21 @@ private func restoreLayerCanvasItemPositions(
                 )
 
                 if let preservedPosition = preservedPositions[coordinate] {
-                    // log("  ♻️ Restoring packed position for \(inputDefinition): \(preservedPosition)")
+                    log("  ♻️ Restoring packed position for \(inputDefinition.label): \(preservedPosition)")
                     canvas.position = preservedPosition
                 } else {
-                    let newPosition = updateCanvasPosition(.layerInput(.init(
+                    let basePosition = updateCanvasPosition(.layerInput(.init(
                         node: nodeId,
                         keyPath: .init(layerInput: inputDefinition, portType: .packed)
                     )))
-                    // log("  🆕 New packed position for \(inputDefinition): \(newPosition)")
-                    canvas.position = newPosition
+                    // Add Y-offset staggering to prevent canvas items from stacking
+                    let staggeredPosition = CGPoint(
+                        x: basePosition.x,
+                        y: basePosition.y + CGFloat(canvasItemIndex) * canvasItemVerticalStagger
+                    )
+                    log("  🆕 New packed position for \(inputDefinition.label): \(basePosition) → staggered: \(staggeredPosition)")
+                    canvas.position = staggeredPosition
+                    canvasItemIndex += 1
                 }
                 portData.packedData.canvasItem = canvas
             }
@@ -270,15 +279,21 @@ private func restoreLayerCanvasItemPositions(
                     )
 
                     if let preservedPosition = preservedPositions[coordinate] {
-                        // log("  ♻️ Restoring unpacked[\(index)] position for \(inputDefinition): \(preservedPosition)")
+                        log("  ♻️ Restoring unpacked[\(index)] position for \(inputDefinition.label): \(preservedPosition)")
                         canvas.position = preservedPosition
                     } else {
-                        let newPosition = updateCanvasPosition(.layerInput(.init(
+                        let basePosition = updateCanvasPosition(.layerInput(.init(
                             node: nodeId,
                             keyPath: .init(layerInput: inputDefinition, portType: .unpacked(index.asUnpackedPortType))
                         )))
-                        // log("  🆕 New unpacked[\(index)] position for \(inputDefinition): \(newPosition)")
-                        canvas.position = newPosition
+                        // Add Y-offset staggering to prevent canvas items from stacking
+                        let staggeredPosition = CGPoint(
+                            x: basePosition.x,
+                            y: basePosition.y + CGFloat(canvasItemIndex) * canvasItemVerticalStagger
+                        )
+                        log("  🆕 New unpacked[\(index)] position for \(inputDefinition.label): \(basePosition) → staggered: \(staggeredPosition)")
+                        canvas.position = staggeredPosition
+                        canvasItemIndex += 1
                     }
                     unpackedData.canvasItem = canvas
                 }
@@ -323,7 +338,13 @@ extension Array where Element == NodeEntity {
             return self
         }
 
-        // log("positionAIGeneratedNodesDuringApply: depthMap: \(depthMap)")
+        // DEBUG: Show depth assignment for each node
+        log("🗺️ Depth assignments:")
+        for (nodeId, depth) in depthMap {
+            let node = self.getNode(nodeId)
+            let nodeTitle = node?.title ?? "Unknown"
+            log("   Node \(nodeTitle) (\(nodeId.debugFriendlyId)): depth \(depth)")
+        }
 
         guard !depthMap.isEmpty else {
             //        fatalErrorIfDebug("Depth-map should never be empty")
@@ -354,6 +375,7 @@ extension Array where Element == NodeEntity {
         var runningX: CGFloat = 0
         depthLevels.sorted().forEach { depth in
             cumulativeXOffset[depth] = runningX
+            log("🏗️ Depth \(depth): cumulative xOffset=\(runningX), columnWidth=\(columnWidths[depth] ?? 0)")
             runningX += columnWidths[depth] ?? 0
         }
 
@@ -518,11 +540,15 @@ extension Array where Element == NodeEntity {
                     // Add horizontal stagger for multiple nodes at same depth to avoid cramping
                     let horizontalStagger: CGFloat = CGFloat(nodeIndex) * 50.0
 
+                    let cumulativeX = cumulativeXOffset[depthLevel] ?? 0
+                    let baseX = viewPortCenter.x + centeringOffset + cumulativeX
+                    let finalX = baseX + horizontalStagger
+
                     let newPosition = CGPoint(
-                        x: viewPortCenter.x + centeringOffset + (cumulativeXOffset[depthLevel] ?? 0) + horizontalStagger,
+                        x: finalX,
                         y: viewPortCenter.y + CGFloat(currentRow) * rowHeight + yOffset  // Apply collision avoidance offset
                     )
-                    log("📐 Position calc: y = \(viewPortCenter.y) + \(currentRow) * \(rowHeight) + \(yOffset) = \(newPosition.y)")
+                    log("📐 \(createdNode.title): depth=\(depthLevel), viewport=\(viewPortCenter.x), centering=\(centeringOffset), cumulative=\(cumulativeX), stagger=\(horizontalStagger) → finalX=\(finalX)")
 
                     // // log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
                     // log("positionAIGeneratedNodesDuringApply: newPosition: \(newPosition)")
