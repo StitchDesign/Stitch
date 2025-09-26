@@ -273,16 +273,16 @@ func makeClaudeStreamingRequest(
                         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(accumulatedContent)
                         
                         // Syntax → Actions
-                        var stitchActionsResult = try await codeParserResult.deriveStitchActions(
+                        var stitchActionsResult = try codeParserResult.deriveStitchActionsSync(
                             bindingDeclarations: codeParserResult.bindingDeclarations,
-                            document: fakeDoc)
+                            isStreaming: true)
                         
-                        await MainActor.run {
-                            stitchActionsResult
-                                .createAIGraph(document: fakeDoc)
+                        Task(priority: .high) { @MainActor [weak fakeDoc] in
+                            guard let fakeDoc else { return }
+                            stitchActionsResult.createAIGraph(document: fakeDoc)
+                            print("streamed graph:\n\(fakeDoc.graph.createSchema())")
                         }
                         
-                        print("streamed graph:\n\(fakeDoc.graph.createSchema())")
                         //                        // Clear thinking text once content starts
                         //                        await MainActor.run {
                         //                            if !document.streamingReasoningText.isEmpty {
