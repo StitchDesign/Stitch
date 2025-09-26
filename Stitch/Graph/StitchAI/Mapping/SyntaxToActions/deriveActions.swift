@@ -1706,7 +1706,8 @@ extension SyntaxView {
                     args: self.constructorArguments,
                     modifiers: self.modifiers,
                     childrenLayers: childResults.actions,
-                    bindingDeclarations: bindingDeclarations)
+                    bindingDeclarations: bindingDeclarations,
+                    isStreaming: isStreaming)
                 
                 silentErrors += layerDataResult.silentErrors
                 var layerData = layerDataResult.layerData
