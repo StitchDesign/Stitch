@@ -189,7 +189,10 @@ func makeClaudeStreamingRequest(
         
         // Debug: Track all thinking steps for debugging
         var allThinkingSteps: [String] = []
-        
+
+        // Streaming parse context for eager updates
+        var streamingContext = StreamingParseContext(eagerParseThreshold: 60)
+
         log("🔄 Starting to process Claude streaming response...")
         
         for try await line in asyncBytes.lines {
@@ -267,7 +270,44 @@ func makeClaudeStreamingRequest(
                         // This is regular text content
                         // log("📝 Text delta received: '\(text)' (length: \(text.count))")
                         accumulatedContent += text
-                        
+
+                        // EAGER PARSING: Check if we should attempt to parse the accumulated content
+                        if streamingContext.shouldAttemptParse(newTokens: text) {
+                            log("🔄 Attempting eager parse at \(streamingContext.totalTokenCount) tokens")
+
+                            // Capture current content for async parsing
+                            let contentToparse = accumulatedContent
+
+                            // Attempt to parse the accumulated content (async)
+                            Task { @MainActor in
+                                let parseResult = await StreamingParseContext.attemptParse(contentToparse, isComplete: false, document: document)
+
+                                switch parseResult {
+                                case .success(let actionsResult):
+                                    log("✅ Eager parse successful - applying partial graph")
+
+                                    // Apply the partial result with streaming mode
+                                    var mutableResult = actionsResult
+                                    await mutableResult.applyPartialAIGraph(
+                                        to: document,
+                                        viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
+                                        isStreaming: true
+                                    )
+
+                                case .failed(let error):
+                                    log("❌ Eager parse failed: \(error)")
+
+                                case .incomplete(let reason):
+                                    // log("⏳ Parse incomplete (expected): \(reason)")
+                                    break
+                                }
+                            }
+
+                            // Record the parse attempt (sync)
+                            // We'll assume success here since we can't wait for the async result
+                            streamingContext.recordParseAttempt(success: true)
+                        }
+
                         //                        // Clear thinking text once content starts
                         //                        await MainActor.run {
                         //                            if !document.streamingReasoningText.isEmpty {
@@ -289,7 +329,40 @@ func makeClaudeStreamingRequest(
                 
             case "message_stop":
                 log("🏁 Claude stream completed - message_stop received")
-                
+
+                // FINAL RECONCILIATION: Parse complete content with full reconciliation (Phase 2)
+                log("🎯 Starting Phase 2: Final reconciliation with complete content")
+
+                let accContent = accumulatedContent
+                Task { @MainActor in
+                    let finalParseResult = await StreamingParseContext.attemptParse(accContent, isComplete: true, document: document)
+
+                    switch finalParseResult {
+                    case .success(let actionsResult):
+                        log("✅ Final parse successful - applying complete graph with reconciliation")
+
+                        // Apply the final result with complete reconciliation (no streaming mode)
+                        var mutableResult = actionsResult
+                        await mutableResult.applyPartialAIGraph(
+                            to: document,
+                            viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
+                            isStreaming: false  // Phase 2: Full reconciliation
+                        )
+
+                        // Log final streaming statistics
+                        let stats = streamingContext.getStats()
+                        log("📊 Streaming session complete - Total tokens: \(stats.totalTokens), Parse attempts: \(stats.parseAttempts), Success rate: \(stats.successRatePercentage)")
+
+                    case .failed(let error):
+                        log("❌ Final parse failed: \(error)")
+                        // Show error to user - this shouldn't happen with complete content
+
+                    case .incomplete(let reason):
+                        log("⚠️ Final parse incomplete (unexpected): \(reason)")
+                        // This shouldn't happen with complete content
+                    }
+                }
+
                 // Monitor cache performance
                 if let usage = totalUsage {
                     await monitorClaudeStreamingCachePerformance(usage: usage)

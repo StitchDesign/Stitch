@@ -31,7 +31,7 @@ extension Array where Element == AIGraphData_V0.LayerData {
                           stateVarConnections: inout [String: [NodeIOCoordinate]]) {
         self.forEach { layerData in
             guard let layer = layerData.node_name.value.layer else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing("Failed to extract layer from layerData.node_name.value")
                 return
             }
             
@@ -75,12 +75,37 @@ extension SwiftSyntaxActionsResult {
     mutating func applyAIGraph(to document: StitchDocumentViewModel,
                                viewStatePatchConnections: [String : [NodeIOCoordinate]]) async {
         // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
-        self.createAIGraph(document: document)
+        self.createAIGraph(document: document, isStreaming: false)
         document.encodeProjectInBackground()
+    }
+
+    /// Apply AI graph changes with streaming awareness
+    /// - Parameters:
+    ///   - document: The document to apply changes to
+    ///   - viewStatePatchConnections: State variable connections
+    ///   - isStreaming: If true, preserves unmatched existing nodes (Phase 1). If false, performs full reconciliation (Phase 2)
+    @MainActor
+    mutating func applyPartialAIGraph(to document: StitchDocumentViewModel,
+                                      viewStatePatchConnections: [String : [NodeIOCoordinate]],
+                                      isStreaming: Bool) async {
+        log("🎯 applyPartialAIGraph called with isStreaming: \(isStreaming)")
+
+        if isStreaming {
+            log("📱 Phase 1 (Streaming): Preserving unmatched nodes, no deletions")
+        } else {
+            log("🏁 Phase 2 (Complete): Full reconciliation with deletions")
+        }
+
+        self.createAIGraph(document: document, isStreaming: isStreaming)
+
+        // Only encode in background for final phase to avoid excessive I/O
+        if !isStreaming {
+            document.encodeProjectInBackground()
+        }
     }
     
     @MainActor
-    mutating func createAIGraph(document: StitchDocumentViewModel) {
+    mutating func createAIGraph(document: StitchDocumentViewModel, isStreaming: Bool = false) {
         // STEP 1: Capture existing state for similarity matching
         let existingGraph = document.graph.createSchema()
         let previousSidebarSelection = document.graph.layersSidebarViewModel.primary
@@ -96,7 +121,9 @@ extension SwiftSyntaxActionsResult {
             previousSidebarSelection: previousSidebarSelection
         )
 
-        let matchingResults = performNodeSimilarityMatching(inputs: matchingInputs)
+        log("📊 Performing node similarity matching - isStreaming: \(isStreaming), existing nodes: \(existingGraph.nodes.count), new patch nodes: \(self.graphData.patchNodes.count), new layer groups: \(self.graphData.layer_data_list.count)")
+
+        let matchingResults = performNodeSimilarityMatching(inputs: matchingInputs, preserveUnmatched: isStreaming)
 
         // Apply results
         let updatedPatchNodes = matchingResults.updatedPatchNodes
@@ -104,6 +131,16 @@ extension SwiftSyntaxActionsResult {
         let layerCanvasItemPositions = matchingResults.layerCanvasItemPositions
         let newNodesForSelectedOldNodes = matchingResults.newNodesForSelectedOldNodes
         let layerIdMapping = matchingResults.layerIdMapping
+
+        log("✅ Node matching results - Matched nodes: \(matchedNodeIds.count), Canvas positions preserved: \(layerCanvasItemPositions.count), Selections to restore: \(newNodesForSelectedOldNodes.count)")
+
+        if isStreaming {
+            log("📱 Streaming mode: Existing unmatched nodes will be preserved")
+        } else {
+            let totalExistingNodes = existingGraph.nodes.count
+            let unmatchedNodes = totalExistingNodes - matchedNodeIds.count
+            log("🏁 Complete mode: \(unmatchedNodes) unmatched nodes will be removed from graph")
+        }
 
         // Sync patch graph nodes in document before parsing layers, which may need data from there
         var graphEntity = document.graph.createSchema()
@@ -206,7 +243,7 @@ extension NodeIOCoordinate {
     init(from aiLayerCoordinate: CurrentAIGraphData.LayerInputCoordinate,
          idMap: [String : UUID]) throws {
         guard let newId = idMap.get(aiLayerCoordinate.layer_id) else {
-            fatalErrorIfDevDebug("updateCustomInputValueFromAI: idMap did not have aiLayerCoordinate.layer_id \(aiLayerCoordinate.layer_id), idMap: \(idMap)")
+            fatalErrorIfDevDebugUnlessEagerParsing("updateCustomInputValueFromAI: idMap did not have aiLayerCoordinate.layer_id \(aiLayerCoordinate.layer_id), idMap: \(idMap)")
             throw AIPatchBuilderRequestError.nodeIdNotFound
         }
         

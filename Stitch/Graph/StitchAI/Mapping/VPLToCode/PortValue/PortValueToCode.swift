@@ -76,7 +76,12 @@ extension NodeConnectionType {
 extension Array where Element == PortValue {
     func createSwiftUICodeArg() throws -> String {
         guard let firstValue = self.first else {
-            fatalError()
+            if FeatureFlags.DO_NOT_CRASH_DURING_EAGER_PARSING {
+                log("🚨 Would crash during eager parsing (skipped): Array of PortValue is empty when creating SwiftUI code arg at PortValueToCode.swift:79")
+                throw EagerParsingSkippedError(message: "Array of PortValue is empty when creating SwiftUI code arg", file: "PortValueToCode.swift", line: 79)
+            } else {
+                fatalError("Array of PortValue is empty when creating SwiftUI code arg")
+            }
         }
         
         let valueDesc = PrintablePortValueDescription(firstValue)
@@ -167,7 +172,7 @@ func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) 
             
         case .portValueDescription:
             guard let firstArg = c.arguments.first else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return ""
             }
             
@@ -198,16 +203,16 @@ func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) 
         return "[\(dict)]"
     case .stateAccess(_):
         // State access should not use PortValueDescription according to system prompt
-        fatalErrorIfDebug("/* state access - should not be wrapped */")
+        fatalErrorIfDebugUnlessEagerParsing("/* state access - should not be wrapped */")
         return ""
     case .closure:
-        fatalErrorIfDebug()
+        fatalErrorIfDebugUnlessEagerParsing()
         return ""
     case .viewEvent(let x):
-        fatalErrorIfDebug()
+        fatalErrorIfDebugUnlessEagerParsing()
         return ""
     case .view(let x):
-        fatalErrorIfDebug()
+        fatalErrorIfDebugUnlessEagerParsing()
         return ""
     }
 }
@@ -261,7 +266,7 @@ func renderArgWithoutPortValueDescription(_ arg: SyntaxViewModifierArgumentType)
             
         case .portValueDescription:
             guard let firstArg = c.arguments.first else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return ""
             }
             
@@ -312,7 +317,7 @@ func renderArgWithoutPortValueDescription(_ arg: SyntaxViewModifierArgumentType)
             """
     case .view(let view):
         // What is this, actually?
-        fatalErrorIfDebug()
+        fatalErrorIfDebugUnlessEagerParsing()
         return "VIEW: \(view.name)"
     }
 }

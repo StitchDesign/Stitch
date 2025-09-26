@@ -173,7 +173,7 @@ extension SwiftPatchCodeExpression {
         case .ref(let string):
             return string
         default:
-            fatalErrorIfDebug("not yet supported")
+            fatalErrorIfDebugUnlessEagerParsing("not yet supported")
             return ""
         }
     }
@@ -193,7 +193,7 @@ extension Array where Element == (String, SwiftParserInitializerType) {
     func getSwiftPatchCodeTypes() throws -> [(String, SwiftPatchCodeType)] {
         try self.compactMap { data -> (String, SwiftPatchCodeType)? in
             guard let result = try data.1.getSwiftPatchCodeType() else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return nil
             }
             return (data.0, result)
@@ -243,7 +243,7 @@ extension SwiftParserInitializerType {
                 guard arraySyntax.elements.count == 1,
                       let firstElem = arraySyntax.elements.first else {
                     // Only know of count sof 1 so far
-                    fatalErrorIfDebug()
+                    fatalErrorIfDebugUnlessEagerParsing()
                     return nil
                 }
                 
@@ -265,12 +265,12 @@ extension SwiftParserInitializerType {
                 } catch let error as SwiftUISyntaxError {
                     return .error(error)
                 } catch {
-                    fatalErrorIfDebug(error.localizedDescription)
+                    fatalErrorIfDebugUnlessEagerParsing(error.localizedDescription)
                     return nil
                 }
                 
                 guard let defaultArgs = args.defaultArgs else {
-                    fatalErrorIfDebug()
+                    fatalErrorIfDebugUnlessEagerParsing()
                     return nil
                 }
                 
@@ -306,7 +306,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
         switch expr {
         case .portValuesInit(let array):
             guard let pvDescription = array.first else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return []
             }
             
@@ -355,12 +355,12 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                                 viewEvent: viewEvent)
                         
                     default:
-                        fatalErrorIfDebug()
+                        fatalErrorIfDebugUnlessEagerParsing()
                         return [.portData(.values([.number(.zero)]))]
                     }
                     
                 default:
-                    fatalErrorIfDebug()
+                    fatalErrorIfDebugUnlessEagerParsing()
                     return [.portData(.values([.number(.zero)]))]
                 }
             } else {
@@ -378,7 +378,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
         
         case .patchNodeInit(let patchNodeData):
             guard let portIndex = portIndex else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return []
             }
             
@@ -400,7 +400,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
             return patchNodeResult
             
         case .jsRef:
-            fatalErrorIfDebug("Not expected here")
+            fatalErrorIfDebugUnlessEagerParsing("Not expected here")
             return [.portData(.values([.number(.zero)]))]
         }
     }
@@ -444,7 +444,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                 throw error
                 
             default:
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return [.portData(.values([.number(.zero)]))]
             }
         
@@ -452,7 +452,7 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
             throw swiftUISyntaxError
             
         default:
-            fatalErrorIfDebug()
+            fatalErrorIfDebugUnlessEagerParsing()
             return [.portData(.values([.number(.zero)]))]
         }
     }
@@ -492,7 +492,7 @@ extension Array where Element == SwiftPatchCodeType {
                 // We always expect the relevant port data to be at the end
                 guard let lastItem = portDataResult.last,
                       let connectionType = lastItem.portData else {
-                    fatalErrorIfDebug()
+                    fatalErrorIfDebugUnlessEagerParsing()
                     return .init(id: coordinate,
                                  portData: .values([.number(0)]))
                 }
@@ -515,7 +515,7 @@ extension SwiftPatchCodeType {
             return expr.createSwiftUICode()
         
         default:
-            fatalErrorIfDebug("not yet supported")
+            fatalErrorIfDebugUnlessEagerParsing("not yet supported")
             return ""
         }
     }
@@ -798,7 +798,7 @@ extension NodeEntity {
         switch self.nodeTypeEntity {
         case .patch(var patchNode):
             guard let portId = index.portId else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return
             }
             
@@ -817,7 +817,7 @@ extension NodeEntity {
             }
             
             guard var inputData = patchNode.inputs[safe: portId] else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return
             }
             
@@ -842,7 +842,7 @@ extension NodeEntity {
             
         case .layer(var layerNode):
             guard let layerInputType = index.layerInput else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return
             }
             
@@ -850,7 +850,7 @@ extension NodeEntity {
             self.nodeTypeEntity = .layer(layerNode)
             
         default:
-            fatalErrorIfDebug()
+            fatalErrorIfDebugUnlessEagerParsing()
         }
     }
 }
@@ -864,7 +864,7 @@ extension SwiftPatchCodeType {
                          existingStateVarConnections: [String: [NodeIOCoordinate]],
                          nodesDict: [UUID: NodeEntity]) async throws -> [PatchSyntaxResultType] {
         guard let aiManager = document.aiManager else {
-            fatalErrorIfDebug()
+            fatalErrorIfDebugUnlessEagerParsing()
             return []
         }
         
@@ -873,7 +873,7 @@ extension SwiftPatchCodeType {
             switch codeType {
             case .patchNodeInit(let patchNodeData):
                 guard let varName = varName else {
-                    fatalErrorIfDebug()
+                    fatalErrorIfDebugUnlessEagerParsing()
                     return []
                 }
                 
@@ -890,7 +890,7 @@ extension SwiftPatchCodeType {
                 guard let refCode = varNameToCode.get(varName) else {
                     // TODO: will likely fail with port value if used
                     
-                    fatalErrorIfDebug()
+                    fatalErrorIfDebugUnlessEagerParsing()
                     return []
                 }
                 
@@ -907,7 +907,7 @@ extension SwiftPatchCodeType {
                 guard let sourceCode = varNameToCode.get(jsData.fnName)?
                     .jsScript,
                       let varName = varName else {
-                    fatalErrorIfDebug()
+                    fatalErrorIfDebugUnlessEagerParsing()
                     return []
                 }
 
@@ -933,7 +933,7 @@ extension SwiftPatchCodeType {
             case .portValuesInit(let args):
                 // Check for PortValueDescription
                 guard let firstArg = args.first else {
-                    fatalErrorIfDebug()
+                    fatalErrorIfDebugUnlessEagerParsing()
                     return []
                 }
                 
@@ -946,7 +946,7 @@ extension SwiftPatchCodeType {
         
         case .subscriptType(let subscriptCodeType, let portIndex):
             guard let varName = varName else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return []
             }
             
@@ -966,7 +966,7 @@ extension SwiftPatchCodeType {
                 return result
                 
             default:
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return []
             }
             
@@ -978,7 +978,7 @@ extension SwiftPatchCodeType {
             throw error
             
         default:
-            fatalErrorIfDebug("Wasn't expected here")
+            fatalErrorIfDebugUnlessEagerParsing("Wasn't expected here")
             return []
         }
     }
@@ -1065,14 +1065,14 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
                                  forKey: nodeEntity.id)
                 
             default:
-                fatalErrorIfDebug("not yet supported")
+                fatalErrorIfDebugUnlessEagerParsing("not yet supported")
             }
             
         case .portData(let portData):
             switch portData {
             case .upstreamConnection(let upstreamCoordinate):
                 guard let varName = varName else {
-                    fatalErrorIfDebug()
+                    fatalErrorIfDebugUnlessEagerParsing()
                     return
                 }
                 
@@ -1088,7 +1088,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
             if let layerInputCoordinate = layerInputCoordinate {
                 guard let layerInputType = layerInputCoordinate.keyPath,
                       var layerNodeEntity = self.get(layerInputCoordinate.nodeId)?.layerNodeEntity else {
-                    fatalErrorIfDebug()
+                    fatalErrorIfDebugUnlessEagerParsing()
                     return
                 }
                     
@@ -1100,7 +1100,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
         case .connection(let portEdgeData):
             // Update already created node with an upstream connection
             guard var toNode = self.get(portEdgeData.to.nodeId) else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return
             }
             
@@ -1110,7 +1110,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
             case .patch(var patchNode):
                 guard let inputPortIndex = portEdgeData.to.portId,
                       toNode.inputs[safe: inputPortIndex] != nil else {
-                    fatalErrorIfDebug()
+                    fatalErrorIfDebugUnlessEagerParsing()
                     return
                 }
                 
@@ -1119,7 +1119,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
                 
             case .layer(var layerNode):
                 guard let keyPath = portEdgeData.to.keyPath else {
-                    fatalErrorIfDebug()
+                    fatalErrorIfDebugUnlessEagerParsing()
                     return
                 }
                 
@@ -1127,7 +1127,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
                 toNode.nodeTypeEntity = .layer(layerNode)
                 
             default:
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return
             }
             
@@ -1138,7 +1138,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
             guard let upstreamPatchCoordinates = stateVarConnections
                 .get(stateName),
                   let layerInputCoordinate = layerInputCoordinate else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return
             }
             
@@ -1148,7 +1148,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
                     var layerInputCoordinate = layerInputCoordinate
                     guard let unapckedPortType = UnpackedPortType(rawValue: index),
                           var layerKeyPath = layerInputCoordinate.keyPath else {
-                        fatalErrorIfDebug()
+                        fatalErrorIfDebugUnlessEagerParsing()
                         return
                     }
                     
@@ -1170,7 +1170,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
             // Packed scenario
             else {
                 guard let upstreamPatchCoordinate = upstreamPatchCoordinates.first else {
-                    fatalErrorIfDebug()
+                    fatalErrorIfDebugUnlessEagerParsing()
                     return
                 }
                 
@@ -1186,7 +1186,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
             
         case .portValues(let data):
             guard var nodeEntity = self.get(data.inputCoordinate.nodeId) else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return
             }
             
@@ -1198,7 +1198,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
         case .jsSettings(let data):
             guard var nodeEntity = self.get(data.id),
                   let patchNode = nodeEntity.patchNodeEntity else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return
             }
             
@@ -1265,7 +1265,7 @@ extension Array where Element == (String, SwiftPatchCodeType) {
             } catch let error as SwiftUISyntaxError {
                 caughtErrors.append(error)
             } catch {
-                fatalErrorIfDebug(error.localizedDescription)
+                fatalErrorIfDebugUnlessEagerParsing(error.localizedDescription)
                 log("deriveStitchActions: error.localizedDescription: \(error.localizedDescription)")
                 continue
             }
@@ -1396,7 +1396,7 @@ extension SyntaxView {
             guard let initializer = bindingDeclarations.get(self.name),
                   let viewBuilderFn = initializer.viewBuilderScript else {
                 silentErrors.append(SwiftUISyntaxError.unsupportedSyntaxViewName(self.name))
-//                fatalErrorIfDebug()
+//                fatalErrorIfDebugUnlessEagerParsing()
                 log("Could not derive?")
                 return nil
             }
@@ -1438,7 +1438,7 @@ extension SyntaxView {
                 var layerData = layerDataResult.layerData
                 
                 guard let layer = layerData.node_name.value.layer else {
-                    fatalErrorIfDebug("deriveStitchActions error: no layer found for \(layerData.node_name.value)")
+                    fatalErrorIfDebugUnlessEagerParsing("deriveStitchActions error: no layer found for \(layerData.node_name.value)")
                     // log("deriveStitchActions error: no layer found for \(layerData.node_name.value)")
                     throw SwiftUISyntaxError.layerDecodingFailed
                 }
@@ -1459,12 +1459,12 @@ extension SyntaxView {
                     return .init(actions: childResults.actions + backgroundLayerData.actions,
                                  caughtErrors: silentErrors)
                 } else {
-                    fatalErrorIfDebug(error.localizedDescription)
+                    fatalErrorIfDebugUnlessEagerParsing(error.localizedDescription)
                     log("SyntaxView: NOT shouldFailSilently: deriveStitchActions: error.localizedDescription: \(error.localizedDescription)")
                     return nil
                 }
             } catch {
-                 fatalErrorIfDebug(error.localizedDescription)
+                 fatalErrorIfDebugUnlessEagerParsing(error.localizedDescription)
                 log("SyntaxView: deriveStitchActions: error.localizedDescription: \(error.localizedDescription)")
                 return nil
             }

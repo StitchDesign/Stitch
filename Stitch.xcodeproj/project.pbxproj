@@ -1071,6 +1071,7 @@
 		ECD9F2AF2DD66DA300616C21 /* LayerPortAddedToCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD9F2AE2DD66DA300616C21 /* LayerPortAddedToCanvas.swift */; };
 		ECDAFFF52E1F739A00AF71E9 /* DeclarativeViewConstructors.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDAFFF42E1F739A00AF71E9 /* DeclarativeViewConstructors.swift */; };
 		ECDAFFF72E200F4400AF71E9 /* DeclarativeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDAFFF62E200F4400AF71E9 /* DeclarativeUtils.swift */; };
+		ECDB4C7F2E8637D500CB0BD0 /* StreamingParseContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDB4C7E2E8637D500CB0BD0 /* StreamingParseContext.swift */; };
 		ECDBD8AB27A1D21C00F8DC91 /* FullScreenGestureRecognizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDBD8AA27A1D21C00F8DC91 /* FullScreenGestureRecognizerView.swift */; };
 		ECDBD8AD27A1D2E300F8DC91 /* GraphBaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDBD8AC27A1D2E200F8DC91 /* GraphBaseView.swift */; };
 		ECDC622026583B0C00F67ED8 /* GrayscaleNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDC621F26583B0C00F67ED8 /* GrayscaleNode.swift */; };
@@ -2243,6 +2244,7 @@
 		ECD9F2AE2DD66DA300616C21 /* LayerPortAddedToCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerPortAddedToCanvas.swift; sourceTree = "<group>"; };
 		ECDAFFF42E1F739A00AF71E9 /* DeclarativeViewConstructors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeclarativeViewConstructors.swift; sourceTree = "<group>"; };
 		ECDAFFF62E200F4400AF71E9 /* DeclarativeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeclarativeUtils.swift; sourceTree = "<group>"; };
+		ECDB4C7E2E8637D500CB0BD0 /* StreamingParseContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingParseContext.swift; sourceTree = "<group>"; };
 		ECDBD8AA27A1D21C00F8DC91 /* FullScreenGestureRecognizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenGestureRecognizerView.swift; sourceTree = "<group>"; };
 		ECDBD8AC27A1D2E200F8DC91 /* GraphBaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphBaseView.swift; sourceTree = "<group>"; };
 		ECDC621F26583B0C00F67ED8 /* GrayscaleNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrayscaleNode.swift; sourceTree = "<group>"; };
@@ -4750,6 +4752,7 @@
 				EC913A712DE54A0E0056CEE1 /* StitchAIRatingToast.swift */,
 				ECF639502E4DA955005E766E /* OpenAIConfiguration.swift */,
 				EC2A33082E4EC77200482AB7 /* ClaudeConfiguration.swift */,
+				ECDB4C7E2E8637D500CB0BD0 /* StreamingParseContext.swift */,
 				EC6914DF2DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift */,
 				ECC27E092DFBF94E00C2C6AF /* AINodeHelpers.swift */,
 				B5EFD5C62D650D47006A68FB /* StitchAITrainingData.swift */,
@@ -6968,6 +6971,7 @@
 				ECC301B329380EBB00C34F10 /* ValueAtPathNode.swift in Sources */,
 				B5EFD5B12D5D896B006A68FB /* StitchAISystemPromptGenerator.swift in Sources */,
 				EC1587452DE1287900A9C50A /* HardcodedPatchByNodeTypeSizes.swift in Sources */,
+				ECDB4C7F2E8637D500CB0BD0 /* StreamingParseContext.swift in Sources */,
 				EC4CFB6726FE483300D085F3 /* StitchMicrophone.swift in Sources */,
 				EC560E1D293AAB1600350046 /* RunningTotalNode.swift in Sources */,
 				EC9AB63F28DFE66A002810BC /* ScrollFoundation.swift in Sources */,

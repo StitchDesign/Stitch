@@ -29,7 +29,7 @@ extension Array where Element == PatchSyntaxResultType {
     func createUnpackedEvents(layerInputPort: LayerInputPort) throws -> [LayerPortDerivation] {
         let unpackedPortEvents = self.enumerated().map { portIndex, layerPortEvent in
             guard let unpackedPortIndex = UnpackedPortType(rawValue: portIndex) else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return LayerPortDerivation(input: layerInputPort,
                                            inputData: [layerPortEvent])
             }
@@ -226,7 +226,7 @@ extension SyntaxViewModifierName {
             
         case .scrollDisabled:
             // TODO: come back here; .scrollDisabled out to set scroll-enabled x and y BOTH false ?
-            fatalErrorIfDebug()
+            fatalErrorIfDebugUnlessEagerParsing()
             return .bool(false)
             
         case .cornerRadius, .blur, .rotationEffect, .rotation3DEffect:
@@ -313,7 +313,7 @@ extension SyntaxViewName {
             } catch let error as SwiftUISyntaxError {
                 silentErrors.append(error)
             } catch {
-                fatalErrorIfDebug(error.localizedDescription)
+                fatalErrorIfDebugUnlessEagerParsing(error.localizedDescription)
             }
         }
         
@@ -421,7 +421,7 @@ extension SyntaxViewName {
         case .scrollView:
             // Handled by `ScrollViewViewConstructor` now
             
-//            fatalErrorIfDebug()
+//            fatalErrorIfDebugUnlessEagerParsing()
 //            let layerData = try Self
 //                .createScrollGroupLayer(args: args,
 //                                        childrenLayers: childrenLayers)
@@ -684,7 +684,7 @@ extension SyntaxViewName {
         // Unpacked scenarios
         return portDataFromArgs.enumerated().compactMap { (portIndex, portDataFromArg) -> LayerPortDerivation? in
             guard let unpackedType = UnpackedPortType(rawValue: portIndex) else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return nil
             }
             
@@ -709,7 +709,7 @@ extension SyntaxViewName {
             switch context {
             case .none:
                 // Edge case behavior needs context
-                // fatalErrorIfDebug()
+                // fatalErrorIfDebugUnlessEagerParsing()
                 throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
                                 
             case .viewConstructor(let viewName, let port):
@@ -961,7 +961,7 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
         
     case .portValueDescription:
         guard let firstArg = complexType.arguments.first else {
-            fatalErrorIfDebug()
+            fatalErrorIfDebugUnlessEagerParsing()
             return []
         }
         
@@ -979,7 +979,7 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
             
         case .memberAccess(let memberAccess):
             guard let viewEvent = viewEvent else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return []
             }
 
@@ -990,7 +990,7 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
         default:
             guard let secondArgString = complexType.arguments[safe: 1]?.value.simpleValue,
                   let nodeType = NodeType(llmString: secondArgString.stripQuotes()) else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return []
             }
             

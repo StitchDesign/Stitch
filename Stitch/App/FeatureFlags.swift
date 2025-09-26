@@ -52,10 +52,23 @@ struct FeatureFlags {
     static let SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON = false
 #endif
     
-    
+
 #if STITCH_AI_REASONING
     static let STITCH_AI_REASONING = true
 #else
     static let STITCH_AI_REASONING = false
     #endif
+
+    /*
+     Prevent crashes during eager AI parsing when encountering incomplete syntax.
+
+     When eager parsing is enabled, partial SwiftUI code may trigger fatalError calls
+     throughout the AI parsing pipeline. This flag converts those crashes to logs,
+     allowing streaming to continue gracefully.
+     */
+#if DEBUG || DEV_DEBUG
+    static let DO_NOT_CRASH_DURING_EAGER_PARSING: Bool = true
+#else
+    static let DO_NOT_CRASH_DURING_EAGER_PARSING: Bool = false
+#endif
 }

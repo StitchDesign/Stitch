@@ -49,6 +49,44 @@ func fatalErrorIfDevDebug(_ message: String = "") {
 #endif
 }
 
+/// Conditional fatal error that can be disabled during eager AI parsing to prevent crashes from incomplete syntax
+func fatalErrorIfDebugUnlessEagerParsing(_ message: String = "", file: String = #file, line: Int = #line) {
+    if FeatureFlags.DO_NOT_CRASH_DURING_EAGER_PARSING {
+        let fileName = (file as NSString).lastPathComponent
+        log("🚨 Would crash during eager parsing (skipped): \(message) at \(fileName):\(line)")
+        return
+    }
+    fatalErrorIfDebug(message)
+}
+
+/// Alternative for fatalErrorIfDevDebug that can be disabled during eager parsing
+func fatalErrorIfDevDebugUnlessEagerParsing(_ message: String = "", file: String = #file, line: Int = #line) {
+    if FeatureFlags.DO_NOT_CRASH_DURING_EAGER_PARSING {
+        let fileName = (file as NSString).lastPathComponent
+        log("🚨 Would crash during eager parsing (skipped): \(message) at \(fileName):\(line)")
+        return
+    }
+    fatalErrorIfDevDebug(message)
+}
+
+/// Error thrown when eager parsing encounters a fatal error condition but doesn't want to crash
+struct EagerParsingSkippedError: Error {
+    let message: String
+    let file: String
+    let line: Int
+}
+
+/// Alternative for situations that would normally use fatalError() but should be skipped during eager parsing
+/// Instead of returning Never, this throws an error that can be caught
+func throwIfEagerParsingElseFatal(_ message: String = "", file: String = #file, line: Int = #line) throws {
+    if FeatureFlags.DO_NOT_CRASH_DURING_EAGER_PARSING {
+        let fileName = (file as NSString).lastPathComponent
+        log("🚨 Would crash during eager parsing (skipped): \(message) at \(fileName):\(line)")
+        throw EagerParsingSkippedError(message: message, file: fileName, line: line)
+    }
+    fatalError(message)
+}
+
 func assertInDebug(_ conditional: Bool) {
 #if DEBUG || DEV_DEBUG || STITCH_AI_TESTING
     assert(conditional)

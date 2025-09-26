@@ -379,11 +379,22 @@ struct NodeEntitySimilarityMatcher {
 // MARK: - Main Node Matching Function
 
 /// Performs comprehensive node similarity matching between old and new graphs
-/// - Parameter inputs: All required inputs for matching
+/// - Parameters:
+///   - inputs: All required inputs for matching
+///   - preserveUnmatched: If true, preserves existing unmatched nodes for streaming. If false, removes unmatched nodes for final reconciliation.
 /// - Returns: Complete matching results with updated nodes and mappings
 func performNodeSimilarityMatching(
-    inputs: NodeMatchingInputs
+    inputs: NodeMatchingInputs,
+    preserveUnmatched: Bool = false
 ) -> NodeMatchingResults {
+    log("🔍 performNodeSimilarityMatching: preserveUnmatched=\(preserveUnmatched), existing nodes=\(inputs.existingNodes.count), new patch nodes=\(inputs.newPatchNodes.count)")
+
+    // Use higher similarity threshold during streaming to avoid false matches with incomplete nodes
+    let patchSimilarityThreshold = preserveUnmatched ? 0.8 : PATCH_MATCHING_SIMILARITY_THRESHOLD
+    let layerSimilarityThreshold = preserveUnmatched ? 0.8 : LAYER_MATCHING_SIMILARITY_THRESHOLD
+
+    log("📊 Using similarity thresholds - Patch: \(patchSimilarityThreshold), Layer: \(layerSimilarityThreshold)")
+
     let matcher = NodeEntitySimilarityMatcher(oldNodes: inputs.existingNodes)
     var matchedNodeIds = Set<UUID>()
 
@@ -405,8 +416,8 @@ func performNodeSimilarityMatching(
     var newNodesForSelectedOldNodes = Set<UUID>()  // new node IDs that should be selected
 
     for match in optimalMatches {
-        // Only accept matches with high similarity scores
-        if match.similarity > PATCH_MATCHING_SIMILARITY_THRESHOLD {
+        // Only accept matches with similarity scores above threshold (higher threshold during streaming)
+        if match.similarity > patchSimilarityThreshold {
             // Store the position mapping: new node should use old node's position
             if case .patch(let matchedPatchEntity) = match.oldNode.nodeTypeEntity {
                 nodePositionMappings[match.newNodeId] = matchedPatchEntity.canvasEntity.position
@@ -469,8 +480,8 @@ func performNodeSimilarityMatching(
     var layerCanvasItemPositions: [LayerCanvasItemCoordinate: CGPoint] = [:]
 
     for match in optimalLayerMatches {
-        // Only accept matches with reasonable similarity scores
-        if match.similarity > LAYER_MATCHING_SIMILARITY_THRESHOLD {
+        // Only accept matches with similarity scores above threshold (higher threshold during streaming)
+        if match.similarity > layerSimilarityThreshold {
             // Store the position mapping: new layer should use old layer's position
             if case .layer(let matchedLayerEntity) = match.oldNode.nodeTypeEntity {
                 // log("📍 Capturing canvas positions for matched layer \(match.oldNode.id) -> \(match.newNodeId)")
@@ -503,7 +514,7 @@ func performNodeSimilarityMatching(
     var layerIdMapping: [String: UUID] = [:]
 
     for match in optimalLayerMatches {
-        if match.similarity > LAYER_MATCHING_SIMILARITY_THRESHOLD {
+        if match.similarity > layerSimilarityThreshold {
             // Find the AI node_id string that corresponds to this matched UUID
             if let nodeId = findLayerNodeId(in: inputs.newLayerDataList, targetUUID: match.newNodeId) {
                 layerIdMapping[nodeId] = match.newNodeId
@@ -511,11 +522,73 @@ func performNodeSimilarityMatching(
         }
     }
 
+    // STREAMING MODE: Preserve unmatched existing nodes
+    var finalPatchNodes = updatedPatchNodes
+    var finalMatchedNodeIds = matchedNodeIds
+    var finalNewNodesForSelectedOldNodes = newNodesForSelectedOldNodes
+
+    if preserveUnmatched {
+        // Find existing nodes that weren't matched to any new nodes
+        let matchedOldNodeIds = Set(optimalMatches.compactMap { match in
+            match.similarity > patchSimilarityThreshold ? match.oldNode.id : nil
+        })
+
+        let unmatchedExistingNodes = inputs.existingNodes.filter { existingNode in
+            !matchedOldNodeIds.contains(existingNode.id)
+        }
+
+        log("📱 Streaming mode: Preserving \(unmatchedExistingNodes.count) unmatched existing nodes")
+
+        // Add unmatched existing nodes to the final result
+        finalPatchNodes.append(contentsOf: unmatchedExistingNodes)
+
+        // Track these preserved nodes
+        let preservedNodeIds = Set(unmatchedExistingNodes.map(\.id))
+        finalMatchedNodeIds.formUnion(preservedNodeIds)
+
+        // Preserve selections for unmatched nodes that were previously selected
+        let preservedSelections = preservedNodeIds.intersection(inputs.previousSidebarSelection)
+        finalNewNodesForSelectedOldNodes.formUnion(preservedSelections)
+
+        log("📱 Preserved selections: \(preservedSelections.count) unmatched nodes remain selected")
+
+        // Also preserve unmatched layer nodes during streaming
+        let matchedLayerOldNodeIds = Set(optimalLayerMatches.compactMap { match in
+            match.similarity > layerSimilarityThreshold ? match.oldNode.id : nil
+        })
+
+        let unmatchedExistingLayerNodes = inputs.existingNodes.filter { existingNode in
+            // Only include layer nodes that weren't matched
+            if case .layer = existingNode.nodeTypeEntity, !matchedLayerOldNodeIds.contains(existingNode.id) {
+                return true
+            }
+            return false
+        }
+
+        log("📱 Streaming mode: Also preserving \(unmatchedExistingLayerNodes.count) unmatched existing layer nodes")
+
+        if !unmatchedExistingLayerNodes.isEmpty {
+            finalPatchNodes.append(contentsOf: unmatchedExistingLayerNodes)
+
+            let preservedLayerNodeIds = Set(unmatchedExistingLayerNodes.map(\.id))
+            finalMatchedNodeIds.formUnion(preservedLayerNodeIds)
+
+            // Preserve layer selections too
+            let preservedLayerSelections = preservedLayerNodeIds.intersection(inputs.previousSidebarSelection)
+            finalNewNodesForSelectedOldNodes.formUnion(preservedLayerSelections)
+        }
+
+    } else {
+        let totalExisting = inputs.existingNodes.count
+        let matched = matchedNodeIds.count
+        log("🏁 Complete mode: \(totalExisting - matched) existing nodes will be removed")
+    }
+
     return NodeMatchingResults(
-        updatedPatchNodes: updatedPatchNodes,
-        matchedNodeIds: matchedNodeIds,
+        updatedPatchNodes: finalPatchNodes,
+        matchedNodeIds: finalMatchedNodeIds,
         layerCanvasItemPositions: layerCanvasItemPositions,
-        newNodesForSelectedOldNodes: newNodesForSelectedOldNodes,
+        newNodesForSelectedOldNodes: finalNewNodesForSelectedOldNodes,
         layerIdMapping: layerIdMapping
     )
 }

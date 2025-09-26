@@ -123,7 +123,7 @@ extension SwiftUIViewVisitor {
         guard let elements = node.arguments.first?.expression.as(ArrayExprSyntax.self)?.elements else {
             // Check if DeclReferenceExprSyntax, which should point to a PortValuesList
             guard let labeledExpr = node.arguments.first?.expression.as(DeclReferenceExprSyntax.self) else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return nil
             }
             
@@ -141,7 +141,7 @@ extension SwiftUIViewVisitor {
                     let argData = try Self.parseArgumentType(from: innerFirstElem)
                     return .value(argData)
                 } catch {
-                    fatalErrorIfDebug(error.localizedDescription)
+                    fatalErrorIfDebugUnlessEagerParsing(error.localizedDescription)
                     log("visitPatchData: had error \(error.localizedDescription) for arg \(arg)")
                     return nil
                 }
@@ -162,7 +162,7 @@ extension SwiftUIViewVisitor {
             }
             
             else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 log("visitPatchData: had problem")
                 return nil
             }
@@ -185,7 +185,7 @@ extension SwiftUIViewVisitor {
             // Assumed to be patch node
             guard let patchNode = self.visitPatchData(patchFn,
                                                       varName: nil) else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 log("visitSubscriptData: HAD MAJOR ERROR")
                 return nil
             }
@@ -212,7 +212,7 @@ extension SwiftParserPatchData {
                 // Recursively call data
                 guard let result = try SwiftParserInitializerType.subscriptRef(subscriptRef)
                     .getSwiftPatchCodeType() else {
-                    fatalErrorIfDebug()
+                    fatalErrorIfDebugUnlessEagerParsing()
                     return .subscriptType(.expression(.ref("none")), subscriptRef.portIndex)
                 }
                 
@@ -226,7 +226,7 @@ extension SwiftParserPatchData {
         switch self.patchType {
         case .native(let nativePatchType):
             guard let patchName = CurrentAIGraphData.StitchAIPatchOrLayer.init(value: .init(nativePatchType))?.value.patch else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 return nil
             }
             
@@ -246,7 +246,7 @@ extension SwiftUIViewVisitor {
               let portIndex = Int(labeledExpr.literal.text) else {
             // Check if it's a subscript call for a stitch function
             guard let patchNodeName = subscriptCallExpr.getPatchNodeName() else {
-                 fatalErrorIfDebug()
+                 fatalErrorIfDebugUnlessEagerParsing()
                 log("deriveSubscriptData: HAD MAJOR ERROR")
                 return nil
             }
@@ -259,7 +259,7 @@ extension SwiftUIViewVisitor {
             guard let patchNode = self.visitPatchData(funcExpr,
                                                       // no var name from subscript
                                                       varName: nil) else {
-                fatalErrorIfDebug()
+                fatalErrorIfDebugUnlessEagerParsing()
                 log("deriveSubscriptData: HAD MAJOR ERROR")
                 return nil
             }
@@ -280,7 +280,7 @@ extension SwiftUIViewVisitor {
         }
         
         else {
-             fatalErrorIfDebug()
+             fatalErrorIfDebugUnlessEagerParsing()
             log("deriveSubscriptData: HAD MAJOR ERROR")
             return nil
         }
@@ -309,7 +309,7 @@ extension Patch {
                 guard let upstreamNode = nodesDict.get(upstreamCoordinate.nodeId),
                       let upstreamPatchNode = upstreamNode.nodeTypeEntity.patchNodeEntity else {
                     // MARK: if layer connection we won't have this data, just skip and hope it works out on the next input
-//                    fatalErrorIfDebug()
+//                    fatalErrorIfDebugUnlessEagerParsing()
                     // log("deriveNodeValueType: no upstream patch node")
                     continue
                 }
@@ -319,7 +319,7 @@ extension Patch {
                                            nodeType: upstreamPatchNode.userVisibleType)
                 
                 guard let upstreamOutputValue = upstreamPatchOutputValues[safe: upstreamCoordinate.portId ?? -1] else {
-                    fatalErrorIfDebug()
+                    fatalErrorIfDebugUnlessEagerParsing()
                     continue
                 }
                 
