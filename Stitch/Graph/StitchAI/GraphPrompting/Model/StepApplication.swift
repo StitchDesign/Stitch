@@ -302,7 +302,7 @@ extension Array where Element == NodeEntity {
         matchedNodeIds: Set<UUID> = [],
         layerCanvasItemPositions: [LayerCanvasItemCoordinate: CGPoint] = [:]
     ) -> Self {
-        log("🚀 positionAIGeneratedNodesDuringApply called: \(self.count) nodes, ViewPort: \(viewPortCenter), Matched: \(matchedNodeIds.count), Canvas positions: \(layerCanvasItemPositions.count)")
+        log("🚀 Positioning \(self.count) nodes at \(Int(viewPortCenter.x)),\(Int(viewPortCenter.y))")
 
         // TODO: if we have a chain of nodes, shift our starting point further west
         //    var viewPortCenter = viewPortCenter
@@ -425,11 +425,14 @@ extension Array where Element == NodeEntity {
             log("🔄 AI nodes repositioned: Moving \(yOffset) points down to avoid overlaps")
         }
 
+        // Track row index per depth level to avoid stacking nodes at same position
+        var rowIndexPerDepth: [Int: Int] = [:]
+
         // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
         let updatedNodes = depthLevels.flatMap { depthLevel -> [NodeEntity] in
-            
+
             // log("positionAIGeneratedNodesDuringApply: on depthLevel: \(depthLevel)")
-            
+
             // ───────── vertical layout helpers ─────────
             let verticalPadding: CGFloat = 80.0
             // Tallest observer at this depth
@@ -447,8 +450,12 @@ extension Array where Element == NodeEntity {
                     .max() ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER
                 return maxH + verticalPadding
             }()
-            var rowIndexForDepth = 0
-            
+
+            // Initialize row index for this depth level if not already set
+            if rowIndexPerDepth[depthLevel] == nil {
+                rowIndexPerDepth[depthLevel] = 0
+            }
+
             // TODO: just rewrite the adjacency // logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
             // Find all the created-nodes at this depth-level,
             // and adjust their positions
@@ -460,20 +467,44 @@ extension Array where Element == NodeEntity {
                  // log("positionAIGeneratedNodesDuringApply: Could not get depth level for \($0.debugFriendlyId)")
                 return nil
             }
-            
-            return createdNodesAtThisLevel.map { createdNode in
+
+            // STEP: Detect position conflicts (anti-stacking logic)
+            let currentPositions = createdNodesAtThisLevel.compactMap { node -> CGPoint? in
+                return node.nodeTypeEntity.patchNodeEntity?.canvasEntity.position
+            }
+
+            // Find positions that appear more than once (conflicts)
+            var positionCounts: [CGPoint: Int] = [:]
+            currentPositions.forEach { position in
+                positionCounts[position] = (positionCounts[position] ?? 0) + 1
+            }
+            let conflictedPositions = Set(positionCounts.compactMap { (position, count) in
+                count > 1 ? position : nil
+            })
+
+            if !conflictedPositions.isEmpty {
+                log("🚨 Position conflicts detected at depth \(depthLevel): \(conflictedPositions.count) conflicted positions")
+            }
+
+            let processedNodes = createdNodesAtThisLevel.enumerated().map { (nodeIndex, createdNode) in
                 var createdNode = createdNode
 
                 // log("positionAIGeneratedNodesDuringApply: on createdNode \(createdNode.id) \(createdNode.kind)")
 
                 let isNodeMatched = matchedNodeIds.contains(createdNode.id)
 
-                // Skip positioning for matched PATCH nodes only - layer nodes need canvas item handling
+                // Skip positioning for matched PATCH nodes only if they have a unique, valid position
                 if isNodeMatched && createdNode.nodeTypeEntity.patchNodeEntity != nil {
-                    // log("⏭️ Skipping positioning for matched patch node \(createdNode.id)")
-                    return createdNode
+                    let currentPosition = createdNode.nodeTypeEntity.patchNodeEntity?.canvasEntity.position ?? CGPoint.zero
+                    let hasPositionConflict = conflictedPositions.contains(currentPosition)
+
+                    if currentPosition != CGPoint.zero && !hasPositionConflict {
+                        // log("⏭️ Skipping positioning for matched patch node \(createdNode.id) with unique position \(currentPosition)")
+                        return createdNode
+                    }
+                    // log("🔄 Matched patch node \(createdNode.id) has conflicted or zero position, applying repositioning")
                 }
-                
+
                 let updateCanvasPosition = { (canvasId: CanvasItemId) -> CGPoint in
                     var size: CGSize = canvasId
                         .getHardcodedSize(kind: createdNode.kind,
@@ -483,11 +514,13 @@ extension Array where Element == NodeEntity {
                     // Add horizontal gap only
                     size.width += horizontalPadding
 
+                    // Use the base row for this depth level plus the node's index within this level
+                    let baseRow = rowIndexPerDepth[depthLevel] ?? 0
+                    let currentRow = baseRow + nodeIndex
                     let newPosition = CGPoint(
                         x: viewPortCenter.x + centeringOffset + (cumulativeXOffset[depthLevel] ?? 0),
-                        y: viewPortCenter.y + CGFloat(rowIndexForDepth) * rowHeight + yOffset  // Apply collision avoidance offset
+                        y: viewPortCenter.y + CGFloat(currentRow) * rowHeight + yOffset  // Apply collision avoidance offset
                     )
-                    rowIndexForDepth += 1
 
                     // // log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
                     // log("positionAIGeneratedNodesDuringApply: newPosition: \(newPosition)")
@@ -500,7 +533,7 @@ extension Array where Element == NodeEntity {
                         .node(createdNode.id)
                     )
                     createdNode.nodeTypeEntity = .patch(patchNode)
-                    
+
                 case .layer(var layerNodeEntity):
                     let isLayerMatched = matchedNodeIds.contains(createdNode.id)
                     // log("🎯 Processing layer \(createdNode.id), matched: \(isLayerMatched)")
@@ -514,24 +547,29 @@ extension Array where Element == NodeEntity {
                     )
 
                     createdNode.nodeTypeEntity = .layer(layerNodeEntity)
-                
+
                 case .group(var canvasEntity):
                     canvasEntity.position = updateCanvasPosition(
                         .node(createdNode.id)
                     )
-                    
+
                     createdNode.nodeTypeEntity = .group(canvasEntity)
-                
+
                 case .component(var component):
                     component.canvasEntity.position = updateCanvasPosition(
                         .node(createdNode.id)
                     )
-                    
+
                     createdNode.nodeTypeEntity = .component(component)
                 }
-                
+
                 return createdNode
             }
+
+            // Update the row index for the next depth level
+            rowIndexPerDepth[depthLevel] = (rowIndexPerDepth[depthLevel] ?? 0) + createdNodesAtThisLevel.count
+
+            return processedNodes
         }
         
         // Log final positioning results summary
@@ -545,7 +583,7 @@ extension Array where Element == NodeEntity {
             return nil
         }.joined(separator: ", ")
 
-        log("🚀 positionAIGeneratedNodesDuringApply completed: \(updatedNodes.count) nodes positioned - [\(finalPositions)]")
+        log("🚀 Positioned: \(finalPositions)")
 
         return updatedNodes
     }

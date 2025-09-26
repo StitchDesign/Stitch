@@ -111,23 +111,10 @@ extension SwiftSyntaxActionsResult {
         let previousSidebarSelection = document.graph.layersSidebarViewModel.primary
         var matchedNodeIds = Set<UUID>()
 
-        // Debug: Log initial graph state (important for empty graph scenarios)
-        log("📊 Initial graph state:")
-        log("📊   Existing nodes: \(existingGraph.nodes.count)")
-        log("📊   Previous sidebar selection: \(previousSidebarSelection.count)")
-        log("📊   Is streaming: \(isStreaming)")
-
         if existingGraph.nodes.isEmpty {
-            log("📊 🆕 EMPTY GRAPH SCENARIO: Starting with no existing nodes")
+            log("📊 Empty graph: creating \(self.graphData.patchNodes.count) new nodes")
         } else {
-            log("📊 Existing nodes:")
-            for node in existingGraph.nodes {
-                if case .patch(let patchEntity) = node.nodeTypeEntity {
-                    log("📊   Existing patch node \(node.id): \(patchEntity.patch) at \(patchEntity.canvasEntity.position)")
-                } else if case .layer(let layerEntity) = node.nodeTypeEntity {
-                    log("📊   Existing layer node \(node.id): \(layerEntity.layer) at \(layerEntity.debugPositionString)")
-                }
-            }
+            log("📊 Graph update: \(existingGraph.nodes.count) existing → \(self.graphData.patchNodes.count) new (streaming: \(isStreaming))")
         }
 
         var viewStatePatchConnections = self.graphData.viewStatePatchConnections
@@ -140,7 +127,7 @@ extension SwiftSyntaxActionsResult {
             previousSidebarSelection: previousSidebarSelection
         )
 
-        log("📊 Performing node similarity matching - isStreaming: \(isStreaming), existing nodes: \(existingGraph.nodes.count), new patch nodes: \(self.graphData.patchNodes.count), new layer groups: \(self.graphData.layer_data_list.count)")
+        // Removed verbose matching log
 
         let matchingResults = performNodeSimilarityMatching(inputs: matchingInputs, preserveUnmatched: isStreaming)
 
@@ -151,15 +138,7 @@ extension SwiftSyntaxActionsResult {
         let newNodesForSelectedOldNodes = matchingResults.newNodesForSelectedOldNodes
         let layerIdMapping = matchingResults.layerIdMapping
 
-        log("✅ Node matching results - Matched nodes: \(matchedNodeIds.count), Canvas positions preserved: \(layerCanvasItemPositions.count), Selections to restore: \(newNodesForSelectedOldNodes.count)")
-
-        if isStreaming {
-            log("📱 Streaming mode: Existing unmatched nodes will be preserved")
-        } else {
-            let totalExistingNodes = existingGraph.nodes.count
-            let unmatchedNodes = totalExistingNodes - matchedNodeIds.count
-            log("🏁 Complete mode: \(unmatchedNodes) unmatched nodes will be removed from graph")
-        }
+        // Results: \(matchedNodeIds.count) matched, streaming=\(isStreaming)
 
         // Sync patch graph nodes in document before parsing layers, which may need data from there
         var graphEntity = document.graph.createSchema()

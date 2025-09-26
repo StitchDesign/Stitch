@@ -387,13 +387,11 @@ func performNodeSimilarityMatching(
     inputs: NodeMatchingInputs,
     preserveUnmatched: Bool = false
 ) -> NodeMatchingResults {
-    log("🔍 performNodeSimilarityMatching: preserveUnmatched=\(preserveUnmatched), existing nodes=\(inputs.existingNodes.count), new patch nodes=\(inputs.newPatchNodes.count)")
+    log("🔍 Node matching: preserve=\(preserveUnmatched), existing=\(inputs.existingNodes.count), new=\(inputs.newPatchNodes.count)")
 
     // Use higher similarity threshold during streaming to avoid false matches with incomplete nodes
     let patchSimilarityThreshold = preserveUnmatched ? 0.8 : PATCH_MATCHING_SIMILARITY_THRESHOLD
     let layerSimilarityThreshold = preserveUnmatched ? 0.8 : LAYER_MATCHING_SIMILARITY_THRESHOLD
-
-    log("📊 Using similarity thresholds - Patch: \(patchSimilarityThreshold), Layer: \(layerSimilarityThreshold)")
 
     let matcher = NodeEntitySimilarityMatcher(oldNodes: inputs.existingNodes)
     var matchedNodeIds = Set<UUID>()
@@ -433,8 +431,7 @@ func performNodeSimilarityMatching(
         }
     }
 
-    // Debug: Log new nodes being created
-    log("🆕 Creating \(inputs.newPatchNodes.count) new patch nodes")
+    // Skip detailed creation logging
 
     // Apply preserved positions to matched patch nodes
     var updatedPatchNodes = inputs.newPatchNodes
@@ -540,7 +537,7 @@ func performNodeSimilarityMatching(
             !matchedOldNodeIds.contains(existingNode.id)
         }
 
-        log("📱 Streaming mode: Preserving \(unmatchedExistingNodes.count) unmatched existing nodes")
+        log("📱 Preserving \(unmatchedExistingNodes.count) unmatched nodes")
 
         // Add unmatched existing nodes to the final result
         finalPatchNodes.append(contentsOf: unmatchedExistingNodes)
@@ -568,7 +565,7 @@ func performNodeSimilarityMatching(
             return false
         }
 
-        log("📱 Streaming mode: Also preserving \(unmatchedExistingLayerNodes.count) unmatched existing layer nodes")
+        // Also preserve layer nodes silently
 
         if !unmatchedExistingLayerNodes.isEmpty {
             finalPatchNodes.append(contentsOf: unmatchedExistingLayerNodes)
@@ -587,11 +584,7 @@ func performNodeSimilarityMatching(
         log("🏁 Complete mode: \(totalExisting - matched) existing nodes will be removed")
     }
 
-    // Debug: Log final results
-    log("🎯 Final matching results:")
-    log("🎯   Total nodes: \(finalPatchNodes.count)")
-    log("🎯   Matched node IDs: \(finalMatchedNodeIds.count)")
-    log("🎯   Layer canvas positions: \(layerCanvasItemPositions.count)")
+    // Final results: \(finalPatchNodes.count) nodes, \(finalMatchedNodeIds.count) matched
 
     // Debug: Log summary of final node positions
     let patchPositions = finalPatchNodes.compactMap { node -> String? in

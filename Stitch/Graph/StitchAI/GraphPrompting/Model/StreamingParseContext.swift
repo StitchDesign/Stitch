@@ -24,7 +24,7 @@ struct StreamingParseContext {
     /// Token threshold for triggering eager parsing
     let eagerParseThreshold: Int
 
-    init(eagerParseThreshold: Int = 200) {
+    init(eagerParseThreshold: Int = 300) {
         self.eagerParseThreshold = eagerParseThreshold
     }
 
