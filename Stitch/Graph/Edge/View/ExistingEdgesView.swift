@@ -33,6 +33,7 @@ struct GraphConnectedEdgesView: View {
             if !self.isEdgeAnimating(edgeData) {
                 ConnectedEdgeView(data: edgeData,
                                   edgeAnimationEnabled: edgeAnimationEnabled)
+                .animation(.linear, value: edgeData)
             }
         }
     }
