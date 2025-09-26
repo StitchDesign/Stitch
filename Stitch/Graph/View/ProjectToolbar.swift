@@ -123,19 +123,21 @@ struct ProjectToolbarViewModifier: ViewModifier {
                }
 
                 ToolbarItemGroup(placement: .primaryAction) {
-                    CatalystTopBarGraphButtons(
-                        document: document,
-                        isDebugMode: document.isDebugMode,
-                        hasActiveGroupFocused: document.groupNodeFocused.isDefined,
-                        isFullscreen: document.isFullScreenMode,
-                        isPreviewWindowShown: document.showPreviewWindow
-                    )
+                    ControlGroup {
+                        CatalystTopBarGraphButtons(
+                            document: document,
+                            isDebugMode: document.isDebugMode,
+                            hasActiveGroupFocused: document.groupNodeFocused.isDefined,
+                            isFullscreen: document.isFullScreenMode,
+                            isPreviewWindowShown: document.showPreviewWindow
+                        )
+                    }
                 }
                 #endif
 
             }
             .animation(.spring, value: document.restartPrototypeWindowIconRotationZ) // .animation modifier must be placed here
-           .toolbarBackground(.visible, for: .automatic)
-           .toolbar(hideToolbar ? .hidden : .automatic)
+            .toolbarBackground(.visible, for: .automatic)
+            .toolbar(hideToolbar ? .hidden : .automatic)
     }
 }
