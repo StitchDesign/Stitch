@@ -25,7 +25,6 @@ struct PatchOrLayerSizes {
 }
 
 extension CanvasItemId {
-    @MainActor
     func getHardcodedSize(kind: NodeKind,
                           nodeType: NodeType?) -> CGSize? {
         

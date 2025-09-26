@@ -64,7 +64,6 @@ extension Array where Element == any StepActionable {
 }
 
 
-@MainActor
 func calculateAINodesAdjacency(
     nodes: [NodeEntity]
 ) -> (depthMap: DepthMap?,

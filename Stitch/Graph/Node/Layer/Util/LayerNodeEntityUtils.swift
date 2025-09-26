@@ -14,7 +14,6 @@ extension LayerInputDataEntity {
 }
 
 extension LayerNodeEntity {
-    @MainActor
     init(nodeId: NodeId,
          layer: Layer,
          positionPort: LayerInputEntity = .empty,

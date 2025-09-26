@@ -25,7 +25,6 @@ struct AIPatchBuilderFunctionInputsSchema: Encodable {
 }
 
 extension Array where Element == AIGraphData_V0.LayerData {
-    @MainActor
     func createLayerNodes(layerGroupId: UUID?,
                           nodesDict: inout [UUID: NodeEntity],
                           stateVarConnections: inout [String: [NodeIOCoordinate]]) {
@@ -75,17 +74,37 @@ extension Array where Element == AIGraphData_V0.LayerData {
     }
 }
 
+struct StitchAIGraphEntityResult {
+    let graph: GraphEntity
+    let errors: [SwiftUISyntaxError]
+}
+
 extension SwiftSyntaxActionsResult {
     @MainActor
-    mutating func applyAIGraph(to document: StitchDocumentViewModel,
-                               viewStatePatchConnections: [String : [NodeIOCoordinate]]) async {
+    func applyAIGraph(to document: StitchDocumentViewModel,
+                      viewStatePatchConnections: [String : [NodeIOCoordinate]]) async {
         // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
-        self.createAIGraph(document: document)
+        self.processAIGraph(document: document)
         document.encodeProjectInBackground()
     }
     
     @MainActor
-    mutating func createAIGraph(document: StitchDocumentViewModel) {
+    func processAIGraph(document: StitchDocumentViewModel) {
+        let result = self.createAIGraph(docId: document.graph.id.value,
+                                        viewPortCenter: document.viewPortCenter,
+                                        groupNodeFocused: document.groupNodeFocused?.groupNodeId)
+        
+        // Update topological data--needs to be forced here because of script building using this data
+        document.graph.update(from: result.graph)
+        document.graph.updateGraphData(document)
+        
+        // Report errors
+        result.errors.displayErrors(document: document)
+    }
+    
+    func createAIGraph(docId: UUID,
+                       viewPortCenter: CGPoint,
+                       groupNodeFocused: UUID?) -> StitchAIGraphEntityResult {
         // STEP 1: Capture existing state for similarity matching
 //        let existingGraph = document.graph.createSchema()
 //        let previousSidebarSelection = document.graph.layersSidebarViewModel.primary
@@ -95,7 +114,7 @@ extension SwiftSyntaxActionsResult {
 
         // Instantiate new GraphEntity instance, starting with known patch nodes
         var graphEntity = GraphEntity.createEmpty()
-        graphEntity.id = document.graph.id.value
+        graphEntity.id = docId
         graphEntity.nodes = self.graphData.patchNodes
 
         var nodesDict = graphEntity.nodes.reduce(into: [UUID: NodeEntity]()) { result, nodeEntity in
@@ -120,7 +139,7 @@ extension SwiftSyntaxActionsResult {
         // Can't build the depth map from the `patch_data`,
         // since those UUIDs have not been remapped yet
         let repositionedNodes = graphEntity.nodes.positionAIGeneratedNodesDuringApply(
-            viewPortCenter: document.viewPortCenter)
+            viewPortCenter: viewPortCenter)
         graphEntity.nodes = repositionedNodes
         
         // Make group Id map current context
@@ -128,15 +147,13 @@ extension SwiftSyntaxActionsResult {
             var nodeEntity = nodeEntity
             nodeEntity.canvasEntityMutator { canvasEntity in
                 var canvasEntity = canvasEntity
-                canvasEntity.parentGroupNodeId = document.groupNodeFocused?.groupNodeId
+                canvasEntity.parentGroupNodeId = groupNodeFocused
                 return canvasEntity
             }
             return nodeEntity
         }
         
-        // Update topological data--needs to be forced here because of script building using this data
-        document.graph.update(from: graphEntity)
-        document.graph.updateGraphData(document)
+
 
         // STEP 3: Restore sidebar selections for matched nodes
         
@@ -145,8 +162,8 @@ extension SwiftSyntaxActionsResult {
         //        document.graph.layersSidebarViewModel.primary = newNodesForSelectedOldNodes
 //        log("Restored sidebar selection for \(newNodesForSelectedOldNodes.count) matched nodes")
 
-        // Report errors
-        caughtErrors.displayErrors(document: document)
+        return .init(graph: graphEntity,
+                     errors: caughtErrors)
     }
 }
 
