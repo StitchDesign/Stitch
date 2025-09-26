@@ -855,7 +855,8 @@ extension SyntaxViewName {
                 .reorderUnapckedValues(varName: varName,
                                        viewEvent: viewEvent,
                                        nodesDict: nodesDict,
-                                       nodeType: nodeType)
+                                       nodeType: nodeType,
+                                       isStreaming: isStreaming)
             
         case .array(let arrayArgs):
             // Recursively determine PortValue of each arg
