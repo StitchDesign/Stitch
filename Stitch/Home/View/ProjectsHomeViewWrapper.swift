@@ -9,83 +9,77 @@ import SwiftUI
 import StitchSchemaKit
 
 struct ProjectsHomeViewWrapper: View {
-
+    
     @Environment(StitchStore.self) var store: StitchStore
-
+    
     // TODO: remove for Catalyst
     @Namespace var routerNamespace
-
+    
     var body: some View {
         ProjectsHomeView(store: store,
                          namespace: routerNamespace)
-
-            #if !targetEnvironment(macCatalyst)
-            .navigationTitle("Stitch Projects")
-            .navigationBarTitleDisplayMode(.inline)
-            #endif
-
-            .toolbar {
-
-                #if targetEnvironment(macCatalyst)
-                // HACK: places an item in center of toolbar, so that trailing buttons stay on right-side even when nav bar title removed
-                ToolbarItem(placement: .secondaryAction) {
-                    StitchTextView(string: "Stitch Projects",
-                                   font: WINDOW_NAVBAR_FONT)
-                    // Hack also works if we hide this view
-                    //                    .width(1).opacity(0)
-                }
-                #endif
-
-                ToolbarItemGroup(placement: .navigationBarTrailing) {
-                    if isPhoneDevice {
-                        iPadTopBarButton(
-                            action: SHOW_APP_SETTINGS_ACTION,
-                            iconName: APP_SETTINGS_ICON_NAME)
-                    } else {
+        
+#if !targetEnvironment(macCatalyst)
+        .navigationTitle("Stitch Projects")
+        .navigationBarTitleDisplayMode(.inline)
+#endif
+        
+        .toolbar {
+            
+#if targetEnvironment(macCatalyst)
+            // HACK: places an item in center of toolbar, so that trailing buttons stay on right-side even when nav bar title removed
+            ToolbarItem(placement: .secondaryAction) {
+                StitchTextView(string: "Stitch Projects",
+                               font: WINDOW_NAVBAR_FONT)
+                .padding(.horizontal)
+                // Hack also works if we hide this view
+                //                    .width(1).opacity(0)
+            }
+#endif
+            
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                if isPhoneDevice {
+                    iPadTopBarButton(
+                        action: SHOW_APP_SETTINGS_ACTION,
+                        iconName: APP_SETTINGS_ICON_NAME)
+                } else {
 #if targetEnvironment(macCatalyst)
 
-//                        if FeatureFlags.SHOW_AI_TABLE_ROWS_VIEWER {
-//                            CatalystNavBarButton("tablecells",
-//                                                 toolTip: "Open AI Table Viewer") { [weak store] in
-//                                store?.navPath = [.graphGenerationTableView]
-//                            }
-//                            // Resolves issue where hover was still active after entering newly created project and then exiting
-//                            .id(UUID())
-//                        }
-                        
+                    
 #if STITCH_AI_REASONING || DEV_DEBUG
-                        CatalystNavBarButton("document.viewfinder.fill",
-                                             toolTip: "Open AI Preview") { [weak store] in
-                            guard let store = store else {
-                                return
-                            }
-                            let (document, encoder) = store.createAIDocumentPreviewer()
-                            if store.navPath.isEmpty {
-                                store.navPath = [.aiPreviewer(document, encoder)]
-                            } else {
-                                store.navPath = []
-                            }
-                            //                            store.showAIResponseViewer.toggle()
-                            
+                    CatalystNavBarButton("document.viewfinder.fill",
+                                         toolTip: "Open AI Preview") { [weak store] in
+                        guard let store = store else {
+                            return
                         }
-                        // Resolves issue where hover was still active after entering newly created project and then exiting
-                        .id(UUID())
- #endif
+                        let (document, encoder) = store.createAIDocumentPreviewer()
+                        if store.navPath.isEmpty {
+                            store.navPath = [.aiPreviewer(document, encoder)]
+                        } else {
+                            store.navPath = []
+                        }
+                        //                            store.showAIResponseViewer.toggle()
                         
+                    }
+                    // Resolves issue where hover was still active after entering newly created project and then exiting
+                                         .id(UUID())
+#endif
+                    
+                    ControlGroup {
                         CatalystNavBarButton(.NEW_PROJECT_SF_SYMBOL_NAME,
                                              toolTip: "New Project") { [weak store] in
                             store?.createNewProjectSideEffect(isProjectImport: false)
                         }
-                    // Resolves issue where hover was still active after entering newly created project and then exiting
-                    .id(UUID())
+                        // Resolves issue where hover was still active after entering newly created project and then exiting
+                                             .id(UUID())
                         
                         CatalystNavBarButton(.OPEN_SAMPLE_PROJECTS_MODAL,
                                              toolTip: "Open Sample Projects") { [weak store] in
                             store?.conditionallToggleSampleProjectsModal()
                         }
                         // Resolves issue where hover was still active after entering newly created project and then exiting
-                        .id(UUID())
-                                                
+                                             .id(UUID())
+                        
                         TopBarFeedbackButtonsView(document: nil)
                         // Hides the little arrow on Catalyst
                             .menuIndicator(.hidden)
@@ -97,17 +91,11 @@ struct ProjectsHomeViewWrapper: View {
                             SHOW_APP_SETTINGS_ACTION()
                         }
                                              .id(UUID())
-                                                
+                    }
+                    
 #else
-                        
-                        
-#if STITCH_AI_REASONING || DEV_DEBUG
-//                        iPadNavBarButton(action: { [weak store] in
-//                            store?.navPath = [.graphGenerationTableView]
-//                        },
-//                                         iconName: .sfSymbol("tablecells"))
-#endif
-                        
+                    
+                    ControlGroup {
                         iPadNavBarButton(action: { [weak store] in
                             store?.createNewProjectSideEffect(isProjectImport: false)
                         },
@@ -120,15 +108,16 @@ struct ProjectsHomeViewWrapper: View {
                         
                         TopBarFeedbackButtonsView(document: nil,
                                                   showLabel: false)
-                            .modifier(iPadTopBarButtonStyle())
+                        .modifier(iPadTopBarButtonStyle())
                         
                         iPadNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
                                          iconName: PROJECT_SETTINGS_ICON_NAME)
-#endif
-                        
                     }
+#endif
+                    
                 }
             }
+        }
     }
 }
 
