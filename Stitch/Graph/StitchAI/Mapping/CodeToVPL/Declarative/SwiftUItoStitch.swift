@@ -26,7 +26,8 @@ protocol FromSwiftUIViewToStitch {
     // Creates complete LayerData with children and custom value events
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData
 }
 
@@ -42,7 +43,7 @@ protocol PortValuesPackModifiable: FromSwiftUIViewModifierToStitch {
 }
 
 extension PortValuesPackModifiable {
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(isStreaming: Bool = false) throws -> [LayerPortDerivation] {
         // Reorder arguments to match layer unpack ordering
         let layerPortEvents = try self.args
             .reorderUnapckedValues(varName: nil,
@@ -73,7 +74,9 @@ extension PortValuesPackModifiable {
         
         // Pack up multiple values
         guard let packedValue = parsedValues.pack(type: Self.nodeType) else {
-            fatalErrorIfDebug()
+            if !isStreaming {
+                fatalErrorIfDebug()
+            }
             let unpackedPortEvents = try layerPortEvents
                 .createUnpackedEvents(layerInputPort: Self.layerInputPort)
             return unpackedPortEvents

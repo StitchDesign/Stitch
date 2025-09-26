@@ -265,7 +265,8 @@ extension SyntaxViewName {
             layerData = try constructor
                 .value
                 .createCustomValueEvents(childrenLayers: childrenLayers,
-                                         nodeId: id.description)
+                                         nodeId: id.description,
+                                         isStreaming: isStreaming)
                                         
         case .other, .none:
             let args = args?.defaultArgs ?? []
@@ -653,7 +654,7 @@ extension SyntaxViewName {
     ) throws -> [LayerPortDerivation] {
         // Try to use ViewModifierConstructor for structured parsing first
         if let viewModifierConstructor = createKnownViewModifier(modifierName: modifierName, arguments: arguments) {
-            return try viewModifierConstructor.value.createCustomValueEvents()
+            return try viewModifierConstructor.value.createCustomValueEvents(isStreaming: isStreaming)
             
             // // Return the first matching port value for this modifier
             // for customInput in customInputValues {
