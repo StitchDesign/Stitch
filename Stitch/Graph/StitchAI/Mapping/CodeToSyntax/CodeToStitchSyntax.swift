@@ -22,9 +22,11 @@ enum ParseContext {
 final class SwiftUIViewVisitor: SyntaxVisitor {
     // Bypasses view parsing logic, used by some parsing helpers for gestures
     let willParseView: Bool
+    let isStreaming: Bool
     
-    init(willParseView: Bool) {
+    init(willParseView: Bool, isStreaming: Bool = false) {
         self.willParseView = willParseView
+        self.isStreaming = isStreaming
         super.init(viewMode: .sourceAccurate)
     }
 
@@ -129,7 +131,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         let refName = refExpr.baseName.trimmedDescription
         
         if let subscriptExpr = assinmentElem.as(SubscriptCallExprSyntax.self),
-           let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptExpr) {
+           let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptExpr, isStreaming: self.isStreaming) {
             self.bindingDeclarations
                 .append((refName, .stateMutation(subscriptRef)))
             return .skipChildren
@@ -212,7 +214,8 @@ extension SwiftUIViewVisitor {
     /// Parses SwiftUI code into a ViewNode structure
     static func parseSwiftUICode(_ swiftUICode: String,
                                  context: ParseContext = .topLevel,
-                                 willParseView: Bool = true) -> SwiftUIViewParserResult {
+                                 willParseView: Bool = true,
+                                 isStreaming: Bool = false) -> SwiftUIViewParserResult {
 //        log("\n==== PARSING CODE ====\n\(swiftUICode)\n=====================\n")
 
         // First extract the struct from mixed text (handles LLM responses with explanations)
@@ -239,7 +242,7 @@ extension SwiftUIViewVisitor {
 //#endif
         
         // Create a visitor that will extract the view structure
-        let visitor = SwiftUIViewVisitor(willParseView: willParseView)
+        let visitor = SwiftUIViewVisitor(willParseView: willParseView, isStreaming: isStreaming)
         visitor.walk(sourceFile)
                 
         return .init(viewStack: visitor.viewStack,
@@ -449,3 +452,4 @@ extension String {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
+

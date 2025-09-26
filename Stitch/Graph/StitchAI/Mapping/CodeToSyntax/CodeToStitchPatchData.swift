@@ -175,7 +175,7 @@ extension SwiftUIViewVisitor {
     
     func visitSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax) -> SwiftParserInitializerType? {
         // Subscript reference to some existing outputs
-        guard let initializerFromSubscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptCallExpr) else {
+        guard let initializerFromSubscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptCallExpr, isStreaming: self.isStreaming) else {
             return nil
         }
         
@@ -241,12 +241,12 @@ extension SwiftParserPatchData {
 }
 
 extension SwiftUIViewVisitor {
-    func deriveSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax) -> SwiftParserInitializerType? {
+    func deriveSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax, isStreaming: Bool = false) -> SwiftParserInitializerType? {
         guard let labeledExpr = subscriptCallExpr.arguments.first?.expression.as(IntegerLiteralExprSyntax.self),
               let portIndex = Int(labeledExpr.literal.text) else {
             // Check if it's a subscript call for a stitch function
             guard let patchNodeName = subscriptCallExpr.getPatchNodeName() else {
-                 fatalErrorIfDebug()
+                 if !isStreaming { fatalErrorIfDebug() }
                 log("deriveSubscriptData: HAD MAJOR ERROR")
                 return nil
             }
@@ -259,7 +259,7 @@ extension SwiftUIViewVisitor {
             guard let patchNode = self.visitPatchData(funcExpr,
                                                       // no var name from subscript
                                                       varName: nil) else {
-                fatalErrorIfDebug()
+                if !isStreaming { fatalErrorIfDebug() }
                 log("deriveSubscriptData: HAD MAJOR ERROR")
                 return nil
             }
@@ -280,7 +280,7 @@ extension SwiftUIViewVisitor {
         }
         
         else {
-             fatalErrorIfDebug()
+             if !isStreaming { fatalErrorIfDebug() }
             log("deriveSubscriptData: HAD MAJOR ERROR")
             return nil
         }
@@ -335,3 +335,4 @@ extension Patch {
         return nil
     }
 }
+
