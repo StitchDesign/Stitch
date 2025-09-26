@@ -273,7 +273,7 @@ func makeClaudeStreamingRequest(
                         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(accumulatedContent)
                         
                         // Syntax → Actions
-                        var stitchActionsResult = try codeParserResult.deriveStitchActionsSync(
+                        let stitchActionsResult = try codeParserResult.deriveStitchActionsSync(
                             bindingDeclarations: codeParserResult.bindingDeclarations,
                             isStreaming: true)
                         
@@ -295,12 +295,11 @@ func makeClaudeStreamingRequest(
 //                            previousSidebarSelection: previousSidebarSelection
 //                        )
                         
-                        // TODO: this is where we would process the streamed request but something broke
-//                        Task(priority: .high) { @MainActor [weak fakeDoc] in
-//                            guard let fakeDoc else { return }
-//                            stitchActionsResult.createAIGraph(document: fakeDoc)
-//                            print("streamed graph:\n\(fakeDoc.graph.createSchema())")
-//                        }
+                        Task(priority: .high) { @MainActor [weak fakeDoc] in
+                            guard let fakeDoc else { return }
+                            stitchActionsResult.processAIGraph(document: fakeDoc)
+                            print("streamed graph:\n\(fakeDoc.graph.createSchema())")
+                        }
                         
                         //                        // Clear thinking text once content starts
                         //                        await MainActor.run {

@@ -41,9 +41,8 @@ struct StitchAIProjectViewer: View {
                 document: document)
     
             await MainActor.run {
-                var stitchActionsResult = stitchActionsResult
                 stitchActionsResult
-                    .createAIGraph(document: document)
+                    .processAIGraph(document: document)
             }
         }
     }

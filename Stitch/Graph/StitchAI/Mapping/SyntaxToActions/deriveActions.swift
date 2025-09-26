@@ -715,7 +715,6 @@ extension SwiftPatchNodeCode {
 }
 
 extension Layer {
-    @MainActor
     func createDefaultLayerNodeEntity(nodeId: UUID,
                                       layerGroupId: UUID?) -> LayerNodeEntity {
         let graphNode = self.layerGraphNode

@@ -426,13 +426,13 @@ struct ASTExplorerView: View {
         // Apply AI result to fake document
         Task(priority: .high) {
             // Syntax → Actions
-            var stitchActionsResult = try await codeParserResult.deriveStitchActions(
+            let stitchActionsResult = try await codeParserResult.deriveStitchActions(
                 bindingDeclarations: codeParserResult.bindingDeclarations,
                 document: fakeDoc)
             
             try await MainActor.run {
                 stitchActionsResult
-                    .createAIGraph(document: fakeDoc)
+                    .processAIGraph(document: fakeDoc)
     
                 stitchActions = stitchActionsResult
                 silentlyCaughtErrors = stitchActionsResult.caughtErrors

@@ -284,7 +284,6 @@ extension Array where Element == NodeEntity {
         self.first { $0.id == id }
     }
 
-    @MainActor
     func positionAIGeneratedNodesDuringApply(
         viewPortCenter: CGPoint) -> Self {
         // log("🚀 positionAIGeneratedNodesDuringApply called with \(self.count) nodes, \(matchedNodeIds.count) matched nodes, \(layerCanvasItemPositions.count) preserved positions")
