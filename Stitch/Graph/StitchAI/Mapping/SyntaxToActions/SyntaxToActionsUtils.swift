@@ -141,7 +141,8 @@ extension Array where Element == SyntaxViewArgumentData {
     func reorderUnapckedValues(varName: String?,
                                viewEvent: SyntaxViewEvent?,
                                nodesDict: [UUID: NodeEntity],
-                               nodeType: NodeType? = nil) throws -> [PatchSyntaxResultType] {
+                               nodeType: NodeType? = nil,
+                               isStreaming: Bool = false) throws -> [PatchSyntaxResultType] {
         // Recursively determine PortValue of each arg for key label
         let orderedDict = [(String, [PatchSyntaxResultType])]()
         let portValuesMap = try self.reduce(into: orderedDict) { result, arg in
@@ -150,7 +151,8 @@ extension Array where Element == SyntaxViewArgumentData {
                 varName: varName,
                 viewEvent: viewEvent,
                 nodesDict: nodesDict,
-                nodeType: nodeType)
+                nodeType: nodeType,
+                isStreaming: isStreaming)
             
             result.append(((arg.label?.stripQuotes() ?? ""), results))
         }
