@@ -121,7 +121,7 @@ extension StitchAICodeCreator {
             }
             
             do {
-                var actionsResult = try await request
+                let actionsResult = try await request
                     .processRequest(userPrompt: userPrompt,
                                     document: document,
                                     aiManager: aiManager)
@@ -134,7 +134,8 @@ extension StitchAICodeCreator {
                     Task(priority: .high) {
                         await actionsResult
                             .applyAIGraph(to: document,
-                                          viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections)
+                                          viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
+                                          isStreaming: false)
                     }
                     
                     // Note: task clearing and menu hiding are handled by resetStreamingUIState() called by AI providers

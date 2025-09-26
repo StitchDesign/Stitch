@@ -432,7 +432,8 @@ struct ASTExplorerView: View {
             
             try await MainActor.run {
                 stitchActionsResult
-                    .processAIGraph(document: fakeDoc)
+                    .processAIGraph(document: fakeDoc,
+                                    isStreaming: false)
     
                 stitchActions = stitchActionsResult
                 silentlyCaughtErrors = stitchActionsResult.caughtErrors

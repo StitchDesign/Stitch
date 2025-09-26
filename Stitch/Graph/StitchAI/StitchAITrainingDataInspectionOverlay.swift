@@ -260,17 +260,16 @@ struct StitchAITrainingDataInspectionOverlay: View {
                 let dataGlossaryPrompt = try StitchAIManager
                     .stitchAIDataGlossarySystemPrompt(graph: document.visibleGraph)
                 
-                var actionsResult = try await codeCreator
+                let actionsResult = try await codeCreator
                     .processRequest(userPrompt: userPrompt,
                                     document: document,
                                     aiManager: aiManager)
                 
                 await MainActor.run {
-                    Task(priority: .high) {
-                        await actionsResult
-                            .applyAIGraph(to: document,
-                                          viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections)
-                    }
+                    actionsResult
+                        .applyAIGraph(to: document,
+                                      viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
+                                      isStreaming: false)
                 }
                 
                 // Clear custom code input after successful application
