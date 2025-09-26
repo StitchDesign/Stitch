@@ -302,21 +302,7 @@ extension Array where Element == NodeEntity {
         matchedNodeIds: Set<UUID> = [],
         layerCanvasItemPositions: [LayerCanvasItemCoordinate: CGPoint] = [:]
     ) -> Self {
-        log("🚀 positionAIGeneratedNodesDuringApply called:")
-        log("🚀   Input nodes: \(self.count)")
-        log("🚀   ViewPort center: \(viewPortCenter)")
-        log("🚀   Existing nodes: \(existingNodes.count)")
-        log("🚀   Matched nodes: \(matchedNodeIds.count) - \(matchedNodeIds)")
-        log("🚀   Layer canvas positions: \(layerCanvasItemPositions.count)")
-
-        // Log all input node positions
-        for node in self {
-            if case .patch(let patchEntity) = node.nodeTypeEntity {
-                log("🚀   Input patch node \(node.id): \(patchEntity.patch) at \(patchEntity.canvasEntity.position)")
-            } else if case .layer(let layerEntity) = node.nodeTypeEntity {
-                log("🚀   Input layer node \(node.id): \(layerEntity.layer) at \(layerEntity.debugPositionString)")
-            }
-        }
+        log("🚀 positionAIGeneratedNodesDuringApply called: \(self.count) nodes, ViewPort: \(viewPortCenter), Matched: \(matchedNodeIds.count), Canvas positions: \(layerCanvasItemPositions.count)")
 
         // TODO: if we have a chain of nodes, shift our starting point further west
         //    var viewPortCenter = viewPortCenter
@@ -548,17 +534,18 @@ extension Array where Element == NodeEntity {
             }
         }
         
-        // Log final positioning results
-        log("🚀 positionAIGeneratedNodesDuringApply completed:")
-        log("🚀   Output nodes: \(updatedNodes.count)")
-
-        for node in updatedNodes {
+        // Log final positioning results summary
+        let finalPositions = updatedNodes.compactMap { node -> String? in
             if case .patch(let patchEntity) = node.nodeTypeEntity {
-                log("🚀   Final patch node \(node.id): \(patchEntity.patch) at \(patchEntity.canvasEntity.position)")
+                let pos = patchEntity.canvasEntity.position
+                return "\(patchEntity.patch):(\(Int(pos.x)),\(Int(pos.y)))"
             } else if case .layer(let layerEntity) = node.nodeTypeEntity {
-                log("🚀   Final layer node \(node.id): \(layerEntity.layer) at \(layerEntity.debugPositionString)")
+                return "\(layerEntity.layer):\(layerEntity.debugPositionString)"
             }
-        }
+            return nil
+        }.joined(separator: ", ")
+
+        log("🚀 positionAIGeneratedNodesDuringApply completed: \(updatedNodes.count) nodes positioned - [\(finalPositions)]")
 
         return updatedNodes
     }

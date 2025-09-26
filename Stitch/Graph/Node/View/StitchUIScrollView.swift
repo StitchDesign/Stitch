@@ -90,7 +90,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     @ViewBuilder var content: () -> Content
     
     func makeUIView(context: Context) -> UIScrollView {
-        log("StitchUIScrollView: init")
+//         log("StitchUIScrollView: init")
         
         let scrollView = UIScrollView()
         
@@ -141,7 +141,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
 
         // TODO: either continue to start graph at center, or persist BOTH zoom and offset (persisting offset but not zoom makes it easy to reopen the graph with no nodes visible, especially if we had been highly zoomed out)
         // let newOffset =  self.document.localPosition
-        log("StitchUIScrollView: USING GRAPH'S ABSOLUTE CENTER, NOT PERSISTED LOCAL POSITION")
+//         log("StitchUIScrollView: USING GRAPH'S ABSOLUTE CENTER, NOT PERSISTED LOCAL POSITION")
         let newOffset = CGPoint(x: WHOLE_GRAPH_LENGTH/2,
                                 y: WHOLE_GRAPH_LENGTH/2)
         
@@ -154,13 +154,13 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     }
         
     func updateUIView(_ uiView: UIScrollView, context: Context) {
-        log("StitchUIScrollView: update")
+//         log("StitchUIScrollView: update")
         
         // Update content when SwiftUI view changes
         context.coordinator.hostingController.rootView = content()
         
         if let canvasJumpLocation = graph.canvasJumpLocation {
-            log("StitchUIScrollView: enabled canvas jump location")
+//             log("StitchUIScrollView: enabled canvas jump location")
             
             uiView.setContentOffset(canvasJumpLocation, animated: true)
             dispatch(GraphScrollDataUpdated(
@@ -179,8 +179,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         } // if let
                 
         if let zoomInAmount = graph.canvasZoomedIn.zoomAmount {
-            // log("StitchUIScrollView: ZOOM IN: uiView.zoomScale was: \(uiView.zoomScale)")
-            // log("StitchUIScrollView: ZOOM IN: uiView.contentOffset was: \(uiView.contentOffset)")
+            // // log("StitchUIScrollView: ZOOM IN: uiView.zoomScale was: \(uiView.zoomScale)")
+            // // log("StitchUIScrollView: ZOOM IN: uiView.contentOffset was: \(uiView.contentOffset)")
             
             // TODO: 'appropriate feeling' zoom step size is probably some non-linear curve, since zoom step size of 0.1 near max zoom-in level also feels bad (too small)
             if uiView.zoomScale < 0.3,
@@ -193,8 +193,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             }
             
             // Does zooming in automatically modify the contentOffset ?
-            // log("StitchUIScrollView: ZOOM IN: uiView.zoomScale is now: \(uiView.zoomScale)")
-            // log("StitchUIScrollView: ZOOM IN: uiView.contentOffset is now: \(uiView.contentOffset)")
+            // // log("StitchUIScrollView: ZOOM IN: uiView.zoomScale is now: \(uiView.zoomScale)")
+            // // log("StitchUIScrollView: ZOOM IN: uiView.contentOffset is now: \(uiView.contentOffset)")
             
             dispatch(GraphScrollDataUpdated(
                 newOffset: uiView.contentOffset,
@@ -212,8 +212,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         if let zoomOutAmount = graph.canvasZoomedOut.zoomAmount {
             
-            // log("StitchUIScrollView: ZOOM OUT: uiView.zoomScale was: \(uiView.zoomScale)")
-            // log("StitchUIScrollView: ZOOM OUT: uiView.contentOffset was: \(uiView.contentOffset)")
+            // // log("StitchUIScrollView: ZOOM OUT: uiView.zoomScale was: \(uiView.zoomScale)")
+            // // log("StitchUIScrollView: ZOOM OUT: uiView.contentOffset was: \(uiView.contentOffset)")
             if uiView.zoomScale < 0.3,
                graph.canvasZoomedOut == .shortcutKey {
                 uiView.zoomScale -= zoomOutAmount/4
@@ -223,8 +223,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                 uiView.zoomScale -= zoomOutAmount
             }
             
-            // log("StitchUIScrollView: ZOOM OUT: uiView.zoomScale is now: \(uiView.zoomScale)")
-            // log("StitchUIScrollView: ZOOM OUT: uiView.contentOffset is now: \(uiView.contentOffset)")
+            // // log("StitchUIScrollView: ZOOM OUT: uiView.zoomScale is now: \(uiView.zoomScale)")
+            // // log("StitchUIScrollView: ZOOM OUT: uiView.contentOffset is now: \(uiView.contentOffset)")
             
             dispatch(GraphScrollDataUpdated(
                 newOffset: uiView.contentOffset,
@@ -242,8 +242,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         if let canvasPageOffsetChanged = graph.canvasPageOffsetChanged,
            let canvasPageZoomScaleChanged = graph.canvasPageZoomScaleChanged {
-            // log("StitchUIScrollView: canvasPageOffsetChanged: \(canvasPageOffsetChanged)")
-            // log("StitchUIScrollView: canvasPageZoomScaleChanged: \(canvasPageZoomScaleChanged)")
+            // // log("StitchUIScrollView: canvasPageOffsetChanged: \(canvasPageOffsetChanged)")
+            // // log("StitchUIScrollView: canvasPageZoomScaleChanged: \(canvasPageZoomScaleChanged)")
                         
             /*
              VERY IMPORTANT: when manually setting UIScrollView's zoomScale and contentOffset at the same time,
@@ -298,7 +298,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        // log("StitchUIScrollView: gestureRecognizer: shouldRecognizeSimultaneouslyWith")
+        // // log("StitchUIScrollView: gestureRecognizer: shouldRecognizeSimultaneouslyWith")
         return true
     }
 
@@ -313,14 +313,14 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     
     // Note: called even by ZOOMING
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        // log("scrollViewDidScroll")
+        // // log("scrollViewDidScroll")
         self.checkBorder(scrollView)
     }
     
     // Only called when scroll first begins, not DURING scroll;
     // Also apparently never triggered by zooming
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        // log("scrollViewWillBeginDragging")
+        // // log("scrollViewWillBeginDragging")
         self.borderCheckingDisabled = false
         self.checkBorder(scrollView)
     }
@@ -328,27 +328,27 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     func scrollViewWillEndDragging(_ scrollView: UIScrollView,
                                    withVelocity: CGPoint,
                                    targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        // log("scrollViewWillEndDragging")
+        // // log("scrollViewWillEndDragging")
         self.borderCheckingDisabled = false
         self.checkBorder(scrollView)
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView,
                                   willDecelerate: Bool) {
-        // log("scrollViewDidEndDragging")
+        // // log("scrollViewDidEndDragging")
         self.borderCheckingDisabled = false
         self.checkBorder(scrollView)
     }
     
     func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-        // log("scrollViewWillBeginDecelerating")
+        // // log("scrollViewWillBeginDecelerating")
         self.borderCheckingDisabled = false
         self.checkBorder(scrollView)
     }
     
     // Called when scroll-view movement comes to an end
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        // log("scrollViewDidEndDecelerating")
+        // // log("scrollViewDidEndDecelerating")
         self.borderCheckingDisabled = false
         self.checkBorder(scrollView)
     }
@@ -362,7 +362,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     
     func scrollViewWillBeginZooming(_ scrollView: UIScrollView,
                                     with view: UIView?) {
-        // log("scrollViewWillBeginZooming")
+        // // log("scrollViewWillBeginZooming")
         self.borderCheckingDisabled = true // Disable border-checking when we begin to zoom
         self.checkBorder(scrollView)
     }
@@ -370,13 +370,13 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     func scrollViewDidEndZooming(_ scrollView: UIScrollView,
                                  with view: UIView?,
                                  atScale scale: CGFloat) {
-        // log("scrollViewDidEndZooming")
+        // // log("scrollViewDidEndZooming")
         self.borderCheckingDisabled = false // Re-enable border-checking when zooming has ended
         self.checkBorder(scrollView)
     }
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        // log("scrollViewDidZoom")
+        // // log("scrollViewDidZoom")
         self.borderCheckingDisabled = true // Disable border-checking during an active zoom
         self.checkBorder(scrollView)
     }
@@ -384,7 +384,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     // RESPONDING TO SCROLL ANIMATIONS
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        // log("scrollViewDidEndScrollingAnimation")
+        // // log("scrollViewDidEndScrollingAnimation")
         self.checkBorder(scrollView)
     }
     
@@ -393,7 +393,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     func checkBorder(_ scrollView: UIScrollView) {
                         
         guard let document = self.document else {
-            log("checkBorder: no document, exiting early")
+//             log("checkBorder: no document, exiting early")
             return
         }
         let graph = document.graph
@@ -402,7 +402,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         // Do not check borders for ~1 second after (1) jumping to an item on the canvas or (2) zooming in/out
         
         guard !self.borderCheckingDisabled else {
-            // log("StitchScrollCoordinator check border: border checking disabled")
+            // // log("StitchScrollCoordinator check border: border checking disabled")
             Self.updateGraphScrollData(scrollView)
             return
         }
@@ -428,7 +428,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
               let northBounds = cache.get(northNode.id),
               let southBounds = cache.get(southNode.id) else {
             
-             log("StitchUIScrollView: scrollViewDidScroll: MISSING WEST, EAST, SOUTH OR NORTH IN-FRAME NODES OR BOUNDS")
+//              log("StitchUIScrollView: scrollViewDidScroll: MISSING WEST, EAST, SOUTH OR NORTH IN-FRAME NODES OR BOUNDS")
             Self.updateGraphScrollData(scrollView)
             return
         }
@@ -443,43 +443,43 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         let northernMostNodeCachedBoundsOriginY: CGFloat = northBounds.origin.y
         let southernMostNodeCachedBoundsOriginY: CGFloat = southBounds.origin.y
         
-        // log("StitchUIScrollView: scrollViewDidScroll: westNode.id: \(westNode.id)")
-        // log("StitchUIScrollView: scrollViewDidScroll: eastNode.id: \(eastNode.id)")
-        // log("StitchUIScrollView: scrollViewDidScroll: northNode.id: \(northNode.id)")
-        // log("StitchUIScrollView: scrollViewDidScroll: southNode.id: \(southNode.id)")
+        // // log("StitchUIScrollView: scrollViewDidScroll: westNode.id: \(westNode.id)")
+        // // log("StitchUIScrollView: scrollViewDidScroll: eastNode.id: \(eastNode.id)")
+        // // log("StitchUIScrollView: scrollViewDidScroll: northNode.id: \(northNode.id)")
+        // // log("StitchUIScrollView: scrollViewDidScroll: southNode.id: \(southNode.id)")
         
-        // log("StitchUIScrollView: scrollViewDidScroll: westernMostNodeCachedBoundsOriginX: \(westernMostNodeCachedBoundsOriginX)")
-        // log("StitchUIScrollView: scrollViewDidScroll: easternMostNodeCachedBoundsOriginX: \(easternMostNodeCachedBoundsOriginX)")
-        // log("StitchUIScrollView: scrollViewDidScroll: northernMostNodeCachedBoundsOriginY: \(northernMostNodeCachedBoundsOriginY)")
-        // log("StitchUIScrollView: scrollViewDidScroll: southernMostNodeCachedBoundsOriginY: \(southernMostNodeCachedBoundsOriginY)")
+        // // log("StitchUIScrollView: scrollViewDidScroll: westernMostNodeCachedBoundsOriginX: \(westernMostNodeCachedBoundsOriginX)")
+        // // log("StitchUIScrollView: scrollViewDidScroll: easternMostNodeCachedBoundsOriginX: \(easternMostNodeCachedBoundsOriginX)")
+        // // log("StitchUIScrollView: scrollViewDidScroll: northernMostNodeCachedBoundsOriginY: \(northernMostNodeCachedBoundsOriginY)")
+        // // log("StitchUIScrollView: scrollViewDidScroll: southernMostNodeCachedBoundsOriginY: \(southernMostNodeCachedBoundsOriginY)")
         
         // Minimum contentOffset can never be less than 0
         let scaledNodeWidth = (southBounds.width/4 * scale)
         let minimumContentOffsetX = (westernMostNodeCachedBoundsOriginX * scale) - screenWidth + scaledNodeWidth
         let maximumContentOffsetX = (easternMostNodeCachedBoundsOriginX * scale) - scaledNodeWidth
         
-        // log("StitchUIScrollView: scrollViewDidScroll: minimumContentOffsetX: \(minimumContentOffsetX)")
-        // log("StitchUIScrollView: scrollViewDidScroll: maximumContentOffsetX: \(maximumContentOffsetX)")
+        // // log("StitchUIScrollView: scrollViewDidScroll: minimumContentOffsetX: \(minimumContentOffsetX)")
+        // // log("StitchUIScrollView: scrollViewDidScroll: maximumContentOffsetX: \(maximumContentOffsetX)")
         
         let scaledNodeHeight = (southBounds.height/4 * scale)
         let minimumContentOffsetY = (northernMostNodeCachedBoundsOriginY * scale) - screenHeight + scaledNodeHeight
         let maximumContentOffsetY = (southernMostNodeCachedBoundsOriginY * scale) - scaledNodeHeight
         
-        // log("StitchUIScrollView: scrollViewDidScroll: scaledNodeHeight: \(scaledNodeHeight)")
-        // log("StitchUIScrollView: scrollViewDidScroll: minimumContentOffsetY: \(minimumContentOffsetY)")
-        // log("StitchUIScrollView: scrollViewDidScroll: maximumContentOffsetY: \(maximumContentOffsetY)")
+        // // log("StitchUIScrollView: scrollViewDidScroll: scaledNodeHeight: \(scaledNodeHeight)")
+        // // log("StitchUIScrollView: scrollViewDidScroll: minimumContentOffsetY: \(minimumContentOffsetY)")
+        // // log("StitchUIScrollView: scrollViewDidScroll: maximumContentOffsetY: \(maximumContentOffsetY)")
         
         let westernMostNodeAtEasternScreenEdge = scrollView.contentOffset.x <= minimumContentOffsetX
         let easternMostNodeAtWesternScreenEdge = scrollView.contentOffset.x >= maximumContentOffsetX
         
-        // log("StitchUIScrollView: scrollViewDidScroll: westernMostNodeAtEasternScreenEdge: \(westernMostNodeAtEasternScreenEdge)")
-        // log("StitchUIScrollView: scrollViewDidScroll: easternMostNodeAtWesternScreenEdge: \(easternMostNodeAtWesternScreenEdge)")
+        // // log("StitchUIScrollView: scrollViewDidScroll: westernMostNodeAtEasternScreenEdge: \(westernMostNodeAtEasternScreenEdge)")
+        // // log("StitchUIScrollView: scrollViewDidScroll: easternMostNodeAtWesternScreenEdge: \(easternMostNodeAtWesternScreenEdge)")
         
         let northernMostNodeAtSouthernScreenEdge = scrollView.contentOffset.y <= minimumContentOffsetY
         let southernMostNodeAtNorthernScreenEdge = scrollView.contentOffset.y >= maximumContentOffsetY
         
-        // log("StitchUIScrollView: scrollViewDidScroll: northernMostNodeAtSouthernScreenEdge: \(northernMostNodeAtSouthernScreenEdge)")
-        // log("StitchUIScrollView: scrollViewDidScroll: southernMostNodeAtNorthernScreenEdge: \(southernMostNodeAtNorthernScreenEdge)")
+        // // log("StitchUIScrollView: scrollViewDidScroll: northernMostNodeAtSouthernScreenEdge: \(northernMostNodeAtSouthernScreenEdge)")
+        // // log("StitchUIScrollView: scrollViewDidScroll: southernMostNodeAtNorthernScreenEdge: \(southernMostNodeAtNorthernScreenEdge)")
         
         var hitBorder = false
         
@@ -487,53 +487,53 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         var finalContentOffsetY = scrollView.contentOffset.y
         
         if westernMostNodeAtEasternScreenEdge {
-            log("StitchUIScrollView: scrollViewDidScroll: hit min x offset")
+//             log("StitchUIScrollView: scrollViewDidScroll: hit min x offset")
             finalContentOffsetX = minimumContentOffsetX
             hitBorder = true
         }
         
         if easternMostNodeAtWesternScreenEdge {
-            log("StitchUIScrollView: scrollViewDidScroll: hit max x offset")
+//             log("StitchUIScrollView: scrollViewDidScroll: hit max x offset")
             finalContentOffsetX = maximumContentOffsetX
             hitBorder = true
         }
         
         if northernMostNodeAtSouthernScreenEdge {
-            log("StitchUIScrollView: scrollViewDidScroll: hit min y offset")
+//             log("StitchUIScrollView: scrollViewDidScroll: hit min y offset")
             finalContentOffsetY = minimumContentOffsetY
             hitBorder = true
         }
         
         if southernMostNodeAtNorthernScreenEdge {
-            log("StitchUIScrollView: scrollViewDidScroll: hit max y offset")
+//             log("StitchUIScrollView: scrollViewDidScroll: hit max y offset")
             finalContentOffsetY = maximumContentOffsetY
             hitBorder = true
         }
         
         // `setContentOffset` interrupts UIScrollView's momentum, so we only do it if we actually hit a border
         if hitBorder {
-            log("StitchUIScrollView: scrollViewDidScroll: hit border")
+//             log("StitchUIScrollView: scrollViewDidScroll: hit border")
             let finalOffset = CGPoint(x: finalContentOffsetX, y: finalContentOffsetY)
-            // log("StitchUIScrollView: scrollViewDidScroll: hit border: finalContentOffsetX: \(finalContentOffsetX)")
-            // log("StitchUIScrollView: scrollViewDidScroll: hit border: finalContentOffsetY: \(finalContentOffsetY)")
+            // // log("StitchUIScrollView: scrollViewDidScroll: hit border: finalContentOffsetX: \(finalContentOffsetX)")
+            // // log("StitchUIScrollView: scrollViewDidScroll: hit border: finalContentOffsetY: \(finalContentOffsetY)")
             let xDiff = scrollView.contentOffset.x - finalContentOffsetX
             let yDiff = scrollView.contentOffset.y - finalContentOffsetY
-            log("StitchUIScrollView: scrollViewDidScroll: hit border: xDiff: \(xDiff)")
-            log("StitchUIScrollView: scrollViewDidScroll: hit border: yDiff: \(yDiff)")
+//             log("StitchUIScrollView: scrollViewDidScroll: hit border: xDiff: \(xDiff)")
+//             log("StitchUIScrollView: scrollViewDidScroll: hit border: yDiff: \(yDiff)")
             
             // HELPFUL FOR CATCHING GRAPH JUMPS, BUT NOT WHEN MOVING BETWEEN TRAVERSAL LEVELS
 //            if xDiff.magnitude > 1000 {
-//                log("StitchUIScrollView: scrollViewDidScroll: hit border: xDiff: LARGE MAGNITUDE")
+// //                log("StitchUIScrollView: scrollViewDidScroll: hit border: xDiff: LARGE MAGNITUDE")
 //                fatalErrorIfDebugOnly()
 //            }
 //            
 //            if xDiff < -700 {
-//                log("StitchUIScrollView: scrollViewDidScroll: hit border: xDiff: LARGE MAGNITUDE")
+// //                log("StitchUIScrollView: scrollViewDidScroll: hit border: xDiff: LARGE MAGNITUDE")
 //                fatalErrorIfDebugOnly()
 //            }
 //            
 //            if yDiff.magnitude > 1000 {
-//                log("StitchUIScrollView: scrollViewDidScroll: hit border: yDiff: LARGE MAGNITUDE")
+// //                log("StitchUIScrollView: scrollViewDidScroll: hit border: yDiff: LARGE MAGNITUDE")
 //                fatalErrorIfDebugOnly()
 //            }
             
@@ -543,9 +543,9 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
                 newZoom: scrollView.zoomScale
             ))
         } else {
-            // log("StitchUIScrollView: scrollViewDidScroll: did not hit border")
-            // log("StitchUIScrollView: scrollViewDidScroll: did not hit border: scrollView.contentOffset.x: \(scrollView.contentOffset.x)")
-            // log("StitchUIScrollView: scrollViewDidScroll: did not hit border: scrollView.contentOffset.y: \(scrollView.contentOffset.y)")
+            // // log("StitchUIScrollView: scrollViewDidScroll: did not hit border")
+            // // log("StitchUIScrollView: scrollViewDidScroll: did not hit border: scrollView.contentOffset.x: \(scrollView.contentOffset.x)")
+            // // log("StitchUIScrollView: scrollViewDidScroll: did not hit border: scrollView.contentOffset.y: \(scrollView.contentOffset.y)")
             Self.updateGraphScrollData(scrollView)
         }
     }
@@ -553,7 +553,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     // Handle pan gesture with boundary checks
     @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
         guard let document = document else {
-            log("StitchUIScrollView: handlePan: no document")
+//             log("StitchUIScrollView: handlePan: no document")
             return
         }
         
@@ -607,7 +607,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
                      scrollView: UIScrollView) {
         
         guard let document = self.document else {
-            log("graphScroll: no document")
+//             log("graphScroll: no document")
             return
         }
         
@@ -664,7 +664,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
             log("StitchUIScrollView: handlePan: possible")
             
         case .ended, .cancelled, .failed:
-            log("StitchUIScrollView: handlePan: ended, canceled or failed")
+//             log("StitchUIScrollView: handlePan: ended, canceled or failed")
             document.activeSpacebarClickDrag = false
             scrollView.setContentOffset(scrollView.contentOffset,
                                         animated: false)

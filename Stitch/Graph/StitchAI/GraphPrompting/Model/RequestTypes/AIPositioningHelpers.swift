@@ -433,13 +433,8 @@ func performNodeSimilarityMatching(
         }
     }
 
-    // Debug: Log all new nodes being created
-    log("🆕 Creating \(inputs.newPatchNodes.count) new patch nodes:")
-    for node in inputs.newPatchNodes {
-        if case .patch(let patchEntity) = node.nodeTypeEntity {
-            log("🆕   New patch node \(node.id): \(patchEntity.patch) at initial position \(patchEntity.canvasEntity.position)")
-        }
-    }
+    // Debug: Log new nodes being created
+    log("🆕 Creating \(inputs.newPatchNodes.count) new patch nodes")
 
     // Apply preserved positions to matched patch nodes
     var updatedPatchNodes = inputs.newPatchNodes
@@ -547,15 +542,6 @@ func performNodeSimilarityMatching(
 
         log("📱 Streaming mode: Preserving \(unmatchedExistingNodes.count) unmatched existing nodes")
 
-        // Debug: Log details about preserved nodes
-        for node in unmatchedExistingNodes {
-            if case .patch(let patchEntity) = node.nodeTypeEntity {
-                log("📱   Preserving patch node \(node.id): \(patchEntity.patch) at position \(patchEntity.canvasEntity.position)")
-            } else if case .layer(let layerEntity) = node.nodeTypeEntity {
-                log("📱   Preserving layer node \(node.id): \(layerEntity.layer) at position \(layerEntity.debugPositionString)")
-            }
-        }
-
         // Add unmatched existing nodes to the final result
         finalPatchNodes.append(contentsOf: unmatchedExistingNodes)
 
@@ -607,14 +593,17 @@ func performNodeSimilarityMatching(
     log("🎯   Matched node IDs: \(finalMatchedNodeIds.count)")
     log("🎯   Layer canvas positions: \(layerCanvasItemPositions.count)")
 
-    // Debug: Log all final node positions
-    for node in finalPatchNodes {
+    // Debug: Log summary of final node positions
+    let patchPositions = finalPatchNodes.compactMap { node -> String? in
         if case .patch(let patchEntity) = node.nodeTypeEntity {
-            log("🎯   Final patch node \(node.id): \(patchEntity.patch) at position \(patchEntity.canvasEntity.position)")
+            let pos = patchEntity.canvasEntity.position
+            return "\(patchEntity.patch):(\(Int(pos.x)),\(Int(pos.y)))"
         } else if case .layer(let layerEntity) = node.nodeTypeEntity {
-            log("🎯   Final layer node \(node.id): \(layerEntity.layer) at position \(layerEntity.debugPositionString)")
+            return "\(layerEntity.layer):\(layerEntity.debugPositionString)"
         }
-    }
+        return nil
+    }.joined(separator: ", ")
+    log("🎯   Final positions: [\(patchPositions)]")
 
     return NodeMatchingResults(
         updatedPatchNodes: finalPatchNodes,
