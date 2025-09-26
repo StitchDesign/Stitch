@@ -177,6 +177,8 @@ struct ConnectedEdgeView: View {
                      edgeAnimationEnabled: edgeAnimationEnabled,
                      edgeScaleEffect: .nonEdgeToInspectorScaleEffect)
             .zIndex(newZIndex)
+            .animation(.linear, value: pointFrom)
+            .animation(.linear, value: pointTo)
             
         } else {
             Color.clear

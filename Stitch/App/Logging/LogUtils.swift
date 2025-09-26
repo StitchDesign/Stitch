@@ -113,31 +113,32 @@ enum LoggingAction: Equatable {
 // For debug printing from within SwiftUI views
 func log(_ message: Any,
          _ loggingAction: LoggingAction = .none) {
-#if !RELEASE
-    print("** \(message)")
-
-    switch loggingAction {
-    case .none:
-        return
-    case .fatal:
-#if DEV_DEBUG
-        fatalError("FATAL: \(message)")
-#endif
-    case .logToServer:
-        print("WILL LOG TO SERVER: \(message)")
-        // Always send AI-related logs to Sentry regardless of build configuration
-        let messageString = String(describing: message)
-        SentrySDK.capture(message: messageString)
-//        if messageString.contains("StitchAI") || messageString.contains("SupabaseManager") {
-//            SentrySDK.capture(message: messageString)
-//        }
-    }
-#else
-    // In production, send ALL logs to Sentry
-    if case .logToServer = loggingAction {
-        SentrySDK.capture(message: "\(message)")
-    }
-#endif
+//
+//#if !RELEASE
+//    print("** \(message)")
+//
+//    switch loggingAction {
+//    case .none:
+//        return
+//    case .fatal:
+//#if DEV_DEBUG
+//        fatalError("FATAL: \(message)")
+//#endif
+//    case .logToServer:
+//        print("WILL LOG TO SERVER: \(message)")
+//        // Always send AI-related logs to Sentry regardless of build configuration
+//        let messageString = String(describing: message)
+//        SentrySDK.capture(message: messageString)
+////        if messageString.contains("StitchAI") || messageString.contains("SupabaseManager") {
+////            SentrySDK.capture(message: messageString)
+////        }
+//    }
+//#else
+//    // In production, send ALL logs to Sentry
+//    if case .logToServer = loggingAction {
+//        SentrySDK.capture(message: "\(message)")
+//    }
+//#endif
 }
 
 func logInView(_ message: String) -> EmptyView {

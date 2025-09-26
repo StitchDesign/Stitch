@@ -148,7 +148,7 @@ extension SwiftUIViewVisitor {
             }
             
             else if let declrRefSyntax = arg.expression.as(DeclReferenceExprSyntax.self) {
-                print("Input param that points to some reference: \(declrRefSyntax)")
+                log("Input param that points to some reference: \(declrRefSyntax)")
                 return .binding(declrRefSyntax.trimmedDescription)
             }
             
