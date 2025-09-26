@@ -269,7 +269,7 @@ func makeClaudeStreamingRequest(
                         accumulatedContent += text
                         print("accumulated text: \n\(accumulatedContent)")
                         
-                        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(accumulatedContent)
+                        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(accumulatedContent, isStreaming: true)
                         
                         // Syntax → Actions
                         let stitchActionsResult = try codeParserResult.deriveStitchActionsSync(
