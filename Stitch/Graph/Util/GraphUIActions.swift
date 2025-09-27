@@ -143,27 +143,27 @@ struct ToggleSidebars: StitchStoreEvent {
         let inspectorOpen = store.showsLayerInspector
         let layerSidebarOpen = state.leftSidebarOpen
         
-        // VERY IMPORTANT TO STAGGER THE SIDEBAR VS INSPECTOR OPEN/CLOSE; OTHERWISE WE GET JERKINESS
+        // Stagger slightly for better visual flow
         if !inspectorOpen && !layerSidebarOpen {
-            // Opening: animate inspector first, then sidebar
+            log("ToggleSidebars: both are currently closed; will open both")
             withAnimation {
-                store.showsLayerInspector = true
+                state.leftSidebarOpen = true
             }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 withAnimation {
-                    state.leftSidebarOpen = true
+                    store.showsLayerInspector = true
                 }
             }
         } else {
-            // Closing: animate sidebar first, then inspector
+            log("ToggleSidebars: will close both")
             withAnimation {
-                state.leftSidebarOpen = false
+                store.showsLayerInspector = false
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 withAnimation {
-                    store.showsLayerInspector = false
+                    state.leftSidebarOpen = false
                 }
             }
         }
