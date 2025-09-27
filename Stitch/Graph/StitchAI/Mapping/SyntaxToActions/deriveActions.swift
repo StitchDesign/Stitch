@@ -290,7 +290,8 @@ extension SwiftParserInitializerType {
                 
                 let args: ViewConstructorType
                 do {
-                    args = try SwiftUIViewVisitor.parseArguments(from: funcExpr)
+                    args = try SwiftUIViewVisitor.parseArguments(from: funcExpr,
+                                                                 isStreaming: isStreaming)
                 } catch let error as SwiftUISyntaxError {
                     return .error(error)
                 } catch {

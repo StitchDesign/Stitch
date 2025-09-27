@@ -77,7 +77,8 @@ extension SyntaxViewName {
 /// Runs every `…ViewConstructor.from(node)` helper once. If an enum is
 /// returned, attach it to the *current* SyntaxView.
 func createKnownViewConstructor(from node: FunctionCallExprSyntax,
-                                arguments: [SyntaxViewArgumentData]) -> StrictViewConstructor? {
+                                arguments: [SyntaxViewArgumentData],
+                                isStreaming: Bool = false) -> StrictViewConstructor? {
     
     guard let name = node.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text,
           let viewName = SyntaxViewName(rawValue: name) else {
@@ -87,71 +88,88 @@ func createKnownViewConstructor(from node: FunctionCallExprSyntax,
     switch viewName {
     case .text:
         return TextViewConstructor.from(arguments,
-                                        viewName: viewName)
+                                        viewName: viewName,
+                                        isStreaming: isStreaming)
         .map { .text($0) }
     case .image:
         return ImageViewConstructor.from(arguments,
-                                         viewName: viewName)
+                                         viewName: viewName,
+                                         isStreaming: isStreaming)
         .map { .image($0) }
     case .hStack:
         return HStackViewConstructor.from(arguments,
-                                          viewName: viewName)
+                                          viewName: viewName,
+                                          isStreaming: isStreaming)
         .map { .hStack($0) }
     case .vStack:
         return VStackViewConstructor.from(arguments,
-                                          viewName: viewName)
+                                          viewName: viewName,
+                                          isStreaming: isStreaming)
         .map { .vStack($0) }
     case .zStack:
         return ZStackViewConstructor.from(arguments,
-                                          viewName: viewName)
+                                          viewName: viewName,
+                                          isStreaming: isStreaming)
         .map { .zStack($0) }
     case .circle:
         return CircleViewConstructor.from(arguments,
-                                         viewName: viewName)
+                                         viewName: viewName,
+                                         isStreaming: isStreaming)
         .map { .circle($0) }
     case .ellipse, .oval:
         return NoArgViewConstructor.from(arguments,
-                                         viewName: viewName)
+                                         viewName: viewName,
+                                         isStreaming: isStreaming)
         .map { .ellipse($0) }
     case .rectangle:
         return RectangleViewConstructor.from(arguments,
-                                             viewName: viewName)
+                                             viewName: viewName,
+                                             isStreaming: isStreaming)
         .map { .rectangle($0) }
     case .stitchRealityView:
         return StitchRealityViewConstructor.from(arguments,
-                                                 viewName: viewName)
+                                                 viewName: viewName,
+                                                 isStreaming: isStreaming)
         .map { .stitchRealityView($0) }
     case .box:
         return BoxViewConstructor.from(arguments,
-                                       viewName: viewName)
+                                       viewName: viewName,
+                                       isStreaming: isStreaming)
         .map { .box($0) }
     case .cone:
         return ConeViewConstructor.from(arguments,
-                                        viewName: viewName)
+                                        viewName: viewName,
+                                        isStreaming: isStreaming)
         .map { .cone($0) }
     case .cylinder:
         return CylinderViewConstructor.from(arguments,
-                                            viewName: viewName)
+                                            viewName: viewName,
+                                            isStreaming: isStreaming)
         .map { .cylinder($0) }
     case .sphere:
         return SphereViewConstructor.from(arguments,
-                                          viewName: viewName)
+                                          viewName: viewName,
+                                          isStreaming: isStreaming)
         .map { .sphere($0) }
     case .spacer:
         return SpacerViewConstructor.from(arguments,
-                                          viewName: viewName)
+                                          viewName: viewName,
+                                          isStreaming: isStreaming)
         .map { .spacer($0) }
     case .lazyHStack:
         return LazyHStackViewConstructor.from(arguments,
-                                             viewName: viewName)
+                                             viewName: viewName,
+                                             isStreaming: isStreaming)
             .map { .lazyHStack($0) }
     case .lazyVStack:
         return LazyVStackViewConstructor.from(arguments,
-                                             viewName: viewName)
+                                             viewName: viewName,
+                                             isStreaming: isStreaming)
             .map { .lazyVStack($0) }
     case .scrollView:
         return ScrollViewViewConstructor.from(arguments,
-                                              viewName: viewName)
+                                              viewName: viewName,
+                                              isStreaming: isStreaming)
             .map { .scrollView($0) }
         
     case .anyView, .angularGradient, .asyncImage, .button, .capsule, .canvas, .chart, .color, .colorPicker, .contentUnavailableView, .controlGroup, .datePicker, .divider, .disclosureGroup, .emptyView, .forEach, .form, .gauge, .geometryReader, .grid, .gridRow, .group, .groupBox, .labeledContent, .label, .lazyHGrid, .lazyVGrid, .link, .map, .material, .menu, .model3D, .navigationLink, .navigationStack, .navigationSplit, .navigationView, .outlineGroup, .path, .preview, .progressView, .radialGradient, .realityView, .roundedRectangle, .sceneView,
@@ -242,6 +260,11 @@ extension TextViewConstructor {
         // If it's some other expression like Text(title)
         return .string(first.value)
     }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> TextViewConstructor? {
+        return from(args, viewName: viewName)
+    }
 }
 
 
@@ -309,9 +332,10 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
     
     // Factory that infers the correct overload from a `FunctionCallExprSyntax`
     static func from(_ args: [SyntaxViewArgumentData],
-                     viewName: SyntaxViewName) -> ImageViewConstructor? {
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> ImageViewConstructor? {
         guard let first = args.first else { return nil }
-        let portValueArg = try? first.value.derivePortValues().first?.value
+        let portValueArg = try? first.value.derivePortValues(isStreaming: isStreaming).first?.value
         let hasStringArg = portValueArg?.nodeType == .string
         
         // Image(systemName:)
@@ -341,6 +365,11 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
         
         return nil
     }
+    
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName) -> ImageViewConstructor? {
+        return from(args, viewName: viewName, isStreaming: false)
+    }
 }
 
 
@@ -366,6 +395,11 @@ enum SpacerViewConstructor: FromSwiftUIViewToStitch {
                      viewName: SyntaxViewName) -> Self? {
         // args.isEmpty ? .plain : nil
         .plain
+    }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> SpacerViewConstructor? {
+        return from(args, viewName: viewName)
     }
 }
 
@@ -394,6 +428,11 @@ enum StitchRealityViewConstructor: FromSwiftUIViewToStitch {
 //        args.isEmpty ? .plain : nil
         .plain
     }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> StitchRealityViewConstructor? {
+        return from(args, viewName: viewName)
+    }
 }
 
 // 2) Box -----------------------------------------------------------------
@@ -419,6 +458,11 @@ enum BoxViewConstructor: FromSwiftUIViewToStitch {
                      viewName: SyntaxViewName) -> Self? {
         args.isEmpty ? .plain : nil
     }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> BoxViewConstructor? {
+        return from(args, viewName: viewName)
+    }
 }
 
 // 3) Cone ----------------------------------------------------------------
@@ -442,6 +486,11 @@ enum ConeViewConstructor: FromSwiftUIViewToStitch {
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
         args.isEmpty ? .plain : nil
+    }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> ConeViewConstructor? {
+        return from(args, viewName: viewName)
     }
 }
 
@@ -467,6 +516,11 @@ enum CylinderViewConstructor: FromSwiftUIViewToStitch {
                      viewName: SyntaxViewName) -> Self? {
         args.isEmpty ? .plain : nil
     }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> CylinderViewConstructor? {
+        return from(args, viewName: viewName)
+    }
 }
 
 // 5) Sphere --------------------------------------------------------------
@@ -490,6 +544,11 @@ enum SphereViewConstructor: FromSwiftUIViewToStitch {
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
         args.isEmpty ? .plain : nil
+    }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> SphereViewConstructor? {
+        return from(args, viewName: viewName)
     }
 }
 
@@ -595,6 +654,11 @@ extension ViewStackViewConstructor {
         
         return .init(alignmentArg: alignment, spacingArg: spacing)
     }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> Self? {
+        return from(args, viewName: viewName)
+    }
 }
 
 struct HStackViewConstructor: ViewStackViewConstructor {
@@ -627,123 +691,6 @@ struct VStackViewConstructor: ViewStackViewConstructor {
     }
 }
 
-//
-//// ── Helper: random-access a TupleExprElementListSyntax by Int index ────────────
-//extension LabeledExprListSyntax {
-//    subscript(safe index: Int) -> LabeledExprSyntax? {
-//        guard index >= 0 && index < count else { return nil }
-//        return self[self.index(startIndex, offsetBy: index)]
-//    }
-//}
-//
-//enum LazyHStackViewConstructor: FromSwiftUIViewToStitch {
-//    case parameters(alignment: Parameter<VerticalAlignment> = .literal(.center),
-//                    spacing:   Parameter<CGFloat?>          = .literal(nil))
-//
-//    var toStitch: (Layer?, [ValueOrEdge])? {
-//        switch self {
-//        case .parameters(let alignment, let spacing):
-//            return HStackViewConstructor
-//                .parameters(alignment: alignment, spacing: spacing)
-//                .toStitch
-//        }
-//    }
-//
-//    static func from(_ node: FunctionCallExprSyntax) -> LazyHStackViewConstructor? {
-//        // Re‑use HStack parser then wrap
-//        guard let base = HStackViewConstructor.from(node) else { return nil }
-//        switch base {
-//        case .parameters(let a, let s): return .parameters(alignment: a, spacing: s)
-//        }
-//    }
-//}
-//
-//enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
-//    case parameters(alignment: Parameter<HorizontalAlignment> = .literal(.center),
-//                    spacing:   Parameter<CGFloat?>            = .literal(nil))
-//
-//    var toStitch: (Layer?, [ValueOrEdge])? {
-//        switch self {
-//        case .parameters(let alignment, let spacing):
-//            return VStackViewConstructor
-//                .parameters(alignment: alignment, spacing: spacing)
-//                .toStitch
-//        }
-//    }
-//
-//    static func from(_ node: FunctionCallExprSyntax) -> LazyVStackViewConstructor? {
-//        guard let base = VStackViewConstructor.from(node) else { return nil }
-//        switch base {
-//        case .parameters(let a, let s): return .parameters(alignment: a, spacing: s)
-//        }
-//    }
-//}
-//
-//// MARK: - ZStack -----------------------------------------------------------
-//
-//// MARK: - TextField --------------------------------------------------------
-//
-//enum TextFieldViewConstructor: FromSwiftUIViewToStitch {
-//    /// Simplified model:
-//    /// `TextField(_ titleKey: LocalizedStringKey, text: Binding<String>)`
-//    /// or `TextField(_ title: String, text: Binding<String>)`
-//    case parameters(title: Parameter<String?> = .literal(nil),
-//                    binding: ExprSyntax)          // always an expression edge
-//
-//    // MARK: Stitch mapping
-//    ///
-//    /// • `title`  →  .placeholder   (omit if nil)
-//    /// • `binding`→  .text          (literal constant → value, otherwise edge)
-//    var toStitch: (Layer?, [ValueOrEdge])? {
-//        guard case let .parameters(title, bindingExpr) = self else { return nil }
-//        var list: [ValueOrEdge] = []
-//
-//        // ----- title / placeholder ---------------------------------------
-//        switch title {
-//        case .literal(let str?):
-//            list.append(.value(.init(.placeholderText,
-//                                     .string(.init(str)))))
-//        case .expression(let expr):
-//            list.append(.edge(expr))
-//        default:
-//            break    // .literal(nil)  → no placeholder
-//        }
-//
-//        // ----- binding / text -------------------------------------------
-//        if let constLiteral = bindingExpr.stringLiteralFromConstantBinding() {
-//            list.append(.value(.init(.text,
-//                                     .string(.init(constLiteral)))))
-//        } else {
-//            list.append(.edge(bindingExpr))
-//        }
-//
-//        return (.textField, list)
-//    }
-//
-//    static func from(_ node: FunctionCallExprSyntax) -> Self? {
-//        let args = node.arguments
-//
-//        // need at least title + binding
-//        guard let first = args[safe: 0],
-//              let second = args[safe: 1] else { return nil }
-//
-//        // First argument can be unlabeled placeholder string/localised key
-//        var title: Parameter<String?> = .literal(nil)
-//        if first.label == nil,
-//           let lit = first.expression.as(StringLiteralExprSyntax.self) {
-//            title = .literal(lit.decoded())
-//        } else if first.label == nil {
-//            title = .expression(first.expression)
-//        }
-//
-//        // Second arg must be `text:` binding
-//        guard second.label?.text == "text" else { return nil }
-//
-//        return .parameters(title: title,
-//                           binding: second.expression)
-//    }
-//}
-//
 // MARK: - ZStackViewConstructor (new-style)
 enum ZStackViewConstructor: FromSwiftUIViewToStitch {
     /// SwiftUI: `init(alignment: Alignment = .center, content:)`
@@ -806,6 +753,11 @@ enum ZStackViewConstructor: FromSwiftUIViewToStitch {
         }
         return .parameters(alignment: alignment)
     }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> ZStackViewConstructor? {
+        return from(args, viewName: viewName)
+    }
 }
 // Helper: map SwiftUI `Alignment` member access (e.g. `.topLeading`) to Stitch `Anchoring`
 private extension MemberAccessExprSyntax {
@@ -864,6 +816,11 @@ struct NoArgViewConstructor: FromSwiftUIViewToStitch {
         return .init(args: args,
                      layer: layer)
     }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> NoArgViewConstructor? {
+        return from(args, viewName: viewName)
+    }
 }
 
 
@@ -888,6 +845,11 @@ struct CircleViewConstructor: FromSwiftUIViewToStitch {
                      viewName: SyntaxViewName) -> Self? {
         args.isEmpty ? .init() : nil
     }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> CircleViewConstructor? {
+        return from(args, viewName: viewName)
+    }
 }
 
 struct RectangleViewConstructor: FromSwiftUIViewToStitch {
@@ -909,6 +871,11 @@ struct RectangleViewConstructor: FromSwiftUIViewToStitch {
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
         args.isEmpty ? .init() : nil
+    }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> RectangleViewConstructor? {
+        return from(args, viewName: viewName)
     }
 }
 
@@ -1172,6 +1139,11 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
         
         
         return .parameters(axes: axes, showsIndicators: indicators)
+    }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> ScrollViewViewConstructor? {
+        return from(args, viewName: viewName)
     }
     
     /// Handles ScrollView-specific child wrapping logic similar to createScrollGroupLayer
@@ -1553,6 +1525,11 @@ enum LazyHStackViewConstructor: FromSwiftUIViewToStitch {
         }
         return .parameters(alignment: alignment, spacing: spacing)
     }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> LazyHStackViewConstructor? {
+        return from(args, viewName: viewName)
+    }
 }
 
 // MARK: LazyVStackViewConstructor (new-style)
@@ -1627,6 +1604,11 @@ enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
             }
         }
         return .parameters(alignment: alignment, spacing: spacing)
+    }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> LazyVStackViewConstructor? {
+        return from(args, viewName: viewName)
     }
 }
 
@@ -2162,7 +2144,8 @@ struct FontViewModifier: FromSwiftUIViewModifierToStitch {
     
     func createCustomValueEvents(isStreaming: Bool = false) throws -> [LayerPortDerivation] {
         // For .font() modifier, we need to create both textFont and fontSize events
-        let fontEvents = try createFontEvents(from: font)
+        let fontEvents = try createFontEvents(from: font,
+                                              isStreaming: isStreaming)
         return fontEvents
     }
     
@@ -2372,7 +2355,8 @@ struct LayerIdViewModifier: FromSwiftUIViewModifierToStitch {
 // MARK: - Font Helper Functions
 
 /// Creates font events from SwiftUI .font() modifier
-func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [LayerPortDerivation] {
+func createFontEvents(from fontArg: SyntaxViewModifierArgumentType,
+                      isStreaming: Bool) throws -> [LayerPortDerivation] {
     // Handle .memberAccess directly (e.g., .headline, .body, .title)
     if case .memberAccess(let memberData) = fontArg,
        let swiftUIFont = parseSwiftUISystemFont(memberData.property) {
@@ -2425,7 +2409,7 @@ func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [L
     // Handle arrays with PortValueDescription or other values
     // Use derivePortValues to extract the actual values from PortValueDescription
     if case .array(_) = fontArg {
-        let portValues = try fontArg.derivePortValues()
+        let portValues = try fontArg.derivePortValues(isStreaming: isStreaming)
         
         // Check if we got a numeric value from PortValueDescription
         // Handle both value_type: "number" and value_type: "layerDimension"
@@ -2694,3 +2678,5 @@ func createKnownViewModifier(modifierName: SyntaxViewModifierName,
         return nil
     }
 }
+
+
