@@ -143,13 +143,28 @@ struct ToggleSidebars: StitchStoreEvent {
         let inspectorOpen = store.showsLayerInspector
         let layerSidebarOpen = state.leftSidebarOpen
         
-        withAnimation {
-            if !inspectorOpen && !layerSidebarOpen {
-                store.showsLayerInspector = true
+        // VERY IMPORTANT TO STAGGER THE SIDEBAR VS INSPECTOR OPEN/CLOSE; OTHERWISE WE GET JERKINESS
+        if !inspectorOpen && !layerSidebarOpen {
+            // Opening: animate sidebar first, then inspector
+            withAnimation {
                 state.leftSidebarOpen = true
-            } else {
-                store.showsLayerInspector = false
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation {
+                    store.showsLayerInspector = true
+                }
+            }
+        } else {
+            // Closing: animate sidebar first, then inspector
+            withAnimation {
                 state.leftSidebarOpen = false
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation {
+                    store.showsLayerInspector = false
+                }
             }
         }
         
@@ -159,7 +174,7 @@ struct ToggleSidebars: StitchStoreEvent {
 
 struct InsertNodeSelectionChanged: StitchDocumentEvent {
     let selection: InsertNodeMenuOption
-
+    
     func handle(state: StitchDocumentViewModel) {
         state.insertNodeMenuState.activeSelection = selection
     }
