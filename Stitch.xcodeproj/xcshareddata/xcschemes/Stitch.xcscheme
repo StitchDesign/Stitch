@@ -20,6 +20,20 @@
                ReferencedContainer = "container:Stitch.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "NO"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B509DC792E83C3DD0037BCD8"
+               BuildableName = "Stitch AI Metrics.xctest"
+               BlueprintName = "Stitch AI Metrics"
+               ReferencedContainer = "container:Stitch.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -54,17 +68,6 @@
                   Identifier = "TopologyTests">
                </Test>
             </SkippedTests>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "B509DC792E83C3DD0037BCD8"
-               BuildableName = "Stitch AI Metrics.xctest"
-               BlueprintName = "Stitch AI Metrics"
-               ReferencedContainer = "container:Stitch.xcodeproj">
-            </BuildableReference>
          </TestableReference>
       </Testables>
    </TestAction>
