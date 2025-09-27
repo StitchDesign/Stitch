@@ -190,6 +190,9 @@ func makeClaudeStreamingRequest(
         // Debug: Track all thinking steps for debugging
         var allThinkingSteps: [String] = []
         
+        // Track current graph entity before we do in-place mutations
+        let currentGraphEntity = document.graph.createSchema()
+        
         log("🔄 Starting to process Claude streaming response...")
         
         for try await line in asyncBytes.lines {
@@ -276,11 +279,25 @@ func makeClaudeStreamingRequest(
                             bindingDeclarations: codeParserResult.bindingDeclarations,
                             isStreaming: true)
                         
+                        // Actions -> GraphEntity
+                        let result = stitchActionsResult
+                            .createAIGraph(docId: document.graph.id.value,
+                                           viewPortCenter: document.viewPortCenter,
+                                           groupNodeFocused: document.groupNodeFocused?.groupNodeId,
+                                           isStreaming: true)
+                        
+                        let inProgressParsedGraphEntity = result.graph
+                        
+                        // Computes similarity scores with in-progress parsed data to map to existing nodes
+                        let mergedGraphEntity = currentGraphEntity
+                            .mergeWithStreamedGraph(inProgressParsedGraphEntity)
+                        
                         Task(priority: .high) { @MainActor [weak document] in
                             guard let document else { return }
-                            stitchActionsResult.processAIGraph(document: document,
-                                                               isStreaming: true)
-                            print("streamed graph:\n\(document.graph.createSchema())")
+                            document.graph.update(from: mergedGraphEntity)
+                            document.graph.updateGraphData(document)
+                            
+//                            print("merged streamed graph:\n\(mergedGraphEntity)")
                         }
                         
                         //                        // Clear thinking text once content starts
@@ -438,4 +455,174 @@ func monitorClaudeStreamingCachePerformance(usage: ClaudeUsage) async {
     // Log to server for analytics
     log("Claude streaming cache performance - Created: \(cacheCreationInputTokens), Read: \(cacheReadInputTokens), Total: \(totalTokens)")
 #endif
+}
+
+extension GraphEntity {
+    /// Merge an in-progress (streamed) graph into the current graph by matching incoming
+    /// nodes to existing ones. If IDs match, they are considered the same. Otherwise, we
+    /// attempt a heuristic match based on node kind, patch/layer/component specifics,
+    /// title similarity, parent group, and canvas proximity.
+    ///
+    /// - Parameter inProgressGraph: The newly parsed/streamed graph snapshot.
+    /// - Returns: A new `GraphEntity` with nodes replaced/added based on matches.
+    func mergeWithStreamedGraph(_ inProgressGraph: GraphEntity) -> GraphEntity {
+        var merged = self
+
+        // Index existing nodes by id for fast replacement
+        let existingNodesMap: [UUID: NodeEntity] = merged.nodes.reduce(into: [UUID: NodeEntity]()) { result, node in
+            result.updateValue(node, forKey: node.id)
+        }
+        
+        log("mergeWithStreamedGraph: existing data: \(existingNodesMap)")
+
+        // Tracks new nodes to be used for state
+        var newNodesMap = [UUID: NodeEntity]()
+
+        for streamed in inProgressGraph.nodes {
+            // 1) If IDs match, it's an obvious replacement
+            if existingNodesMap.keys.contains(streamed.id) {
+                newNodesMap[streamed.id] = streamed
+                continue
+            }
+
+            // 2) Try to find a likely existing match (different id, same concept)
+            if let matchedId = self.matchExistingNodeId(for: streamed, excluding: Set(newNodesMap.keys)) {
+                // Replace existing node's data but preserve the existing node's ID.
+                let newStreamed = NodeEntity(id: matchedId,
+                                             nodeTypeEntity: streamed.nodeTypeEntity,
+                                             title: streamed.title)
+                newNodesMap.updateValue(newStreamed, forKey: newStreamed.id)
+                continue
+            }
+
+            // 3) Otherwise, this is a new node — append as-is
+            newNodesMap.updateValue(streamed, forKey: streamed.id)
+            
+            log("mergeWithStreamedGraph: no match for node: \(streamed)")
+        }
+
+        // Merge any unused nodes from existing graph--we don't know what to delete until the full stream completes
+        newNodesMap = newNodesMap.merging(existingNodesMap) { $1 }
+        
+        merged.nodes = Array(newNodesMap.values)
+        
+        return merged
+    }
+
+    /// Attempts to find an existing node id that best matches the incoming node.
+    /// Returns `nil` if no sufficiently good match is found.
+    ///
+    /// - Parameters:
+    ///   - incoming: The newly parsed node to match.
+    ///   - alreadyMatched: A set of existing node ids already claimed by other matches.
+    /// - Returns: The id of the best-matching existing node, if any.
+    func matchExistingNodeId(for incoming: NodeEntity, excluding alreadyMatched: Set<UUID> = []) -> UUID? {
+        // Quick exit: if any existing node shares the same id (should have been caught above)
+        if self.nodes.contains(where: { $0.id == incoming.id }) {
+            return incoming.id
+        }
+
+        // Score all candidates that are not already matched
+        var bestScore = Int.min
+        var bestId: UUID?
+
+        for existing in self.nodes where !alreadyMatched.contains(existing.id) {
+            let score = similarityScore(between: incoming, and: existing)
+            if score > bestScore {
+                bestScore = score
+                bestId = existing.id
+            }
+        }
+
+        // Require a minimum score to avoid spurious matches
+        let threshold = 40
+        return bestScore >= threshold ? bestId : nil
+    }
+
+    // MARK: - Similarity Heuristics
+
+    /// Computes a similarity score between two nodes. Higher is better.
+    /// Prioritizes node kind (patch/layer/group/component), then patch/layer/component
+    /// specific identifiers, title similarity, shared parent group, and canvas proximity.
+    private func similarityScore(between a: NodeEntity, and b: NodeEntity) -> Int {
+        // Exact id match is handled earlier, but keep a guard here for completeness
+        if a.id == b.id { return 1_000 }
+
+        var score = 0
+
+        // 1) Node kind match (patch/layer/group/component)
+        let aKind = nodeKindKey(a)
+        let bKind = nodeKindKey(b)
+        if aKind == bKind { score += 30 } else { return 0 } // different kinds are unlikely matches
+
+        // 2) Deep-type specific checks
+        switch (a.nodeTypeEntity, b.nodeTypeEntity) {
+        case (.patch(let ap), .patch(let bp)):
+            if ap.patch == bp.patch { score += 40 }
+            if ap.userVisibleType == bp.userVisibleType { score += 10 }
+            if ap.inputs.count == bp.inputs.count { score += 5 }
+
+            // Parent grouping
+            if ap.canvasEntity.parentGroupNodeId == bp.canvasEntity.parentGroupNodeId { score += 5 }
+
+            // Canvas position proximity
+            if let aPos = Optional(ap.canvasEntity.position), let bPos = Optional(bp.canvasEntity.position) {
+                score += proximityScore(aPos, bPos)
+            }
+
+        case (.layer(let al), .layer(let bl)):
+            if al.layer == bl.layer { score += 40 }
+            if al.layerGroupId == bl.layerGroupId { score += 5 }
+            // Layers don't have a single canonical canvas position; skip positional score
+
+        case (.component(let ac), .component(let bc)):
+            if ac.componentId == bc.componentId { score += 50 } // strong signal
+            if ac.canvasEntity.parentGroupNodeId == bc.canvasEntity.parentGroupNodeId { score += 5 }
+            let aPos = ac.canvasEntity.position
+            let bPos = bc.canvasEntity.position
+            score += proximityScore(aPos, bPos)
+
+        case (.group(let ag), .group(let bg)):
+            if ag.parentGroupNodeId == bg.parentGroupNodeId { score += 5 }
+            score += proximityScore(ag.position, bg.position)
+
+        default:
+            // Different kinds guarded above, but keep a safe default
+            break
+        }
+
+        // 3) Title similarity (cheap heuristic)
+        let aTitle = a.title.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let bTitle = b.title.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if !aTitle.isEmpty && aTitle == bTitle { score += 6 }
+        else if !aTitle.isEmpty && !bTitle.isEmpty && (aTitle.contains(bTitle) || bTitle.contains(aTitle)) {
+            score += 3
+        }
+
+        return score
+    }
+
+    /// Returns a simple key describing the top-level kind for matching purposes.
+    private func nodeKindKey(_ node: NodeEntity) -> String {
+        switch node.nodeTypeEntity {
+        case .patch: return "patch"
+        case .layer: return "layer"
+        case .group: return "group"
+        case .component: return "component"
+        }
+    }
+
+    /// Scores proximity between two points. Closer yields higher score.
+    private func proximityScore(_ a: CGPoint, _ b: CGPoint) -> Int {
+        let dx = a.x - b.x
+        let dy = a.y - b.y
+        let d = sqrt(dx*dx + dy*dy)
+        switch d {
+        case ..<20:   return 10
+        case ..<80:   return 6
+        case ..<160:  return 3
+        case ..<320:  return 1
+        default:      return 0
+        }
+    }
 }
