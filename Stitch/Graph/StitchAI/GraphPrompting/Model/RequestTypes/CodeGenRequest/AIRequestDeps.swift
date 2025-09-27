@@ -79,6 +79,10 @@ struct AIRequestDeps: StitchAICodeCreator {
 
         let startTime = CFAbsoluteTimeGetCurrent()
         
+        // Set streaming UI state
+        document.isStreamingResponses = true
+        document.streamingReasoningText = AI_THINKING_TEXT
+        
         // Use provider-agnostic orchestrator
         let codeEditResult = try await makeAIRequest(
             previewWindowPrompt: previewWindowPrompt,
@@ -88,8 +92,14 @@ struct AIRequestDeps: StitchAICodeCreator {
             model: model,
             verbosity: validatedVerbosity,
             reasoningEffort: document.openaiReasoningEffort.asOpenAIReasoningEffort,
-            document: document
+            document: document,
+            currentGraphEntity: document.graph.createSchema(),
+            viewPortCenter: document.viewPortCenter,
+            groupNodeFocused: document.groupNodeFocused?.groupNodeId
         )
+        
+        // Reset streaming UI state
+        document.resetStreamingUIState()
         
         let endTime = CFAbsoluteTimeGetCurrent()
         let duration = endTime - startTime

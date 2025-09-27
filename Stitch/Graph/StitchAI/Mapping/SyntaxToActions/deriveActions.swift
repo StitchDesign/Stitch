@@ -67,7 +67,6 @@ struct SwiftSyntaxActionsResult {
 }
 
 extension SwiftUIViewParserResult {
-    @MainActor
     func deriveStitchActions(bindingDeclarations: [(String, SwiftParserInitializerType)],
                              document: StitchDocumentViewModel,
                              isStreaming: Bool = false) async throws -> SwiftSyntaxActionsResult {
@@ -93,7 +92,6 @@ extension SwiftUIViewParserResult {
                      caughtErrors: self.caughtErrors + layerResults.caughtErrors)// + patchResults.caughtErrors)
     }
     
-    @MainActor
     func deriveStitchActionsSync(bindingDeclarations: [(String, SwiftParserInitializerType)], 
                                 isStreaming: Bool = false) throws -> SwiftSyntaxActionsResult {
         // Extract layer data
@@ -116,7 +114,6 @@ extension SwiftUIViewParserResult {
 }
 
 extension Array where Element == SyntaxView {
-    @MainActor
     func deriveStitchActions(bindingDeclarations: [(String, SwiftParserInitializerType)], 
                            isStreaming: Bool = false) -> SwiftSyntaxLayerActionsResult {
         var result = SwiftSyntaxLayerActionsResult(actions: [],
@@ -929,7 +926,6 @@ extension NodeEntity {
 }
 
 extension SwiftPatchCodeType {
-    @MainActor
     func derivePatchDataSync(varName: String?,
                             varNameToCode: [String: SwiftPatchCodeType],
                             viewEvent: SyntaxViewEvent?,
@@ -1111,7 +1107,6 @@ extension Sequence {
 }
 
 extension Array where Element == SwiftPatchClosureType {
-    @MainActor
     func derivePatchNodesSync(isStreaming: Bool = false) -> SwiftSyntaxPatchActionsResult {
         var result = SwiftSyntaxPatchActionsResult(nodes: [],
                                                    stateVarConnections: [:],
@@ -1428,7 +1423,6 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
 }
 
 extension Array where Element == (String, SwiftPatchCodeType) {
-    @MainActor
     func derivePatchNodesSync(existingStateVarConnections: [String: [NodeIOCoordinate]],
                              existingNodesDict: [UUID: NodeEntity],
                              viewEvent: SyntaxViewEvent?,
@@ -1566,7 +1560,6 @@ extension Array where Element == (String, SwiftPatchCodeType) {
 
 extension Array where Element == String {
     /// Derives actions from an array of script strings.
-    @MainActor
     func deriveStitchActions(isStreaming: Bool = false) -> SwiftSyntaxLayerActionsResult {
         let actionsResults = self.flatMap { script in
             let result = SwiftUIViewVisitor.parseSwiftUICode(script)
@@ -1600,7 +1593,6 @@ extension Array where Element == String {
 }
 
 extension SyntaxView {
-    @MainActor
     func deriveStitchActions(bindingDeclarations: [(String, SwiftParserInitializerType)], 
                            isStreaming: Bool = false) -> SwiftSyntaxLayerActionsResult? {
         // Tracks all silent errors
