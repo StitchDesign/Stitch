@@ -55,11 +55,11 @@ struct NodesOnlyView: View {
                 .zIndex(999999999999999)
 #endif
             
-            ForEach(canvasNodes) { canvasNode in
+            ForEach(canvasNodes, id: \.id) { canvasNode in
                 // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
                 // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
                 
-                if let node = graph.getNode(canvasNode.id.nodeId) {                    
+                if let node = graph.getNode(canvasNode.id.nodeId) {
                     NodeView(node: canvasNode,
                              stitch: node,
                              document: document,
@@ -72,9 +72,22 @@ struct NodesOnlyView: View {
                              canRemoveInput: node.canRemoveInputs,
                              boundsReaderDisabled: false,
                              updateMenuActiveSelectionBounds: false)
+                        .transition(
+                            // Always enable transitions for testing
+                            // document.isStreamingResponses ?
+                            .asymmetric(
+                                insertion: .opacity,
+                                removal: .opacity
+                            )
+                            // : .identity
+                        )
+//                        .animation(.linear) // required to animate the node's insertio
+                        .animation(.linear, value: canvasNodes.count)
+                        .id(canvasNode.id)
                 }
             }
         }
+//        .animation(.linear, value: canvasNodes.count)
         // TODO: why can't we do this logic from `ActiveIndexChangedAction` ?
         .onChange(of: self.activeIndex) {
             

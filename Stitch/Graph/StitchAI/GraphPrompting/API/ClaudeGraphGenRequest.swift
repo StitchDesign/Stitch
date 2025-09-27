@@ -294,9 +294,11 @@ func makeClaudeStreamingRequest(
                         
                         Task(priority: .high) { @MainActor [weak document] in
                             guard let document else { return }
-                            document.graph.update(from: mergedGraphEntity)
-                            document.graph.updateGraphData(document)
-                            
+                            withAnimation(.easeInOut(duration: 1.5)) {
+                                document.graph.update(from: mergedGraphEntity)
+                                document.graph.updateGraphData(document)
+                            }
+
 //                            print("merged streamed graph:\n\(mergedGraphEntity)")
                         }
                         

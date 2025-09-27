@@ -313,9 +313,13 @@ extension GraphState {
         // Update labels for group nodes
         self.updateGroupPortLabelsCache()
         
-        // Update visible canvas items
-        self.cachedCanvasItemsAtThisTraversalLevel = self.getCanvasItemsAtTraversalLevel(
-            groupNodeFocused: focusedGroupNode)
+        withAnimation {
+            // Update visible canvas items
+            self.cachedCanvasItemsAtThisTraversalLevel = self.getCanvasItemsAtTraversalLevel(
+                groupNodeFocused: focusedGroupNode)
+        }
+        
+        
     }
 
     @MainActor
