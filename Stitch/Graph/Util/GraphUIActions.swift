@@ -145,14 +145,14 @@ struct ToggleSidebars: StitchStoreEvent {
         
         // VERY IMPORTANT TO STAGGER THE SIDEBAR VS INSPECTOR OPEN/CLOSE; OTHERWISE WE GET JERKINESS
         if !inspectorOpen && !layerSidebarOpen {
-            // Opening: animate sidebar first, then inspector
+            // Opening: animate inspector first, then sidebar
             withAnimation {
-                state.leftSidebarOpen = true
+                store.showsLayerInspector = true
             }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 withAnimation {
-                    store.showsLayerInspector = true
+                    state.leftSidebarOpen = true
                 }
             }
         } else {

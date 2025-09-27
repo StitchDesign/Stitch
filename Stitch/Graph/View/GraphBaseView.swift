@@ -109,6 +109,21 @@ struct GraphBaseView: View {
             //#endif
 
             nodesView
+            
+#if targetEnvironment(macCatalyst)
+            HStack {
+                Spacer()
+                if store.showsLayerInspector {
+                    LayerInspectorView(graph: graph,
+                                       document: document)
+                    .frame(width: LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+    //                .transition(.move(edge: .trailing))
+                    .transition(.slideInAndOut)
+                }
+            }
+#endif
+            
+            
         } // ZStack
         
         .modifier(ActivelyDrawnEdge(graph: graph,
@@ -118,27 +133,27 @@ struct GraphBaseView: View {
         // If sidebar was open as well, do we need to push the
         // Problem comes when we
         
-        #if targetEnvironment(macCatalyst)
-        .overlay(alignment: .trailing) {
-            if store.showsLayerInspector {
-                LayerInspectorView(graph: graph,
-                                   document: document)
-                .frame(width: LayerInspectorView.LAYER_INSPECTOR_WIDTH)
-                .transition(.move(edge: .trailing))
-            }
-        }
-        
-        //        .inspector(isPresented: $store.showsLayerInspector) {
-//                    LayerInspectorView(graph: graph,
-//                                       document: document)
-        //        }
-        #endif
-        
-        .bottomCenterToast(willShow: document.llmRecording.showRatingToast,
-                           config: .init(duration: 15),
-                           onExpireAction: { dispatch(AIRatingToastExpired()) },
-                           toastContent: { StitchAIRatingToast() })
-        
+//        #if targetEnvironment(macCatalyst)
+//        .overlay(alignment: .trailing) {
+//            if store.showsLayerInspector {
+//                LayerInspectorView(graph: graph,
+//                                   document: document)
+//                .frame(width: LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+////                .transition(.move(edge: .trailing))
+//                .transition(.slideInAndOut)
+//            }
+//        }
+//        
+//        //        .inspector(isPresented: $store.showsLayerInspector) {
+////                    LayerInspectorView(graph: graph,
+////                                       document: document)
+//        //        }
+//        #endif
+//        
+//        .bottomCenterToast(willShow: document.llmRecording.showRatingToast,
+//                           config: .init(duration: 15),
+//                           onExpireAction: { dispatch(AIRatingToastExpired()) },
+//                           toastContent: { StitchAIRatingToast() })
 //        .background {
 //            GeometryReader { geometry in
 //                Color.clear
