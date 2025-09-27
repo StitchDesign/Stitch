@@ -37,7 +37,6 @@ enum AIModel {
 // MARK: - Provider-agnostic AI Request Function
 
 /// Provider-agnostic orchestrator function
-@MainActor
 func makeAIRequest(
     previewWindowPrompt: String,
     userPrompt: String,
@@ -46,7 +45,10 @@ func makeAIRequest(
     model: AIModel,
     verbosity: OpenAIVerbosity,
     reasoningEffort: OpenAIReasoningEffort,
-    document: StitchDocumentViewModel
+    document: StitchDocumentViewModel,
+    currentGraphEntity: GraphEntity,
+    viewPortCenter: CGPoint,
+    groupNodeFocused: UUID?
 ) async throws -> String {
     switch model {
     case .openAI(let openAIModel):
@@ -65,7 +67,10 @@ func makeAIRequest(
             userPrompt: userPrompt,
             base64Image: base64Image,
             model: claudeModel,
-            document: document
+            document: document,
+            currentGraphEntity: currentGraphEntity,
+            viewPortCenter: viewPortCenter,
+            groupNodeFocused: groupNodeFocused
         )
     }
 }

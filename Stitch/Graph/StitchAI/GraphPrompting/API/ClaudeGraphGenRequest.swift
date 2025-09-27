@@ -8,13 +8,15 @@
 import SwiftUI
 
 /// Make a request to Claude's Messages endpoint
-@MainActor
 func makeClaudeStreamingRequest(
     previewWindowPrompt: String,
     userPrompt: String,
     base64Image: String?,
     model: ClaudeModel,
-    document: StitchDocumentViewModel
+    document: StitchDocumentViewModel,
+    currentGraphEntity: GraphEntity,
+    viewPortCenter: CGPoint,
+    groupNodeFocused: UUID?
 ) async throws -> String {
     
     log("=== makeClaudeStreamingRequest STARTED ===")
@@ -141,10 +143,6 @@ func makeClaudeStreamingRequest(
 #endif
     }
     
-    // Set streaming UI state
-    document.isStreamingResponses = true
-    document.streamingReasoningText = AI_THINKING_TEXT
-    
     // Track request timing
     let requestStartTime = Date()
     
@@ -189,9 +187,6 @@ func makeClaudeStreamingRequest(
         
         // Debug: Track all thinking steps for debugging
         var allThinkingSteps: [String] = []
-        
-        // Track current graph entity before we do in-place mutations
-        let currentGraphEntity = document.graph.createSchema()
         
         log("🔄 Starting to process Claude streaming response...")
         
@@ -262,9 +257,10 @@ func makeClaudeStreamingRequest(
                         allThinkingSteps.append(thinkingText)
                         
                         // Update UI with thinking progress (just show raw content, no prefix)
-                        await MainActor.run {
-                            document.streamingReasoningText = accumulatedThinking
-                            // log("📱 UI updated with thinking text, total length: \(accumulatedThinking.count)")
+                        
+                        let latestAccumulatedThinking = accumulatedThinking
+                        Task(priority: .high) { @MainActor [weak document] in
+                            document?.streamingReasoningText = latestAccumulatedThinking
                         }
                     } else if let text = delta["text"] as? String {
                         // This is regular text content
@@ -281,9 +277,9 @@ func makeClaudeStreamingRequest(
                         
                         // Actions -> GraphEntity
                         let result = stitchActionsResult
-                            .createAIGraph(docId: document.graph.id.value,
-                                           viewPortCenter: document.viewPortCenter,
-                                           groupNodeFocused: document.groupNodeFocused?.groupNodeId,
+                            .createAIGraph(docId: currentGraphEntity.id,
+                                           viewPortCenter: viewPortCenter,
+                                           groupNodeFocused: groupNodeFocused,
                                            isStreaming: true)
                         
                         let inProgressParsedGraphEntity = result.graph
@@ -335,9 +331,6 @@ func makeClaudeStreamingRequest(
         
         log("🔚 Finished processing Claude stream - Total lines: \(lineCount), Events: \(eventCount)")
         
-        // Reset streaming UI state
-        document.resetStreamingUIState()
-        
         log("Claude streaming completed successfully")
         log("Final content length: \(accumulatedContent.count) characters")
         log("Total thinking length: \(accumulatedThinking.count) characters")
@@ -360,7 +353,9 @@ func makeClaudeStreamingRequest(
         return accumulatedContent
         
     } catch {
-        document.resetStreamingUIState()
+        await MainActor.run { [weak document] in
+            document?.resetStreamingUIState()
+        }
         
         // Log failure timing
         let failureDuration = Date().timeIntervalSince(requestStartTime)
