@@ -191,7 +191,7 @@ func makeClaudeStreamingRequest(
         var allThinkingSteps: [String] = []
 
         // Streaming parse context for eager updates
-        var streamingContext = StreamingParseContext(eagerParseThreshold: 60)
+        let streamingContext = StreamingParseContext(eagerParseThreshold: 500)
 
         log("🔄 Starting to process Claude streaming response...")
         
@@ -285,19 +285,19 @@ func makeClaudeStreamingRequest(
 
                                 switch parseResult {
                                 case .success(let actionsResult):
-                                    log("✅ PHASE 1 SUCCESS: Eager parse successful - applying partial graph")
+                                    log("✅ PHASE 1 SUCCESS: Eager parse successful - enqueueing result")
                                     log("✅   Found \(actionsResult.graphData.patchNodes.count) patch nodes")
                                     log("✅   Found \(actionsResult.graphData.layer_data_list.count) layer groups")
 
-                                    // Apply the partial result with streaming mode
-                                    var mutableResult = actionsResult
-                                    await mutableResult.applyPartialAIGraph(
-                                        to: document,
-                                        viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
-                                        isStreaming: true
-                                    )
+                                    // Enqueue the result instead of applying immediately
+                                    streamingContext.enqueue(actionsResult)
 
-                                    log("✅ PHASE 1 COMPLETE: Partial graph applied successfully")
+                                    // Start processing queue if not already animating
+                                    if streamingContext.canProcessNext() {
+                                        streamingContext.processQueue(document: document)
+                                    }
+
+                                    log("✅ PHASE 1 COMPLETE: Result enqueued for processing")
 
                                 case .failed(let error):
                                     log("❌ Eager parse failed: \(error)")
@@ -345,19 +345,14 @@ func makeClaudeStreamingRequest(
 
                     switch finalParseResult {
                     case .success(let actionsResult):
-                        log("✅ PHASE 2 SUCCESS: Final parse successful - applying complete graph with reconciliation")
+                        log("✅ PHASE 2 SUCCESS: Final parse successful - enqueueing final result")
                         log("✅   Final \(actionsResult.graphData.patchNodes.count) patch nodes")
                         log("✅   Final \(actionsResult.graphData.layer_data_list.count) layer groups")
 
-                        // Apply the final result with complete reconciliation (no streaming mode)
-                        var mutableResult = actionsResult
-                        await mutableResult.applyPartialAIGraph(
-                            to: document,
-                            viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
-                            isStreaming: false  // Phase 2: Full reconciliation
-                        )
+                        // Enqueue the final result with full reconciliation
+                        streamingContext.processFinalResult(actionsResult, document: document)
 
-                        log("✅ PHASE 2 COMPLETE: Complete graph applied with full reconciliation")
+                        log("✅ PHASE 2 COMPLETE: Final result enqueued for processing")
 
                         // Log final streaming statistics
                         let stats = streamingContext.getStats()

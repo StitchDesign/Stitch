@@ -8,7 +8,8 @@
 import Foundation
 
 /// Tracks token accumulation and parse timing for eager streaming updates
-struct StreamingParseContext {
+@MainActor
+class StreamingParseContext: @unchecked Sendable {
     /// Total tokens received in this streaming session
     var totalTokenCount: Int = 0
 
@@ -24,12 +25,18 @@ struct StreamingParseContext {
     /// Token threshold for triggering eager parsing
     let eagerParseThreshold: Int
 
+    /// Queue of pending parse results waiting to be applied
+    private var pendingResults: [(result: SwiftSyntaxActionsResult, isStreaming: Bool)] = []
+
+    /// Whether an animation is currently in progress
+    private var isAnimating: Bool = false
+
     init(eagerParseThreshold: Int = 500) {
         self.eagerParseThreshold = eagerParseThreshold
     }
 
     /// Determines if we should attempt an eager parse based on token accumulation
-    mutating func shouldAttemptParse(newTokens: String) -> Bool {
+    func shouldAttemptParse(newTokens: String) -> Bool {
         totalTokenCount += newTokens.count
         let tokensSinceLastParse = totalTokenCount - lastParseTokenCount
 
@@ -42,7 +49,7 @@ struct StreamingParseContext {
     }
 
     /// Records the result of a parse attempt
-    mutating func recordParseAttempt(success: Bool, tokenCount: Int? = nil) {
+    func recordParseAttempt(success: Bool, tokenCount: Int? = nil) {
         parseAttemptCount += 1
 
         if success {
@@ -62,6 +69,69 @@ struct StreamingParseContext {
             successfulParses: successfulParseCount,
             successRate: parseAttemptCount > 0 ? Double(successfulParseCount) / Double(parseAttemptCount) : 0.0
         )
+    }
+
+    /// Adds a parse result to the queue for processing
+    func enqueue(_ result: SwiftSyntaxActionsResult, isStreaming: Bool = true) {
+        pendingResults.append((result: result, isStreaming: isStreaming))
+        log("📥 StreamingParseContext: Enqueued parse result (streaming: \(isStreaming)). Queue size: \(pendingResults.count)")
+    }
+
+    /// Checks if we can apply the next result (no animation in progress)
+    func canProcessNext() -> Bool {
+        return !isAnimating && !pendingResults.isEmpty
+    }
+
+    /// Dequeues and returns the next result to process, marking animation as in progress
+    func dequeueNext() -> (result: SwiftSyntaxActionsResult, isStreaming: Bool)? {
+        guard canProcessNext() else { return nil }
+
+        let item = pendingResults.removeFirst()
+        isAnimating = true
+        log("📤 StreamingParseContext: Dequeued parse result (streaming: \(item.isStreaming)). Queue size: \(pendingResults.count), animation started")
+        return item
+    }
+
+    /// Marks animation as complete, allowing next result to be processed
+    func markAnimationComplete() {
+        isAnimating = false
+        log("✅ StreamingParseContext: Animation complete. Queue size: \(pendingResults.count)")
+    }
+
+    /// Processes the queue, applying results with 1 second delay between animations
+    func processQueue(document: StitchDocumentViewModel) {
+        guard let item = dequeueNext() else { return }
+
+        // Apply the result immediately
+        Task { @MainActor in
+            var mutableResult = item.result
+            await mutableResult.applyPartialAIGraph(
+                to: document,
+                viewStatePatchConnections: item.result.graphData.viewStatePatchConnections,
+                isStreaming: item.isStreaming
+            )
+
+            // Wait 1 second for animation to complete, then process next
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                self.markAnimationComplete()
+
+                // Continue processing if there are more items in queue
+                if self.canProcessNext() {
+                    self.processQueue(document: document)
+                }
+            }
+        }
+    }
+
+    /// Processes final result after streaming completes, waiting for queue to finish first
+    func processFinalResult(_ result: SwiftSyntaxActionsResult, document: StitchDocumentViewModel) {
+        // Add final result to queue with isStreaming: false
+        enqueue(result, isStreaming: false)
+
+        // Process the queue (will handle the final result after any pending ones)
+        if canProcessNext() {
+            processQueue(document: document)
+        }
     }
 }
 
