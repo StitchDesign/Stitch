@@ -182,33 +182,37 @@ extension CanvasItemViewModel {
     @MainActor
     func updateAnchorPoints() {
         
-        guard let canvasSize = self.sizeByLocalBounds else {
-            // Nothing to do if no size for canvas item yet
-            return
-        }
-        
-        let fn = { (nodeIO: NodeIO, portId: Int) -> CGPoint in
-            getNewAnchorPoint(canvasPosition: self.position,
-                              canvasSize: canvasSize,
-                              hasLargeCanvasTitle: self.nodeDelegate?.hasLargeCanvasTitleSpace ?? false,
-                              nodeIO: nodeIO,
-                              portId: portId)
-        }
-        
-        self.inputPortUIViewModels.forEach {
-            let newAnchorPoint = fn(.input, $0.portIdForAnchorPoint)
+        withAnimation(.linear(duration: 0.3)) {
+            guard let canvasSize = self.sizeByLocalBounds else {
+                // Nothing to do if no size for canvas item yet
+                return
+            }
             
-            if newAnchorPoint != $0.anchorPoint {
-                $0.anchorPoint = newAnchorPoint
+            let fn = { (nodeIO: NodeIO, portId: Int) -> CGPoint in
+                getNewAnchorPoint(canvasPosition: self.position,
+                                  canvasSize: canvasSize,
+                                  hasLargeCanvasTitle: self.nodeDelegate?.hasLargeCanvasTitleSpace ?? false,
+                                  nodeIO: nodeIO,
+                                  portId: portId)
             }
-        }
+            
+            self.inputPortUIViewModels.forEach {
+                let newAnchorPoint = fn(.input, $0.portIdForAnchorPoint)
+                
+                if newAnchorPoint != $0.anchorPoint {
+                    $0.anchorPoint = newAnchorPoint
+                }
+            }
+            
+            self.outputPortUIViewModels.forEach {
+                let newAnchorPoint = fn(.output, $0.portIdForAnchorPoint)
+                if newAnchorPoint != $0.anchorPoint {
+                    $0.anchorPoint = newAnchorPoint
+                }
+            }
+        } // withAnimation
         
-        self.outputPortUIViewModels.forEach {
-            let newAnchorPoint = fn(.output, $0.portIdForAnchorPoint)
-            if newAnchorPoint != $0.anchorPoint {
-                $0.anchorPoint = newAnchorPoint
-            }
-        }
+        
     }
     
     func onPrototypeRestart(document: StitchDocumentViewModel) { }

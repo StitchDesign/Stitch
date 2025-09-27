@@ -126,9 +126,9 @@ struct DrawnEdge: View {
         shouldUseBackwardEdge ? backwardHalfwayPoint : forwardHalfwayPoint
     }
     
-    var animationTime: Double {
-        edgeAnimationEnabled ? Self.ANIMATION_DURATION : .zero
-    }
+//    var animationTime: Double {
+//        edgeAnimationEnabled ? Self.ANIMATION_DURATION : .zero
+//    }
 
     var body: some View {
         // logInView("DrawnEdge: from: \(from)")
@@ -138,11 +138,11 @@ struct DrawnEdge: View {
         // logInView("DrawnEdge: forwardHalfwayPoint: \(forwardHalfwayPoint)")
 
         commonLine
-            .animation(.linear(duration: animationTime),
+            .animation(.linear(duration: 0.3),
                        value: halfway)
-            .animation(.linear(duration: animationTime),
+            .animation(.linear(duration: 0.3),
                        value: toExtended)
-            .animation(.linear(duration: animationTime),
+            .animation(.linear(duration: 0.3),
                        value: fromExtended)
     }
     
@@ -159,11 +159,18 @@ struct DrawnEdge: View {
     var commonLine: some View {
         switch edgeStyle {
         case .curve:
-            CurveLine(from: from, to: to)
+            // Can you really be animating both?
+            AnimatableCurveLine(from: from,
+                                to:  to)
+//            CurveLine(from: from, to: to)
                 .stroke(color,
                         style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH * edgeScaleEffect,
                                            lineCap: .round,
                                            lineJoin: .round))
+                .animation(.linear(duration: 0.3),
+                           value: to)
+                .animation(.linear(duration: 0.3),
+                           value: from)
 
         case .line:
             StraightLine(from: from, to: to)
