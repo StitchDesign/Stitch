@@ -115,6 +115,9 @@ struct GraphBaseView: View {
                                     scale: document.graphMovement.zoomData))
         .coordinateSpace(name: Self.coordinateNamespace)
         
+        // If sidebar was open as well, do we need to push the
+        // Problem comes when we
+        
         #if targetEnvironment(macCatalyst)
         .overlay(alignment: .trailing) {
             if store.showsLayerInspector {
@@ -122,14 +125,16 @@ struct GraphBaseView: View {
                                    document: document)
                 .frame(width: LayerInspectorView.LAYER_INSPECTOR_WIDTH)
                 .transition(.move(edge: .trailing))
+                .offset(x: )
+                
             }
         }
         
         //        .inspector(isPresented: $store.showsLayerInspector) {
-        //            LayerInspectorView(graph: graph,
-        //                               document: document)
+//                    LayerInspectorView(graph: graph,
+//                                       document: document)
         //        }
-        #endif
+//        #endif
         
         .bottomCenterToast(willShow: document.llmRecording.showRatingToast,
                            config: .init(duration: 15),
