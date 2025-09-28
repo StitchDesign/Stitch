@@ -44,12 +44,16 @@ struct ContentView: View, KeyboardReadable {
 
     var nodeAndMenu: some View {
         ZStack {
-            
-            // Best place to listen for TAB key for flyout
-            UIKitWrapper(ignoresKeyCommands: true,
-                         isOnlyForTextFieldHelp: true,
-                         inputTextFieldFocused: document.reduxFocusedField?.inputTextFieldWithNumberIsFocused(document.graph) ?? false,
-                         name: .mainGraph) {
+            if document.visibleGraph.propertySidebar.flyoutState != nil {
+                // UIKitWrapper only when flyout is active (for TAB key detection)
+                UIKitWrapper(ignoresKeyCommands: true,
+                             isOnlyForTextFieldHelp: true,
+                             inputTextFieldFocused: document.reduxFocusedField?.inputTextFieldWithNumberIsFocused(document.graph) ?? false,
+                             name: .mainGraph) {
+                    contentView // the graph
+                }
+            } else {
+                // No wrapper when no flyout (smooth sidebar animations)
                 contentView // the graph
             }
         }
@@ -57,10 +61,10 @@ struct ContentView: View, KeyboardReadable {
 
     var body: some View {
         ZStack {
-            
+
             // probably the best location for listening to how iPad's on-screen keyboard reduces available height for node menu ?
-            
-            
+
+
             // Must respect keyboard safe-area
             ProjectWindowSizeReader(previewWindowSizing: previewWindowSizing,
                                     previewWindowSize: document.previewWindowSize,

@@ -48,6 +48,14 @@ struct StitchRootView: View {
     var viewByPlatform: some View {
 #if targetEnvironment(macCatalyst)
                 splitView
+//        
+//        // Displaces contents of the view? (Creates less space etc.)
+//            .inspector(isPresented: $store.showsLayerInspector) {
+//                if let document = store.currentDocument {
+//                    LayerInspectorView(graph: document.visibleGraph,
+//                                       document: document)
+//                }
+//            }
 #else
                 StitchNavStack(store: store)
 #endif

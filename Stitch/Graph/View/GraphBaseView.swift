@@ -122,29 +122,30 @@ struct GraphBaseView: View {
                                    document: document)
                 .frame(width: LayerInspectorView.LAYER_INSPECTOR_WIDTH)
                 .transition(.move(edge: .trailing))
+//                .transition(.slideInAndOut)
             }
         }
         
         //        .inspector(isPresented: $store.showsLayerInspector) {
-        //            LayerInspectorView(graph: graph,
-        //                               document: document)
+//                    LayerInspectorView(graph: graph,
+//                                       document: document)
         //        }
         #endif
+
         
         .bottomCenterToast(willShow: document.llmRecording.showRatingToast,
                            config: .init(duration: 15),
                            onExpireAction: { dispatch(AIRatingToastExpired()) },
                            toastContent: { StitchAIRatingToast() })
-        
         .background {
             GeometryReader { geometry in
                 Color.clear
                     .onChange(of: geometry.frame(in: .local), initial: true) { oldValue, newValue in
-                        // log("SIZE READING: GraphBaseView: local frame: newValue: \(newValue)")
+                         // log("SIZE READING: GraphBaseView: local frame: newValue: \(newValue)")
                         dispatch(SetDeviceScreenSize(frame: newValue))
                     }
                     .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
-                        // log("SIZE READING: GraphBaseView: global frame: newValue: \(newValue)")
+                         // log("SIZE READING: GraphBaseView: global frame: newValue: \(newValue)")
                         dispatch(SetGraphPosition(graphPosition: newValue.origin))
                         dispatch(SetSidebarWidth(frame: newValue))
                     }
