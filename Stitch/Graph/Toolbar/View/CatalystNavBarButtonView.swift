@@ -13,24 +13,14 @@ struct CatalystNavBarButtonWithMenu<MenuContentView: View>: View {
     @ViewBuilder var menuContentViews: () -> MenuContentView
     
     var body: some View {
-        // HACK to get tooltips working on Mac Catalyst; can't use SwiftUI `.help`
-//        ZStack {
-//            CatalystToolTipButton(systemImageName: systemName,
-//                                  tooltipText: toolTip) { }
-//            .fixedSize()
-            
-            Menu {
-                menuContentViews()
-            } label: {
-//                EmptyView()
-                Button(toolTip,
-                       systemImage: systemName,
-                       action: { })
-            }
-            .menuIndicator(.hidden)
-        
-//            .modifier(CatalystTopBarButtonStyle())
-//        }
+        Menu {
+            menuContentViews()
+        } label: {
+            Button(toolTip,
+                   systemImage: systemName,
+                   action: { })
+        }
+        .menuIndicator(.hidden)
     }
 }
 

@@ -262,26 +262,11 @@ Platform: \(Self.platform)
     }
     
     var macView: some View {
-//        ZStack {
-//            CatalystToolTipButton(
-//                systemImageName: Self.iconName,
-//                tooltipText: "Contact Us"
-//            ) {
-//                // log("my action here")
-//            }
-//            .fixedSize()
-            
-           
-            
-            Menu {
-                menuContent
-            } label: {
-//                EmptyView()
-                Button("Contact Us", systemImage: Self.iconName, action: { })
-            }
-            // Note: *must* provide explicit frame
-//            .frame(width: 30, height: 30)
-//        }
+        Menu {
+            menuContent
+        } label: {
+            Button("Contact Us", systemImage: Self.iconName, action: { })
+        }
     }
     
     var body: some View {
