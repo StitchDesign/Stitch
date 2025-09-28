@@ -92,7 +92,8 @@ let PREVIEW_SHOW_TOGGLE_ACTION = { dispatch(TogglePreviewWindow()) }
 
 let FILE_IMPORT_LABEL = "Import File"
 //let FILE_IMPORT_ICON_NAME: IconName = .svgIcon("Doc")
- let FILE_IMPORT_ICON_NAME: IconName = .sfSymbol("document")
+let FILE_IMPORT_ICON_NAME_STRING = "document"
+let FILE_IMPORT_ICON_NAME: IconName = .sfSymbol("document")
 
 @MainActor
 let FILE_IMPORT_ACTION = { @MainActor in dispatch(ShowFileImportModal()) }

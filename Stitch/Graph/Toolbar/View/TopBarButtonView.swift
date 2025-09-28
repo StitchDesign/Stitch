@@ -199,7 +199,7 @@ struct iPadGraphTopBarMiscMenu: View {
                              action: REDO_ACTION,
                              label: REDO_ICON_LABEL)
 
-            iPadTopBarButton(iconName: "document",
+            iPadTopBarButton(iconName: FILE_IMPORT_ICON_NAME_STRING,
                              tooltip: "Import File",
                              action: FILE_IMPORT_ACTION,
                              label: FILE_IMPORT_LABEL)
