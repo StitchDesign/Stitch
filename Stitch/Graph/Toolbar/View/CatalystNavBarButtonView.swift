@@ -14,18 +14,23 @@ struct CatalystNavBarButtonWithMenu<MenuContentView: View>: View {
     
     var body: some View {
         // HACK to get tooltips working on Mac Catalyst; can't use SwiftUI `.help`
-        ZStack {
-            CatalystToolTipButton(systemImageName: systemName,
-                                  tooltipText: toolTip) { }
-            .fixedSize()
+//        ZStack {
+//            CatalystToolTipButton(systemImageName: systemName,
+//                                  tooltipText: toolTip) { }
+//            .fixedSize()
             
             Menu {
                 menuContentViews()
             } label: {
-                EmptyView()
+//                EmptyView()
+                Button(toolTip,
+                       systemImage: systemName,
+                       action: { })
             }
-            .modifier(CatalystTopBarButtonStyle())
-        }
+            .menuIndicator(.hidden)
+        
+//            .modifier(CatalystTopBarButtonStyle())
+//        }
     }
 }
 
@@ -51,27 +56,11 @@ struct CatalystNavBarButton: View {
     let action: () -> Void
         
     var body: some View {
-        
-        // HACK to get tooltips working on Mac Catalyst; can't use SwiftUI `.help`
-        ZStack {
-            CatalystToolTipButton(systemImageName: systemName,
-                                  tooltipText: toolTip) { }
-            .fixedSize()
-            
-            Menu {
-                // 'Empty menu' so that nothing happens when we tap the Menu's label
-                EmptyView()
-            } label: {
-                EmptyView()
-            }
-            // rotation3DEffect must be applied here
-            .rotation3DEffect(Angle(degrees: rotationZ),
-                              axis: (x: 0, y: 0, z: rotationZ))
-            .modifier(CatalystTopBarButtonStyle())
-            .simultaneousGesture(TapGesture().onEnded({ _ in
-                action()
-            }))
-        }
+        Button(toolTip,
+               systemImage: systemName,
+               action: action)
+        .rotation3DEffect(Angle(degrees: rotationZ),
+                          axis: (x: 0, y: 0, z: rotationZ))
     }
 }
 

@@ -88,6 +88,8 @@ struct ProjectToolbarViewModifier: ViewModifier {
                 // .primaryAction = right side
                 // .secondaryAction = center
                 ToolbarItemGroup(placement: .primaryAction) {
+                    
+                    // Need to break these up?
                     iPadGraphTopBarButtons(
                         document: document,
                         isDebugMode: document.isDebugMode,

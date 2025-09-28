@@ -5,6 +5,7 @@
 //  Created by Christian J Clampitt on 4/12/23.
 //
 
+import Foundation
 import SwiftUI
 import StitchSchemaKit
 
@@ -53,27 +54,16 @@ struct iPadTopBarButtonStyle: ViewModifier {
     }
 }
 
-// Hack: use `Menu(primaryAction:)` to get native size and hover effect on iPad
 struct iPadNavBarButton: View {
+    let iconName: String
+    let tooltip: String
     let action: () -> Void
-    let iconName: IconName
     var rotationZ: CGFloat = 0 // some icons stay the same but just get rotated
 
     var body: some View {
-        Menu {
-            // 'Empty menu' so that nothing happens when we tap the Menu's label
-            EmptyView()
-        } label: {
-            Button(action: {}) {
-                // TODO: any .resizable(), .fixedSize() etc. needed?
-                iconName.image
-                // TODO: why is this rotation changes sometimes animated, sometimes not?
-                //                    .rotation3DEffect(Angle(degrees: rotationZ),
-                //                                      axis: (x: 0, y: 0, z: rotationZ))
-            }
-        } primaryAction: {
-            action()
-        }
+        Button(tooltip,
+               systemImage: iconName,
+               action: action)
         .rotation3DEffect(Angle(degrees: rotationZ),
                           axis: (x: 0, y: 0, z: rotationZ))
     }
@@ -120,13 +110,16 @@ struct iPadGraphTopBarButtons: View {
     let isPreviewWindowShown: Bool // = true
     let restartPrototypeWindowIconRotationZ: CGFloat
     
-    @ViewBuilder
-    var miscButton: some View {
-        iPadGraphTopBarMiscMenu(document: document)
-    }
+//    @ViewBuilder
+//    var miscButton: some View {
+//        iPadGraphTopBarMiscMenu(document: document)
+//    }
     
     var body: some View {
-        Group {
+        
+        
+        
+        ControlGroup {
             Picker("", selection: $document.selectedTab) {
                 ForEach(ProjectTab.allCases) { projectTab in
                     Image(systemName: projectTab.systemIcon)
@@ -134,109 +127,156 @@ struct iPadGraphTopBarButtons: View {
                 }
             }
             .pickerStyle(.segmented)
-                        
-            // go up a traversal level
-            iPadNavBarButton(action: { dispatch(GoUpOneTraversalLevel()) },
-                             iconName: .sfSymbol(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME))
-            .disabled(hasActiveGroupFocused ? false : true)
-            
-            iPadTopBarButtonWithMenu(iconName: .sfSymbol(.AI_MAGIC_TEMP_MENU_SF_SYMBOL_NAME)) {
-                StitchButton {
-                    dispatch(ShowAINodePromptEntryModal())
-                } label: {
-                    Label(String.CREATE_CUSTOM_NODE_WITH_AI,
-                          systemImage: "rectangle")
-                }
-                StitchButton {
-                    dispatch(ToggleInsertNodeMenu())
-                } label: {
-                    Label("Add Nodes",
-                          systemImage: "rectangle.on.rectangle")
-                }
-            }
-            
-            // OpenAI Configuration Picker - only show in debug builds
-            #if DEV_DEBUG || STITCH_AI_TESTING
-            OpenAIConfigurationPicker(document: document)
-            
-//            // AI Examples button
-//            iPadNavBarButton(action: { 
-//                withAnimation(.easeInOut(duration: 0.3)) {
-//                    document.showAITrainingExamplesOverlay.toggle()
-//                }
-//            }, iconName: .sfSymbol("list.bullet.rectangle"))
-            #endif
-            
-            iPadNavBarButton(action: { dispatch(ToggleInsertNodeMenu()) },
-                             iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME))
-            
-            //            if isDebugMode,
-            //               FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
-            //
-            ////                iPadNavBarButton(action: {
-            ////                    dispatch(ShowCreateTrainingDataFromExistingGraphModal())
-            ////                }, iconName: .sfSymbol(.DEBUG_SUBMIT_EXISTING_GRAPH_AS_TRAINING_DATA_SF_SYMBOL_NAME))
-            //
-            //            }
-            
-            // toggle preview window
-            iPadNavBarButton(
-                action: PREVIEW_SHOW_TOGGLE_ACTION,
-                iconName: .sfSymbol(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME))
-            
-            // refresh prototype
-            iPadNavBarButton(action: RESTART_PROTOTYPE_ACTION,
-                             iconName: .sfSymbol(.RESTART_PROTOTYPE_SF_SYMBOL_NAME),
-                             rotationZ: restartPrototypeWindowIconRotationZ)
-            
-            // full screen
-            iPadNavBarButton(
-                action: PREVIEW_FULL_SCREEN_ACTION,
-                iconName: .sfSymbol(isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME))
-
-            // the misc (...) button
-            miscButton
-                .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)
         }
+        
+        
+        
+        // go up a traversal level
+        iPadNavBarButton(iconName: .GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME,
+                         tooltip: "Go up one traversal level",
+                         action: { dispatch(GoUpOneTraversalLevel()) })
+        .disabled(hasActiveGroupFocused ? false : true)
+//        
+//        iPadTopBarButtonWithMenu(iconName: .sfSymbol(.AI_MAGIC_TEMP_MENU_SF_SYMBOL_NAME)) {
+//            StitchButton {
+//                dispatch(ShowAINodePromptEntryModal())
+//            } label: {
+//                Label(String.CREATE_CUSTOM_NODE_WITH_AI,
+//                      systemImage: "rectangle")
+//            }
+//            StitchButton {
+//                dispatch(ToggleInsertNodeMenu())
+//            } label: {
+//                Label("Add Nodes",
+//                      systemImage: "rectangle.on.rectangle")
+//            }
+//        }
+        
+//        // OpenAI Configuration Picker - only show in debug builds
+//#if DEV_DEBUG || STITCH_AI_TESTING
+////        ToolbarItem {
+//            //            ControlGroup {
+//            OpenAIConfigurationPicker(document: document)
+//            //            }
+////        }
+//        
+//#endif
+        
+        iPadNavBarButton(iconName: .ADD_NODE_SF_SYMBOL_NAME,
+                         tooltip: "Add Node",
+                         action: { dispatch(ToggleInsertNodeMenu()) })
+        
+        // toggle preview window
+        iPadNavBarButton(
+            iconName: isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME,
+            tooltip: "Toggle Prototype Window",
+            action: PREVIEW_SHOW_TOGGLE_ACTION)
+        
+        // refresh prototype
+        iPadNavBarButton(iconName: .RESTART_PROTOTYPE_SF_SYMBOL_NAME,
+                         tooltip: "Restart Prototype",
+                         action: RESTART_PROTOTYPE_ACTION,
+                         rotationZ: restartPrototypeWindowIconRotationZ)
+        
+        iPadTopBarButtonWithMenu(iconName: .sfSymbol(.AI_MAGIC_TEMP_MENU_SF_SYMBOL_NAME)) {
+            StitchButton {
+                dispatch(ShowAINodePromptEntryModal())
+            } label: {
+                Label(String.CREATE_CUSTOM_NODE_WITH_AI,
+                      systemImage: "rectangle")
+            }
+            StitchButton {
+                dispatch(ToggleInsertNodeMenu())
+            } label: {
+                Label("Add Nodes",
+                      systemImage: "rectangle.on.rectangle")
+            }
+        }
+        
+        // full screen
+        iPadNavBarButton(
+            iconName: isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME,
+            tooltip: "Toggle Fullscreen",
+            action: PREVIEW_FULL_SCREEN_ACTION)
+        
+        // the misc (...) button
+//        miscButton
+//        iPadGraphTopBarMiscMenu()
+        //                .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)
+        
+        
+//        iPadTopBarButtonWithMenu(iconName: .sfSymbol(.AI_MAGIC_TEMP_MENU_SF_SYMBOL_NAME)) {
+//            StitchButton {
+//                dispatch(ShowAINodePromptEntryModal())
+//            } label: {
+//                Label(String.CREATE_CUSTOM_NODE_WITH_AI,
+//                      systemImage: "rectangle")
+//            }
+//            StitchButton {
+//                dispatch(ToggleInsertNodeMenu())
+//            } label: {
+//                Label("Add Nodes",
+//                      systemImage: "rectangle.on.rectangle")
+//            }
+//        }
+        
+        
     }
 }
 #endif
 
 struct iPadGraphTopBarMiscMenu: View {
-    @Bindable var document: StitchDocumentViewModel
     
     var body: some View {
         Menu {
-            iPadTopBarButton(action: { dispatch(FindSomeCanvasItemOnGraph())},
-                             iconName: .sfSymbol(.FIND_NODE_ON_GRAPH),
-                             label: "Find Node")
             
-            iPadTopBarButton(action: UNDO_ACTION,
-                             iconName: UNDO_ICON_NAME,
-                             label: UNDO_ICON_LABEL)
-
-            iPadTopBarButton(action: REDO_ACTION,
-                             iconName: REDO_ICON_NAME,
-                             label: REDO_ICON_LABEL)
-
-            iPadTopBarButton(action: FILE_IMPORT_ACTION,
-                             iconName: FILE_IMPORT_ICON_NAME,
-                             label: FILE_IMPORT_LABEL)
+//            iPadNavBarButton(
+//                iconName: .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME,
+//                tooltip: "Love me",
+//                action: { })
             
-//            TopBarSharingButtonsView(document: document)
+            Button("love",
+                   systemImage: .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME,
+                   action: { })
+            
+//            iPadTopBarButton(action: { dispatch(FindSomeCanvasItemOnGraph())},
+//                             iconName: .sfSymbol(.FIND_NODE_ON_GRAPH),
+//                             label: "Find Node")
+//            
+//            iPadTopBarButton(action: UNDO_ACTION,
+//                             iconName: UNDO_ICON_NAME,
+//                             label: UNDO_ICON_LABEL)
+//
+//            iPadTopBarButton(action: REDO_ACTION,
+//                             iconName: REDO_ICON_NAME,
+//                             label: REDO_ICON_LABEL)
+//
+//            iPadTopBarButton(action: FILE_IMPORT_ACTION,
+//                             iconName: FILE_IMPORT_ICON_NAME,
+//                             label: FILE_IMPORT_LABEL)
+//            
+////            TopBarSharingButtonsView(document: document)
+////                .modifier(iPadTopBarButtonStyle())
+//
+//            TopBarFeedbackButtonsView(document: self.document)
 //                .modifier(iPadTopBarButtonStyle())
-
-            TopBarFeedbackButtonsView(document: self.document)
-                .modifier(iPadTopBarButtonStyle())
-            
-            iPadTopBarButton(action: PROJECT_SETTINGS_ACTION,
-                             iconName: PROJECT_SETTINGS_ICON_NAME,
-                             label: PROJECT_SETTINGS_LABEL)
+//            
+//            iPadTopBarButton(action: PROJECT_SETTINGS_ACTION,
+//                             iconName: PROJECT_SETTINGS_ICON_NAME,
+//                             label: PROJECT_SETTINGS_LABEL)
         } label: {
-            Button(action: {}) {
-                // TODO: any .resizable(), .fixedSize() etc. needed?
-                TOP_BAR_MENU_ICON_NAME.image
+            Button(action: {} ) {
+                Image(systemName: "ellipsis.circle")
             }
+            
+//            Button("More",
+//                   systemImage: "ellipsis.circle",
+//                   action: { })
+            
+//            Button(action: {}) {
+//                // TODO: any .resizable(), .fixedSize() etc. needed?
+//                TOP_BAR_MENU_ICON_NAME.image
+//            }
         } // menu
     }
 }
