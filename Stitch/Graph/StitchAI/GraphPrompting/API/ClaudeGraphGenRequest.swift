@@ -463,45 +463,124 @@ extension GraphEntity {
     func mergeWithStreamedGraph(_ inProgressGraph: GraphEntity) -> GraphEntity {
         var merged = self
 
-        // Index existing nodes by id for fast replacement
+        // Fast lookup of existing nodes by id
         let existingNodesMap: [UUID: NodeEntity] = merged.nodes.reduce(into: [UUID: NodeEntity]()) { result, node in
-            result.updateValue(node, forKey: node.id)
+            result[node.id] = node
         }
-        
-        log("mergeWithStreamedGraph: existing data: \(existingNodesMap)")
 
-        // Tracks new nodes to be used for state
+        // Track existing nodes by coarse keys to reduce candidate set for matching
+        // Also partition by kind for a broader fallback
+        var indexByKey = [String: [NodeEntity]]()
+        var indexByKind = [String: [NodeEntity]]()
+
+        for node in merged.nodes {
+            let key = coarseMatchKey(for: node)
+            indexByKey[key, default: []].append(node)
+
+            let kind = nodeKindKey(node)
+            indexByKind[kind, default: []].append(node)
+        }
+
+        // Tracks which existing node ids have already been matched to avoid duplicates
+        var claimedExistingIds = Set<UUID>()
+
+        // Tracks new/replaced nodes by id
         var newNodesMap = [UUID: NodeEntity]()
 
         for streamed in inProgressGraph.nodes {
-            // 1) If IDs match, it's an obvious replacement
-            if existingNodesMap.keys.contains(streamed.id) {
+            // 1) Exact id match: replace directly
+            if existingNodesMap[streamed.id] != nil {
                 newNodesMap[streamed.id] = streamed
+                claimedExistingIds.insert(streamed.id)
                 continue
             }
 
-            // 2) Try to find a likely existing match (different id, same concept)
-            if let matchedId = self.matchExistingNodeId(for: streamed, excluding: Set(newNodesMap.keys)) {
-                // Replace existing node's data but preserve the existing node's ID.
+            // 2) Coarse candidate selection using indexed keys
+            let key = coarseMatchKey(for: streamed)
+            let kind = nodeKindKey(streamed)
+            let primaryCandidates = indexByKey[key] ?? []
+            let fallbackCandidates = indexByKind[kind] ?? []
+
+            // Prefer the tighter candidate set first
+            var bestScore = Int.min
+            var bestId: UUID?
+
+            func consider(_ candidates: [NodeEntity]) {
+                for candidate in candidates {
+                    if claimedExistingIds.contains(candidate.id) { continue }
+                    let score = similarityScore(between: streamed, and: candidate)
+                    if score > bestScore {
+                        bestScore = score
+                        bestId = candidate.id
+                    }
+                }
+            }
+
+            consider(primaryCandidates)
+            if bestId == nil { // only consider broad set if no good specific candidates
+                consider(fallbackCandidates)
+            }
+
+            // 3) Apply threshold and either replace matched node or add as new
+            let threshold = 40
+            if let matchedId = bestId, bestScore >= threshold {
+                let newTypeEntity = streamed.nodeType.c
+                
                 let newStreamed = NodeEntity(id: matchedId,
                                              nodeTypeEntity: streamed.nodeTypeEntity,
                                              title: streamed.title)
-                newNodesMap.updateValue(newStreamed, forKey: newStreamed.id)
-                continue
+                newNodesMap[matchedId] = newStreamed
+                claimedExistingIds.insert(matchedId)
+            } else {
+                // New node — append as-is
+                newNodesMap[streamed.id] = streamed
             }
-
-            // 3) Otherwise, this is a new node — append as-is
-            newNodesMap.updateValue(streamed, forKey: streamed.id)
-            
-            log("mergeWithStreamedGraph: no match for node: \(streamed)")
         }
 
-        // Merge any unused nodes from existing graph--we don't know what to delete until the full stream completes
-        newNodesMap = newNodesMap.merging(existingNodesMap) { $1 }
-        
-        merged.nodes = Array(newNodesMap.values)
-        
+        // Start from existing map and overlay new/replaced nodes (avoids extra dictionary merges)
+        var resultMap = existingNodesMap
+        for (id, node) in newNodesMap {
+            resultMap[id] = node
+        }
+
+        merged.nodes = Array(resultMap.values)
         return merged
+    }
+
+    /// Builds a coarse key to quickly narrow down matching candidates.
+    /// The key considers node kind, a type identifier, parent group, and a coarse position bucket.
+    private func coarseMatchKey(for node: NodeEntity) -> String {
+        switch node.nodeTypeEntity {
+        case .patch(let p):
+            let patchId = String(describing: p.patch)
+            let group = p.canvasEntity.parentGroupNodeId?.uuidString ?? "nil"
+            let inputs = p.inputs.count
+            let b = positionBucket(p.canvasEntity.position)
+            return "patch|\(patchId)|g:\(group)|i:\(inputs)|b:\(b.x)_\(b.y)"
+
+        case .layer(let l):
+            let layerId = String(describing: l.layer)
+            let group = l.layerGroupId?.uuidString ?? "nil"
+            return "layer|\(layerId)|g:\(group)"
+
+        case .component(let c):
+            let comp = c.componentId.uuidString
+            let group = c.canvasEntity.parentGroupNodeId?.uuidString ?? "nil"
+            let b = positionBucket(c.canvasEntity.position)
+            return "component|\(comp)|g:\(group)|b:\(b.x)_\(b.y)"
+
+        case .group(let g):
+            let group = g.parentGroupNodeId?.uuidString ?? "nil"
+            let b = positionBucket(g.position)
+            return "group|g:\(group)|b:\(b.x)_\(b.y)"
+        }
+    }
+
+    /// Coarse position bucketing to avoid expensive global proximity checks during indexing.
+    private func positionBucket(_ p: CGPoint, size: CGFloat = 80) -> (x: Int, y: Int) {
+        let bx = Int(floor(p.x / size))
+        let by = Int(floor(p.y / size))
+        return (bx, by)
     }
 
     /// Attempts to find an existing node id that best matches the incoming node.
@@ -611,13 +690,12 @@ extension GraphEntity {
     private func proximityScore(_ a: CGPoint, _ b: CGPoint) -> Int {
         let dx = a.x - b.x
         let dy = a.y - b.y
-        let d = sqrt(dx*dx + dy*dy)
-        switch d {
-        case ..<20:   return 10
-        case ..<80:   return 6
-        case ..<160:  return 3
-        case ..<320:  return 1
-        default:      return 0
-        }
+        let d2 = dx*dx + dy*dy // squared distance
+        // Thresholds squared: 20^2, 80^2, 160^2, 320^2
+        if d2 < 400 { return 10 }
+        else if d2 < 6400 { return 6 }
+        else if d2 < 25600 { return 3 }
+        else if d2 < 102400 { return 1 }
+        else { return 0 }
     }
 }
