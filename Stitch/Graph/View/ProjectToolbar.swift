@@ -214,6 +214,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
                     Text("")
                 }
                 
+                // TODO: HOW TO GET THESE BUTTONS TO BE THE SAME SIZE AS THE SIDEBAR TOGGLE BUTTON? USING SEPARATE `ToolbarItemGroup` DID NOT HELP
                 ToolbarItemGroup(placement: .primaryAction) {
                     ControlGroup {
                         CatalystTopBarGraphButtons(

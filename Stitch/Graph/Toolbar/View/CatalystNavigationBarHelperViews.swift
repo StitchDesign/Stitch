@@ -83,14 +83,6 @@ struct CatalystTopBarGraphButtons: View {
             // OpenAI Configuration Picker - only show in debug builds
             #if DEV_DEBUG || STITCH_AI_TESTING
             OpenAIConfigurationPicker(document: document)
-            
-//            // AI Examples button
-//            CatalystNavBarButton("list.bullet.rectangle",
-//                                 toolTip: "AI Examples") {
-//                withAnimation(.easeInOut(duration: 0.3)) {
-//                    document.showAITrainingExamplesOverlay.toggle()
-//                }
-//            }
             #endif
             
             CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME,
