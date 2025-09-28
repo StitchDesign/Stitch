@@ -110,7 +110,7 @@ extension SwiftSyntaxActionsResult {
         
         // Report errors
         if !isStreaming {
-            result.errors.displayErrors(document: document)            
+            result.errors.displayErrors(document: document)
         }
     }
     
