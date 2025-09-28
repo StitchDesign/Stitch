@@ -141,12 +141,10 @@ extension StitchAICodeCreator {
                 DispatchQueue.main.async { [weak document] in
                     guard let document = document else { return }
                     
-                    Task(priority: .high) {
-                        await actionsResult
-                            .applyAIGraph(to: document,
-                                          viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
-                                          isStreaming: false)
-                    }
+                    actionsResult
+                        .applyAIGraph(to: document,
+                                      viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
+                                      isStreaming: false)
                     
                     // Note: task clearing and menu hiding are handled by resetStreamingUIState() called by AI providers
                 }
