@@ -15,6 +15,27 @@ struct ProjectsHomeViewWrapper: View {
     // TODO: remove for Catalyst
     @Namespace var routerNamespace
     
+    // Shown on both iPad and Catalyst but only if debug etc.
+    var aiPreviewerButton: some View {
+        CatalystNavBarButton("document.viewfinder.fill",
+                             toolTip: "Open AI Preview") { [weak store] in
+            guard let store = store else {
+                return
+            }
+            let (document, encoder) = store.createAIDocumentPreviewer()
+            if store.navPath.isEmpty {
+                store.navPath = [.aiPreviewer(document, encoder)]
+            } else {
+                store.navPath = []
+            }
+            //                            store.showAIResponseViewer.toggle()
+            
+        }
+        // Resolves issue where hover was still active after entering newly created project and then exiting
+                             .id(UUID())
+                
+    }
+    
     var body: some View {
         ProjectsHomeView(store: store,
                          namespace: routerNamespace)
@@ -37,34 +58,22 @@ struct ProjectsHomeViewWrapper: View {
             }
 #endif
             
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
+//            ToolbarItemGroup(placement: .navigationBarTrailing) {
+            ToolbarItemGroup(placement: .primaryAction) {
                 if isPhoneDevice {
                     iPadTopBarButton(
-                        action: SHOW_APP_SETTINGS_ACTION,
-                        iconName: APP_SETTINGS_ICON_NAME)
+                        iconName: "gear",
+                        tooltip: "Settings",
+                        action: SHOW_APP_SETTINGS_ACTION)
                 } else {
-#if targetEnvironment(macCatalyst)
 
                     
-#if STITCH_AI_REASONING || DEV_DEBUG
-                    CatalystNavBarButton("document.viewfinder.fill",
-                                         toolTip: "Open AI Preview") { [weak store] in
-                        guard let store = store else {
-                            return
-                        }
-                        let (document, encoder) = store.createAIDocumentPreviewer()
-                        if store.navPath.isEmpty {
-                            store.navPath = [.aiPreviewer(document, encoder)]
-                        } else {
-                            store.navPath = []
-                        }
-                        //                            store.showAIResponseViewer.toggle()
-                        
-                    }
-                    // Resolves issue where hover was still active after entering newly created project and then exiting
-                                         .id(UUID())
+#if DEV_DEBUG || STITCH_AI_TESTING
+                    aiPreviewerButton
 #endif
                     
+                    
+#if targetEnvironment(macCatalyst)
                     ControlGroup {
                         CatalystNavBarButton(.NEW_PROJECT_SF_SYMBOL_NAME,
                                              toolTip: "New Project") { [weak store] in
@@ -93,25 +102,30 @@ struct ProjectsHomeViewWrapper: View {
                                              .id(UUID())
                     }
                     
+
+                    
 #else
                     
                     ControlGroup {
-                        iPadNavBarButton(action: { [weak store] in
+                        iPadNavBarButton(iconName: .NEW_PROJECT_SF_SYMBOL_NAME,
+                                         tooltip: "New Project",
+                                         action: { [weak store] in
                             store?.createNewProjectSideEffect(isProjectImport: false)
-                        },
-                                         iconName: NEW_PROJECT_ICON_NAME)
+                        })
                         
-                        iPadNavBarButton(action: { [weak store] in
+                        iPadNavBarButton(iconName: .OPEN_SAMPLE_PROJECTS_MODAL,
+                                         tooltip: "Open Sample Projects",
+                                         action: { [weak store] in
                             store?.conditionallToggleSampleProjectsModal()
-                        },
-                                         iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL))
+                        })
                         
                         TopBarFeedbackButtonsView(document: nil,
                                                   showLabel: false)
                         .modifier(iPadTopBarButtonStyle())
                         
-                        iPadNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
-                                         iconName: PROJECT_SETTINGS_ICON_NAME)
+                        iPadNavBarButton(iconName: .SETTINGS_SF_SYMBOL_NAME,
+                                         tooltip: "Open Settings",
+                                         action: SHOW_APP_SETTINGS_ACTION)
                     }
 #endif
                     

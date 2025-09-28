@@ -92,7 +92,8 @@ let PREVIEW_SHOW_TOGGLE_ACTION = { dispatch(TogglePreviewWindow()) }
 
 let FILE_IMPORT_LABEL = "Import File"
 //let FILE_IMPORT_ICON_NAME: IconName = .svgIcon("Doc")
- let FILE_IMPORT_ICON_NAME: IconName = .sfSymbol("document")
+let FILE_IMPORT_ICON_NAME_STRING = "document"
+let FILE_IMPORT_ICON_NAME: IconName = .sfSymbol("document")
 
 @MainActor
 let FILE_IMPORT_ACTION = { @MainActor in dispatch(ShowFileImportModal()) }
@@ -107,11 +108,13 @@ let RESTART_PROTOTYPE_ACTION = { dispatch(PrototypeRestartedAction()) }
 let PREVIEW_FULL_SCREEN_ACTION = { dispatch(ToggleFullScreenEvent()) }
 
 let UNDO_ICON_LABEL = "Undo"
+let UNDO_ICON_NAME_STRING: String = "arrow.uturn.backward.square"
 let UNDO_ICON_NAME: IconName = .sfSymbol("arrow.uturn.backward.square") // .svgIcon("Undo")
 @MainActor
 let UNDO_ACTION = { @MainActor in dispatch(UndoEvent()) }
 
 let REDO_ICON_LABEL = "Redo"
+let REDO_ICON_NAME_STRING = "arrow.uturn.forward.square"
 let REDO_ICON_NAME: IconName = .sfSymbol("arrow.uturn.forward.square") //.svgIcon("Redo")
 @MainActor
 let REDO_ACTION = { @MainActor in dispatch(RedoEvent()) }

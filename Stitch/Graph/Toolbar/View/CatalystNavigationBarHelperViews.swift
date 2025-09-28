@@ -41,7 +41,7 @@ extension String {
     static let SHARE_ICON_SF_SYMBOL_NAME = "square.and.arrow.up"
 
     // NO, NOT USED ON CATALYST
-    static let MISCELLANEOUS_OPTIONS_SF_SYMBOL_MAME = "ellipsis.circle"
+    static let MISCELLANEOUS_OPTIONS_SF_SYMBOL_NAME = "ellipsis.circle"
 
     // on Graph, sits inside the misc options button
     // on Homescreen
@@ -83,14 +83,6 @@ struct CatalystTopBarGraphButtons: View {
             // OpenAI Configuration Picker - only show in debug builds
             #if DEV_DEBUG || STITCH_AI_TESTING
             OpenAIConfigurationPicker(document: document)
-            
-//            // AI Examples button
-//            CatalystNavBarButton("list.bullet.rectangle",
-//                                 toolTip: "AI Examples") {
-//                withAnimation(.easeInOut(duration: 0.3)) {
-//                    document.showAITrainingExamplesOverlay.toggle()
-//                }
-//            }
             #endif
             
             CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME,
@@ -128,9 +120,6 @@ struct CatalystTopBarGraphButtons: View {
                     dispatch(ToggleFullScreenEvent())
                 }
             }
-            
-//            TopBarSharingButtonsView(document: document)
-//                .modifier(CatalystTopBarButtonStyle())
             
             TopBarFeedbackButtonsView(document: self.document)
                 .modifier(CatalystTopBarButtonStyle())
