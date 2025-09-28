@@ -106,11 +106,13 @@ struct OpenAIConfigurationPicker: View {
                 Text(currentModelDisplayName)
                     .lineLimit(1)
 //                    .frame(width: 300)
-                    .frame(width: 180)
+//                    .frame(width: 180)
+//                    .frame(width: 80)
             }
         }
-        .modifier(iPadTopBarButtonStyle())
+//        .modifier(iPadTopBarButtonStyle())
 //        .frame(width: 300)
-        .frame(width: 180)
+//        .frame(width: 180)
+//        .frame(width: 80)
     }
 }

@@ -107,11 +107,13 @@ let RESTART_PROTOTYPE_ACTION = { dispatch(PrototypeRestartedAction()) }
 let PREVIEW_FULL_SCREEN_ACTION = { dispatch(ToggleFullScreenEvent()) }
 
 let UNDO_ICON_LABEL = "Undo"
+let UNDO_ICON_NAME_STRING: String = "arrow.uturn.backward.square"
 let UNDO_ICON_NAME: IconName = .sfSymbol("arrow.uturn.backward.square") // .svgIcon("Undo")
 @MainActor
 let UNDO_ACTION = { @MainActor in dispatch(UndoEvent()) }
 
 let REDO_ICON_LABEL = "Redo"
+let REDO_ICON_NAME_STRING = "arrow.uturn.forward.square"
 let REDO_ICON_NAME: IconName = .sfSymbol("arrow.uturn.forward.square") //.svgIcon("Redo")
 @MainActor
 let REDO_ACTION = { @MainActor in dispatch(RedoEvent()) }

@@ -62,8 +62,9 @@ struct ProjectsHomeViewWrapper: View {
             ToolbarItemGroup(placement: .primaryAction) {
                 if isPhoneDevice {
                     iPadTopBarButton(
-                        action: SHOW_APP_SETTINGS_ACTION,
-                        iconName: APP_SETTINGS_ICON_NAME)
+                        iconName: "gear",
+                        tooltip: "Settings",
+                        action: SHOW_APP_SETTINGS_ACTION)
                 } else {
 
                     
