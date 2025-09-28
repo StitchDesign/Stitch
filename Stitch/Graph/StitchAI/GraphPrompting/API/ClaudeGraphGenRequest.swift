@@ -523,9 +523,7 @@ extension GraphEntity {
 
             // 3) Apply threshold and either replace matched node or add as new
             let threshold = 40
-            if let matchedId = bestId, bestScore >= threshold {
-                let newTypeEntity = streamed.nodeType.c
-                
+            if let matchedId = bestId, bestScore >= threshold {                
                 let newStreamed = NodeEntity(id: matchedId,
                                              nodeTypeEntity: streamed.nodeTypeEntity,
                                              title: streamed.title)
