@@ -72,16 +72,12 @@ struct InsertNodeMenuWithModalBackground: View {
                     .shadow(radius: 8, x: 4, y: 2)
                     .animation(.default, value: document.insertNodeMenuState.show)
                     .animation(.default, value: isLoadingAIRequest)
-                    
-                #if targetEnvironment(macCatalyst)
+                
                 // Padding from top, per Figma
                     .offset(y: 24)
-                #else
-                // Use different offset for iOS 26+ due to toolbar changes
-//                    .modifier(InsertNodeMenuOffsetModifier())
-                    .offset(y: 8)
-                    .offset(y: document.visibleGraph.graphYPosition)
-//                    .offset(y: 24)
+                #if !targetEnvironment(macCatalyst)
+                // Note: use to be full y position, not half; changed with different handling of safe areas on iPad OS 26
+                    .offset(y: document.visibleGraph.graphYPosition / 2)
                 #endif
                 
                 // Preserve position when we've collapsed the node menu body because of an active AI request
