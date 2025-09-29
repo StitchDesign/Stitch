@@ -62,6 +62,8 @@ struct InsertNodeMenuWithModalBackground: View {
             // Disable gestures that would otherwise block graph interaction during an AI request
             .disabled(isLoadingAIRequest)
             
+            logInView("document.visibleGraph.graphYPosition: \(document.visibleGraph.graphYPosition)")
+            
             // Insert Node Menu view
             if showMenu {
                 
@@ -75,19 +77,27 @@ struct InsertNodeMenuWithModalBackground: View {
                 // Padding from top, per Figma
                     .offset(y: 24)
                 #else
-                // TODO: why does this differ for Catalyst vs iPad ?
-//                    .offset(y: 48)
-//                    .offset(y: 62)
-                    .offset(y: 60)
-//                    .offset(y: 12)
-//                    .offset(y: 8)
+                // Use different offset for iOS 26+ due to toolbar changes
+//                    .modifier(InsertNodeMenuOffsetModifier())
+                    .offset(y: 8)
                     .offset(y: document.visibleGraph.graphYPosition)
+//                    .offset(y: 24)
                 #endif
                 
                 // Preserve position when we've collapsed the node menu body because of an active AI request
                 // Alternatively?: use VStack { menu, Spacer }
                     .offset(y: menuYOffset)
             }
+        }
+    }
+}
+
+struct InsertNodeMenuOffsetModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.offset(y: 62)
+        } else {
+            content.offset(y: 8)
         }
     }
 }
