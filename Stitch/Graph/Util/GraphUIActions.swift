@@ -183,7 +183,7 @@ struct SubmitUserPromptToAIProvider: StitchStoreEvent {
         }
         
         do {
-            let swiftUICodeOfGraph = try document.visibleGraph.createSwiftUICode()
+            let swiftUICodeOfGraph = try document.visibleGraph.createSwiftUICode(isStreaming: false)
                         
             // Check if user dropped an image into the insert menu
             var base64ImageData: String? = nil

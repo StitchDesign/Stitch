@@ -263,7 +263,8 @@ struct StitchAITrainingDataInspectionOverlay: View {
                 let actionsResult = try await codeCreator
                     .processRequest(userPrompt: userPrompt,
                                     document: document,
-                                    aiManager: aiManager)
+                                    aiManager: aiManager,
+                                    isStreaming: false)
                 
                 await MainActor.run {
                     actionsResult

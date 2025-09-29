@@ -58,7 +58,8 @@ extension Array where Element == AIGraphData_V0.LayerData {
                                                           layerInputCoordinate: .init(portType: .keyPath(coordinate),
                                                                                       nodeId: layerNodeEntity.id),
                                                           varName: nil,
-                                                          stateVarConnections: &stateVarConnections)
+                                                          stateVarConnections: &stateVarConnections,
+                                                          isStreaming: isStreaming)
                     } catch {
                         if !isStreaming {
                             // TODO: need to handle errors silently
