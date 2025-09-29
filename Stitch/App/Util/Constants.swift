@@ -44,14 +44,7 @@ let PREVIEW_SHOWN_DEFAULT_STATE: Bool = true
 
 let PROJECTSVIEW_ITEM_TEXT_HEIGHT: CGFloat = 24
 
-#if targetEnvironment(macCatalyst)
 let PREVIEW_WINDOW_Y_PADDING: CGFloat = 16
-#else
-
-// Think about pre-OS 26 though
-//let PREVIEW_WINDOW_Y_PADDING: CGFloat = 120 //48
-let PREVIEW_WINDOW_Y_PADDING: CGFloat = 96 //48
-#endif
 
 let DEFAULT_TIMESCALE = CMTimeScale(NSEC_PER_SEC)
 
