@@ -396,6 +396,8 @@ extension LayerNodeViewModel: SchemaObserver {
 
     @MainActor
     func update(from schema: LayerNodeEntity) {
+        assertInDebug(self.id == schema.id)
+        
         if self.layer != schema.layer {
             self.layer = schema.layer
         }

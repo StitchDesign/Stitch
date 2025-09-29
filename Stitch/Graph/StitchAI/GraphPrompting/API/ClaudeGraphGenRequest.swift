@@ -486,6 +486,9 @@ extension GraphEntity {
 
         // Tracks new/replaced nodes by id
         var newNodesMap = [UUID: NodeEntity]()
+        
+        // Tracks changed node Ids
+        var changedNodeIds = [UUID: UUID]()
 
         for streamed in inProgressGraph.nodes {
             // 1) Exact id match: replace directly
@@ -523,7 +526,9 @@ extension GraphEntity {
 
             // 3) Apply threshold and either replace matched node or add as new
             let threshold = 40
-            if let matchedId = bestId, bestScore >= threshold {                
+            if let matchedId = bestId, bestScore >= threshold {
+                changedNodeIds.updateValue(matchedId, forKey: streamed.id)
+                
                 let newStreamed = NodeEntity(id: matchedId,
                                              nodeTypeEntity: streamed.nodeTypeEntity,
                                              title: streamed.title)
@@ -542,6 +547,12 @@ extension GraphEntity {
         }
 
         merged.nodes = Array(resultMap.values)
+
+        // Update all node references within the graph to use the new IDs
+//        merged = merged.replaceNodeIdReference(idMap: changedNodeIds)
+        merged.nodes = merged.nodes.createCopy(mappableData: changedNodeIds,
+                                               copiedNodeIds: .init())
+
         return merged
     }
 
