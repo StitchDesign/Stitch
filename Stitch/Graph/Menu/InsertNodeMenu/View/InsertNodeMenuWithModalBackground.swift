@@ -77,8 +77,10 @@ struct InsertNodeMenuWithModalBackground: View {
                 #else
                 // TODO: why does this differ for Catalyst vs iPad ?
 //                    .offset(y: 48)
+//                    .offset(y: 62)
+                    .offset(y: 60)
 //                    .offset(y: 12)
-                    .offset(y: 8)
+//                    .offset(y: 8)
                     .offset(y: document.visibleGraph.graphYPosition)
                 #endif
                 
