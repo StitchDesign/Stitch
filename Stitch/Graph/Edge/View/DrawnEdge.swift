@@ -167,9 +167,9 @@ struct DrawnEdge: View {
                         style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH * edgeScaleEffect,
                                            lineCap: .round,
                                            lineJoin: .round))
-                .animation(.linear(duration: 0.3),
+                .animation(.linear(duration: STREAMING_ANIMATION_SPEED),
                            value: to)
-                .animation(.linear(duration: 0.3),
+                .animation(.linear(duration: STREAMING_ANIMATION_SPEED),
                            value: from)
 
         case .line:

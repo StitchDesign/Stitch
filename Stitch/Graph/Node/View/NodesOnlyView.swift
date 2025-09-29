@@ -82,7 +82,8 @@ struct NodesOnlyView: View {
                             // : .identity
                         )
 //                        .animation(.linear) // required to animate the node's insertio
-                        .animation(.linear, value: canvasNodes.count)
+                        .animation(.linear(duration: STREAMING_ANIMATION_SPEED),
+                                   value: canvasNodes.count)
                         .id(canvasNode.id)
                 }
             }

@@ -82,7 +82,7 @@ struct EdgeFromDraggedOutputView: View {
                          // we never animate the actively dragged edge
                          edgeAnimationEnabled: false,
                          edgeScaleEffect: .nonEdgeToInspectorScaleEffect)
-                .animation(.linear(duration: DrawnEdge.ANIMATION_DURATION),
+                .animation(.linear(duration: STREAMING_ANIMATION_SPEED),
                            value: color)
             }
         }
