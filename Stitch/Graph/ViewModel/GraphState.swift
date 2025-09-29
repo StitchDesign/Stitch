@@ -313,7 +313,7 @@ extension GraphState {
         // Update labels for group nodes
         self.updateGroupPortLabelsCache()
         
-        withAnimation {
+        withAnimation(.linear(duration: STREAMING_ANIMATION_SPEED)) {
             // Update visible canvas items
             self.cachedCanvasItemsAtThisTraversalLevel = self.getCanvasItemsAtTraversalLevel(
                 groupNodeFocused: focusedGroupNode)

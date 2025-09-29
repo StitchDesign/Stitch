@@ -101,8 +101,8 @@ extension SwiftSyntaxActionsResult {
     func processAIGraph(document: StitchDocumentViewModel,
                         isStreaming: Bool) {
         
-//<<<<<<< HEAD
-        withAnimation(.linear(duration: 0.3)) {
+
+        withAnimation(.linear(duration: STREAMING_ANIMATION_SPEED)) {
             
             let result = self.createAIGraph(docId: document.graph.id.value,
                                             viewPortCenter: document.viewPortCenter,
@@ -117,7 +117,7 @@ extension SwiftSyntaxActionsResult {
             if !isStreaming {
                 result.errors.displayErrors(document: document)
             }
-        }            
+        }
     }
     
     func createAIGraph(docId: UUID,
