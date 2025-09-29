@@ -46,6 +46,7 @@ func makeAIRequest(
     verbosity: OpenAIVerbosity,
     reasoningEffort: OpenAIReasoningEffort,
     document: StitchDocumentViewModel,
+    aiManager: StitchAIManager,
     currentGraphEntity: GraphEntity,
     viewPortCenter: CGPoint,
     groupNodeFocused: UUID?
@@ -62,15 +63,16 @@ func makeAIRequest(
             document: document
         )
     case .claude(let claudeModel):
-        return try await makeClaudeStreamingRequest(
-            previewWindowPrompt: previewWindowPrompt,
-            userPrompt: userPrompt,
-            base64Image: base64Image,
-            model: claudeModel,
-            document: document,
-            currentGraphEntity: currentGraphEntity,
-            viewPortCenter: viewPortCenter,
-            groupNodeFocused: groupNodeFocused
-        )
+        return try await aiManager.claudeStreamingActor
+            .makeClaudeStreamingRequest(
+                previewWindowPrompt: previewWindowPrompt,
+                userPrompt: userPrompt,
+                base64Image: base64Image,
+                model: claudeModel,
+                document: document,
+                currentGraphEntity: currentGraphEntity,
+                viewPortCenter: viewPortCenter,
+                groupNodeFocused: groupNodeFocused
+            )
     }
 }
