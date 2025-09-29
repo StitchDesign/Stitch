@@ -93,6 +93,7 @@ struct AIRequestDeps: StitchAICodeCreator {
             verbosity: validatedVerbosity,
             reasoningEffort: document.openaiReasoningEffort.asOpenAIReasoningEffort,
             document: document,
+            aiManager: aiManager,
             currentGraphEntity: document.graph.createSchema(),
             viewPortCenter: document.viewPortCenter,
             groupNodeFocused: document.groupNodeFocused?.groupNodeId
