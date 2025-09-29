@@ -47,7 +47,8 @@ extension SwiftUIViewVisitor {
     }
     
     // Parse arguments from function call
-    static func parseArguments(from node: FunctionCallExprSyntax) throws -> ViewConstructorType {
+    static func parseArguments(from node: FunctionCallExprSyntax,
+                               isStreaming: Bool) throws -> ViewConstructorType {
         // Default handling for other modifiers
         var arguments = try node.arguments.map { (argument) -> SyntaxViewArgumentData in
             try Self.parseArgument(argument)
@@ -57,7 +58,8 @@ extension SwiftUIViewVisitor {
         
         guard let knownViewConstructor = createKnownViewConstructor(
             from: node,
-            arguments: arguments) else {
+            arguments: arguments,
+            isStreaming: isStreaming) else {
         
             // Append closure arg if exists
             if let closureBlock = node.trailingClosure {

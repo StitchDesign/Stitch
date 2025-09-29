@@ -79,6 +79,10 @@ struct AIRequestDeps: StitchAICodeCreator {
 
         let startTime = CFAbsoluteTimeGetCurrent()
         
+        // Set streaming UI state
+        document.isStreamingResponses = true
+        document.streamingReasoningText = AI_THINKING_TEXT
+        
         // Use provider-agnostic orchestrator
         let codeEditResult = try await makeAIRequest(
             previewWindowPrompt: previewWindowPrompt,
@@ -88,8 +92,15 @@ struct AIRequestDeps: StitchAICodeCreator {
             model: model,
             verbosity: validatedVerbosity,
             reasoningEffort: document.openaiReasoningEffort.asOpenAIReasoningEffort,
-            document: document
+            document: document,
+            aiManager: aiManager,
+            currentGraphEntity: document.graph.createSchema(),
+            viewPortCenter: document.viewPortCenter,
+            groupNodeFocused: document.groupNodeFocused?.groupNodeId
         )
+        
+        // Reset streaming UI state
+        document.resetStreamingUIState()
         
         let endTime = CFAbsoluteTimeGetCurrent()
         let duration = endTime - startTime
@@ -131,12 +142,10 @@ extension StitchAICodeCreator {
                 DispatchQueue.main.async { [weak document] in
                     guard let document = document else { return }
                     
-                    Task(priority: .high) {
-                        await actionsResult
-                            .applyAIGraph(to: document,
-                                          viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
-                                          isStreaming: false)
-                    }
+                    actionsResult
+                        .applyAIGraph(to: document,
+                                      viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
+                                      isStreaming: false)
                     
                     // Note: task clearing and menu hiding are handled by resetStreamingUIState() called by AI providers
                 }

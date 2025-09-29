@@ -51,7 +51,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
            someOrAny.constraint.trimmedDescription.contains("View"),
            let codeBlockListSyntax = node.accessorBlock?.accessors.as(CodeBlockItemListSyntax.self),
            let fnSyntax = codeBlockListSyntax.first?.item.as(FunctionCallExprSyntax.self) {
-            if let view = self.visitLayerData(node: fnSyntax) {
+            if let view = self.visitLayerData(node: fnSyntax,
+                                              isStreaming: isStreaming) {
                 self.viewStack.append(view)
             }
             
@@ -99,7 +100,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             return .visitChildren
         }
         
-        if let view = self.visitLayerData(node: node) {
+        if let view = self.visitLayerData(node: node,
+                                          isStreaming: isStreaming) {
             self.viewStack.append(view)
 
             // Skip children to avoid adding redundant data

@@ -12,11 +12,13 @@ import SwiftUI
 
 extension SwiftUIViewVisitor {
     func visitLayerData(node: FunctionCallExprSyntax,
-                        modifiers: [SyntaxViewModifier] = []) -> SyntaxView? {
+                        modifiers: [SyntaxViewModifier] = [],
+                        isStreaming: Bool) -> SyntaxView? {
         let args: ViewConstructorType
         
         do {
-            args = try Self.parseArguments(from: node)
+            args = try Self.parseArguments(from: node,
+                                           isStreaming: isStreaming)
         } catch let error as SwiftUISyntaxError {
             self.caughtErrors.append(error)
             args = .other([])
@@ -53,7 +55,8 @@ extension SwiftUIViewVisitor {
             }
             
             return self.visitLayerData(node: fnBase,
-                                       modifiers: modifiers)
+                                       modifiers: modifiers,
+                                       isStreaming: isStreaming)
         }
         
         // View data
@@ -71,7 +74,8 @@ extension SwiftUIViewVisitor {
             
             let childrenViews = trailingClosure.statements
                 .compactMap { $0.item.as(FunctionCallExprSyntax.self) }
-                .compactMap { self.visitLayerData(node: $0) }
+                .compactMap { self.visitLayerData(node: $0,
+                                                  isStreaming: isStreaming) }
             
             viewNode.children = childrenViews
             
