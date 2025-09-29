@@ -257,42 +257,6 @@ final actor ClaudeStreamingActor {
                                 //                            log("⚡ Time to first content: \(String(format: "%.0f", contentLatency))ms")
                             }
                         }
-                        //<<<<<<< HEAD
-                        //                    } else if let text = delta["text"] as? String {
-                        //                        // This is regular text content
-                        //                        // log("📝 Text delta received: '\(text)' (length: \(text.count))")
-                        //                        accumulatedContent += text
-                        //                        print("accumulated text: \n\(accumulatedContent)")
-                        //
-                        //                        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(accumulatedContent, isStreaming: true)
-                        //
-                        //                        // Syntax → Actions
-                        //                        let stitchActionsResult = try codeParserResult.deriveStitchActionsSync(
-                        //                            bindingDeclarations: codeParserResult.bindingDeclarations,
-                        //                            isStreaming: true)
-                        //
-                        //                        // Actions -> GraphEntity
-                        //                        let result = stitchActionsResult
-                        //                            .createAIGraph(docId: document.graph.id.value,
-                        //                                           viewPortCenter: document.viewPortCenter,
-                        //                                           groupNodeFocused: document.groupNodeFocused?.groupNodeId,
-                        //                                           isStreaming: true)
-                        //
-                        //                        let inProgressParsedGraphEntity = result.graph
-                        //
-                        //                        // Computes similarity scores with in-progress parsed data to map to existing nodes
-                        //                        let mergedGraphEntity = currentGraphEntity
-                        //                            .mergeWithStreamedGraph(inProgressParsedGraphEntity)
-                        //
-                        //                        Task(priority: .high) { @MainActor [weak document] in
-                        //                            guard let document else { return }
-                        //                            withAnimation(.easeInOut(duration: 1.5)) {
-                        //                                document.graph.update(from: mergedGraphEntity)
-                        //                                document.graph.updateGraphData(document)
-                        //                            }
-                        //
-                        ////                            print("merged streamed graph:\n\(mergedGraphEntity)")
-                        //=======
                     }
                     
                 case "content_block_delta":
