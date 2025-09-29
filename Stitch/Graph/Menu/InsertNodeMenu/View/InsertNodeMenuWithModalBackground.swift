@@ -62,8 +62,6 @@ struct InsertNodeMenuWithModalBackground: View {
             // Disable gestures that would otherwise block graph interaction during an AI request
             .disabled(isLoadingAIRequest)
             
-            logInView("document.visibleGraph.graphYPosition: \(document.visibleGraph.graphYPosition)")
-            
             // Insert Node Menu view
             if showMenu {
                 
