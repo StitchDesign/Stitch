@@ -32,6 +32,7 @@ struct StitchAIProjectViewer: View {
 
     func validateJSON() {
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
+        let currentGraphEntity = document.graph.createSchema()
         
         // Apply AI result to fake document
         Task(priority: .high) {
@@ -43,6 +44,7 @@ struct StitchAIProjectViewer: View {
             await MainActor.run {
                 stitchActionsResult
                     .processAIGraph(document: document,
+                                    currentGraphEntity: currentGraphEntity,
                                     isStreaming: false)
             }
         }

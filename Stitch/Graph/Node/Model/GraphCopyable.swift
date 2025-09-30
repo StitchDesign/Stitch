@@ -300,6 +300,12 @@ extension NodeEntities {
 }
 
 extension SidebarLayerList {
+    var flattenedItems: Self {
+        self.flatMap {
+            [$0] + ($0.children?.flattenedItems ?? [])
+        }
+    }
+    
     func createCopy(mappableData: NodeIdMap) -> SidebarLayerList {
         self.compactMap { layerData in
             let newId = mappableData.get(layerData.id) ?? layerData.id

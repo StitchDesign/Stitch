@@ -141,7 +141,9 @@ extension SwiftUIViewVisitor {
                     let argData = try Self.parseArgumentType(from: innerFirstElem)
                     return .value(argData)
                 } catch {
-                    fatalErrorIfDebug(error.localizedDescription)
+                    if !isStreaming {
+                        fatalErrorIfDebug(error.localizedDescription)
+                    }
                     log("visitPatchData: had error \(error.localizedDescription) for arg \(arg)")
                     return nil
                 }
@@ -162,7 +164,9 @@ extension SwiftUIViewVisitor {
             }
             
             else {
-                fatalErrorIfDebug()
+                if !isStreaming {
+                    fatalErrorIfDebug()                    
+                }
                 log("visitPatchData: had problem")
                 return nil
             }
@@ -175,7 +179,7 @@ extension SwiftUIViewVisitor {
     
     func visitSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax) -> SwiftParserInitializerType? {
         // Subscript reference to some existing outputs
-        guard let initializerFromSubscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptCallExpr, isStreaming: self.isStreaming) else {
+        guard let initializerFromSubscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptCallExpr) else {
             return nil
         }
         
@@ -241,12 +245,11 @@ extension SwiftParserPatchData {
 }
 
 extension SwiftUIViewVisitor {
-    func deriveSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax, isStreaming: Bool = false) -> SwiftParserInitializerType? {
+    func deriveSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax) -> SwiftParserInitializerType? {
         guard let labeledExpr = subscriptCallExpr.arguments.first?.expression.as(IntegerLiteralExprSyntax.self),
               let portIndex = Int(labeledExpr.literal.text) else {
             // Check if it's a subscript call for a stitch function
             guard let patchNodeName = subscriptCallExpr.getPatchNodeName() else {
-                 if !isStreaming { fatalErrorIfDebug() }
                 log("deriveSubscriptData: HAD MAJOR ERROR")
                 return nil
             }
@@ -259,7 +262,6 @@ extension SwiftUIViewVisitor {
             guard let patchNode = self.visitPatchData(funcExpr,
                                                       // no var name from subscript
                                                       varName: nil) else {
-                if !isStreaming { fatalErrorIfDebug() }
                 log("deriveSubscriptData: HAD MAJOR ERROR")
                 return nil
             }
@@ -280,7 +282,6 @@ extension SwiftUIViewVisitor {
         }
         
         else {
-             if !isStreaming { fatalErrorIfDebug() }
             log("deriveSubscriptData: HAD MAJOR ERROR")
             return nil
         }

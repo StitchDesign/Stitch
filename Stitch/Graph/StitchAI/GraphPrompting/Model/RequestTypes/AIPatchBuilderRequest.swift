@@ -89,17 +89,21 @@ extension SwiftSyntaxActionsResult {
     @MainActor
     func applyAIGraph(to document: StitchDocumentViewModel,
                       viewStatePatchConnections: [String : [NodeIOCoordinate]],
+                      currentGraphEntity: GraphEntity,
                       isStreaming: Bool) {
         // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
         self.processAIGraph(document: document,
+                            currentGraphEntity: currentGraphEntity,
                             isStreaming: isStreaming)
         document.encodeProjectInBackground()
     }
     
     @MainActor
     func processAIGraph(document: StitchDocumentViewModel,
+                        currentGraphEntity: GraphEntity,
                         isStreaming: Bool) {
-        let result = self.createAIGraph(docId: document.graph.id.value,
+        let result = self.createAIGraph(from: currentGraphEntity,
+                                        docId: document.graph.id.value,
                                         viewPortCenter: document.viewPortCenter,
                                         groupNodeFocused: document.groupNodeFocused?.groupNodeId,
                                         isStreaming: isStreaming)
@@ -114,15 +118,11 @@ extension SwiftSyntaxActionsResult {
         }
     }
     
-    func createAIGraph(docId: UUID,
+    func createAIGraph(from currentGraphEntity: GraphEntity,
+                       docId: UUID,
                        viewPortCenter: CGPoint,
                        groupNodeFocused: UUID?,
                        isStreaming: Bool) -> StitchAIGraphEntityResult {
-        // STEP 1: Capture existing state for similarity matching
-//        let existingGraph = document.graph.createSchema()
-//        let previousSidebarSelection = document.graph.layersSidebarViewModel.primary
-//        var matchedNodeIds = Set<UUID>()
-
         var viewStatePatchConnections = self.graphData.viewStatePatchConnections
 
         // Instantiate new GraphEntity instance, starting with known patch nodes
@@ -143,12 +143,12 @@ extension SwiftSyntaxActionsResult {
         
         graphEntity.nodes = Array(nodesDict.values)
         
-        // Create nested sidebar layer data
-        let newSidebarData = self.graphData.layer_data_list.compactMap {
-            $0.createSidebarLayerData()
-        }
-        
-        graphEntity.orderedSidebarLayers = newSidebarData
+//        // Create nested sidebar layer data
+//        let newSidebarData = self.graphData.layer_data_list.compactMap {
+//            $0.createSidebarLayerData()
+//        }
+//        
+//        graphEntity.orderedSidebarLayers = newSidebarData
         
         // Can't build the depth map from the `patch_data`,
         // since those UUIDs have not been remapped yet
@@ -167,16 +167,18 @@ extension SwiftSyntaxActionsResult {
             return nodeEntity
         }
         
-
-
-        // STEP 3: Restore sidebar selections for matched nodes
+        // Reuse IDs from existing graph when possible--this allows us to reuse IDs during streaming
+        let mergedGraphEntity = currentGraphEntity
+            .mergeWithStreamedGraph(graphEntity)
         
         // TODO: come back to sidebar selection
 
         //        document.graph.layersSidebarViewModel.primary = newNodesForSelectedOldNodes
 //        log("Restored sidebar selection for \(newNodesForSelectedOldNodes.count) matched nodes")
+        
+        //
 
-        return .init(graph: graphEntity,
+        return .init(graph: mergedGraphEntity,
                      errors: caughtErrors)
     }
 }

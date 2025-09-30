@@ -1085,8 +1085,7 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
                 complexType,
                 varName: nil,
                 viewEvent: nil,
-                nodesDict: [:],
-                isStreaming: isStreaming)
+                nodesDict: [:])
 
             return [LayerPortDerivation(input: .scrollYEnabled,
                                         inputData: inputData)]

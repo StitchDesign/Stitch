@@ -133,7 +133,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         let refName = refExpr.baseName.trimmedDescription
         
         if let subscriptExpr = assinmentElem.as(SubscriptCallExprSyntax.self),
-           let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptExpr, isStreaming: self.isStreaming) {
+           let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptExpr) {
             self.bindingDeclarations
                 .append((refName, .stateMutation(subscriptRef)))
             return .skipChildren

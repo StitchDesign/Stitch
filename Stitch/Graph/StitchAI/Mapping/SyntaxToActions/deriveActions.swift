@@ -342,7 +342,8 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                 return []
             }
             
-            return try pvDescription.derivePortValues(viewEvent: viewEvent)
+            return try pvDescription.derivePortValues(viewEvent: viewEvent,
+                                                      isStreaming: isStreaming)
         
         case .ref(let ref):
             let portIndex = portIndex ?? 0
@@ -989,7 +990,8 @@ extension SwiftPatchCodeType {
                     .derivePortValues(from: firstArg,
                                       varName: varName,
                                       viewEvent: viewEvent,
-                                      nodesDict: nodesDict)
+                                      nodesDict: nodesDict,
+                                      isStreaming: isStreaming)
             }
         
         case .subscriptType(let subscriptCodeType, let portIndex):
@@ -1475,8 +1477,10 @@ extension Array where Element == (String, SwiftPatchCodeType) {
             } catch let error as SwiftUISyntaxError {
                 caughtErrors.append(error)
             } catch {
-                fatalErrorIfDebug(error.localizedDescription)
-                log("deriveStitchActions: error.localizedDescription: \(error.localizedDescription)")
+                if !isStreaming {
+                    fatalErrorIfDebug(error.localizedDescription)
+                    log("deriveStitchActions: error.localizedDescription: \(error.localizedDescription)")
+                }
                 continue
             }
         }

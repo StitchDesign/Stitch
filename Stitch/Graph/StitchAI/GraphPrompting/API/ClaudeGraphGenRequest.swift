@@ -312,20 +312,15 @@ final actor ClaudeStreamingActor {
                             
                             // Actions -> GraphEntity
                             let result = stitchActionsResult
-                                .createAIGraph(docId: currentGraphEntity.id,
+                                .createAIGraph(from: currentGraphEntity,
+                                               docId: currentGraphEntity.id,
                                                viewPortCenter: viewPortCenter,
                                                groupNodeFocused: groupNodeFocused,
                                                isStreaming: true)
                             
-                            let inProgressParsedGraphEntity = result.graph
-                            
-                            // Computes similarity scores with in-progress parsed data to map to existing nodes
-                            let mergedGraphEntity = currentGraphEntity
-                                .mergeWithStreamedGraph(inProgressParsedGraphEntity)
-                            
                             // Updates graph on main actor
                             self.updateGraphData(document: document,
-                                                 mergedGraphEntity: mergedGraphEntity)
+                                                 mergedGraphEntity: result.graph)
                             
                             //                        // Clear thinking text once content starts
                             //                        await MainActor.run {
@@ -520,6 +515,7 @@ extension GraphEntity {
         var newNodesMap = [UUID: NodeEntity]()
         
         // Tracks changed node Ids
+        // key: streamed id, value: current id (we convert everything to current graph data)
         var changedNodeIds = [UUID: UUID]()
 
         for streamed in inProgressGraph.nodes {
@@ -527,6 +523,10 @@ extension GraphEntity {
             if existingNodesMap[streamed.id] != nil {
                 newNodesMap[streamed.id] = streamed
                 claimedExistingIds.insert(streamed.id)
+                
+                // Track same ID--needed for copy logic
+                changedNodeIds.updateValue(streamed.id, forKey: streamed.id)
+                
                 continue
             }
 
@@ -570,6 +570,9 @@ extension GraphEntity {
             } else {
                 // New node — append as-is
                 newNodesMap[streamed.id] = streamed
+                
+                // Track same ID--needed for copy logic
+                changedNodeIds.updateValue(streamed.id, forKey: streamed.id)
             }
         }
 
@@ -585,7 +588,17 @@ extension GraphEntity {
 //        merged = merged.replaceNodeIdReference(idMap: changedNodeIds)
         merged.nodes = merged.nodes.createCopy(mappableData: changedNodeIds,
                                                copiedNodeIds: .init())
+        
+        // Infer sidebar data from list of ordered nodes
+        merged.orderedSidebarLayers = merged.nodes
+            .createOrderedSidebarData()
 
+#if DEBUG || DEV_DEBUG
+        let layerNodesCount = merged.nodes.compactMap(\.layerNodeEntity).count
+        let sidebarCount = merged.orderedSidebarLayers.flattenedItems.count
+        assertInDebug(layerNodesCount == sidebarCount)
+#endif
+        
         return merged
     }
 
@@ -673,7 +686,7 @@ extension GraphEntity {
 
         // 2) Deep-type specific checks
         switch (a.nodeTypeEntity, b.nodeTypeEntity) {
-        case (.patch(let ap), .patch(let bp)):
+        case (.patch(let ap), .patch(let bp)) where ap.patch == bp.patch:
             if ap.patch == bp.patch { score += 40 }
             if ap.userVisibleType == bp.userVisibleType { score += 10 }
             if ap.inputs.count == bp.inputs.count { score += 5 }
@@ -686,7 +699,7 @@ extension GraphEntity {
                 score += proximityScore(aPos, bPos)
             }
 
-        case (.layer(let al), .layer(let bl)):
+        case (.layer(let al), .layer(let bl)) where al.layer == bl.layer:
             if al.layer == bl.layer { score += 40 }
             if al.layerGroupId == bl.layerGroupId { score += 5 }
             // Layers don't have a single canonical canvas position; skip positional score

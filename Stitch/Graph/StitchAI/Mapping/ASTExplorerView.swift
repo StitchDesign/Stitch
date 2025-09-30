@@ -433,6 +433,7 @@ struct ASTExplorerView: View {
             try await MainActor.run {
                 stitchActionsResult
                     .processAIGraph(document: fakeDoc,
+                                    currentGraphEntity: GraphEntity.createEmpty(),
                                     isStreaming: false)
     
                 stitchActions = stitchActionsResult
