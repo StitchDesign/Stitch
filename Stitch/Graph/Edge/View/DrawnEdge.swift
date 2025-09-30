@@ -126,10 +126,6 @@ struct DrawnEdge: View {
     var halfway: CGFloat {
         shouldUseBackwardEdge ? backwardHalfwayPoint : forwardHalfwayPoint
     }
-    
-//    var animationTime: Double {
-//        edgeAnimationEnabled ? Self.ANIMATION_DURATION : .zero
-//    }
 
     var body: some View {
         // logInView("DrawnEdge: from: \(from)")

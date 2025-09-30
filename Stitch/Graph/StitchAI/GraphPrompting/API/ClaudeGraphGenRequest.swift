@@ -331,7 +331,6 @@ final actor ClaudeStreamingActor {
                             //                        }
                         } else {
                             //                        log("⚠️  Delta received but no 'thinking' or 'text' field found")
-                            //>>>>>>> u/ellbosch/2509/streaming-ui
                         }
                     } else {
                         //                    log("⚠️  content_block_delta event with no delta field")

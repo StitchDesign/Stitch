@@ -88,7 +88,6 @@ struct NodesOnlyView: View {
                 }
             }
         }
-//        .animation(.linear, value: canvasNodes.count)
         // TODO: why can't we do this logic from `ActiveIndexChangedAction` ?
         .onChange(of: self.activeIndex) {
             
