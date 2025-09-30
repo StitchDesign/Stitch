@@ -49,17 +49,18 @@ extension CoreMLClassifyNode {
                              mediaObserver: ImageClassifierOpObserver,
                              image: UIImage,
                              defaultOutputs: PortValues) async -> PortValues {
-        guard let model = media.mediaObject.coreMLImageModel,
-              let result = await mediaObserver.coreMlActor
-            .visionClassificationRequest(for: model,
-                                         with: image) else {
-            return defaultOutputs
-        }
-        
-        return [
-            .string(.init(result.identifier)),
-            .number(Double(result.confidence))
-        ]
+        return defaultOutputs
+//        guard let model = media.mediaObject.coreMLImageModel,
+//              let result = await mediaObserver.coreMlActor
+//            .visionClassificationRequest(for: model,
+//                                         with: image) else {
+//            return defaultOutputs
+//        }
+//        
+//        return [
+//            .string(.init(result.identifier)),
+//            .number(Double(result.confidence))
+//        ]
     }
 }
 

@@ -96,50 +96,53 @@ func coreMLDetectionEval(node: PatchNode) -> EvalResult {
                     return defaultOutputs
                 }
                 
-                let results: [VNRecognizedObjectObservation] = await mediaObserver.coreMlActor
-                    .visionDetectionRequest(for: model,
-                                            with: image,
-                                            vnImageCropOption: cropAndScaleOption)
+                return defaultOutputs
                 
-                if results.isEmpty {
-                    return defaultOutputs
-                }
+//                let results: [VNRecognizedObjectObservation] = await mediaObserver.coreMlActor
+//                    .visionDetectionRequest(for: model,
+//                                            with: image,
+//                                            vnImageCropOption: cropAndScaleOption)
+//                
+//                if results.isEmpty {
+//                    return defaultOutputs
+//                }
                 
-                var labelsOutputLoop = [String]()
-                var confidenceOutputLoop = [Double]()
-                var locationOutputLoop = [StitchPosition]()
-                var sizeOutputLoop = [CGSize]()
+                //                var labelsOutputLoop = [String]()
+                //                var confidenceOutputLoop = [Double]()
+                //                var locationOutputLoop = [StitchPosition]()
+                //                var sizeOutputLoop = [CGSize]()
+                //
+                //                let imageSize = image.size
+                //
+                //                results.forEach { (result: VNRecognizedObjectObservation) in
+                //                    if let mostConfidentLabel = result.labels.mostConfidentLabel() {
+                //
+                //                        labelsOutputLoop.append(mostConfidentLabel.identifier)
+                //                        confidenceOutputLoop.append(Double(mostConfidentLabel.confidence))
+                //
+                //                        let rect = transformRect(
+                //                            fromRect: result.boundingBox,
+                //                            // viewSize is treated as imageSize
+                //                            toViewSize: imageSize)
+                //
+                //                        locationOutputLoop.append(
+                //                            .init(x: rect.minX,
+                //                                  y: rect.minY)
+                //                        )
+                //
+                //                        sizeOutputLoop.append(
+                //                            .init(width: rect.width,
+                //                                  height: rect.height))
+                //                    }
+                //                }
+                //
+                //                return [
+                //                    labelsOutputLoop.map { PortValue.string(.init($0)) },
+                //                    confidenceOutputLoop.map(PortValue.number),
+                //                    locationOutputLoop.map(PortValue.position),
+                //                    sizeOutputLoop.map { PortValue.size(.init($0)) }
+                //                ]
                 
-                let imageSize = image.size
-                
-                results.forEach { (result: VNRecognizedObjectObservation) in
-                    if let mostConfidentLabel = result.labels.mostConfidentLabel() {
-                        
-                        labelsOutputLoop.append(mostConfidentLabel.identifier)
-                        confidenceOutputLoop.append(Double(mostConfidentLabel.confidence))
-                        
-                        let rect = transformRect(
-                            fromRect: result.boundingBox,
-                            // viewSize is treated as imageSize
-                            toViewSize: imageSize)
-                        
-                        locationOutputLoop.append(
-                            .init(x: rect.minX,
-                                  y: rect.minY)
-                        )
-                        
-                        sizeOutputLoop.append(
-                            .init(width: rect.width,
-                                  height: rect.height))
-                    }
-                }
-                
-                return [
-                    labelsOutputLoop.map { PortValue.string(.init($0)) },
-                    confidenceOutputLoop.map(PortValue.number),
-                    locationOutputLoop.map(PortValue.position),
-                    sizeOutputLoop.map { PortValue.size(.init($0)) }
-                ]
             }
         }
     

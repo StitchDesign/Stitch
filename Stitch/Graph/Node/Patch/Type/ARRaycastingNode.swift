@@ -95,27 +95,28 @@ func arRayCastingEval(node: PatchNode) -> EvalResult {
         return mediaObserver.asyncMediaEvalOp(loopIndex: loopIndex,
                                               values: values,
                                               node: node) { [weak arView] in
-            guard let arView = arView,
-                  didPulse,
-                  let raycastResult = await arView.makeRaycast(alignmentType: alignmentType.targetAlignment,
-                                                               center: centerPoint,
-                                                               x: Float(xOffset),
-                                                               y: Float(yOffset)) else {
-                log("Raycast query unsuccessful")
-                return [prevValue]
-            }
-            
-            let transform: StitchTransform = StitchTransform.init(positionX: Double(raycastResult.worldTransform.position.x),
-                                                                  positionY: Double(raycastResult.worldTransform.position.y),
-                                                                  positionZ: Double(raycastResult.worldTransform.position.z),
-                                                                  scaleX: Double(raycastResult.worldTransform.scale.x),
-                                                                  scaleY: Double(raycastResult.worldTransform.scale.y),
-                                                                  scaleZ: Double(raycastResult.worldTransform.scale.z), 
-                                                                  rotationX: Double(raycastResult.worldTransform.rotationInRadians.x),
-                                                                  rotationY: Double(raycastResult.worldTransform.rotationInRadians.y),
-                                                                  rotationZ: Double(raycastResult.worldTransform.rotationInRadians.z))
-            
-            return [.transform(transform)]
+            return [prevValue]
+//            guard let arView = arView,
+//                  didPulse,
+//                  let raycastResult = await arView.makeRaycast(alignmentType: alignmentType.targetAlignment,
+//                                                               center: centerPoint,
+//                                                               x: Float(xOffset),
+//                                                               y: Float(yOffset)) else {
+//                log("Raycast query unsuccessful")
+//                return [prevValue]
+//            }
+//            
+//            let transform: StitchTransform = StitchTransform.init(positionX: Double(raycastResult.worldTransform.position.x),
+//                                                                  positionY: Double(raycastResult.worldTransform.position.y),
+//                                                                  positionZ: Double(raycastResult.worldTransform.position.z),
+//                                                                  scaleX: Double(raycastResult.worldTransform.scale.x),
+//                                                                  scaleY: Double(raycastResult.worldTransform.scale.y),
+//                                                                  scaleZ: Double(raycastResult.worldTransform.scale.z), 
+//                                                                  rotationX: Double(raycastResult.worldTransform.rotationInRadians.x),
+//                                                                  rotationY: Double(raycastResult.worldTransform.rotationInRadians.y),
+//                                                                  rotationZ: Double(raycastResult.worldTransform.rotationInRadians.z))
+//            
+//            return [.transform(transform)]
         }
     }
 }
