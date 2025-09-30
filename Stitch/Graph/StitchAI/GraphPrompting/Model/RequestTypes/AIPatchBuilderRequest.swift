@@ -100,23 +100,29 @@ extension SwiftSyntaxActionsResult {
     @MainActor
     func processAIGraph(document: StitchDocumentViewModel,
                         isStreaming: Bool) {
-        
 
-        withAnimation(.linear(duration: STREAMING_ANIMATION_SPEED)) {
-            
+        let processLogic = {
             let result = self.createAIGraph(docId: document.graph.id.value,
                                             viewPortCenter: document.viewPortCenter,
                                             groupNodeFocused: document.groupNodeFocused?.groupNodeId,
                                             isStreaming: isStreaming)
-            
+
             // Update topological data--needs to be forced here because of script building using this data
             document.graph.update(from: result.graph)
             document.graph.updateGraphData(document)
-            
+
             // Report errors
             if !isStreaming {
                 result.errors.displayErrors(document: document)
             }
+        }
+
+        if isStreaming {
+            withAnimation(.linear(duration: STREAMING_ANIMATION_SPEED)) {
+                processLogic()
+            }
+        } else {
+            processLogic()
         }
     }
     

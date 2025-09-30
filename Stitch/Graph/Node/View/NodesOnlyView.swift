@@ -73,17 +73,17 @@ struct NodesOnlyView: View {
                              boundsReaderDisabled: false,
                              updateMenuActiveSelectionBounds: false)
                         .transition(
-                            // Always enable transitions for testing
-                            // document.isStreamingResponses ?
-                            .asymmetric(
-                                insertion: .opacity,
-                                removal: .opacity
-                            )
-                            // : .identity
+                            document.isStreamingResponses ?
+                                .asymmetric(
+                                    insertion: .opacity,
+                                    removal: .opacity
+                                )
+                            : .identity
                         )
-//                        .animation(.linear) // required to animate the node's insertio
-                        .animation(.linear(duration: STREAMING_ANIMATION_SPEED),
-                                   value: canvasNodes.count)
+                        .animation(
+                            document.isStreamingResponses ? .linear(duration: STREAMING_ANIMATION_SPEED) : nil,
+                            value: canvasNodes.count
+                        )
                         .id(canvasNode.id)
                 }
             }

@@ -22,7 +22,10 @@ struct CanvasItemPositionHandler: ViewModifier {
             .zIndex(zIndex)
             .canvasPosition(id: node.id,
                             position: node.position)
-            .animation(.linear(duration: STREAMING_ANIMATION_SPEED), value: node.position)
+            .animation(
+                document.isStreamingResponses ? .linear(duration: STREAMING_ANIMATION_SPEED) : nil,
+                value: node.position
+            )
             .gesture(CanvasItemDragHandler(document: document,
                                            graph: graph,
                                            canvasItemId: node.id))

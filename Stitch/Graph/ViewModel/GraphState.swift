@@ -108,7 +108,11 @@ final class GraphState: Sendable {
     var edgeEditingState: EdgeEditingState?
     
     @MainActor var edgeAnimationEnabled: Bool = false
-    
+
+    @MainActor var shouldAnimateForStreaming: Bool {
+        documentDelegate?.isStreamingResponses ?? false
+    }
+
     @MainActor var activelyEditedCommentBoxTitle: CommentBoxId?
 
     @MainActor var commentBoxBoundsDict = CommentBoxBoundsDict()
@@ -312,8 +316,14 @@ extension GraphState {
 
         // Update labels for group nodes
         self.updateGroupPortLabelsCache()
-        
-        withAnimation(.linear(duration: STREAMING_ANIMATION_SPEED)) {
+
+        if shouldAnimateForStreaming {
+            withAnimation(.linear(duration: STREAMING_ANIMATION_SPEED)) {
+                // Update visible canvas items
+                self.cachedCanvasItemsAtThisTraversalLevel = self.getCanvasItemsAtTraversalLevel(
+                    groupNodeFocused: focusedGroupNode)
+            }
+        } else {
             // Update visible canvas items
             self.cachedCanvasItemsAtThisTraversalLevel = self.getCanvasItemsAtTraversalLevel(
                 groupNodeFocused: focusedGroupNode)

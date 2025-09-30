@@ -180,14 +180,14 @@ extension CanvasItemViewModel {
     // fka `updatePortLocations`
     // Note: only a canvas item's row view models can have anchor points, so it's better to define this update function on the canvas item rather than the row view model per se
     @MainActor
-    func updateAnchorPoints() {
-        
-        withAnimation(.linear(duration: 0.3)) {
+    func updateAnchorPoints(isStreaming: Bool = false) {
+
+        let updateLogic = {
             guard let canvasSize = self.sizeByLocalBounds else {
                 // Nothing to do if no size for canvas item yet
                 return
             }
-            
+
             let fn = { (nodeIO: NodeIO, portId: Int) -> CGPoint in
                 getNewAnchorPoint(canvasPosition: self.position,
                                   canvasSize: canvasSize,
@@ -195,22 +195,30 @@ extension CanvasItemViewModel {
                                   nodeIO: nodeIO,
                                   portId: portId)
             }
-            
+
             self.inputPortUIViewModels.forEach {
                 let newAnchorPoint = fn(.input, $0.portIdForAnchorPoint)
-                
+
                 if newAnchorPoint != $0.anchorPoint {
                     $0.anchorPoint = newAnchorPoint
                 }
             }
-            
+
             self.outputPortUIViewModels.forEach {
                 let newAnchorPoint = fn(.output, $0.portIdForAnchorPoint)
                 if newAnchorPoint != $0.anchorPoint {
                     $0.anchorPoint = newAnchorPoint
                 }
             }
-        } // withAnimation
+        }
+
+        if isStreaming {
+            withAnimation(.linear(duration: 0.3)) {
+                updateLogic()
+            }
+        } else {
+            updateLogic()
+        }
         
         
     }
