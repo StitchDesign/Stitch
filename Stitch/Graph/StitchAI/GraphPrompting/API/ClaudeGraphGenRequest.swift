@@ -193,7 +193,7 @@ final actor ClaudeStreamingActor {
                 // Read error response body for detailed error information
                 do {
                     let errorData = try await URLSession.shared.data(for: request).0
-                    let errorMessage = await parseClaudeErrorResponse(errorData, statusCode: httpResponse.statusCode)
+                    let errorMessage = parseClaudeErrorResponse(errorData, statusCode: httpResponse.statusCode)
                     log("Claude API Error Details: \(errorMessage)")
                     throw StitchAIStreamingError.apiError(httpResponse.statusCode, errorMessage)
                 } catch let apiError as StitchAIStreamingError {
@@ -400,8 +400,7 @@ final actor ClaudeStreamingActor {
 
 
 /// Parse Claude API error response to extract detailed error information
-@MainActor
-func parseClaudeErrorResponse(_ errorData: Data, statusCode: Int) async -> String {
+func parseClaudeErrorResponse(_ errorData: Data, statusCode: Int) -> String {
     do {
         // Try to parse as JSON
         if let json = try JSONSerialization.jsonObject(with: errorData) as? [String: Any] {
