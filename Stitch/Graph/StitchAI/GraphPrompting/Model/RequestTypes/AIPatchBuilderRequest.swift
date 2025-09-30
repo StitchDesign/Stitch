@@ -183,8 +183,6 @@ extension SwiftSyntaxActionsResult {
 
         //        document.graph.layersSidebarViewModel.primary = newNodesForSelectedOldNodes
 //        log("Restored sidebar selection for \(newNodesForSelectedOldNodes.count) matched nodes")
-        
-        //
 
         return .init(graph: finalGraphEntity,
                      errors: caughtErrors)
