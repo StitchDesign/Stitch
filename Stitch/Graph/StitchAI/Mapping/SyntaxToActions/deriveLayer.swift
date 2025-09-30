@@ -1081,3 +1081,13 @@ extension SyntaxViewModifierArgumentType {
                                             isStreaming: isStreaming)
     }
 }
+
+extension Array where Element == AIGraphData_V0.LayerData {
+    var lastLeafLayer: UUID? {
+        guard let last = self.last else { return nil }
+        
+        guard let lastChildren = last.children else { return UUID(last.node_id) }
+        
+        return lastChildren.lastLeafLayer
+    }
+}
