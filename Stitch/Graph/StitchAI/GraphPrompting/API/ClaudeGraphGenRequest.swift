@@ -300,6 +300,9 @@ final actor ClaudeStreamingActor {
                             accumulatedContent += text
                             print("accumulated text: \n\(accumulatedContent)")
                             
+                            // MARK: code building in-progress graphs is expensive, we delay work so long as no active update task is running
+                            guard self.updateTask == nil else { break }
+                            
                             let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(accumulatedContent, isStreaming: true)
                             
                             // Syntax → Actions
