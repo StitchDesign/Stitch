@@ -30,14 +30,9 @@ struct StitchAIProjectViewer: View {
     let store: StitchStore
     @Bindable var document: StitchDocumentViewModel
 
-//<<<<<<< HEAD
     func validateJSON(isStreaming: Bool) {
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode, isStreaming: isStreaming)
         let currentGraphEntity = document.graph.createSchema()
-//=======
-//    func validateJSON(isStreaming: Bool) {
-//        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode, isStreaming: isStreaming)
-//>>>>>>> 8b4be3e20 (Animate nodes during AI streaming (#1706))
         
         // Apply AI result to fake document
         Task(priority: .high) {

@@ -342,13 +342,8 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                 return []
             }
             
-//<<<<<<< HEAD
             return try pvDescription.derivePortValues(viewEvent: viewEvent,
                                                       isStreaming: isStreaming)
-//=======
-//            return try pvDescription.derivePortValues(viewEvent: viewEvent, isStreaming: isStreaming)
-//>>>>>>> 8b4be3e20 (Animate nodes during AI streaming (#1706))
-        
         case .ref(let ref):
             let portIndex = portIndex ?? 0
             
@@ -1488,15 +1483,11 @@ extension Array where Element == (String, SwiftPatchCodeType) {
             } catch let error as SwiftUISyntaxError {
                 caughtErrors.append(error)
             } catch {
-//<<<<<<< HEAD
-//                if !isStreaming {
-//                    fatalErrorIfDebug(error.localizedDescription)
-//                    log("deriveStitchActions: error.localizedDescription: \(error.localizedDescription)")
-//                }
-//=======
-                // fatalErrorIfDebug(error.localizedDescription)
+                if !isStreaming {
+                    fatalErrorIfDebug(error.localizedDescription)
+                    log("deriveStitchActions: error.localizedDescription: \(error.localizedDescription)")
+                }
                 log("deriveStitchActions: error.localizedDescription: \(error.localizedDescription)")
-//>>>>>>> 8b4be3e20 (Animate nodes during AI streaming (#1706))
                 continue
             }
         }

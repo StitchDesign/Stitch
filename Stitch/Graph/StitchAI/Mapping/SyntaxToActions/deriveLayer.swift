@@ -26,9 +26,6 @@ struct LayerPortDerivation {
 }
 
 extension Array where Element == PatchSyntaxResultType {
-    //<<<<<<< HEAD
-    //    func createUnpackedEvents(layerInputPort: LayerInputPort) throws -> [LayerPortDerivation] {
-    //=======
     func createUnpackedEvents(layerInputPort: LayerInputPort, isStreaming: Bool) throws -> [LayerPortDerivation] {
         //>>>>>>> 8b4be3e20 (Animate nodes during AI streaming (#1706))
         let unpackedPortEvents = self.enumerated().map { portIndex, layerPortEvent in
@@ -175,14 +172,7 @@ extension SyntaxViewModifierName {
     
     // May or may not correspond to SwiftUI view modifier's own default argument,
     // e.g. `.clipped`'s default argument is for antialiasing, not whether the view is clipped or not (which is what Stitch's clipped layer-input is about).
-    //<<<<<<< HEAD
-    //    func deriveDefaultPortValueForArgumentlessViewModifier() throws -> CurrentAIGraphData.PortValue? {
-    //=======
-    func deriveDefaultPortValueForArgumentlessViewModifier(
-        //        layer: CurrentAIGraphData.Layer,
-        //        layerInput: CurrentLayerInputPort
-        isStreaming: Bool
-    ) throws -> CurrentAIGraphData.PortValue? {
+    func deriveDefaultPortValueForArgumentlessViewModifier(isStreaming: Bool) throws -> CurrentAIGraphData.PortValue? {
         //>>>>>>> 8b4be3e20 (Animate nodes during AI streaming (#1706))
         
         // defaultValue

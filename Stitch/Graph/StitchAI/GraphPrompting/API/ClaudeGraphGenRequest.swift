@@ -590,7 +590,6 @@ extension GraphEntity {
         merged.nodes = merged.nodes.createCopy(mappableData: changedNodeIds,
                                                copiedNodeIds: .init())
         
-//<<<<<<< HEAD
         // Infer sidebar data from list of ordered nodes
         merged.orderedSidebarLayers = merged.nodes
             .createOrderedSidebarData()
@@ -600,9 +599,6 @@ extension GraphEntity {
         let sidebarCount = merged.orderedSidebarLayers.flattenedItems.count
         assertInDebug(layerNodesCount == sidebarCount)
 #endif
-        
-//=======
-//>>>>>>> 8b4be3e20 (Animate nodes during AI streaming (#1706))
         return merged
     }
     
@@ -702,13 +698,7 @@ extension GraphEntity {
             if let aPos = Optional(ap.canvasEntity.position), let bPos = Optional(bp.canvasEntity.position) {
                 score += proximityScore(aPos, bPos)
             }
-//<<<<<<< HEAD
-//
         case (.layer(let al), .layer(let bl)) where al.layer == bl.layer:
-//=======
-            
-//        case (.layer(let al), .layer(let bl)):
-//>>>>>>> 8b4be3e20 (Animate nodes during AI streaming (#1706))
             if al.layer == bl.layer { score += 40 }
             if al.layerGroupId == bl.layerGroupId { score += 5 }
             // Layers don't have a single canonical canvas position; skip positional score

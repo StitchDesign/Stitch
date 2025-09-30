@@ -144,13 +144,9 @@ extension SwiftUIViewVisitor {
                     let argData = try Self.parseArgumentType(from: innerFirstElem, isStreaming: isStreaming)
                     return .value(argData)
                 } catch {
-//<<<<<<< HEAD
                     if !isStreaming {
                         fatalErrorIfDebug(error.localizedDescription)
                     }
-//=======
-                    //fatalErrorIfDebug(error.localizedDescription)
-//>>>>>>> 8b4be3e20 (Animate nodes during AI streaming (#1706))
                     log("visitPatchData: had error \(error.localizedDescription) for arg \(arg)")
                     return nil
                 }
@@ -172,13 +168,9 @@ extension SwiftUIViewVisitor {
             }
             
             else {
-//<<<<<<< HEAD
                 if !isStreaming {
                     fatalErrorIfDebug()                    
                 }
-//=======
-                // fatalErrorIfDebug()
-//>>>>>>> 8b4be3e20 (Animate nodes during AI streaming (#1706))
                 log("visitPatchData: had problem")
                 return nil
             }
@@ -259,12 +251,8 @@ extension SwiftParserPatchData {
 }
 
 extension SwiftUIViewVisitor {
-//<<<<<<< HEAD
-//    func deriveSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax) -> SwiftParserInitializerType? {
-//=======
     func deriveSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax,
                              isStreaming: Bool) -> SwiftParserInitializerType? {
-//>>>>>>> 8b4be3e20 (Animate nodes during AI streaming (#1706))
         guard let labeledExpr = subscriptCallExpr.arguments.first?.expression.as(IntegerLiteralExprSyntax.self),
               let portIndex = Int(labeledExpr.literal.text) else {
             // Check if it's a subscript call for a stitch function
@@ -280,13 +268,9 @@ extension SwiftUIViewVisitor {
         if let funcExpr = subscriptCallExpr.calledExpression.as(FunctionCallExprSyntax.self) {
             guard let patchNode = self.visitPatchData(funcExpr,
                                                       // no var name from subscript
-//<<<<<<< HEAD
-//                                                      varName: nil) else {
-//=======
                                                       varName: nil,
                                                       isStreaming: isStreaming) else {
                 if !isStreaming { fatalErrorIfDebug() }
-//>>>>>>> 8b4be3e20 (Animate nodes during AI streaming (#1706))
                 log("deriveSubscriptData: HAD MAJOR ERROR")
                 return nil
             }
