@@ -40,9 +40,10 @@ struct EdgeView: View {
     
     // should just be lastEdge.portId + 1
     let totalOutputs: Int
-    
+
     let edgeAnimationEnabled: Bool
-    
+    let isStreaming: Bool
+
     let edgeScaleEffect: CGFloat
 
     var largestYDistance: CGFloat {        
@@ -82,6 +83,7 @@ struct EdgeView: View {
                   totalOutputs: totalOutputs,
                   largestYDistance: largestYDistance,
                   edgeAnimationEnabled: edgeAnimationEnabled,
+                  isStreaming: isStreaming,
                   edgeScaleEffect: edgeScaleEffect)
         .onTapGesture {
             dispatch(EdgeTapped(edge: edge))

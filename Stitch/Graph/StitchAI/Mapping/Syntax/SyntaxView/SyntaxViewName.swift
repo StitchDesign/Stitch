@@ -69,7 +69,8 @@ extension SyntaxViewName {
                 args: nil,
                 modifiers: [],
                 childrenLayers: [],
-                bindingDeclarations: [])) != nil
+                bindingDeclarations: [],
+                isStreaming: false)) != nil
         }
     }
 }

@@ -43,7 +43,7 @@ protocol PortValuesPackModifiable: FromSwiftUIViewModifierToStitch {
 }
 
 extension PortValuesPackModifiable {
-    func createCustomValueEvents(isStreaming: Bool = false) throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
         // Reorder arguments to match layer unpack ordering
         let layerPortEvents = try self.args
             .reorderUnapckedValues(varName: nil,
@@ -69,7 +69,7 @@ extension PortValuesPackModifiable {
         // If one of the parsed events isn't a value, then there's at least one state ref, and we should return an unpacked scenario
         guard layerPortEvents.count == parsedValues.count else {
             let unpackedPortEvents = try layerPortEvents
-                .createUnpackedEvents(layerInputPort: Self.layerInputPort)
+                .createUnpackedEvents(layerInputPort: Self.layerInputPort, isStreaming: isStreaming)
             return unpackedPortEvents
         }
         
@@ -80,7 +80,7 @@ extension PortValuesPackModifiable {
                 fatalErrorIfDebug()
             }
             let unpackedPortEvents = try layerPortEvents
-                .createUnpackedEvents(layerInputPort: Self.layerInputPort)
+                .createUnpackedEvents(layerInputPort: Self.layerInputPort, isStreaming: isStreaming)
             return unpackedPortEvents
         }
         

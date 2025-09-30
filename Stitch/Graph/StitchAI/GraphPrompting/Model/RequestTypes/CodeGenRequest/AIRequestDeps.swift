@@ -135,7 +135,8 @@ extension StitchAICodeCreator {
                 let actionsResult = try await request
                     .processRequest(userPrompt: userPrompt,
                                     document: document,
-                                    aiManager: aiManager)
+                                    aiManager: aiManager,
+                                    isStreaming: false)
                 
                 // logToServerIfRelease("SUCCESS Patch Builder:\n\((try? actionsResult.graphData.encodeToPrintableString()) ?? "")")
                 
@@ -166,7 +167,8 @@ extension StitchAICodeCreator {
     @MainActor
     func processRequest(userPrompt: String,
                         document: StitchDocumentViewModel,
-                        aiManager: StitchAIManager) async throws -> SwiftSyntaxActionsResult {
+                        aiManager: StitchAIManager,
+                        isStreaming: Bool) async throws -> SwiftSyntaxActionsResult {
 
         log("SUCCESS: userPrompt: \(userPrompt)")
         
@@ -183,11 +185,12 @@ extension StitchAICodeCreator {
             throw StitchAIManagerError.emptyAIResponse
         }
 
-        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
+        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode, isStreaming: isStreaming)
         
         let actionsResult = try await codeParserResult
             .deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations,
-                                 document: document)
+                                 document: document,
+                                 isStreaming: isStreaming)
         
         print("Derived Stitch layer data:\n\(actionsResult)")
         

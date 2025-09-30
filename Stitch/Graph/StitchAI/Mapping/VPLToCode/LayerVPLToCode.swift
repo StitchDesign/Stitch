@@ -18,7 +18,8 @@ extension LayerNodeEntity {
     func createSwiftUIViewBuilderCode(children: [LayerNodeEntity],
                                       orderedLayerEntities: [LayerNodeEntity],
                                       varIdNameMap: [NodeIOCoordinate: String],
-                                      layerViewEventMap: [UUID: [SwiftPatchViewEvent]]) throws -> String? {
+                                      layerViewEventMap: [UUID: [SwiftPatchViewEvent]],
+                                      isStreaming: Bool) throws -> String? {
         switch self.layer {
             
             // ───────── Shapes (no-arg) ─────────
@@ -40,7 +41,8 @@ extension LayerNodeEntity {
                 .createNestedGroupSwiftUICode(children: children,
                                               orderedLayerEntities: orderedLayerEntities,
                                               varIdNameMap: varIdNameMap,
-                                              layerViewEventMap: layerViewEventMap)
+                                              layerViewEventMap: layerViewEventMap,
+                                              isStreaming: isStreaming)
             
             
             // ───────── Reality primitives (no-arg) ─────────
@@ -111,13 +113,15 @@ extension LayerNodeEntity {
     func createNestedGroupSwiftUICode(children: [LayerNodeEntity],
                                       orderedLayerEntities: [LayerNodeEntity],
                                       varIdNameMap: [NodeIOCoordinate: String],
-                                      layerViewEventMap: [UUID: [SwiftPatchViewEvent]]) throws -> String? {
+                                      layerViewEventMap: [UUID: [SwiftPatchViewEvent]],
+                                      isStreaming: Bool) throws -> String? {
         assertInDebug(self.layer == .group)
         
         let childrenContents = try children
             .createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
                                varIdNameMap: varIdNameMap,
-                               layerViewEventMap: layerViewEventMap)
+                               layerViewEventMap: layerViewEventMap,
+                               isStreaming: isStreaming)
         
         // Check if scroll is enabled
         let scrollXEnabled = self.scrollXEnabledPort.packedData.inputPort.values?.first?.getBool ?? false
@@ -181,7 +185,8 @@ extension LayerNodeEntity {
                 return try self.createLazyVGridCode(children: children,
                                                     orderedLayerEntities: orderedLayerEntities,
                                                     varIdNameMap: varIdNameMap,
-                                                    layerViewEventMap: layerViewEventMap)
+                                                    layerViewEventMap: layerViewEventMap,
+                                                    isStreaming: isStreaming)
             }
         }
     }
@@ -190,13 +195,15 @@ extension LayerNodeEntity {
     func createLazyVGridCode(children: [LayerNodeEntity],
                              orderedLayerEntities: [LayerNodeEntity],
                              varIdNameMap: [NodeIOCoordinate: String],
-                             layerViewEventMap: [UUID: [SwiftPatchViewEvent]]) throws -> String? {
+                             layerViewEventMap: [UUID: [SwiftPatchViewEvent]],
+                             isStreaming: Bool) throws -> String? {
         assertInDebug(self.layer == .group)
         
         let childrenContents = try children
             .createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
                                varIdNameMap: varIdNameMap,
-                               layerViewEventMap: layerViewEventMap)
+                               layerViewEventMap: layerViewEventMap,
+                               isStreaming: isStreaming)
         
         // Get spacing from the group's spacing port
         let spacingArgs = try self.spacingPort.getSwiftUICodeForValues(varIdNameMap: varIdNameMap)
@@ -238,7 +245,8 @@ extension LayerNodeEntity {
     @MainActor
     func createSwiftUICode(orderedLayerEntities: [LayerNodeEntity],
                            varIdNameMap: [NodeIOCoordinate: String],
-                           layerViewEventMap: [UUID: [SwiftPatchViewEvent]]) throws -> String? {
+                           layerViewEventMap: [UUID: [SwiftPatchViewEvent]],
+                           isStreaming: Bool) throws -> String? {
         let childrenLayerEntities = orderedLayerEntities.filter {
             $0.layerGroupId == self.id
         }
@@ -252,7 +260,8 @@ extension LayerNodeEntity {
                 .createNestedGroupSwiftUICode(children: childrenLayerEntities,
                                               orderedLayerEntities: orderedLayerEntities,
                                               varIdNameMap: varIdNameMap,
-                                              layerViewEventMap: layerViewEventMap) else {
+                                              layerViewEventMap: layerViewEventMap,
+                                              isStreaming: isStreaming) else {
                 return nil
             }
             
@@ -265,7 +274,8 @@ extension LayerNodeEntity {
                 .createSwiftUIViewBuilderCode(children: childrenLayerEntities,
                                               orderedLayerEntities: orderedLayerEntities,
                                               varIdNameMap: varIdNameMap,
-                                              layerViewEventMap: layerViewEventMap) else {
+                                              layerViewEventMap: layerViewEventMap,
+                                              isStreaming: isStreaming) else {
                 return nil
             }
                 
@@ -276,7 +286,8 @@ extension LayerNodeEntity {
         let modifiersString = try self.getSwiftUIViewModifierStrings(varIdNameMap: varIdNameMap)
         
         // Creates modifiers for gesture
-        let gestureModifiersString = self.getSwiftUIGestureViewModifierStrings(layerViewEventMap: layerViewEventMap)
+        let gestureModifiersString = self.getSwiftUIGestureViewModifierStrings(layerViewEventMap: layerViewEventMap,
+                                                                               isStreaming: isStreaming)
         
         var swiftUICode = """
             \(constructorCode)
@@ -289,7 +300,8 @@ extension LayerNodeEntity {
             let swiftUICodeForChildren = try childrenLayerEntities.compactMap {
                 try $0.createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
                                          varIdNameMap: varIdNameMap,
-                                         layerViewEventMap: layerViewEventMap)
+                                         layerViewEventMap: layerViewEventMap,
+                                         isStreaming: isStreaming)
             }
             
             swiftUICode += "\n\(swiftUICodeForChildren)"
@@ -303,13 +315,15 @@ extension Array where Element == LayerNodeEntity {
     @MainActor
     func createSwiftUICode(orderedLayerEntities: [LayerNodeEntity],
                            varIdNameMap: [NodeIOCoordinate: String],
-                           layerViewEventMap: [UUID: [SwiftPatchViewEvent]]) throws -> String {
+                           layerViewEventMap: [UUID: [SwiftPatchViewEvent]],
+                           isStreaming: Bool) throws -> String {
         var droppedLayers: [LayerNodeEntity] = []
         
         let strings = try self.compactMap { layerEntity -> String? in
             let result = try layerEntity.createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
                                                            varIdNameMap: varIdNameMap,
-                                                           layerViewEventMap: layerViewEventMap)
+                                                           layerViewEventMap: layerViewEventMap,
+                                                           isStreaming: isStreaming)
             if result == nil {
                 droppedLayers.append(layerEntity)
                 log("DROPPED LAYER: \(layerEntity.layer) with id \(layerEntity.id) - createSwiftUICode returned nil")
@@ -479,7 +493,8 @@ extension LayerNodeEntity {
     }
     
     /// Creates view modifier callbacks for gesture data.
-    func getSwiftUIGestureViewModifierStrings(layerViewEventMap: [UUID: [SwiftPatchViewEvent]]) -> [String] {
+    func getSwiftUIGestureViewModifierStrings(layerViewEventMap: [UUID: [SwiftPatchViewEvent]],
+                                              isStreaming: Bool) -> [String] {
         // Organize gesture data by each syntax type
         let gestureDataHere = layerViewEventMap.reduce(into: [SyntaxViewEventType : [SwiftPatchViewEvent]]()) { result, mapData in
             let (layerId, viewEvents) = mapData
@@ -505,7 +520,7 @@ extension LayerNodeEntity {
                     let viewEvent = viewData.viewEvent
 
                     return viewData.codeStatements.map { codeData in
-                        let expressionCode = codeData.1.createSwiftUICode()
+                        let expressionCode = codeData.1.createSwiftUICode(isStreaming: isStreaming)
                         
                         return "\(codeData.0) = [PortValueDescription(value: \(expressionCode), value_type: \"position\")]"
                     }
