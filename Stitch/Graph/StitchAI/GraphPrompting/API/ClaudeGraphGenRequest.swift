@@ -498,14 +498,10 @@ extension GraphEntity {
         // Track existing nodes by coarse keys to reduce candidate set for matching
         // Also partition by kind for a broader fallback
         var indexByKey = [String: [NodeEntity]]()
-        var indexByKind = [String: [NodeEntity]]()
         
         for node in merged.nodes {
             let key = coarseMatchKey(for: node)
             indexByKey[key, default: []].append(node)
-            
-            let kind = nodeKindKey(node)
-            indexByKind[kind, default: []].append(node)
         }
         
         // Tracks which existing node ids have already been matched to avoid duplicates
@@ -518,7 +514,10 @@ extension GraphEntity {
         // key: streamed id, value: current id (we convert everything to current graph data)
         var changedNodeIds = [UUID: UUID]()
         
-        for streamed in inProgressGraph.nodes {
+        // Skip last node in case not yet parsed
+        let nodesWithCompleteInfo = inProgressGraph.nodes.dropLast()
+        
+        for streamed in nodesWithCompleteInfo {
             // 1) Exact id match: replace directly
             if existingNodesMap[streamed.id] != nil {
                 newNodesMap[streamed.id] = streamed
@@ -532,9 +531,7 @@ extension GraphEntity {
             
             // 2) Coarse candidate selection using indexed keys
             let key = coarseMatchKey(for: streamed)
-            let kind = nodeKindKey(streamed)
             let primaryCandidates = indexByKey[key] ?? []
-            let fallbackCandidates = indexByKind[kind] ?? []
             
             // Prefer the tighter candidate set first
             var bestScore = Int.min
@@ -552,9 +549,6 @@ extension GraphEntity {
             }
             
             consider(primaryCandidates)
-            if bestId == nil { // only consider broad set if no good specific candidates
-                consider(fallbackCandidates)
-            }
             
             // 3) Apply threshold and either replace matched node or add as new
             let threshold = 40
@@ -644,7 +638,9 @@ extension GraphEntity {
     ///   - incoming: The newly parsed node to match.
     ///   - alreadyMatched: A set of existing node ids already claimed by other matches.
     /// - Returns: The id of the best-matching existing node, if any.
-    func matchExistingNodeId(for incoming: NodeEntity, excluding alreadyMatched: Set<UUID> = []) -> UUID? {
+    func matchExistingNodeId(for incoming: NodeEntity,
+                             incomingIndex: Int,
+                             excluding alreadyMatched: Set<UUID> = []) -> UUID? {
         // Quick exit: if any existing node shares the same id (should have been caught above)
         if self.nodes.contains(where: { $0.id == incoming.id }) {
             return incoming.id
@@ -654,8 +650,11 @@ extension GraphEntity {
         var bestScore = Int.min
         var bestId: UUID?
         
-        for existing in self.nodes where !alreadyMatched.contains(existing.id) {
-            let score = similarityScore(between: incoming, and: existing)
+        for (index, existing) in self.nodes.enumerated() where !alreadyMatched.contains(existing.id) {
+            let score = similarityScore(between: .init(index: incomingIndex,
+                                                       node: incoming),
+                                        and: .init(index: index,
+                                                   node: existing))
             if score > bestScore {
                 bestScore = score
                 bestId = existing.id
@@ -672,31 +671,26 @@ extension GraphEntity {
     /// Computes a similarity score between two nodes. Higher is better.
     /// Prioritizes node kind (patch/layer/group/component), then patch/layer/component
     /// specific identifiers, title similarity, shared parent group, and canvas proximity.
-    private func similarityScore(between a: NodeEntity, and b: NodeEntity) -> Int {
+    private func similarityScore(between aData: EnumeratedNodeEntity,
+                                 and bData: EnumeratedNodeEntity) -> Int {
+        let a = aData.node
+        let b = bData.node
+        
         // Exact id match is handled earlier, but keep a guard here for completeness
         if a.id == b.id { return 1_000 }
         
         var score = 0
         
-        // 1) Node kind match (patch/layer/group/component)
-        let aKind = nodeKindKey(a)
-        let bKind = nodeKindKey(b)
-        if aKind == bKind { score += 30 } else { return 0 } // different kinds are unlikely matches
+        // Index closeness: prefer nodes that appear near the same relative order
+        score += indexClosenessScore(aData.index, bData.index)
         
-        // 2) Deep-type specific checks
+        // Deep-type specific checks
         switch (a.nodeTypeEntity, b.nodeTypeEntity) {
         case (.patch(let ap), .patch(let bp)) where ap.patch == bp.patch:
             if ap.patch == bp.patch { score += 40 }
             if ap.userVisibleType == bp.userVisibleType { score += 10 }
             if ap.inputs.count == bp.inputs.count { score += 5 }
-            
-            // Parent grouping
-            if ap.canvasEntity.parentGroupNodeId == bp.canvasEntity.parentGroupNodeId { score += 5 }
-            
-            // Canvas position proximity
-            if let aPos = Optional(ap.canvasEntity.position), let bPos = Optional(bp.canvasEntity.position) {
-                score += proximityScore(aPos, bPos)
-            }
+
         case (.layer(let al), .layer(let bl)) where al.layer == bl.layer:
             if al.layer == bl.layer { score += 40 }
             if al.layerGroupId == bl.layerGroupId { score += 5 }
@@ -718,25 +712,13 @@ extension GraphEntity {
             break
         }
         
-        // 3) Title similarity (cheap heuristic)
-        let aTitle = a.title.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        let bTitle = b.title.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        if !aTitle.isEmpty && aTitle == bTitle { score += 6 }
-        else if !aTitle.isEmpty && !bTitle.isEmpty && (aTitle.contains(bTitle) || bTitle.contains(aTitle)) {
-            score += 3
-        }
-        
         return score
     }
     
-    /// Returns a simple key describing the top-level kind for matching purposes.
-    private func nodeKindKey(_ node: NodeEntity) -> String {
-        switch node.nodeTypeEntity {
-        case .patch: return "patch"
-        case .layer: return "layer"
-        case .group: return "group"
-        case .component: return "component"
-        }
+    /// Convenience overload for sites that don't track indices; falls back to zero index closeness.
+    private func similarityScore(between a: NodeEntity, and b: NodeEntity) -> Int {
+        return similarityScore(between: .init(index: 0, node: a),
+                               and: .init(index: 0, node: b))
     }
     
     /// Scores proximity between two points. Closer yields higher score.
@@ -751,4 +733,21 @@ extension GraphEntity {
         else if d2 < 102400 { return 1 }
         else { return 0 }
     }
+    
+    /// Scores closeness between two indices. Smaller differences yield higher scores.
+    private func indexClosenessScore(_ aIndex: Int, _ bIndex: Int) -> Int {
+        let diff = abs(aIndex - bIndex)
+        if diff == 0 { return 10 }
+        else if diff == 1 { return 7 }
+        else if diff <= 3 { return 4 }
+        else if diff <= 7 { return 2 }
+        else if diff <= 15 { return 1 }
+        else { return 0 }
+    }
 }
+
+struct EnumeratedNodeEntity {
+    let index: Int
+    let node: NodeEntity
+}
+
