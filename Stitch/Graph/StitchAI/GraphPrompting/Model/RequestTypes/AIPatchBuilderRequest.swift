@@ -143,13 +143,6 @@ extension SwiftSyntaxActionsResult {
         
         graphEntity.nodes = Array(nodesDict.values)
         
-//        // Create nested sidebar layer data
-//        let newSidebarData = self.graphData.layer_data_list.compactMap {
-//            $0.createSidebarLayerData()
-//        }
-//        
-//        graphEntity.orderedSidebarLayers = newSidebarData
-        
         // Can't build the depth map from the `patch_data`,
         // since those UUIDs have not been remapped yet
         let repositionedNodes = graphEntity.nodes.positionAIGeneratedNodesDuringApply(
@@ -167,9 +160,23 @@ extension SwiftSyntaxActionsResult {
             return nodeEntity
         }
         
-        // Reuse IDs from existing graph when possible--this allows us to reuse IDs during streaming
-        let mergedGraphEntity = currentGraphEntity
-            .mergeWithStreamedGraph(graphEntity)
+        var finalGraphEntity: GraphEntity
+        
+        if isStreaming {
+            // Reuse IDs from existing graph when possible--this allows us to reuse IDs during streaming
+            finalGraphEntity = currentGraphEntity
+                .mergeWithStreamedGraph(graphEntity)
+        } else {
+            // Infer data directly
+            finalGraphEntity = graphEntity
+            
+            // Create nested sidebar layer data
+            let newSidebarData = self.graphData.layer_data_list.compactMap {
+                $0.createSidebarLayerData()
+            }
+            
+            finalGraphEntity.orderedSidebarLayers = newSidebarData
+        }
         
         // TODO: come back to sidebar selection
 
@@ -178,7 +185,7 @@ extension SwiftSyntaxActionsResult {
         
         //
 
-        return .init(graph: mergedGraphEntity,
+        return .init(graph: finalGraphEntity,
                      errors: caughtErrors)
     }
 }

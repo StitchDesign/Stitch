@@ -304,21 +304,21 @@ extension AIGraphData_V0.PortValue {
     }
 }
 
-//extension AIGraphData_V0.LayerData {
-//    func createSidebarLayerData() -> SidebarLayerData {
-//        let children = self.children?.map {
-//            $0.createSidebarLayerData()
-//        }
-//
-//        assertInDebug(UUID(self.node_id) != nil)
-//
-//        // Use mapped ID if available, otherwise use original ID from AI data
-//        let finalId = UUID(self.node_id) ?? UUID()
-//
-//        return SidebarLayerData(id: finalId,
-//                                children: children)
-//    }
-//}
+extension AIGraphData_V0.LayerData {
+    func createSidebarLayerData() -> SidebarLayerData {
+        let children = self.children?.map {
+            $0.createSidebarLayerData()
+        }
+
+        assertInDebug(UUID(self.node_id) != nil)
+
+        // Use mapped ID if available, otherwise use original ID from AI data
+        let finalId = UUID(self.node_id) ?? UUID()
+
+        return SidebarLayerData(id: finalId,
+                                children: children)
+    }
+}
 
 extension AIGraphData_V0.NodeType: StitchAIValueStringConvertable {
     public init?(_ description: String) {
