@@ -128,6 +128,7 @@ extension SwiftSyntaxActionsResult {
         // Instantiate new GraphEntity instance, starting with known patch nodes
         var graphEntity = GraphEntity.createEmpty()
         graphEntity.id = docId
+        graphEntity.name = currentGraphEntity.name
         graphEntity.nodes = self.graphData.patchNodes
 
         var nodesDict = graphEntity.nodes.reduce(into: [UUID: NodeEntity]()) { result, nodeEntity in
