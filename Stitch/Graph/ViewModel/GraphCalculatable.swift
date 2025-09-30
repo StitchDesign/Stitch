@@ -108,6 +108,9 @@ extension GraphState {
                                  graph: self) {
             self.cachedOrderedPreviewLayers = previewLayers
         }
+        
+//        self.cachedOrderedPreviewLayers = previewLayers
+        
         if self.flattenedPinMap != flattenedPinMap {
             self.flattenedPinMap = flattenedPinMap
         }

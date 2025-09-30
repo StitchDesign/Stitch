@@ -110,7 +110,11 @@ extension SwiftSyntaxActionsResult {
             // Update topological data--needs to be forced here because of script building using this data
             document.graph.update(from: result.graph)
             document.graph.updateGraphData(document)
-
+            
+            // 
+//            document.graph.runGraphAndUpdateUI(from: document.graph.nodes.keys.toSet)
+//            document.graph.scheduleForNextGraphStep(document.graph.nodes.keys.toSet)
+            
             // Report errors
             if !isStreaming {
                 result.errors.displayErrors(document: document)

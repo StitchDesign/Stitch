@@ -150,7 +150,7 @@ extension Array where Element: NodeRowViewModel {
 extension GraphState {
     @MainActor func calculateOnGraphStep() {
         var nodesToRunOnGraphStep = self.nodesToRunOnGraphStep
-        // log("calculateOnGraphStep: nodesToRunOnGraphStep: \(nodesToRunOnGraphStep)")
+//        log("calculateOnGraphStep: nodesToRunOnGraphStep: \(nodesToRunOnGraphStep)")
         
         let graphTime = self.graphStepManager.graphTime
         let components = self.nodes.values
@@ -218,6 +218,9 @@ extension GraphState {
     // TODO: better name?
     @MainActor
     func runGraphAndUpdateUI(from nodeIds: NodeIdSet) {
+        if !nodeIds.isEmpty {
+            log("runGraphAndUpdateUI called with non empty nodeIds: \(nodeIds)")
+        }
         
         guard let document = self.documentDelegate else {
             fatalErrorIfDebug()
@@ -226,6 +229,11 @@ extension GraphState {
         
         let (portsToUpdate,
              shouldResortPreviewLayers) = self.calculate(from: nodeIds)
+       
+        // LOGS TOO NOISY
+//        if !nodeIds.isEmpty {
+//            log("runGraphAndUpdateUI called with non empty nodeIds and had portsToUpdate: \(portsToUpdate)")
+//        }
         
         self.portsToUpdate = self.portsToUpdate.union(portsToUpdate)
         
