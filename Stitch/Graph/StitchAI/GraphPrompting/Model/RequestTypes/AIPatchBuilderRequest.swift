@@ -117,13 +117,16 @@ extension SwiftSyntaxActionsResult {
             }
         }
 
-        if isStreaming {
-            withAnimation(.linear(duration: STREAMING_ANIMATION_SPEED)) {
-                processLogic()
-            }
-        } else {
-            processLogic()
-        }
+        processLogic()
+        
+//        if isStreaming {
+//            withAnimation(.linear(duration: STREAMING_ANIMATION_SPEED)) {
+//                processLogic()
+//            }
+//        } else {
+//            processLogic()
+//        }
+        
     }
     
     func createAIGraph(docId: UUID,
