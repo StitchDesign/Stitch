@@ -39,12 +39,13 @@ extension FunctionCallExprSyntax {
     
     func reduceModifierClosureData(funcExpr: FunctionCallExprSyntax,
                                    memberAccessExpr: MemberAccessExprSyntax,
-                                   modifierClosures: inout [String: SyntaxViewModifierClosureData]) throws {
+                                   modifierClosures: inout [String: SyntaxViewModifierClosureData],
+                                   isStreaming: Bool) throws {
 
         // Recursively create argument data
         let args = try funcExpr.arguments
             .map { expr in
-                try SwiftUIViewVisitor.parseArgument(expr)
+                try SwiftUIViewVisitor.parseArgument(expr, isStreaming: isStreaming)
             }
         
         let modifierCall = memberAccessExpr.declName.trimmedDescription
@@ -71,7 +72,8 @@ extension FunctionCallExprSyntax {
             // Recursive calls for more closures
             try fnBaseExpr.reduceModifierClosureData(funcExpr: fnBaseExpr,
                                                      memberAccessExpr: childMemberAccessExpr,
-                                                     modifierClosures: &modifierClosures)
+                                                     modifierClosures: &modifierClosures,
+                                                     isStreaming: isStreaming)
         }
     }
     
@@ -102,7 +104,8 @@ extension ClosureExprSyntax {
 extension SwiftUIViewVisitor {
     func visitPatchData(_ node: FunctionCallExprSyntax,
                         // var names are provided from already created nodes
-                        varName: String?) -> SwiftParserPatchData? {
+                        varName: String?,
+                        isStreaming: Bool) -> SwiftParserPatchData? {
         let patchNode: SwiftParserPatchType
         let id = UUID().uuidString
         
@@ -123,7 +126,7 @@ extension SwiftUIViewVisitor {
         guard let elements = node.arguments.first?.expression.as(ArrayExprSyntax.self)?.elements else {
             // Check if DeclReferenceExprSyntax, which should point to a PortValuesList
             guard let labeledExpr = node.arguments.first?.expression.as(DeclReferenceExprSyntax.self) else {
-                fatalErrorIfDebug()
+                // fatalErrorIfDebug()
                 return nil
             }
             
@@ -138,12 +141,16 @@ extension SwiftUIViewVisitor {
                let innerFirstElem = arrayElem.elements.first?.expression {
                 
                 do {
-                    let argData = try Self.parseArgumentType(from: innerFirstElem)
+                    let argData = try Self.parseArgumentType(from: innerFirstElem, isStreaming: isStreaming)
                     return .value(argData)
                 } catch {
+//<<<<<<< HEAD
                     if !isStreaming {
                         fatalErrorIfDebug(error.localizedDescription)
                     }
+//=======
+                    //fatalErrorIfDebug(error.localizedDescription)
+//>>>>>>> 8b4be3e20 (Animate nodes during AI streaming (#1706))
                     log("visitPatchData: had error \(error.localizedDescription) for arg \(arg)")
                     return nil
                 }
@@ -155,7 +162,8 @@ extension SwiftUIViewVisitor {
             }
             
             else if let subscriptCallExpr = arg.expression.as(SubscriptCallExprSyntax.self),
-                    let subscriptData = self.visitSubscriptData(subscriptCallExpr: subscriptCallExpr)?.subscriptRef {
+                    let subscriptData = self.visitSubscriptData(subscriptCallExpr: subscriptCallExpr,
+                                                                isStreaming: isStreaming)?.subscriptRef {
                 return .subscriptRef(subscriptData)
             }
             
@@ -164,9 +172,13 @@ extension SwiftUIViewVisitor {
             }
             
             else {
+//<<<<<<< HEAD
                 if !isStreaming {
                     fatalErrorIfDebug()                    
                 }
+//=======
+                // fatalErrorIfDebug()
+//>>>>>>> 8b4be3e20 (Animate nodes during AI streaming (#1706))
                 log("visitPatchData: had problem")
                 return nil
             }
@@ -177,7 +189,8 @@ extension SwiftUIViewVisitor {
                      args: patchNodeArgs)
     }
     
-    func visitSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax) -> SwiftParserInitializerType? {
+    func visitSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax,
+                            isStreaming: Bool) -> SwiftParserInitializerType? {
         // Subscript reference to some existing outputs
         guard let initializerFromSubscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptCallExpr) else {
             return nil
@@ -188,8 +201,9 @@ extension SwiftUIViewVisitor {
            let patchFn = subscriptCallExpr.calledExpression.as(FunctionCallExprSyntax.self) {
             // Assumed to be patch node
             guard let patchNode = self.visitPatchData(patchFn,
-                                                      varName: nil) else {
-                fatalErrorIfDebug()
+                                                      varName: nil,
+                                                      isStreaming: isStreaming) else {
+                // fatalErrorIfDebug()
                 log("visitSubscriptData: HAD MAJOR ERROR")
                 return nil
             }
@@ -206,7 +220,7 @@ extension SwiftUIViewVisitor {
 }
 
 extension SwiftParserPatchData {
-    func createPatchCodeExpr() throws -> SwiftPatchCodeExpression? {
+    func createPatchCodeExpr(isStreaming: Bool) throws -> SwiftPatchCodeExpression? {
         let ports: [SwiftPatchCodeType] = try self.args.map { arg in
             switch arg {
             case .binding(let refName):
@@ -215,8 +229,8 @@ extension SwiftParserPatchData {
             case .subscriptRef(let subscriptRef):
                 // Recursively call data
                 guard let result = try SwiftParserInitializerType.subscriptRef(subscriptRef)
-                    .getSwiftPatchCodeType() else {
-                    fatalErrorIfDebug()
+                    .getSwiftPatchCodeType(isStreaming: isStreaming) else {
+                    // fatalErrorIfDebug()
                     return .subscriptType(.expression(.ref("none")), subscriptRef.portIndex)
                 }
                 
@@ -230,7 +244,7 @@ extension SwiftParserPatchData {
         switch self.patchType {
         case .native(let nativePatchType):
             guard let patchName = CurrentAIGraphData.StitchAIPatchOrLayer.init(value: .init(nativePatchType))?.value.patch else {
-                fatalErrorIfDebug()
+                // fatalErrorIfDebug()
                 return nil
             }
             
@@ -245,7 +259,12 @@ extension SwiftParserPatchData {
 }
 
 extension SwiftUIViewVisitor {
-    func deriveSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax) -> SwiftParserInitializerType? {
+//<<<<<<< HEAD
+//    func deriveSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax) -> SwiftParserInitializerType? {
+//=======
+    func deriveSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax,
+                             isStreaming: Bool) -> SwiftParserInitializerType? {
+//>>>>>>> 8b4be3e20 (Animate nodes during AI streaming (#1706))
         guard let labeledExpr = subscriptCallExpr.arguments.first?.expression.as(IntegerLiteralExprSyntax.self),
               let portIndex = Int(labeledExpr.literal.text) else {
             // Check if it's a subscript call for a stitch function
@@ -261,7 +280,13 @@ extension SwiftUIViewVisitor {
         if let funcExpr = subscriptCallExpr.calledExpression.as(FunctionCallExprSyntax.self) {
             guard let patchNode = self.visitPatchData(funcExpr,
                                                       // no var name from subscript
-                                                      varName: nil) else {
+//<<<<<<< HEAD
+//                                                      varName: nil) else {
+//=======
+                                                      varName: nil,
+                                                      isStreaming: isStreaming) else {
+                if !isStreaming { fatalErrorIfDebug() }
+//>>>>>>> 8b4be3e20 (Animate nodes during AI streaming (#1706))
                 log("deriveSubscriptData: HAD MAJOR ERROR")
                 return nil
             }
@@ -320,7 +345,7 @@ extension Patch {
                                            nodeType: upstreamPatchNode.userVisibleType)
                 
                 guard let upstreamOutputValue = upstreamPatchOutputValues[safe: upstreamCoordinate.portId ?? -1] else {
-                    fatalErrorIfDebug()
+                    // fatalErrorIfDebug()
                     continue
                 }
                 

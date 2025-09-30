@@ -9,7 +9,9 @@ import SwiftUI
 
 extension GraphState {
     @MainActor
-    func createSwiftUICode(ignoreScript: Bool = false, usePortValueDescription: Bool = true) throws -> String {
+    func createSwiftUICode(ignoreScript: Bool = false,
+                           usePortValueDescription: Bool = true,
+                           isStreaming: Bool) throws -> String {
         let graphEntity = self.createSchema()
         let aiGraph = try AIGraphData_V0.GraphData(from: graphEntity)
         
@@ -83,7 +85,8 @@ extension GraphState {
         let viewCode = try topLevelLayerEntities
             .createSwiftUICode(orderedLayerEntities: orderedLayerEntities,
                                varIdNameMap: varIdNameMap,
-                               layerViewEventMap: layerViewEventsMap)
+                               layerViewEventMap: layerViewEventsMap,
+                               isStreaming: isStreaming)
         
         if ignoreScript {
             return viewCode

@@ -142,7 +142,7 @@ extension Array where Element == SyntaxViewArgumentData {
                                viewEvent: SyntaxViewEvent?,
                                nodesDict: [UUID: NodeEntity],
                                nodeType: NodeType? = nil,
-                               isStreaming: Bool = false) throws -> [PatchSyntaxResultType] {
+                               isStreaming: Bool) throws -> [PatchSyntaxResultType] {
         // Recursively determine PortValue of each arg for key label
         let orderedDict = [(String, [PatchSyntaxResultType])]()
         let portValuesMap = try self.reduce(into: orderedDict) { result, arg in

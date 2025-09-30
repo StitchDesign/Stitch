@@ -32,7 +32,8 @@ struct GraphConnectedEdgesView: View {
             // Filter out animated edges enables keyboard shortcut animation
             if !self.isEdgeAnimating(edgeData) {
                 ConnectedEdgeView(data: edgeData,
-                                  edgeAnimationEnabled: edgeAnimationEnabled)
+                                  edgeAnimationEnabled: edgeAnimationEnabled,
+                                  isStreaming: graph.shouldAnimateForStreaming)
             }
         }
     }
@@ -108,25 +109,28 @@ struct CandidateEdgesView: View {
 struct ConnectedEdgeView: View {
 
     @MainActor init(data: ConnectedEdgeData,
-                    edgeAnimationEnabled: Bool) {
+                    edgeAnimationEnabled: Bool,
+                    isStreaming: Bool) {
         self.inputPortUIViewModel = data.downstreamInput
         self.upstreamOutputPortUIViewModel = data.upstreamOutput
         self.downstreamAnchor = data.inputData
         self.upstreamAnchor = data.outputData
         self.zIndex = data.zIndex
         self.edgeAnimationEnabled = edgeAnimationEnabled
+        self.isStreaming = isStreaming
     }
-    
+
     @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
-    
+
     @Bindable var inputPortUIViewModel: InputPortUIViewModel
     @Bindable var upstreamOutputPortUIViewModel: OutputPortUIViewModel
-    
+
     let downstreamAnchor: EdgeAnchorDownstreamData
     let upstreamAnchor: EdgeAnchorUpstreamData
-    
+
     let edgeAnimationEnabled: Bool
-    
+    let isStreaming: Bool
+
     let zIndex: Double
         
     var body: some View {
@@ -174,6 +178,7 @@ struct ConnectedEdgeView: View {
                      lastToWithEdge: lastToWithEdge,
                      totalOutputs: upstreamAnchor.totalOutputs,
                      edgeAnimationEnabled: edgeAnimationEnabled,
+                     isStreaming: isStreaming,
                      edgeScaleEffect: .nonEdgeToInspectorScaleEffect)
             .zIndex(newZIndex)
             
