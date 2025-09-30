@@ -192,7 +192,7 @@ extension SwiftUIViewVisitor {
     func visitSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax,
                             isStreaming: Bool) -> SwiftParserInitializerType? {
         // Subscript reference to some existing outputs
-        guard let initializerFromSubscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptCallExpr) else {
+        guard let initializerFromSubscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptCallExpr, isStreaming: isStreaming) else {
             return nil
         }
         

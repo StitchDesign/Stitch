@@ -49,7 +49,8 @@ extension PortValuesPackModifiable {
             .reorderUnapckedValues(varName: nil,
                                    viewEvent: nil,
                                    nodesDict: [:],
-                                   nodeType: Self.nodeType)
+                                   nodeType: Self.nodeType,
+                                   isStreaming: isStreaming)
         
         let parsedValues = layerPortEvents.compactMap { event -> PortValue? in
             guard let value = event.portData?.values?.first else { return nil }
