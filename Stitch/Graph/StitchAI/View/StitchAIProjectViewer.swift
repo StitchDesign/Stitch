@@ -30,19 +30,22 @@ struct StitchAIProjectViewer: View {
     let store: StitchStore
     @Bindable var document: StitchDocumentViewModel
 
-    func validateJSON() {
-        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
+    func validateJSON(isStreaming: Bool) {
+        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode, isStreaming: isStreaming)
+        let currentGraphEntity = document.graph.createSchema()
         
         // Apply AI result to fake document
         Task(priority: .high) {
             // Syntax → Actions
             let stitchActionsResult = try await codeParserResult.deriveStitchActions(
                 bindingDeclarations: codeParserResult.bindingDeclarations,
-                document: document)
+                document: document,
+                isStreaming: isStreaming)
     
             await MainActor.run {
                 stitchActionsResult
                     .processAIGraph(document: document,
+                                    currentGraphEntity: currentGraphEntity,
                                     isStreaming: false)
             }
         }
@@ -65,7 +68,7 @@ struct StitchAIProjectViewer: View {
                         .focusedValue(\.focusedField, .aiPreviewerTextField)
 
                     Button("Submit") {
-                        validateJSON()
+                        validateJSON(isStreaming: false)
                     }
                 }
                 .frame(height: 120)

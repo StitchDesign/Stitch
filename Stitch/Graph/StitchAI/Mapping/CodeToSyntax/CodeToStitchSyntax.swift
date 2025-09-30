@@ -24,7 +24,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     let willParseView: Bool
     let isStreaming: Bool
     
-    init(willParseView: Bool, isStreaming: Bool = false) {
+    init(willParseView: Bool, isStreaming: Bool) {
         self.willParseView = willParseView
         self.isStreaming = isStreaming
         super.init(viewMode: .sourceAccurate)
@@ -68,7 +68,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         if let funcExpr = initializer.value.as(FunctionCallExprSyntax.self) {
             // Assumed to be patch node
             guard let patchNode = self.visitPatchData(funcExpr,
-                                                      varName: currentLHS) else {
+                                                      varName: currentLHS,
+                                                      isStreaming: isStreaming) else {
                 fatalErrorIfDebug()
                 log("visit: MAJOR ERROR with funcExpr -> self.visitPatchData")
                 return .skipChildren
@@ -83,7 +84,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         // Subscript callers used to access some node outputs
         else if let subscriptCallExpr = initializer.value.as(SubscriptCallExprSyntax.self),
                 // Subscript reference to some existing outputs
-                let subscriptData = self.visitSubscriptData(subscriptCallExpr: subscriptCallExpr) {
+                let subscriptData = self.visitSubscriptData(subscriptCallExpr: subscriptCallExpr,
+                                                            isStreaming: isStreaming) {
             self.bindingDeclarations
                 .append((currentLHS, subscriptData))
             
@@ -133,7 +135,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         let refName = refExpr.baseName.trimmedDescription
         
         if let subscriptExpr = assinmentElem.as(SubscriptCallExprSyntax.self),
-           let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptExpr, isStreaming: self.isStreaming) {
+           let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptExpr, isStreaming: isStreaming) {
             self.bindingDeclarations
                 .append((refName, .stateMutation(subscriptRef)))
             return .skipChildren
@@ -217,7 +219,7 @@ extension SwiftUIViewVisitor {
     static func parseSwiftUICode(_ swiftUICode: String,
                                  context: ParseContext = .topLevel,
                                  willParseView: Bool = true,
-                                 isStreaming: Bool = false) -> SwiftUIViewParserResult {
+                                 isStreaming: Bool) -> SwiftUIViewParserResult {
 //        log("\n==== PARSING CODE ====\n\(swiftUICode)\n=====================\n")
 
         // First extract the struct from mixed text (handles LLM responses with explanations)

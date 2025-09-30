@@ -263,12 +263,14 @@ struct StitchAITrainingDataInspectionOverlay: View {
                 let actionsResult = try await codeCreator
                     .processRequest(userPrompt: userPrompt,
                                     document: document,
-                                    aiManager: aiManager)
+                                    aiManager: aiManager,
+                                    isStreaming: false)
                 
                 await MainActor.run {
                     actionsResult
                         .applyAIGraph(to: document,
                                       viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
+                                      currentGraphEntity: document.graph.createSchema(),
                                       isStreaming: false)
                 }
                 

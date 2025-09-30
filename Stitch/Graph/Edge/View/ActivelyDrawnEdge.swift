@@ -136,6 +136,7 @@ struct ActivelyDrawnEdge: ViewModifier {
                                          totalOutputs: outputAnchorData.totalOutputs,
                                          // We never animate the actively dragged edge
                                          edgeAnimationEnabled: false,
+                                         isStreaming: false, // AI streaming never uses actively dragged edge
                                          edgeScaleEffect: scale)
                                 .animation(.linear(duration: DrawnEdge.ANIMATION_DURATION),
                                            value: color)

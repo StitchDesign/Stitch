@@ -58,7 +58,8 @@ extension Array where Element == AIGraphData_V0.LayerData {
                                                           layerInputCoordinate: .init(portType: .keyPath(coordinate),
                                                                                       nodeId: layerNodeEntity.id),
                                                           varName: nil,
-                                                          stateVarConnections: &stateVarConnections)
+                                                          stateVarConnections: &stateVarConnections,
+                                                          isStreaming: isStreaming)
                     } catch {
                         if !isStreaming {
                             // TODO: need to handle errors silently
@@ -89,45 +90,57 @@ extension SwiftSyntaxActionsResult {
     @MainActor
     func applyAIGraph(to document: StitchDocumentViewModel,
                       viewStatePatchConnections: [String : [NodeIOCoordinate]],
+                      currentGraphEntity: GraphEntity,
                       isStreaming: Bool) {
         // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
         self.processAIGraph(document: document,
+                            currentGraphEntity: currentGraphEntity,
                             isStreaming: isStreaming)
         document.encodeProjectInBackground()
     }
     
     @MainActor
     func processAIGraph(document: StitchDocumentViewModel,
+                        currentGraphEntity: GraphEntity,
                         isStreaming: Bool) {
-        let result = self.createAIGraph(docId: document.graph.id.value,
-                                        viewPortCenter: document.viewPortCenter,
-                                        groupNodeFocused: document.groupNodeFocused?.groupNodeId,
-                                        isStreaming: isStreaming)
+
+        let processLogic = {
+            let result = self.createAIGraph(from: currentGraphEntity,
+                                            docId: document.graph.id.value,
+                                            viewPortCenter: document.viewPortCenter,
+                                            groupNodeFocused: document.groupNodeFocused?.groupNodeId,
+                                            isStreaming: isStreaming)
+            
+            // Update topological data--needs to be forced here because of script building using this data
+            document.graph.update(from: result.graph)
+            document.graph.updateGraphData(document)
+            
+            // Report errors
+            if !isStreaming {
+                result.errors.displayErrors(document: document)
+            }
+        }
         
-        // Update topological data--needs to be forced here because of script building using this data
-        document.graph.update(from: result.graph)
-        document.graph.updateGraphData(document)
-        
-        // Report errors
-        if !isStreaming {
-            result.errors.displayErrors(document: document)
+        if isStreaming {
+            withAnimation(.linear(duration: STREAMING_ANIMATION_SPEED)) {
+                processLogic()
+            }
+        } else {
+            processLogic()
         }
     }
     
-    func createAIGraph(docId: UUID,
+    func createAIGraph(from currentGraphEntity: GraphEntity,
+                       docId: UUID,
                        viewPortCenter: CGPoint,
                        groupNodeFocused: UUID?,
                        isStreaming: Bool) -> StitchAIGraphEntityResult {
-        // STEP 1: Capture existing state for similarity matching
-//        let existingGraph = document.graph.createSchema()
-//        let previousSidebarSelection = document.graph.layersSidebarViewModel.primary
-//        var matchedNodeIds = Set<UUID>()
-
         var viewStatePatchConnections = self.graphData.viewStatePatchConnections
 
         // Instantiate new GraphEntity instance, starting with known patch nodes
         var graphEntity = GraphEntity.createEmpty()
         graphEntity.id = docId
+        graphEntity.name = currentGraphEntity.name
         graphEntity.nodes = self.graphData.patchNodes
 
         var nodesDict = graphEntity.nodes.reduce(into: [UUID: NodeEntity]()) { result, nodeEntity in
@@ -142,13 +155,6 @@ extension SwiftSyntaxActionsResult {
                               isStreaming: isStreaming)
         
         graphEntity.nodes = Array(nodesDict.values)
-        
-        // Create nested sidebar layer data
-        let newSidebarData = self.graphData.layer_data_list.compactMap {
-            $0.createSidebarLayerData()
-        }
-        
-        graphEntity.orderedSidebarLayers = newSidebarData
         
         // Can't build the depth map from the `patch_data`,
         // since those UUIDs have not been remapped yet
@@ -167,16 +173,30 @@ extension SwiftSyntaxActionsResult {
             return nodeEntity
         }
         
-
-
-        // STEP 3: Restore sidebar selections for matched nodes
+        var finalGraphEntity: GraphEntity
+        
+        if isStreaming {
+            // Reuse IDs from existing graph when possible--this allows us to reuse IDs during streaming
+            finalGraphEntity = currentGraphEntity
+                .mergeWithStreamedGraph(graphEntity)
+        } else {
+            // Infer data directly
+            finalGraphEntity = graphEntity
+            
+            // Create nested sidebar layer data
+            let newSidebarData = self.graphData.layer_data_list.compactMap {
+                $0.createSidebarLayerData()
+            }
+            
+            finalGraphEntity.orderedSidebarLayers = newSidebarData
+        }
         
         // TODO: come back to sidebar selection
 
         //        document.graph.layersSidebarViewModel.primary = newNodesForSelectedOldNodes
 //        log("Restored sidebar selection for \(newNodesForSelectedOldNodes.count) matched nodes")
 
-        return .init(graph: graphEntity,
+        return .init(graph: finalGraphEntity,
                      errors: caughtErrors)
     }
 }

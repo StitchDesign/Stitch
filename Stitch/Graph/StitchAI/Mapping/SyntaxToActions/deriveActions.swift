@@ -69,13 +69,13 @@ struct SwiftSyntaxActionsResult {
 extension SwiftUIViewParserResult {
     func deriveStitchActions(bindingDeclarations: [(String, SwiftParserInitializerType)],
                              document: StitchDocumentViewModel,
-                             isStreaming: Bool = false) async throws -> SwiftSyntaxActionsResult {
+                             isStreaming: Bool) async throws -> SwiftSyntaxActionsResult {
         // Extract layer data
         let layerResults = self.viewStack.deriveStitchActions(bindingDeclarations: bindingDeclarations, isStreaming: isStreaming)
         
         let interactionsPatchActionResult = layerResults.actions.getPatchResultsFromViewEvents()
         
-        let patchCodeStatements = try SwiftPatchClosureType.swiftPatchLogic(self.bindingDeclarations.getSwiftPatchCodeTypes())
+        let patchCodeStatements = try SwiftPatchClosureType.swiftPatchLogic(self.bindingDeclarations.getSwiftPatchCodeTypes(isStreaming: isStreaming))
 
         // Prepend view event data for code from `updateLayerInputs`
         let allPatchCode: [SwiftPatchClosureType] = interactionsPatchActionResult.map { .viewEvent($0) } + [patchCodeStatements]
@@ -93,13 +93,13 @@ extension SwiftUIViewParserResult {
     }
     
     func deriveStitchActionsSync(bindingDeclarations: [(String, SwiftParserInitializerType)], 
-                                isStreaming: Bool = false) throws -> SwiftSyntaxActionsResult {
+                                isStreaming: Bool) throws -> SwiftSyntaxActionsResult {
         // Extract layer data
         let layerResults = self.viewStack.deriveStitchActions(bindingDeclarations: bindingDeclarations, isStreaming: isStreaming)
         
         let interactionsPatchActionResult = layerResults.actions.getPatchResultsFromViewEvents()
         
-        let patchCodeStatements = try SwiftPatchClosureType.swiftPatchLogic(self.bindingDeclarations.getSwiftPatchCodeTypes())
+        let patchCodeStatements = try SwiftPatchClosureType.swiftPatchLogic(self.bindingDeclarations.getSwiftPatchCodeTypes(isStreaming: isStreaming))
 
         // Prepend view event data for code from `updateLayerInputs`
         let allPatchCode: [SwiftPatchClosureType] = interactionsPatchActionResult.map { .viewEvent($0) } + [patchCodeStatements]
@@ -115,7 +115,7 @@ extension SwiftUIViewParserResult {
 
 extension Array where Element == SyntaxView {
     func deriveStitchActions(bindingDeclarations: [(String, SwiftParserInitializerType)], 
-                           isStreaming: Bool = false) -> SwiftSyntaxLayerActionsResult {
+                           isStreaming: Bool) -> SwiftSyntaxLayerActionsResult {
         var result = SwiftSyntaxLayerActionsResult(actions: [],
                                                    caughtErrors: [])
         
@@ -188,7 +188,7 @@ enum SwiftPatchCodeExpression {
 }
 
 extension SwiftPatchCodeExpression {
-    func createSwiftUICode(isStreaming: Bool = false) -> String {
+    func createSwiftUICode(isStreaming: Bool) -> String {
         switch self {
         case .ref(let string):
             return string
@@ -212,7 +212,7 @@ struct SwiftJsNodeCode {
 }
 
 extension Array where Element == (String, SwiftParserInitializerType) {
-    func getSwiftPatchCodeTypes(isStreaming: Bool = false) throws -> [(String, SwiftPatchCodeType)] {
+    func getSwiftPatchCodeTypes(isStreaming: Bool) throws -> [(String, SwiftPatchCodeType)] {
         try self.compactMap { data -> (String, SwiftPatchCodeType)? in
             guard let result = try data.1.getSwiftPatchCodeType(isStreaming: isStreaming) else {
                 if !isStreaming {
@@ -226,10 +226,10 @@ extension Array where Element == (String, SwiftParserInitializerType) {
 }
 
 extension SwiftParserInitializerType {
-    func getSwiftPatchCodeType(isStreaming: Bool = false) throws -> SwiftPatchCodeType? {
+    func getSwiftPatchCodeType(isStreaming: Bool) throws -> SwiftPatchCodeType? {
         switch self {
         case .patchNode(let patchNodeData):
-            guard let patchData = try patchNodeData.createPatchCodeExpr() else {
+            guard let patchData = try patchNodeData.createPatchCodeExpr(isStreaming: isStreaming) else {
                 return nil
             }
             
@@ -238,7 +238,7 @@ extension SwiftParserInitializerType {
         case .subscriptRef(let subscriptData):
             switch subscriptData.subscriptType {
             case .patchNode(let patchNodeData):
-                guard let patchData = try patchNodeData.createPatchCodeExpr() else {
+                guard let patchData = try patchNodeData.createPatchCodeExpr(isStreaming: isStreaming) else {
                     return nil
                 }
                 
@@ -338,12 +338,12 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
         switch expr {
         case .portValuesInit(let array):
             guard let pvDescription = array.first else {
-                fatalErrorIfDebug()
+                // fatalErrorIfDebug()
                 return []
             }
             
-            return try pvDescription.derivePortValues(viewEvent: viewEvent)
-        
+            return try pvDescription.derivePortValues(viewEvent: viewEvent,
+                                                      isStreaming: isStreaming)
         case .ref(let ref):
             let portIndex = portIndex ?? 0
             
@@ -418,7 +418,9 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
         
         case .patchNodeInit(let patchNodeData):
             guard let portIndex = portIndex else {
-                fatalErrorIfDebug()
+                if !isStreaming {
+                    fatalErrorIfDebug()
+                }
                 return []
             }
             
@@ -431,7 +433,8 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                                        groupNodeId: nil,
                                        existingStateVarConnections: existingStateVarConnections,
                                        nodesDict: nodesDict,
-                                       viewEvent: viewEvent)
+                                       viewEvent: viewEvent,
+                                       isStreaming: isStreaming)
             
             let outputCoordinate = NodeIOCoordinate(portId: portIndex,
                                                     nodeId: deterministicUUID(from: varName))
@@ -487,7 +490,9 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                 throw error
                 
             default:
-                fatalErrorIfDebug()
+                if !isStreaming {
+                    fatalErrorIfDebug()
+                }
                 return [.portData(.values([.number(.zero)]))]
             }
         
@@ -495,7 +500,9 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
             throw swiftUISyntaxError
             
         default:
-            fatalErrorIfDebug()
+            if !isStreaming {
+                fatalErrorIfDebug()
+            }
             return [.portData(.values([.number(.zero)]))]
         }
     }
@@ -515,7 +522,7 @@ extension Array where Element == SwiftPatchCodeType {
                           existingStateVarConnections: [String: [NodeIOCoordinate]],
                           nodesDict: [UUID: NodeEntity],
                           viewEvent: SyntaxViewEvent?,
-                          isStreaming: Bool = false) throws -> SwiftPatchNodeInputsResult {
+                          isStreaming: Bool) throws -> SwiftPatchNodeInputsResult {
         var otherData = [PatchSyntaxResultType]()
         
         let portData: [NodePortInputEntity] = try self.enumerated()
@@ -556,7 +563,7 @@ extension Array where Element == SwiftPatchCodeType {
 }
 
 extension SwiftPatchCodeType {
-    func createSwiftUICode(isStreaming: Bool = false) -> String {
+    func createSwiftUICode(isStreaming: Bool) -> String {
         switch self {
         case .expression(let expr):
             return expr.createSwiftUICode(isStreaming: isStreaming)
@@ -687,7 +694,7 @@ extension SwiftPatchNodeCode {
                                nodesDict: [UUID: NodeEntity],
                                viewEvent: SyntaxViewEvent?,
                                jsSettings: JavaScriptNodeSettings? = nil,
-                               isStreaming: Bool = false) throws -> [PatchSyntaxResultType] {
+                               isStreaming: Bool) throws -> [PatchSyntaxResultType] {
         let nodeId = deterministicUUID(from: varName)
         
         let portData = try self
@@ -856,7 +863,7 @@ extension NodeEntity {
     mutating func updateInputData(_ portData: NodeConnectionType,
                                   at index: NodeIOCoordinate,
                                   nodesDict: [UUID: NodeEntity],
-                                  isStreaming: Bool = false) {
+                                  isStreaming: Bool) {
         switch self.nodeTypeEntity {
         case .patch(var patchNode):
             guard let portId = index.portId else {
@@ -931,7 +938,7 @@ extension SwiftPatchCodeType {
                             viewEvent: SyntaxViewEvent?,
                             existingStateVarConnections: [String: [NodeIOCoordinate]],
                             nodesDict: [UUID: NodeEntity],
-                            isStreaming: Bool = false) throws -> [PatchSyntaxResultType] {
+                            isStreaming: Bool) throws -> [PatchSyntaxResultType] {
         switch self {
         case .expression(let codeType):
             switch codeType {
@@ -989,7 +996,8 @@ extension SwiftPatchCodeType {
                     .derivePortValues(from: firstArg,
                                       varName: varName,
                                       viewEvent: viewEvent,
-                                      nodesDict: nodesDict)
+                                      nodesDict: nodesDict,
+                                      isStreaming: isStreaming)
             }
         
         case .subscriptType(let subscriptCodeType, let portIndex):
@@ -1045,7 +1053,7 @@ extension SwiftPatchCodeType {
                          viewEvent: SyntaxViewEvent?,
                          existingStateVarConnections: [String: [NodeIOCoordinate]],
                          nodesDict: [UUID: NodeEntity],
-                         isStreaming: Bool = false) async throws -> [PatchSyntaxResultType] {
+                         isStreaming: Bool) async throws -> [PatchSyntaxResultType] {
         // Handle the async jsRef case
         if case .expression(.jsRef(let jsData)) = self {
             guard let aiManager = document.aiManager else {
@@ -1107,7 +1115,7 @@ extension Sequence {
 }
 
 extension Array where Element == SwiftPatchClosureType {
-    func derivePatchNodesSync(isStreaming: Bool = false) -> SwiftSyntaxPatchActionsResult {
+    func derivePatchNodesSync(isStreaming: Bool) -> SwiftSyntaxPatchActionsResult {
         var result = SwiftSyntaxPatchActionsResult(nodes: [],
                                                    stateVarConnections: [:],
                                                    caughtErrors: [])
@@ -1143,7 +1151,7 @@ extension Array where Element == SwiftPatchClosureType {
     
     @MainActor
     func derivePatchNodes(document: StitchDocumentViewModel, 
-                         isStreaming: Bool = false) async -> SwiftSyntaxPatchActionsResult {
+                         isStreaming: Bool) async -> SwiftSyntaxPatchActionsResult {
         // Check if any closure contains async operations
         let hasAsyncOperations = self.contains { closureType in
             switch closureType {
@@ -1226,7 +1234,7 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
                                       layerInputCoordinate: NodeIOCoordinate?,
                                       varName: String?,
                                       stateVarConnections: inout [String: [NodeIOCoordinate]],
-                                      isStreaming: Bool = false) throws {
+                                      isStreaming: Bool) throws {
         switch event {
         case .node(let nodeResult):
             // Skip if node already made
@@ -1426,7 +1434,7 @@ extension Array where Element == (String, SwiftPatchCodeType) {
     func derivePatchNodesSync(existingStateVarConnections: [String: [NodeIOCoordinate]],
                              existingNodesDict: [UUID: NodeEntity],
                              viewEvent: SyntaxViewEvent?,
-                             isStreaming: Bool = false) -> SwiftSyntaxPatchActionsResult {
+                             isStreaming: Bool) -> SwiftSyntaxPatchActionsResult {
         // Create dictionary of self
         let varNameToCode = self.reduce(into: [String: SwiftPatchCodeType]()) { result, data in
             result.updateValue(data.1, forKey: data.0)
@@ -1475,7 +1483,10 @@ extension Array where Element == (String, SwiftPatchCodeType) {
             } catch let error as SwiftUISyntaxError {
                 caughtErrors.append(error)
             } catch {
-                fatalErrorIfDebug(error.localizedDescription)
+                if !isStreaming {
+                    fatalErrorIfDebug(error.localizedDescription)
+                    log("deriveStitchActions: error.localizedDescription: \(error.localizedDescription)")
+                }
                 log("deriveStitchActions: error.localizedDescription: \(error.localizedDescription)")
                 continue
             }
@@ -1491,7 +1502,7 @@ extension Array where Element == (String, SwiftPatchCodeType) {
                           existingStateVarConnections: [String: [NodeIOCoordinate]],
                           existingNodesDict: [UUID: NodeEntity],
                           viewEvent: SyntaxViewEvent?,
-                          isStreaming: Bool = false) async -> SwiftSyntaxPatchActionsResult {
+                          isStreaming: Bool) async -> SwiftSyntaxPatchActionsResult {
         // Check if any element needs async processing (contains jsRef)
         let hasAsyncOperations = self.contains { (_, code) in
             code.containsJsRef
@@ -1560,9 +1571,9 @@ extension Array where Element == (String, SwiftPatchCodeType) {
 
 extension Array where Element == String {
     /// Derives actions from an array of script strings.
-    func deriveStitchActions(isStreaming: Bool = false) -> SwiftSyntaxLayerActionsResult {
+    func deriveStitchActions(isStreaming: Bool) -> SwiftSyntaxLayerActionsResult {
         let actionsResults = self.flatMap { script in
-            let result = SwiftUIViewVisitor.parseSwiftUICode(script)
+            let result = SwiftUIViewVisitor.parseSwiftUICode(script, isStreaming: isStreaming)
             
             let actionsResults = result.viewStack.compactMap { syntaxView in
                 syntaxView.deriveStitchActions(bindingDeclarations: result.bindingDeclarations, isStreaming: isStreaming)
@@ -1576,17 +1587,17 @@ extension Array where Element == String {
     }
     
     /// Extracts SyntaxView objects from overlay script strings
-    func extractOverlaySyntaxViews() -> [SyntaxView] {
+    func extractOverlaySyntaxViews(isStreaming: Bool) -> [SyntaxView] {
         return self.flatMap { script in
-            let result = SwiftUIViewVisitor.parseSwiftUICode(script, context: .overlayContent)
+            let result = SwiftUIViewVisitor.parseSwiftUICode(script, context: .overlayContent, isStreaming: isStreaming)
             return result.viewStack
         }
     }
     
     /// Extracts SyntaxView objects from background script strings
-    func extractBackgroundSyntaxViews() -> [SyntaxView] {
+    func extractBackgroundSyntaxViews(isStreaming: Bool) -> [SyntaxView] {
         return self.flatMap { script in
-            let result = SwiftUIViewVisitor.parseSwiftUICode(script, context: .overlayContent)
+            let result = SwiftUIViewVisitor.parseSwiftUICode(script, context: .overlayContent, isStreaming: isStreaming)
             return result.viewStack
         }
     }
@@ -1594,7 +1605,7 @@ extension Array where Element == String {
 
 extension SyntaxView {
     func deriveStitchActions(bindingDeclarations: [(String, SwiftParserInitializerType)], 
-                           isStreaming: Bool = false) -> SwiftSyntaxLayerActionsResult? {
+                           isStreaming: Bool) -> SwiftSyntaxLayerActionsResult? {
         // Tracks all silent errors
         var silentErrors = [SwiftUISyntaxError]()
         
@@ -1621,7 +1632,7 @@ extension SyntaxView {
             
             // Add children from closure scripts (overlay { ... } form)
             if hasOverlayClosures {
-                overlayChildren += overlayModifierScripts.extractOverlaySyntaxViews()
+                overlayChildren += overlayModifierScripts.extractOverlaySyntaxViews(isStreaming: isStreaming)
             }
             
             // Add children from function arguments (overlay(View) form)
@@ -1638,7 +1649,7 @@ extension SyntaxView {
             
             // Add children from closure scripts (background { ... } form)
             if hasBackgroundClosures {
-                backgroundChildren += backgroundModifierScripts.extractBackgroundSyntaxViews()
+                backgroundChildren += backgroundModifierScripts.extractBackgroundSyntaxViews(isStreaming: isStreaming)
             }
             
             // Add children from function arguments (background(View) form)
@@ -1682,7 +1693,7 @@ extension SyntaxView {
             }
             
             // Parse script
-            let scriptResult = SwiftUIViewVisitor.parseSwiftUICode(viewBuilderFn)
+            let scriptResult = SwiftUIViewVisitor.parseSwiftUICode(viewBuilderFn, isStreaming: isStreaming)
             let result = scriptResult
                 .viewStack.deriveStitchActions(bindingDeclarations: scriptResult.bindingDeclarations, isStreaming: isStreaming)
             

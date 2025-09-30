@@ -418,7 +418,7 @@ struct ASTExplorerView: View {
         errorString = nil
         silentlyCaughtErrors = []
 
-        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(currentCode)
+        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(currentCode, isStreaming: false)
         
         // Parse code → Syntax
         firstSyntax = codeParserResult.viewStack
@@ -428,11 +428,13 @@ struct ASTExplorerView: View {
             // Syntax → Actions
             let stitchActionsResult = try await codeParserResult.deriveStitchActions(
                 bindingDeclarations: codeParserResult.bindingDeclarations,
-                document: fakeDoc)
+                document: fakeDoc,
+                isStreaming: false)
             
             try await MainActor.run {
                 stitchActionsResult
                     .processAIGraph(document: fakeDoc,
+                                    currentGraphEntity: GraphEntity.createEmpty(),
                                     isStreaming: false)
     
                 stitchActions = stitchActionsResult
@@ -442,7 +444,9 @@ struct ASTExplorerView: View {
                 silentlyCaughtErrors = stitchActionsResult.caughtErrors
                 
                 // Generate SwiftUI code with configurable script wrapper
-                let newSwiftUICode = try fakeDoc.graph.createSwiftUICode(ignoreScript: ignoreScript, usePortValueDescription: usePortValueDescription)
+                let newSwiftUICode = try fakeDoc.graph.createSwiftUICode(ignoreScript: ignoreScript,
+                                                                         usePortValueDescription: usePortValueDescription,
+                                                                         isStreaming: false)
                 self.regeneratedCode = newSwiftUICode
             }
         }

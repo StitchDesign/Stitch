@@ -236,7 +236,8 @@ extension SyntaxViewModifierViewEvent {
         
         // Parse script for determining what populates state
         let parsedData = SwiftUIViewVisitor.parseSwiftUICode(onChangeHandler.script,
-                                                             willParseView: false)
+                                                             willParseView: false,
+                                                             isStreaming: isStreaming)
         
         var actionsResult: [(String, SwiftPatchCodeType)] = []
         
