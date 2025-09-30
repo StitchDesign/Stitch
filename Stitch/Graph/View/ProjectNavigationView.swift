@@ -31,7 +31,6 @@ struct ProjectNavigationView: View {
         // Use a ZStack so SwiftUI can animate insertion/removal with `.transition`
         ZStack {
             graphView
-                .ignoresSafeArea()
                 .transition(.opacity)
                 .id(ProjectTab.patch)   // ← make the views distinct
             
@@ -120,9 +119,22 @@ struct ProjectNavigationView: View {
             
             LayerInspectorView(graph: graph,
                                document: document)
-            .ignoresSafeArea()
+            // Note: we actually want to respect the safe area on iPad OS 26 with LayerInspector
+            .modifier(ConditionalIgnoreSafeAreaModifier())
             .width(Self.iPadSidebarWidth)
         }
     }
 #endif
+}
+
+struct ConditionalIgnoreSafeAreaModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            // On iOS 26+, don't ignore safe area to respect toolbar
+            content
+        } else {
+            // On earlier versions, ignore safe area for the shimmer effect
+            content.ignoresSafeArea()
+        }
+    }
 }

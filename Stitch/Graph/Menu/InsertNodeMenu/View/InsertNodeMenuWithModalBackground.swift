@@ -70,22 +70,28 @@ struct InsertNodeMenuWithModalBackground: View {
                     .shadow(radius: 8, x: 4, y: 2)
                     .animation(.default, value: document.insertNodeMenuState.show)
                     .animation(.default, value: isLoadingAIRequest)
-                    
-                #if targetEnvironment(macCatalyst)
+                
                 // Padding from top, per Figma
                     .offset(y: 24)
-                #else
-                // TODO: why does this differ for Catalyst vs iPad ?
-//                    .offset(y: 48)
-//                    .offset(y: 12)
-                    .offset(y: 8)
-                    .offset(y: document.visibleGraph.graphYPosition)
+                #if !targetEnvironment(macCatalyst)
+                // Note: use to be full y position, not half; changed with different handling of safe areas on iPad OS 26
+                    .offset(y: document.visibleGraph.graphYPosition / 2)
                 #endif
                 
                 // Preserve position when we've collapsed the node menu body because of an active AI request
                 // Alternatively?: use VStack { menu, Spacer }
                     .offset(y: menuYOffset)
             }
+        }
+    }
+}
+
+struct InsertNodeMenuOffsetModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.offset(y: 62)
+        } else {
+            content.offset(y: 8)
         }
     }
 }
