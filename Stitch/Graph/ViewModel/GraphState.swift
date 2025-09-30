@@ -640,9 +640,9 @@ extension GraphState {
         
         // Determines if graph data needs updating
         // This triggers a view event, which is redundant for AI streaming
-        if !fromAIStream {
+//        if !fromAIStream {
             self.documentDelegate?.refreshGraphUpdaterId()
-        }
+//        }
     }
     
     @MainActor

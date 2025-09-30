@@ -192,6 +192,9 @@ extension GraphState {
             node.checkARTransformUpdate(self)
         }
         
+        // NOTE: RESOLVES GRAPH-FLOW ISSUE DURING STREAMING, but why was graph not properly flowing after streaming anyway?
+        self.runGraphAndUpdateUI(from: self.nodes.keys.toSet)
+        
         if nodesToRunOnGraphStep.isEmpty {
             /*
              Usually we can return `nil` if there were no must run nodes
@@ -226,7 +229,8 @@ extension GraphState {
         
         self.portsToUpdate = self.portsToUpdate.union(portsToUpdate)
         
-        if shouldResortPreviewLayers {
+//        if shouldResortPreviewLayers {
+        if true {
             self.updateOrderedPreviewLayers(activeIndex: document.activeIndex)
             self.shouldResortPreviewLayers = false
         }
