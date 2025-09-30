@@ -317,10 +317,20 @@ extension GraphState {
         // Update labels for group nodes
         self.updateGroupPortLabelsCache()
         
-        // Update visible canvas items
-        self.cachedCanvasItemsAtThisTraversalLevel = self.getCanvasItemsAtTraversalLevel(
-            groupNodeFocused: focusedGroupNode)
         
+        if shouldAnimateForStreaming {
+            // Needed so that nodes fade-in during streaming
+            // TODO: why don't nodes fade out?
+            withAnimation(.linear(duration: STREAMING_ANIMATION_SPEED)) {
+                // Update visible canvas items
+                self.cachedCanvasItemsAtThisTraversalLevel = self.getCanvasItemsAtTraversalLevel(
+                    groupNodeFocused: focusedGroupNode)
+            }
+        } else {
+            // Update visible canvas items
+            self.cachedCanvasItemsAtThisTraversalLevel = self.getCanvasItemsAtTraversalLevel(
+                groupNodeFocused: focusedGroupNode)
+        }
     }
 
     @MainActor
