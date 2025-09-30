@@ -487,7 +487,9 @@ extension GraphEntity {
     ///
     /// - Parameter inProgressGraph: The newly parsed/streamed graph snapshot.
     /// - Returns: A new `GraphEntity` with nodes replaced/added based on matches.
-    func mergeWithStreamedGraph(_ inProgressGraph: GraphEntity) -> GraphEntity {
+    func mergeWithStreamedGraph(_ inProgressGraph: GraphEntity,
+                                lastStreamedLayerId: UUID?,
+                                isLayerStreamingComplete: Bool) -> GraphEntity {
         var merged = self
         
         // Fast lookup of existing nodes by id
@@ -514,12 +516,22 @@ extension GraphEntity {
         // key: streamed id, value: current id (we convert everything to current graph data)
         var changedNodeIds = [UUID: UUID]()
         
-        // Skip last node in case not yet parsed
-        let nodesWithCompleteInfo = inProgressGraph.nodes.dropLast()
+        // Reuse existing node if data incomplete
+        let useStreamedNode = { (current: NodeEntity, streamed: NodeEntity) -> Bool in
+            let streamedNodeMatchesIncompleteLayer = streamed.id == lastStreamedLayerId
+            
+            // Only use current data when layer streaming is incomplete and not last node
+            let useCurrent = !isLayerStreamingComplete && !streamedNodeMatchesIncompleteLayer
+            let node = useCurrent ? current : streamed
+            
+            log("mergeWithStreamedGraph useCurrent: \(useCurrent)\tid: \(node.id)\t kind: \(node.kind)\t layer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")")
+            return !useCurrent
+        }
         
-        for streamed in nodesWithCompleteInfo {
+        for streamed in inProgressGraph.nodes {
             // 1) Exact id match: replace directly
-            if existingNodesMap[streamed.id] != nil {
+            if let existing = existingNodesMap[streamed.id],
+               useStreamedNode(existing, streamed) {
                 newNodesMap[streamed.id] = streamed
                 claimedExistingIds.insert(streamed.id)
                 
@@ -552,15 +564,20 @@ extension GraphEntity {
             
             // 3) Apply threshold and either replace matched node or add as new
             let threshold = 40
-            if let matchedId = bestId, bestScore >= threshold {
+            if let matchedId = bestId,
+                bestScore >= threshold,
+               let existing = existingNodesMap[matchedId] {
                 // We choose to retain IDs already existing rather use the new ID so that update methods can continue to be used.
                 changedNodeIds.updateValue(matchedId, forKey: streamed.id)
                 
                 let newStreamed = NodeEntity(id: matchedId,
                                              nodeTypeEntity: streamed.nodeTypeEntity,
                                              title: streamed.title)
-                newNodesMap[matchedId] = newStreamed
-                claimedExistingIds.insert(matchedId)
+                
+                if useStreamedNode(existing, newStreamed) {
+                    newNodesMap[matchedId] = newStreamed
+                    claimedExistingIds.insert(matchedId)
+                }
             } else {
                 // New node — append as-is
                 newNodesMap[streamed.id] = streamed
@@ -577,6 +594,11 @@ extension GraphEntity {
         }
         
         merged.nodes = Array(resultMap.values)
+        
+        let stringLog = merged.nodes.reduce(into: "mergeWithStreamedGraph: new nodes:") { stringBuilder, node in
+            stringBuilder += "\n\(node.id):\tkind: \(node.kind)\tlayer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")"
+        }
+        log(stringLog)
         
         // Update all node references within the graph to use the new IDs
         //        merged = merged.replaceNodeIdReference(idMap: changedNodeIds)
