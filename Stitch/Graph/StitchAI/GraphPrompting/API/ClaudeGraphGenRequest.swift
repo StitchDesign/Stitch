@@ -10,29 +10,21 @@ import SwiftUI
 final actor ClaudeStreamingActor {
     // MARK: - Simple Task Throttling
 
-    private var pendingGraphUpdate: GraphEntity?
     private var updateTask: Task<Void, Never>?
 
     /// Simple task-based throttling: if a task is running, just update the pending data
     /// Uses actor isolation to naturally handle concurrent access
     func updateGraphData(document: StitchDocumentViewModel,
                          mergedGraphEntity: GraphEntity) {
-        // Always store the latest graph update
-        pendingGraphUpdate = mergedGraphEntity
-
         // If task already running, just return (latest data stored above)
         guard updateTask == nil else { return }
 
         // Create new task since none running
         updateTask = Task(priority: .high) { [weak self, weak document] in
-            // Get the latest pending update from actor
-            let latestGraphEntity = await self?.getPendingGraphUpdate()
-            guard let latestGraphEntity = latestGraphEntity else { return }
-
             // Perform actual update on main actor
             await MainActor.run { [weak document] in
                 guard let document = document else { return }
-                document.graph.update(from: latestGraphEntity,
+                document.graph.update(from: mergedGraphEntity,
                                       fromAIStream: true)
                 document.graph.updateGraphData(document)
             }
@@ -42,15 +34,9 @@ final actor ClaudeStreamingActor {
         }
     }
 
-    /// Get the latest pending graph update (actor-isolated)
-    private func getPendingGraphUpdate() -> GraphEntity? {
-        return pendingGraphUpdate
-    }
-
     /// Clear the task when completed (actor-isolated)
     private func clearTask() {
         updateTask = nil
-        pendingGraphUpdate = nil
     }
     
     /// Make a request to Claude's Messages endpoint
