@@ -32,7 +32,8 @@ final actor ClaudeStreamingActor {
             // Perform actual update on main actor
             await MainActor.run { [weak document] in
                 guard let document = document else { return }
-                document.graph.update(from: latestGraphEntity)
+                document.graph.update(from: latestGraphEntity,
+                                      fromAIStream: true)
                 document.graph.updateGraphData(document)
             }
 
