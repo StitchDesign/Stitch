@@ -499,12 +499,12 @@ extension GraphEntity {
         
         // Track existing nodes by coarse keys to reduce candidate set for matching
         // Also partition by kind for a broader fallback
-        var indexByKey = [String: [NodeEntity]]()
+//        var indexByKey = [String: [NodeEntity]]()
         
-        for node in merged.nodes {
-            let key = coarseMatchKey(for: node)
-            indexByKey[key, default: []].append(node)
-        }
+//        for node in merged.nodes {
+//            let key = coarseMatchKey(for: node)
+//            indexByKey[key, default: []].append(node)
+//        }
         
         // Tracks which existing node ids have already been matched to avoid duplicates
         var claimedExistingIds = Set<UUID>()
@@ -542,8 +542,8 @@ extension GraphEntity {
             }
             
             // 2) Coarse candidate selection using indexed keys
-            let key = coarseMatchKey(for: streamed)
-            let primaryCandidates = indexByKey[key] ?? []
+//            let key = coarseMatchKey(for: streamed)
+//            let primaryCandidates = indexByKey[key] ?? []
             
             // Prefer the tighter candidate set first
             var bestScore = Int.min
@@ -560,7 +560,7 @@ extension GraphEntity {
                 }
             }
             
-            consider(primaryCandidates)
+            consider(self.nodes)
             
             // 3) Apply threshold and either replace matched node or add as new
             let threshold = 40
@@ -593,17 +593,26 @@ extension GraphEntity {
             resultMap[id] = node
         }
         
-        merged.nodes = Array(resultMap.values)
-        
-        let stringLog = merged.nodes.reduce(into: "mergeWithStreamedGraph: new nodes:") { stringBuilder, node in
-            stringBuilder += "\n\(node.id):\tkind: \(node.kind)\tlayer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")"
+        // Update changed node IDs to include existing nodes not yet tracked by streamed nodes
+        // This ensures `createCopy` will use a real ID instead of nil for some parent groups
+        existingNodesMap.keys.forEach { nodeId in
+            if !changedNodeIds.keys.contains(nodeId) {
+                changedNodeIds.updateValue(nodeId, forKey: nodeId)
+            }
         }
-        log(stringLog)
+        
+        merged.nodes = Array(resultMap.values)
         
         // Update all node references within the graph to use the new IDs
         //        merged = merged.replaceNodeIdReference(idMap: changedNodeIds)
         merged.nodes = merged.nodes.createCopy(mappableData: changedNodeIds,
                                                copiedNodeIds: .init())
+        log("mergeWithStreamedGraph changed node ids: \(changedNodeIds)")
+        
+        let stringLog = merged.nodes.reduce(into: "mergeWithStreamedGraph: new nodes:") { stringBuilder, node in
+            stringBuilder += "\n\(node.id):\tkind: \(node.kind)\tlayer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")"
+        }
+        log(stringLog)
         
         // Infer sidebar data from list of ordered nodes
         merged.orderedSidebarLayers = merged.nodes
@@ -617,76 +626,76 @@ extension GraphEntity {
         return merged
     }
     
-    /// Builds a coarse key to quickly narrow down matching candidates.
-    /// The key considers node kind, a type identifier, parent group, and a coarse position bucket.
-    private func coarseMatchKey(for node: NodeEntity) -> String {
-        switch node.nodeTypeEntity {
-        case .patch(let p):
-            let patchId = String(describing: p.patch)
-            let group = p.canvasEntity.parentGroupNodeId?.uuidString ?? "nil"
-            let inputs = p.inputs.count
-            let b = positionBucket(p.canvasEntity.position)
-            return "patch|\(patchId)|g:\(group)|i:\(inputs)|b:\(b.x)_\(b.y)"
-            
-        case .layer(let l):
-            let layerId = String(describing: l.layer)
-            let group = l.layerGroupId?.uuidString ?? "nil"
-            return "layer|\(layerId)|g:\(group)"
-            
-        case .component(let c):
-            let comp = c.componentId.uuidString
-            let group = c.canvasEntity.parentGroupNodeId?.uuidString ?? "nil"
-            let b = positionBucket(c.canvasEntity.position)
-            return "component|\(comp)|g:\(group)|b:\(b.x)_\(b.y)"
-            
-        case .group(let g):
-            let group = g.parentGroupNodeId?.uuidString ?? "nil"
-            let b = positionBucket(g.position)
-            return "group|g:\(group)|b:\(b.x)_\(b.y)"
-        }
-    }
+//    /// Builds a coarse key to quickly narrow down matching candidates.
+//    /// The key considers node kind, a type identifier, parent group, and a coarse position bucket.
+//    private func coarseMatchKey(for node: NodeEntity) -> String {
+//        switch node.nodeTypeEntity {
+//        case .patch(let p):
+//            let patchId = String(describing: p.patch)
+//            let group = p.canvasEntity.parentGroupNodeId?.uuidString ?? "nil"
+//            let inputs = p.inputs.count
+//            let b = positionBucket(p.canvasEntity.position)
+//            return "patch|\(patchId)|g:\(group)|i:\(inputs)|b:\(b.x)_\(b.y)"
+//            
+//        case .layer(let l):
+//            let layerId = String(describing: l.layer)
+//            let group = l.layerGroupId?.uuidString ?? "nil"
+//            return "layer|\(layerId)|g:\(group)"
+//            
+//        case .component(let c):
+//            let comp = c.componentId.uuidString
+//            let group = c.canvasEntity.parentGroupNodeId?.uuidString ?? "nil"
+//            let b = positionBucket(c.canvasEntity.position)
+//            return "component|\(comp)|g:\(group)|b:\(b.x)_\(b.y)"
+//            
+//        case .group(let g):
+//            let group = g.parentGroupNodeId?.uuidString ?? "nil"
+//            let b = positionBucket(g.position)
+//            return "group|g:\(group)|b:\(b.x)_\(b.y)"
+//        }
+//    }
+//    
+//    /// Coarse position bucketing to avoid expensive global proximity checks during indexing.
+//    private func positionBucket(_ p: CGPoint, size: CGFloat = 80) -> (x: Int, y: Int) {
+//        let bx = Int(floor(p.x / size))
+//        let by = Int(floor(p.y / size))
+//        return (bx, by)
+//    }
     
-    /// Coarse position bucketing to avoid expensive global proximity checks during indexing.
-    private func positionBucket(_ p: CGPoint, size: CGFloat = 80) -> (x: Int, y: Int) {
-        let bx = Int(floor(p.x / size))
-        let by = Int(floor(p.y / size))
-        return (bx, by)
-    }
-    
-    /// Attempts to find an existing node id that best matches the incoming node.
-    /// Returns `nil` if no sufficiently good match is found.
-    ///
-    /// - Parameters:
-    ///   - incoming: The newly parsed node to match.
-    ///   - alreadyMatched: A set of existing node ids already claimed by other matches.
-    /// - Returns: The id of the best-matching existing node, if any.
-    func matchExistingNodeId(for incoming: NodeEntity,
-                             incomingIndex: Int,
-                             excluding alreadyMatched: Set<UUID> = []) -> UUID? {
-        // Quick exit: if any existing node shares the same id (should have been caught above)
-        if self.nodes.contains(where: { $0.id == incoming.id }) {
-            return incoming.id
-        }
-        
-        // Score all candidates that are not already matched
-        var bestScore = Int.min
-        var bestId: UUID?
-        
-        for (index, existing) in self.nodes.enumerated() where !alreadyMatched.contains(existing.id) {
-            let score = similarityScore(between: .init(index: incomingIndex,
-                                                       node: incoming),
-                                        and: .init(index: index,
-                                                   node: existing))
-            if score > bestScore {
-                bestScore = score
-                bestId = existing.id
-            }
-        }
-        
-        // Require a minimum score to avoid spurious matches
-        let threshold = 40
-        return bestScore >= threshold ? bestId : nil
-    }
+//    /// Attempts to find an existing node id that best matches the incoming node.
+//    /// Returns `nil` if no sufficiently good match is found.
+//    ///
+//    /// - Parameters:
+//    ///   - incoming: The newly parsed node to match.
+//    ///   - alreadyMatched: A set of existing node ids already claimed by other matches.
+//    /// - Returns: The id of the best-matching existing node, if any.
+//    func matchExistingNodeId(for incoming: NodeEntity,
+//                             incomingIndex: Int,
+//                             excluding alreadyMatched: Set<UUID> = []) -> UUID? {
+//        // Quick exit: if any existing node shares the same id (should have been caught above)
+//        if self.nodes.contains(where: { $0.id == incoming.id }) {
+//            return incoming.id
+//        }
+//        
+//        // Score all candidates that are not already matched
+//        var bestScore = Int.min
+//        var bestId: UUID?
+//        
+//        for (index, existing) in self.nodes.enumerated() where !alreadyMatched.contains(existing.id) {
+//            let score = similarityScore(between: .init(index: incomingIndex,
+//                                                       node: incoming),
+//                                        and: .init(index: index,
+//                                                   node: existing))
+//            if score > bestScore {
+//                bestScore = score
+//                bestId = existing.id
+//            }
+//        }
+//        
+//        // Require a minimum score to avoid spurious matches
+//        let threshold = 40
+//        return bestScore >= threshold ? bestId : nil
+//    }
     
     // MARK: - Similarity Heuristics
     
