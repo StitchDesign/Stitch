@@ -103,49 +103,31 @@ extension SwiftSyntaxActionsResult {
     func processAIGraph(document: StitchDocumentViewModel,
                         currentGraphEntity: GraphEntity,
                         isStreaming: Bool) {
-//<<<<<<< HEAD
-        let result = self.createAIGraph(from: currentGraphEntity,
-                                        docId: document.graph.id.value,
-                                        viewPortCenter: document.viewPortCenter,
-                                        groupNodeFocused: document.groupNodeFocused?.groupNodeId,
-                                        isStreaming: isStreaming)
-        
-        // Update topological data--needs to be forced here because of script building using this data
-        document.graph.update(from: result.graph)
-        document.graph.updateGraphData(document)
-        
-        // Report errors
-        if !isStreaming {
-            result.errors.displayErrors(document: document)
-//=======
 
-//        let processLogic = {
-//            let result = self.createAIGraph(docId: document.graph.id.value,
-//                                            viewPortCenter: document.viewPortCenter,
-//                                            groupNodeFocused: document.groupNodeFocused?.groupNodeId,
-//                                            isStreaming: isStreaming)
-//
-//            // Update topological data--needs to be forced here because of script building using this data
-//            document.graph.update(from: result.graph)
-//            document.graph.updateGraphData(document)
-//
-//            // Report errors
-//            if !isStreaming {
-//                result.errors.displayErrors(document: document)
-//            }
-//>>>>>>> 8b4be3e20 (Animate nodes during AI streaming (#1706))
+        let processLogic = {
+            let result = self.createAIGraph(from: currentGraphEntity,
+                                            docId: document.graph.id.value,
+                                            viewPortCenter: document.viewPortCenter,
+                                            groupNodeFocused: document.groupNodeFocused?.groupNodeId,
+                                            isStreaming: isStreaming)
+            
+            // Update topological data--needs to be forced here because of script building using this data
+            document.graph.update(from: result.graph)
+            document.graph.updateGraphData(document)
+            
+            // Report errors
+            if !isStreaming {
+                result.errors.displayErrors(document: document)
+            }
         }
-
-//        processLogic()
         
-//        if isStreaming {
-//            withAnimation(.linear(duration: STREAMING_ANIMATION_SPEED)) {
-//                processLogic()
-//            }
-//        } else {
-//            processLogic()
-//        }
-        
+        if isStreaming {
+            withAnimation(.linear(duration: STREAMING_ANIMATION_SPEED)) {
+                processLogic()
+            }
+        } else {
+            processLogic()
+        }
     }
     
     func createAIGraph(from currentGraphEntity: GraphEntity,
