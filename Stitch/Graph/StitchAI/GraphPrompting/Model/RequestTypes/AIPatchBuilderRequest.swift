@@ -26,40 +26,68 @@ struct AIPatchBuilderFunctionInputsSchema: Encodable {
 
 extension Array where Element == AIGraphData_V0.LayerData {
     func createLayerNodes(layerGroupId: UUID?,
-                          nodesDict: inout [UUID: NodeEntity],
-                          stateVarConnections: inout [String: [NodeIOCoordinate]],
-                          isStreaming: Bool) {
-        self.forEach { layerData in
+                          nodesDict: [UUID: NodeEntity],
+                          stateVarConnections: [String: [NodeIOCoordinate]],
+                          isStreaming: Bool) -> (nodes: [UUID: NodeEntity], stateVars: [String: [NodeIOCoordinate]]) {
+        // Create defensive copy to avoid concurrent modification during streaming
+        let layerDataCopy = Array(self)
+
+        // Work with local mutable copies instead of inout parameters
+        var localNodesDict = nodesDict
+        var localStateVarConnections = stateVarConnections
+
+        for layerData in layerDataCopy {
             guard let layer = layerData.node_name.value.layer else {
                 if !isStreaming {
                     fatalErrorIfDebug()
                 }
-                return
+                continue
             }
-            
+
             let layerNodeEntity = layer
                 .createDefaultLayerNodeEntity(nodeId: UUID(layerData.node_id) ?? UUID(),
                                               layerGroupId: layerGroupId)
-            
+
             let nodeEntity = NodeEntity(id: layerNodeEntity.id,
                                         nodeTypeEntity: .layer(layerNodeEntity),
                                         title: layerData.suggested_title ?? "")
-            
-            nodesDict.updateValue(nodeEntity,
-                                  forKey: layerNodeEntity.id)
 
-            layerData.custom_layer_input_values.forEach { portDerivation in
+            localNodesDict.updateValue(nodeEntity,
+                                       forKey: layerNodeEntity.id)
+
+            // Create defensive copy of input values to prevent concurrent modification crashes
+            streamingLog("🔵 LAYER: About to access custom_layer_input_values, count: \(layerData.custom_layer_input_values.count)")
+            let customInputValues: [LayerPortDerivation] = layerData.custom_layer_input_values.map { $0 }
+            streamingLog("🔵 LAYER: Created customInputValues copy, count: \(customInputValues.count)")
+
+            for (index, portDerivation) in customInputValues.enumerated() {
+                streamingLog("🔵 LAYER: Processing portDerivation [\(index)/\(customInputValues.count)]")
+                streamingLog("🔵 LAYER: About to access portDerivation.coordinate")
                 let coordinate = portDerivation.coordinate
-                
-                portDerivation.inputData.forEach { inputData in
+                streamingLog("🔵 LAYER: Got coordinate, about to access inputData")
+
+                // Create defensive copy of input data
+                let inputDataCopy: [PatchSyntaxResultType] = portDerivation.inputData.map { $0 }
+                streamingLog("🔵 LAYER: Created inputDataCopy, count: \(inputDataCopy.count)")
+
+                for inputData in inputDataCopy {
                     do {
                         // Parse actions at this input, which may include patch data in the event of view events
-                        try nodesDict.updateWithEventData(inputData,
-                                                          layerInputCoordinate: .init(portType: .keyPath(coordinate),
-                                                                                      nodeId: layerNodeEntity.id),
-                                                          varName: nil,
-                                                          stateVarConnections: &stateVarConnections,
-                                                          isStreaming: isStreaming)
+                        // Use local copies to avoid inout parameter issues
+                        var tempNodesDict = localNodesDict
+                        var tempStateVarConnections = localStateVarConnections
+
+                        try tempNodesDict.updateWithEventData(
+                            inputData,
+                            layerInputCoordinate: .init(portType: .keyPath(coordinate),
+                                                        nodeId: layerNodeEntity.id),
+                            varName : nil,
+                            stateVarConnections: &tempStateVarConnections,
+                            isStreaming: isStreaming)
+
+                        // Update the local variables after successful mutation
+                        localNodesDict = tempNodesDict
+                        localStateVarConnections = tempStateVarConnections
                     } catch {
                         if !isStreaming {
                             // TODO: need to handle errors silently
@@ -68,16 +96,21 @@ extension Array where Element == AIGraphData_V0.LayerData {
                     }
                 }
             }
-            
-            
+
+
             if let children = layerData.children {
-                children
+                let (updatedNodes, updatedStateVars) = children
                     .createLayerNodes(layerGroupId: layerNodeEntity.id,
-                                      nodesDict: &nodesDict,
-                                      stateVarConnections: &stateVarConnections,
+                                      nodesDict: localNodesDict,
+                                      stateVarConnections: localStateVarConnections,
                                       isStreaming: isStreaming)
+
+                localNodesDict = updatedNodes
+                localStateVarConnections = updatedStateVars
             }
         }
+
+        return (nodes: localNodesDict, stateVars: localStateVarConnections)
     }
 }
 
@@ -150,12 +183,18 @@ extension SwiftSyntaxActionsResult {
         }
 
         // create nested layer nodes in graph
-        self.graphData.layer_data_list
-            .createLayerNodes(layerGroupId: nil,
-                              nodesDict: &nodesDict,
-                              stateVarConnections: &viewStatePatchConnections,
-                              isStreaming: isStreaming)
-        
+        // Guard against nil/invalid data during streaming
+        if !self.graphData.layer_data_list.isEmpty {
+            let (updatedNodes, updatedStateVars) = self.graphData.layer_data_list
+                .createLayerNodes(layerGroupId: nil,
+                                  nodesDict: nodesDict,
+                                  stateVarConnections: viewStatePatchConnections,
+                                  isStreaming: isStreaming)
+
+            nodesDict = updatedNodes
+            viewStatePatchConnections = updatedStateVars
+        }
+
         graphEntity.nodes = Array(nodesDict.values)
         
         // Create nested sidebar layer data

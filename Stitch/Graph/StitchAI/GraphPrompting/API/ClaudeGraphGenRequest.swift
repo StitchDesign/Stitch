@@ -7,10 +7,18 @@
 
 import SwiftUI
 
+// MARK: - Debug Logging
+
+func streamingLog(_ message: String) {
+    let threadId = pthread_mach_thread_np(pthread_self())
+    let timestamp = Date().timeIntervalSince1970
+    log("🔵 STREAM[T:\(threadId)][⏱:\(String(format: "%.3f", timestamp))] \(message)")
+}
+
 final actor ClaudeStreamingActor {
     // MARK: - Simple Task Throttling
 
-    private var updateTask: Task<Void, Never>?
+    private var updateTask: Task<Void, Error>?
 
     /// Simple task-based throttling: if a task is running, just update the pending data
     /// Uses actor isolation to naturally handle concurrent access
@@ -50,9 +58,12 @@ final actor ClaudeStreamingActor {
         viewPortCenter: CGPoint,
         groupNodeFocused: UUID?
     ) async throws -> String {
-        
+
+        streamingLog("🚀 === makeClaudeStreamingRequest STARTED ===")
+
         log("=== makeClaudeStreamingRequest STARTED ===")
-        
+
+        streamingLog("📝 Making Claude request with model: \(model.rawValue)")
         log("Making Claude request with model: \(model.rawValue)")
         
         guard let claudeAPIKey = StitchStore.claudeAPIKey, !claudeAPIKey.isEmpty else {
@@ -139,55 +150,63 @@ final actor ClaudeStreamingActor {
             log("🔍 Total Claude request body: \(jsonData.count) bytes (\(jsonData.count/1024)KB)")
             log("📤 Using Claude model: \(model.rawValue)")
             
-#if DEV_DEBUG
-            // Log stitch static content stats for cache debugging
-            let stitchTokenEstimate = stitchStaticContent.count / 3 // Rough token estimate
-            log("📚 Stitch static system prompt stats:")
-            log("   → Characters: \(stitchStaticContent.count)")
-            log("   → Estimated tokens: ~\(stitchTokenEstimate)")
-            log("   → Cache eligible: \(stitchTokenEstimate > 1024 ? "✅ YES" : "❌ NO") (>1024 tokens required)")
-            
-            // Log request structure for debugging (without sensitive content)
-            log("🔍 Claude request structure:")
-            log("   → Model: \(model.rawValue)")
-            log("   → Max tokens: \(model.maxTokens) (model-specific limit)")
-            log("   → Stream: \(claudeBody["stream"] ?? false)")
-            log("   → Has thinking: \(claudeBody["thinking"] != nil)")
-            if let systemArray = claudeBody["system"] as? [[String: Any]] {
-                log("   → System components: \(systemArray.count)")
-                for (index, component) in systemArray.enumerated() {
-                    if let text = component["text"] as? String {
-                        let charCount = text.count
-                        let hasCache = component["cache_control"] != nil
-                        log("     Component \(index + 1): \(charCount) chars, cached: \(hasCache)")
-                    }
-                }
-            }
-            if let messages = claudeBody["messages"] as? [[String: Any]] {
-                log("   → Messages: \(messages.count)")
-                for (index, message) in messages.enumerated() {
-                    if let role = message["role"] as? String {
-                        let contentType = message["content"] is String ? "text" : "multipart"
-                        log("     Message \(index + 1): \(role) (\(contentType))")
-                    }
-                }
-            }
-#endif
+//#if DEV_DEBUG
+//            // Log stitch static content stats for cache debugging
+//            let stitchTokenEstimate = stitchStaticContent.count / 3 // Rough token estimate
+//            log("📚 Stitch static system prompt stats:")
+//            log("   → Characters: \(stitchStaticContent.count)")
+//            log("   → Estimated tokens: ~\(stitchTokenEstimate)")
+//            log("   → Cache eligible: \(stitchTokenEstimate > 1024 ? "✅ YES" : "❌ NO") (>1024 tokens required)")
+//            
+//            // Log request structure for debugging (without sensitive content)
+//            log("🔍 Claude request structure:")
+//            log("   → Model: \(model.rawValue)")
+//            log("   → Max tokens: \(model.maxTokens) (model-specific limit)")
+//            log("   → Stream: \(claudeBody["stream"] ?? false)")
+//            log("   → Has thinking: \(claudeBody["thinking"] != nil)")
+//            if let systemArray = claudeBody["system"] as? [[String: Any]] {
+//                log("   → System components: \(systemArray.count)")
+//                for (index, component) in systemArray.enumerated() {
+//                    if let text = component["text"] as? String {
+//                        let charCount = text.count
+//                        let hasCache = component["cache_control"] != nil
+//                        log("     Component \(index + 1): \(charCount) chars, cached: \(hasCache)")
+//                    }
+//                }
+//            }
+//            if let messages = claudeBody["messages"] as? [[String: Any]] {
+//                log("   → Messages: \(messages.count)")
+//                for (index, message) in messages.enumerated() {
+//                    if let role = message["role"] as? String {
+//                        let contentType = message["content"] is String ? "text" : "multipart"
+//                        log("     Message \(index + 1): \(role) (\(contentType))")
+//                    }
+//                }
+//            }
+//#endif
         }
         
         // Track request timing
         let requestStartTime = Date()
-        
+
+        streamingLog("🌐 About to call URLSession.shared.bytes")
+
         do {
             log("=== Starting Claude streaming request ===")
+            streamingLog("🌐 Calling URLSession.shared.bytes...")
             let (asyncBytes, response) = try await URLSession.shared.bytes(for: request)
-            
+            streamingLog("✅ URLSession.shared.bytes returned")
+
             guard let httpResponse = response as? HTTPURLResponse else {
+                streamingLog("❌ No HTTP response")
                 log("Claude request: No HTTP response")
                 throw StitchAIStreamingError.other(URLError(.badServerResponse))
             }
-            
+
+            streamingLog("📡 Got HTTP response with status: \(httpResponse.statusCode)")
+
             guard 200...299 ~= httpResponse.statusCode else {
+                streamingLog("❌ HTTP error status: \(httpResponse.statusCode)")
                 log("Claude streaming request failed with status: \(httpResponse.statusCode)")
                 
                 // Read error response body for detailed error information
@@ -207,23 +226,26 @@ final actor ClaudeStreamingActor {
             }
             
             log("Claude streaming response status: \(httpResponse.statusCode)")
-            
+            streamingLog("✅ HTTP response OK, entering streaming loop")
+
             var accumulatedContent = ""
             var accumulatedThinking = ""
             var totalUsage: ClaudeUsage?
-            
+
             var firstThinkingTime: Date?
             var firstContentTime: Date?
             var lineCount = 0
             var eventCount = 0
-            
+
             // Debug: Track all thinking steps for debugging
             var allThinkingSteps: [String] = []
-            
+
             log("🔄 Starting to process Claude streaming response...")
-            
+            streamingLog("🔄 Starting for-await loop on asyncBytes.lines")
+
             for try await line in asyncBytes.lines {
                 lineCount += 1
+                streamingLog("📨 Received line #\(lineCount)")
                 
                 // Skip empty lines
                 guard !line.isEmpty else {
@@ -253,15 +275,19 @@ final actor ClaudeStreamingActor {
                 
                 eventCount += 1
                 let eventType = json["type"] as? String
+                streamingLog("🎯 Event #\(eventCount): \(eventType ?? "unknown")")
                 //            log("🎯 Event \(eventCount): \(eventType ?? "unknown") - JSON keys: \(json.keys.joined(separator: ", "))")
-                
+
                 switch eventType {
                 case "message_start":
+                    streamingLog("▶️ message_start")
                     log("Claude stream started")
                     
                 case "content_block_start":
+                    streamingLog("📦 content_block_start")
                     if let contentBlock = json["content_block"] as? [String: Any],
                        let type = contentBlock["type"] as? String {
+                        streamingLog("   Block type: \(type)")
                         if type == "thinking" {
                             //                        log("🧠 Claude thinking block started")
                             if firstThinkingTime == nil {
@@ -280,9 +306,12 @@ final actor ClaudeStreamingActor {
                     }
                     
                 case "content_block_delta":
+                    streamingLog("🔄 content_block_delta")
                     if let delta = json["delta"] as? [String: Any] {
+                        streamingLog("   Delta keys: \(delta.keys.joined(separator: ", "))")
                         //                    log("Delta received: \(delta)")
                         if let thinkingText = delta["thinking"] as? String {
+                            streamingLog("   🧠 Thinking text (\(thinkingText.count) chars)")
                             // This is thinking content
                             // log("🧠 Thinking delta received: '\(thinkingText)' (length: \(thinkingText.count))")
                             accumulatedThinking += thinkingText
@@ -298,34 +327,57 @@ final actor ClaudeStreamingActor {
                             // This is regular text content
                             // log("📝 Text delta received: '\(text)' (length: \(text.count))")
                             accumulatedContent += text
-                            print("accumulated text: \n\(accumulatedContent)")
-                            
+                            log("accumulated text: \n\(accumulatedContent)")
+
                             // MARK: code building in-progress graphs is expensive, we delay work so long as no active update task is running
-                            guard self.updateTask == nil else { break }
-                            
-                            let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(accumulatedContent, isStreaming: true)
-                            
-                            // Syntax → Actions
-                            let stitchActionsResult = try codeParserResult.deriveStitchActionsSync(
-                                bindingDeclarations: codeParserResult.bindingDeclarations,
-                                isStreaming: true)
-                            
-                            // Actions -> GraphEntity
-                            let result = stitchActionsResult
-                                .createAIGraph(docId: currentGraphEntity.id,
-                                               viewPortCenter: viewPortCenter,
-                                               groupNodeFocused: groupNodeFocused,
-                                               isStreaming: true)
-                            
-                            let inProgressParsedGraphEntity = result.graph
-                            
-                            // Computes similarity scores with in-progress parsed data to map to existing nodes
-                            let mergedGraphEntity = currentGraphEntity
-                                .mergeWithStreamedGraph(inProgressParsedGraphEntity)
-                            
-                            // Updates graph on main actor
-                            self.updateGraphData(document: document,
-                                                 mergedGraphEntity: mergedGraphEntity)
+//                            guard self.updateTask == nil else { break }
+
+                            streamingLog("📥 Text delta received, checking updateTask...")
+                            if self.updateTask == nil {
+                                streamingLog("✅ updateTask is nil, STARTING PARSE")
+                                self.updateTask = Task<Void, Error> {
+                                    defer {
+                                        streamingLog("🧹 Clearing updateTask")
+                                        self.updateTask = nil
+                                    }
+
+                                    streamingLog("🔄 Starting parseSwiftUICode")
+                                    let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(accumulatedContent, isStreaming: true)
+                                    streamingLog("✅ Parsing completed")
+
+                                    // Syntax → Actions
+                                    streamingLog("🔄 Starting deriveStitchActionsSync")
+                                    let stitchActionsResult = try codeParserResult.deriveStitchActionsSync(
+                                        bindingDeclarations: codeParserResult.bindingDeclarations,
+                                        isStreaming: true)
+                                    streamingLog("✅ deriveStitchActionsSync completed")
+
+                                    // Actions -> GraphEntity
+                                    streamingLog("🔄 Starting createAIGraph")
+                                    let result = stitchActionsResult
+                                        .createAIGraph(docId: currentGraphEntity.id,
+                                                       viewPortCenter: viewPortCenter,
+                                                       groupNodeFocused: groupNodeFocused,
+                                                       isStreaming: true)
+                                    streamingLog("✅ createAIGraph completed")
+
+                                    let inProgressParsedGraphEntity = result.graph
+
+                                    // Computes similarity scores with in-progress parsed data to map to existing nodes
+                                    streamingLog("🔄 Starting mergeWithStreamedGraph")
+                                    let mergedGraphEntity = currentGraphEntity
+                                        .mergeWithStreamedGraph(inProgressParsedGraphEntity)
+                                    streamingLog("✅ mergeWithStreamedGraph completed")
+
+                                    // Updates graph on main actor
+                                    streamingLog("🔄 Calling updateGraphData")
+                                    await self.updateGraphData(document: document,
+                                                               mergedGraphEntity: mergedGraphEntity)
+                                    streamingLog("✅ updateGraphData called")
+                                }
+                            } else {
+                                streamingLog("⏭ updateTask ACTIVE, skipping parse")
+                            }
                             
                             //                        // Clear thinking text once content starts
                             //                        await MainActor.run {
