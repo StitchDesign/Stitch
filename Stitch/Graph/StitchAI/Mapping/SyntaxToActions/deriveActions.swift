@@ -1040,7 +1040,8 @@ extension SwiftPatchCodeType {
             
         default:
             if !isStreaming {
-                fatalErrorIfDebug("Wasn't expected here")
+//                fatalErrorIfDebug("Wasn't expected here")
+                log("Wasn't expected here")
             }
             return []
         }
