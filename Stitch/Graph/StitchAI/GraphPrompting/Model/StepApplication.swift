@@ -445,33 +445,33 @@ extension Array where Element == NodeEntity {
     }
     
     // Infers sidebar data given existing set of nodes
-    func createOrderedSidebarData() -> SidebarLayerList {
-        // First create dictionary of group ID to ordered list of children
-        let layerGroupToChildren = self.reduce(into: [UUID? : [UUID]]()) { result, node in
-            guard let layerNode = node.layerNodeEntity else {
-                return
-            }
-            
-            var existingList = result.get(layerNode.layerGroupId) ?? []
-            existingList.append(node.id)
-            result.updateValue(existingList, forKey: layerNode.layerGroupId)
-        }
-        
-        let rootList = layerGroupToChildren[nil] ?? []
-        return rootList.inferSidebarData(using: layerGroupToChildren)
-    }
+//    func createOrderedSidebarData() -> SidebarLayerList {
+//        // First create dictionary of group ID to ordered list of children
+//        let layerGroupToChildren = self.reduce(into: [UUID? : [UUID]]()) { result, node in
+//            guard let layerNode = node.layerNodeEntity else {
+//                return
+//            }
+//            
+//            var existingList = result.get(layerNode.layerGroupId) ?? []
+//            existingList.append(node.id)
+//            result.updateValue(existingList, forKey: layerNode.layerGroupId)
+//        }
+//        
+//        let rootList = layerGroupToChildren[nil] ?? []
+//        return rootList.inferSidebarData(using: layerGroupToChildren)
+//    }
 }
 
-extension Array where Element == UUID {
-    func inferSidebarData(using layerGroupToChildren: [UUID? : [UUID]]) -> SidebarLayerList {
-        self.map { layerId in
-            // If not a group, return entry
-            guard let groupList = layerGroupToChildren.get(layerId) else {
-                return .init(id: layerId, children: nil)
-            }
-            
-            let children = groupList.inferSidebarData(using: layerGroupToChildren)
-            return .init(id: layerId, children: children)
-        }
-    }
-}
+//extension Array where Element == UUID {
+//    func inferSidebarData(using layerGroupToChildren: [UUID? : [UUID]]) -> SidebarLayerList {
+//        self.map { layerId in
+//            // If not a group, return entry
+//            guard let groupList = layerGroupToChildren.get(layerId) else {
+//                return .init(id: layerId, children: nil)
+//            }
+//            
+//            let children = groupList.inferSidebarData(using: layerGroupToChildren)
+//            return .init(id: layerId, children: children)
+//        }
+//    }
+//}

@@ -317,6 +317,18 @@ extension SidebarLayerList {
             )
         }
     }
+    
+    func createLogMessage(_ str: String = "") -> String {
+        self.reduce(into: str) { stringBuilder, item in
+            stringBuilder += "\n\(item.id.uuidString)"
+            
+            if let children = item.children {
+                let childrenString = children.createLogMessage()
+                    .indentLines()
+                stringBuilder += "\n" + childrenString
+            }
+        }
+    }
 }
 
 extension GraphEntity {
