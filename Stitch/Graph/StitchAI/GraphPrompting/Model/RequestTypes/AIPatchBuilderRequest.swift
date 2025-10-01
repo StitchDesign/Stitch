@@ -26,9 +26,12 @@ struct AIPatchBuilderFunctionInputsSchema: Encodable {
 
 extension Array where Element == AIGraphData_V0.LayerData {
     func createLayerNodes(layerGroupId: UUID?,
-                          nodesDict: inout [UUID: NodeEntity],
-                          stateVarConnections: inout [String: [NodeIOCoordinate]],
-                          isStreaming: Bool) {
+                          nodesDict: [UUID: NodeEntity],
+                          stateVarConnections: [String: [NodeIOCoordinate]],
+                          isStreaming: Bool) -> (nodes: [UUID: NodeEntity], connections: [String: [NodeIOCoordinate]]) {
+
+        var nodesDict = nodesDict
+        var stateVarConnections = stateVarConnections
 
         // MARK: VERY IMPORTANT: DEEPLY NESTED DICTIONARY MUTATIONS WERE CAUSING `EXC_BAD_ACCESS` WITH THE PHONE DIAL DEMO, SO WE NOW GATHER AND APPLY PENDING MUTATIONS AT THE VERY END. See "Phases 1-4".
         // PHASE 1: Collect all layer nodes (no dictionary mutations)
@@ -77,13 +80,16 @@ extension Array where Element == AIGraphData_V0.LayerData {
             for inputData in eventData.events {
                 do {
                     // Parse actions at this input, which may include patch data in the event of view events
-                    try nodesDict.updateWithEventData(
+                    let result = try Dictionary<UUID, NodeEntity>.updateWithEventData(
                         inputData,
+                        nodesDict: nodesDict,
                         layerInputCoordinate: .init(portType: .keyPath(eventData.coordinate),
                                                     nodeId: eventData.layerNodeId),
                         varName: nil,
-                        stateVarConnections: &stateVarConnections,
+                        stateVarConnections: stateVarConnections,
                         isStreaming: isStreaming)
+                    nodesDict = result.nodes
+                    stateVarConnections = result.connections
                 } catch {
                     if !isStreaming {
                         // TODO: need to handle errors silently
@@ -98,13 +104,17 @@ extension Array where Element == AIGraphData_V0.LayerData {
             if let children = layerData.children {
                 guard let layerNodeId = UUID(layerData.node_id) else { continue }
 
-                children.createLayerNodes(
+                let result = children.createLayerNodes(
                     layerGroupId: layerNodeId,
-                    nodesDict: &nodesDict,
-                    stateVarConnections: &stateVarConnections,
+                    nodesDict: nodesDict,
+                    stateVarConnections: stateVarConnections,
                     isStreaming: isStreaming)
+                nodesDict = result.nodes
+                stateVarConnections = result.connections
             }
         }
+
+        return (nodesDict, stateVarConnections)
     }
 }
 
@@ -178,12 +188,14 @@ extension SwiftSyntaxActionsResult {
         }
 
         // create nested layer nodes in graph
-        self.graphData.layer_data_list
+        let layerNodesResult = self.graphData.layer_data_list
             .createLayerNodes(layerGroupId: nil,
-                              nodesDict: &nodesDict,
-                              stateVarConnections: &viewStatePatchConnections,
+                              nodesDict: nodesDict,
+                              stateVarConnections: viewStatePatchConnections,
                               isStreaming: isStreaming)
-        
+        nodesDict = layerNodesResult.nodes
+        viewStatePatchConnections = layerNodesResult.connections
+
         graphEntity.nodes = Array(nodesDict.values)
         
         // Can't build the depth map from the `patch_data`,

@@ -1230,25 +1230,28 @@ extension Dictionary where Key == String, Value == [NodeIOCoordinate] {
 }
 
 extension Dictionary where Key == UUID, Value == NodeEntity {    
-    mutating func updateWithEventData(_ event: PatchSyntaxResultType,
-                                      layerInputCoordinate: NodeIOCoordinate?,
-                                      varName: String?,
-                                      stateVarConnections: inout [String: [NodeIOCoordinate]],
-                                      isStreaming: Bool) throws {
+    static func updateWithEventData(_ event: PatchSyntaxResultType,
+                                    nodesDict: [UUID: NodeEntity],
+                                    layerInputCoordinate: NodeIOCoordinate?,
+                                    varName: String?,
+                                    stateVarConnections: [String: [NodeIOCoordinate]],
+                                    isStreaming: Bool) throws -> (nodes: [UUID: NodeEntity], connections: [String: [NodeIOCoordinate]]) {
+        var nodesDict = nodesDict
+        var stateVarConnections = stateVarConnections
         switch event {
         case .node(let nodeResult):
             // Skip if node already made
-            guard self.get(nodeResult.id) == nil else { return }
-            
+            guard nodesDict.get(nodeResult.id) == nil else { return (nodesDict, stateVarConnections) }
+
             switch nodeResult.kind {
             case .patch(let patch):
                 let nodeEntity = patch
                     .defaultNodeEntity(nodeId: nodeResult.id,
                                        nodeType: nodeResult.nodeType,
-                                       nodesDict: self)
+                                       nodesDict: nodesDict)
 
-                self.updateValue(nodeEntity,
-                                 forKey: nodeEntity.id)
+                nodesDict.updateValue(nodeEntity,
+                                      forKey: nodeEntity.id)
                 
             default:
                 if !isStreaming {
@@ -1263,43 +1266,43 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
                     if !isStreaming {
                         fatalErrorIfDebug()
                     }
-                    return
+                    return (nodesDict, stateVarConnections)
                 }
-                
+
                 // Update state var connections so we know which layer is pointed to by this variable name
                 stateVarConnections.updateValue(upstreamCoordinate,
                                                 forKey: varName)
-                
+
             case .values:
                 break
             }
-            
+
             // Layer data case
             if let layerInputCoordinate = layerInputCoordinate {
                 guard let layerInputType = layerInputCoordinate.keyPath,
-                      var layerNodeEntity = self.get(layerInputCoordinate.nodeId)?.layerNodeEntity else {
+                      var layerNodeEntity = nodesDict.get(layerInputCoordinate.nodeId)?.layerNodeEntity else {
                     if !isStreaming {
                         fatalErrorIfDebug()
                     }
-                    return
+                    return (nodesDict, stateVarConnections)
                 }
-                    
+
                 layerNodeEntity.updateInputData(portData,
                                                 at: layerInputType)
-                self[layerInputCoordinate.nodeId]?.nodeTypeEntity = .layer(layerNodeEntity)
+                nodesDict[layerInputCoordinate.nodeId]?.nodeTypeEntity = .layer(layerNodeEntity)
             }
             
         case .connection(let portEdgeData):
             // Update already created node with an upstream connection
-            guard var toNode = self.get(portEdgeData.to.nodeId) else {
+            guard var toNode = nodesDict.get(portEdgeData.to.nodeId) else {
                 if !isStreaming {
                     fatalErrorIfDebug()
                 }
-                return
+                return (nodesDict, stateVarConnections)
             }
-            
+
             let updatedPort = NodeConnectionType.upstreamConnection(portEdgeData.from)
-            
+
             switch toNode.nodeTypeEntity {
             case .patch(var patchNode):
                 guard let inputPortIndex = portEdgeData.to.portId,
@@ -1307,31 +1310,31 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
                     if !isStreaming {
                         fatalErrorIfDebug()
                     }
-                    return
+                    return (nodesDict, stateVarConnections)
                 }
-                
+
                 patchNode.inputs[inputPortIndex].portData = updatedPort
                 toNode.nodeTypeEntity = .patch(patchNode)
-                
+
             case .layer(var layerNode):
                 guard let keyPath = portEdgeData.to.keyPath else {
                     if !isStreaming {
                         fatalErrorIfDebug()
                     }
-                    return
+                    return (nodesDict, stateVarConnections)
                 }
-                
+
                 layerNode.updateInputData(updatedPort, at: keyPath)
                 toNode.nodeTypeEntity = .layer(layerNode)
-                
+
             default:
                 if !isStreaming {
                     fatalErrorIfDebug()
                 }
-                return
+                return (nodesDict, stateVarConnections)
             }
-            
-            self.updateValue(toNode, forKey: toNode.id)
+
+            nodesDict.updateValue(toNode, forKey: toNode.id)
         
         case .connectionToLayerInput(let stateName):
             // Get upstream patch data from variable name
@@ -1340,78 +1343,83 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
                   let layerInputCoordinate = layerInputCoordinate else {
                 throw SwiftUISyntaxError.unexpectedUpstreamLayerCoordinate
             }
-            
+
             // Multiple upstream coordinates means an unpacking scenario
             if upstreamPatchCoordinates.count > 1 {
-                try upstreamPatchCoordinates.enumerated().forEach { index, upstreamPatchCoordinate in
+                for (index, upstreamPatchCoordinate) in upstreamPatchCoordinates.enumerated() {
                     var layerInputCoordinate = layerInputCoordinate
                     guard let unapckedPortType = UnpackedPortType(rawValue: index),
                           var layerKeyPath = layerInputCoordinate.keyPath else {
                         if !isStreaming {
                             fatalErrorIfDebug()
                         }
-                        return
+                        return (nodesDict, stateVarConnections)
                     }
-                    
+
                     layerKeyPath.portType = .unpacked(unapckedPortType)
                     layerInputCoordinate = .init(portType: .keyPath(layerKeyPath),
                                                  nodeId: layerInputCoordinate.nodeId)
-                    
+
                     // Recursively call with extrapolated upstream patch data
                     let event = PatchSyntaxResultType.connection(.init(from: upstreamPatchCoordinate,
                                                                        to: layerInputCoordinate))
-                    return try self
-                        .updateWithEventData(event,
-                                             layerInputCoordinate: layerInputCoordinate,
-                                             varName: stateName,
-                                             stateVarConnections: &stateVarConnections,
-                                             isStreaming: isStreaming)
+                    let result = try Self.updateWithEventData(
+                        event,
+                        nodesDict: nodesDict,
+                        layerInputCoordinate: layerInputCoordinate,
+                        varName: stateName,
+                        stateVarConnections: stateVarConnections,
+                        isStreaming: isStreaming)
+                    nodesDict = result.nodes
+                    stateVarConnections = result.connections
                 }
+                return (nodesDict, stateVarConnections)
             }
-            
+
             // Packed scenario
             else {
                 guard let upstreamPatchCoordinate = upstreamPatchCoordinates.first else {
                     if !isStreaming {
                         fatalErrorIfDebug()
                     }
-                    return
+                    return (nodesDict, stateVarConnections)
                 }
-                
+
                 // Recursively call with extrapolated upstream patch data
                 let event = PatchSyntaxResultType.connection(.init(from: upstreamPatchCoordinate,
                                                                    to: layerInputCoordinate))
-                return try self
-                    .updateWithEventData(event,
-                                         layerInputCoordinate: layerInputCoordinate,
-                                         varName: stateName,
-                                         stateVarConnections: &stateVarConnections,
-                                         isStreaming: isStreaming)
+                return try Self.updateWithEventData(
+                    event,
+                    nodesDict: nodesDict,
+                    layerInputCoordinate: layerInputCoordinate,
+                    varName: stateName,
+                    stateVarConnections: stateVarConnections,
+                    isStreaming: isStreaming)
             }
             
         case .portValues(let data):
-            guard var nodeEntity = self.get(data.inputCoordinate.nodeId) else {
+            guard var nodeEntity = nodesDict.get(data.inputCoordinate.nodeId) else {
                 if !isStreaming {
                     fatalErrorIfDebug()
                 }
-                return
+                return (nodesDict, stateVarConnections)
             }
-            
+
             nodeEntity.updateInputData(.values(data.values),
                                        at: data.inputCoordinate,
-                                       nodesDict: self,
+                                       nodesDict: nodesDict,
                                        isStreaming: isStreaming)
-            self.updateValue(nodeEntity, forKey: nodeEntity.id)
+            nodesDict.updateValue(nodeEntity, forKey: nodeEntity.id)
             
         case .jsSettings(let data):
-            guard var nodeEntity = self.get(data.id),
+            guard var nodeEntity = nodesDict.get(data.id),
                   let patchNode = nodeEntity.patchNodeEntity else {
                 if !isStreaming {
                     fatalErrorIfDebug()
                 }
-                return
+                return (nodesDict, stateVarConnections)
             }
-            
+
             let newPatchNode = PatchNodeEntity(id: patchNode.id,
                                                patch: patchNode.patch,
                                                inputs: patchNode.inputs,
@@ -1420,13 +1428,15 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
                                                splitterNode: patchNode.splitterNode,
                                                mathExpression: patchNode.mathExpression,
                                                javaScriptNodeSettings: data.settings)
-                
+
             nodeEntity.nodeTypeEntity = .patch(newPatchNode)
-            self.updateValue(nodeEntity, forKey: nodeEntity.id)
-        
+            nodesDict.updateValue(nodeEntity, forKey: nodeEntity.id)
+
         case .stateWrite(let varName, let upstreamOutputCoordinate):
             stateVarConnections.updateValue(upstreamOutputCoordinate, forKey: varName)
         }
+
+        return (nodesDict, stateVarConnections)
     }
 }
 
@@ -1466,11 +1476,15 @@ extension Array where Element == (String, SwiftPatchCodeType) {
                 
                 for event in events {
                     do {
-                        try nodesDict.updateWithEventData(event,
-                                                          layerInputCoordinate: nil,
-                                                          varName: varName,
-                                                          stateVarConnections: &stateVarConnections,
-                                                          isStreaming: isStreaming)
+                        let result = try Dictionary<UUID, NodeEntity>.updateWithEventData(
+                            event,
+                            nodesDict: nodesDict,
+                            layerInputCoordinate: nil,
+                            varName: varName,
+                            stateVarConnections: stateVarConnections,
+                            isStreaming: isStreaming)
+                        nodesDict = result.nodes
+                        stateVarConnections = result.connections
                     } catch let error as SwiftUISyntaxError {
                         caughtErrors.append(error)
                     } catch {
@@ -1545,13 +1559,17 @@ extension Array where Element == (String, SwiftPatchCodeType) {
                     existingStateVarConnections: mergedStateVarConnections,
                     nodesDict: mergedNodesDict,
                     isStreaming: isStreaming)
-                
+
                 for event in events {
-                    try nodesDict.updateWithEventData(event,
-                                                      layerInputCoordinate: nil,
-                                                      varName: varName,
-                                                      stateVarConnections: &stateVarConnections,
-                                                      isStreaming: isStreaming)
+                    let result = try Dictionary<UUID, NodeEntity>.updateWithEventData(
+                        event,
+                        nodesDict: nodesDict,
+                        layerInputCoordinate: nil,
+                        varName: varName,
+                        stateVarConnections: stateVarConnections,
+                        isStreaming: isStreaming)
+                    nodesDict = result.nodes
+                    stateVarConnections = result.connections
                 }
 
             } catch let error as SwiftUISyntaxError {
