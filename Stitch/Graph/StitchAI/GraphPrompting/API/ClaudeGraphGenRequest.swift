@@ -15,7 +15,10 @@ final actor ClaudeStreamingActor {
     /// Simple task-based throttling: if a task is running, just update the pending data
     /// Uses actor isolation to naturally handle concurrent access
     func updateGraphData(document: StitchDocumentViewModel,
-                         mergedGraphEntity: GraphEntity) {
+                         accumulatedContent: String,
+                         currentGraphEntity: GraphEntity,
+                         viewPortCenter: CGPoint,
+                         groupNodeFocused: UUID?) {
         // If task already running, just return (latest data stored above)
         guard updateTask == nil else { return }
 
@@ -24,7 +27,25 @@ final actor ClaudeStreamingActor {
             // Perform actual update on main actor
             await MainActor.run { [weak document] in
                 guard let document = document else { return }
-                document.graph.update(from: mergedGraphEntity,
+
+                // Parse SwiftUI code
+                let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(accumulatedContent, isStreaming: true)
+
+                // Syntax → Actions
+                guard let stitchActionsResult = try? codeParserResult.deriveStitchActionsSync(
+                    bindingDeclarations: codeParserResult.bindingDeclarations,
+                    isStreaming: true) else { return }
+
+                // Actions -> GraphEntity
+                let result = stitchActionsResult.createAIGraph(
+                    from: currentGraphEntity,
+                    docId: currentGraphEntity.id,
+                    viewPortCenter: viewPortCenter,
+                    groupNodeFocused: groupNodeFocused,
+                    isStreaming: true)
+
+                // Update document with result
+                document.graph.update(from: result.graph,
                                       fromAIStream: true)
                 document.graph.updateGraphData(document)
             }
@@ -302,25 +323,13 @@ final actor ClaudeStreamingActor {
                             
                             // MARK: code building in-progress graphs is expensive, we delay work so long as no active update task is running
                             guard self.updateTask == nil else { break }
-                            
-                            let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(accumulatedContent, isStreaming: true)
-                            
-                            // Syntax → Actions
-                            let stitchActionsResult = try codeParserResult.deriveStitchActionsSync(
-                                bindingDeclarations: codeParserResult.bindingDeclarations,
-                                isStreaming: true)
-                            
-                            // Actions -> GraphEntity
-                            let result = stitchActionsResult
-                                .createAIGraph(from: currentGraphEntity,
-                                               docId: currentGraphEntity.id,
-                                               viewPortCenter: viewPortCenter,
-                                               groupNodeFocused: groupNodeFocused,
-                                               isStreaming: true)
-                            
-                            // Updates graph on main actor
+
+                            // Process graph on main actor (parsing, actions, graph creation all happen on main thread)
                             self.updateGraphData(document: document,
-                                                 mergedGraphEntity: result.graph)
+                                                 accumulatedContent: accumulatedContent,
+                                                 currentGraphEntity: currentGraphEntity,
+                                                 viewPortCenter: viewPortCenter,
+                                                 groupNodeFocused: groupNodeFocused)
                             
                             //                        // Clear thinking text once content starts
                             //                        await MainActor.run {
