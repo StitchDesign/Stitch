@@ -11,6 +11,9 @@ final actor ClaudeStreamingActor {
     // MARK: - Simple Task Throttling
 
     private var updateTask: Task<Void, Never>?
+    private var lastProcessedContentLength: Int = 0
+    private let tokensPerUpdate: Int = 100
+    private let charsPerToken: Int = 4  // Standard GPT tokenization estimate
 
     /// Simple task-based throttling: if a task is running, just update the pending data
     /// Uses actor isolation to naturally handle concurrent access
@@ -59,7 +62,12 @@ final actor ClaudeStreamingActor {
     private func clearTask() {
         updateTask = nil
     }
-    
+
+    /// Reset token counter at start of new stream
+    private func resetTokenCounter() {
+        lastProcessedContentLength = 0
+    }
+
     /// Make a request to Claude's Messages endpoint
     func makeClaudeStreamingRequest(
         previewWindowPrompt: String,
@@ -279,7 +287,8 @@ final actor ClaudeStreamingActor {
                 switch eventType {
                 case "message_start":
                     log("Claude stream started")
-                    
+                    self.resetTokenCounter()
+
                 case "content_block_start":
                     if let contentBlock = json["content_block"] as? [String: Any],
                        let type = contentBlock["type"] as? String {
@@ -320,9 +329,16 @@ final actor ClaudeStreamingActor {
                             // log("📝 Text delta received: '\(text)' (length: \(text.count))")
                             accumulatedContent += text
                             print("accumulated text: \n\(accumulatedContent)")
-                            
-                            // MARK: code building in-progress graphs is expensive, we delay work so long as no active update task is running
-                            guard self.updateTask == nil else { break }
+
+                            // MARK: Token-based throttling - only process every ~100 tokens
+                            let currentLength = accumulatedContent.count
+                            let charsSinceLastUpdate = currentLength - self.lastProcessedContentLength
+                            let tokensSinceLastUpdate = charsSinceLastUpdate / self.charsPerToken
+
+                            let shouldProcess = self.updateTask == nil && tokensSinceLastUpdate >= self.tokensPerUpdate
+                            guard shouldProcess else { break }
+
+                            self.lastProcessedContentLength = currentLength
 
                             // Process graph on main actor (parsing, actions, graph creation all happen on main thread)
                             self.updateGraphData(document: document,
