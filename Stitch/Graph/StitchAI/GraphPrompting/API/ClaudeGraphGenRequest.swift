@@ -591,19 +591,6 @@ extension GraphEntity {
             if let matchedId = bestId,
                 bestScore >= threshold,
                let existing = existingNodesMap[matchedId] {
-                
-                
-                
-                // MARK: DEBUGGING
-                let currentIndex = currentLayerIndexOf.get(matchedId)!
-                let inProgressIndex = inProgressLayerIndexOf.get(streamed.id)!
-                
-                if currentIndex != inProgressIndex {
-                    log("HI")
-                }
-                
-                
-                
                 // We choose to retain IDs already existing rather use the new ID so that update methods can continue to be used.
                 changedNodeIds.updateValue(matchedId, forKey: streamed.id)
                 
@@ -645,8 +632,10 @@ extension GraphEntity {
         merged.nodes = merged.nodes.createCopy(mappableData: changedNodeIds,
                                                copiedNodeIds: .init())
         
-        // TODO: merge sidebar data once we know ids
-        
+        // Iterate through in-progress sidebar data to ensure each entry is accounted for in our existing set. If not, we need to update our sidebar data.
+        merged.orderedSidebarLayers.merge(with: inProgressGraph.orderedSidebarLayers,
+                                          changedNodeIds: changedNodeIds,
+                                          existingNodeIds: Set(existingNodesMap.keys))
         
         log("mergeWithStreamedGraph changed node ids: \(changedNodeIds)")
         
@@ -839,5 +828,48 @@ extension GraphEntity {
         else if diff <= 7 { return 2 }
         else if diff <= 15 { return 1 }
         else { return 0 }
+    }
+}
+
+extension SidebarLayerList {
+    /// BFS search with potentially incomplete streamed data. BFS ensures groups are made so that children can be added to existing data.
+    mutating func merge(with inProgressData: Self,
+                        changedNodeIds: [UUID: UUID],
+                        existingNodeIds: Set<UUID>,
+                        parentLayerId: UUID? = nil) {
+        for (index, inProgressItem) in inProgressData.enumerated() {
+            guard let changedNodeId = changedNodeIds.get(inProgressItem.id) else {
+                fatalErrorIfDebug("We should have an id")
+                continue
+            }
+            
+            // Continue if already accounted for (sometimes changedNodeId isn't changed)
+            if !existingNodeIds.contains(changedNodeId) {
+                // If parent is existing node, add in-place using existing index
+                if let parentLayerId = parentLayerId {
+                    self.insertSidebarLayerData(inProgressItem,
+                                                parentId: parentLayerId,
+                                                index: index)
+                }
+                
+                // Append to root of list of parent is nil
+                else if parentLayerId == nil {
+                    self.insert(inProgressItem, at: Swift.max(index, self.count - 1))
+                }
+                
+                // BFS should ensure parent node always exists, so fatal error
+                else {
+                    fatalErrorIfDebug()
+                }
+            }
+            
+            // Now recursively BFS--do not skip this step!
+            if let children = inProgressItem.children {
+                self.merge(with: children,
+                           changedNodeIds: changedNodeIds,
+                           existingNodeIds: existingNodeIds,
+                           parentLayerId: changedNodeId)
+            }
+        }
     }
 }

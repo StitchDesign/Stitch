@@ -453,21 +453,29 @@ func getLayerTypesForPinnedViews(pinnedData: LayerPinData, // views pinned to th
 
 extension Array where Element: StitchNestedListElement & Equatable {
     
-    func insertSidebarLayerData(_ itemId: Element.ID, parent: Element.ID) -> Element? {
-        let layer: Element? = nil
-        
-        for sidebarLayerData in self {
+    mutating func insertSidebarLayerData(_ item: Element,
+                                         parentId: Element.ID,
+                                         index: Int) {
+        self = self.map { sidebarLayerData in
+            var sidebarLayerData = sidebarLayerData
             
-            if sidebarLayerData.id == itemId {
-                return sidebarLayerData
+            if sidebarLayerData.id == parentId {
+                if var children = sidebarLayerData.children {
+                    children.insert(item, at: Swift.max(index, children.count - 1))
+                    sidebarLayerData.children = children
+                    return sidebarLayerData
+                }
             }
             
-            else if let layerFoundInChildren = sidebarLayerData.children?.getSidebarLayerData(itemId) {
-                return layerFoundInChildren
+            if var children = sidebarLayerData.children {
+                children.insertSidebarLayerData(item,
+                                                parentId: parentId,
+                                                index: index)
+                sidebarLayerData.children = children
             }
-        } // self.forEach
-        
-        return layer
+            
+            return sidebarLayerData
+        }
     }
     
     // TODO: remove after StitchViewModelKit's `StitchNestedList.get` method is fixed
