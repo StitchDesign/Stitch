@@ -270,7 +270,7 @@ struct IgnoreConditionalStatements {
         }
         """
 
-        let result = SwiftUIViewVisitor.parseSwiftUICode(input)
+        let result = SwiftUIViewVisitor.parseSwiftUICode(input, isStreaming: false)
 
         // The parsed result should not contain the if statement assignment
         let hasConditionalAssignment = result.bindingDeclarations.contains { decl in
@@ -296,7 +296,7 @@ struct IgnoreConditionalStatements {
         }
         """
 
-        let result = SwiftUIViewVisitor.parseSwiftUICode(input)
+        let result = SwiftUIViewVisitor.parseSwiftUICode(input, isStreaming: false)
 
         // After processing, the position modifier should only reference dragPosition
         #expect(!result.viewStack.isEmpty)
@@ -330,7 +330,7 @@ struct IgnoreConditionalStatements {
         }
         """
 
-        let result = SwiftUIViewVisitor.parseSwiftUICode(input)
+        let result = SwiftUIViewVisitor.parseSwiftUICode(input, isStreaming: false)
 
         // Check that the ternary has been replaced with the false condition
         let hasCorrectAssignment = result.bindingDeclarations.contains { (name, initType) in

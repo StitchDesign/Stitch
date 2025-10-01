@@ -29,53 +29,79 @@ extension Array where Element == AIGraphData_V0.LayerData {
                           nodesDict: inout [UUID: NodeEntity],
                           stateVarConnections: inout [String: [NodeIOCoordinate]],
                           isStreaming: Bool) {
-        self.forEach { layerData in
+
+        // PHASE 1: Collect all layer nodes (no dictionary mutations)
+        var pendingNodes: [UUID: NodeEntity] = [:]
+        var pendingEventData: [(layerNodeId: UUID,
+                                coordinate: CurrentAIGraphData.LayerInputType,
+                                events: [PatchSyntaxResultType])] = []
+
+        for layerData in self {
             guard let layer = layerData.node_name.value.layer else {
                 if !isStreaming {
                     fatalErrorIfDebug()
                 }
-                return
+                continue
             }
-            
+
             let layerNodeEntity = layer
                 .createDefaultLayerNodeEntity(nodeId: UUID(layerData.node_id) ?? UUID(),
                                               layerGroupId: layerGroupId)
-            
+
             let nodeEntity = NodeEntity(id: layerNodeEntity.id,
                                         nodeTypeEntity: .layer(layerNodeEntity),
                                         title: layerData.suggested_title ?? "")
-            
-            nodesDict.updateValue(nodeEntity,
-                                  forKey: layerNodeEntity.id)
 
-            layerData.custom_layer_input_values.forEach { portDerivation in
+            // Store node without mutating nodesDict yet
+            pendingNodes[layerNodeEntity.id] = nodeEntity
+
+            // Collect all input data updates for this layer
+            for portDerivation in layerData.custom_layer_input_values {
                 let coordinate = portDerivation.coordinate
-                
-                portDerivation.inputData.forEach { inputData in
-                    do {
-                        // Parse actions at this input, which may include patch data in the event of view events
-                        try nodesDict.updateWithEventData(inputData,
-                                                          layerInputCoordinate: .init(portType: .keyPath(coordinate),
-                                                                                      nodeId: layerNodeEntity.id),
-                                                          varName: nil,
-                                                          stateVarConnections: &stateVarConnections,
-                                                          isStreaming: isStreaming)
-                    } catch {
-                        if !isStreaming {
-                            // TODO: need to handle errors silently
-                            fatalErrorIfDebug("createLayerNodes error: \(error)")
-                        }
+                let events = portDerivation.inputData
+
+                pendingEventData.append((
+                    layerNodeId: layerNodeEntity.id,
+                    coordinate: coordinate,
+                    events: events
+                ))
+            }
+        }
+
+        // PHASE 2: Apply all nodes at once (single merge operation)
+        nodesDict.merge(pendingNodes) { _, new in new }
+
+        // PHASE 3: Apply all input data updates (no nested closures)
+        for eventData in pendingEventData {
+            for inputData in eventData.events {
+                do {
+                    // Parse actions at this input, which may include patch data in the event of view events
+                    try nodesDict.updateWithEventData(
+                        inputData,
+                        layerInputCoordinate: .init(portType: .keyPath(eventData.coordinate),
+                                                    nodeId: eventData.layerNodeId),
+                        varName: nil,
+                        stateVarConnections: &stateVarConnections,
+                        isStreaming: isStreaming)
+                } catch {
+                    if !isStreaming {
+                        // TODO: need to handle errors silently
+                        fatalErrorIfDebug("createLayerNodes error: \(error)")
                     }
                 }
             }
-            
-            
+        }
+
+        // PHASE 4: Recurse on children (after all mutations complete)
+        for layerData in self {
             if let children = layerData.children {
-                children
-                    .createLayerNodes(layerGroupId: layerNodeEntity.id,
-                                      nodesDict: &nodesDict,
-                                      stateVarConnections: &stateVarConnections,
-                                      isStreaming: isStreaming)
+                guard let layerNodeId = UUID(layerData.node_id) else { continue }
+
+                children.createLayerNodes(
+                    layerGroupId: layerNodeId,
+                    nodesDict: &nodesDict,
+                    stateVarConnections: &stateVarConnections,
+                    isStreaming: isStreaming)
             }
         }
     }
