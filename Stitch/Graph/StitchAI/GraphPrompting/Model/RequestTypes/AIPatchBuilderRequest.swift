@@ -35,13 +35,13 @@ extension Array where Element == AIGraphData_V0.LayerData {
                           nodesDict: inout [UUID: NodeEntity],
                           stateVarConnections: inout [String: [NodeIOCoordinate]],
                           isStreaming: Bool) {
-
+        
         // MARK: VERY IMPORTANT: Use iterative approach with queue instead of recursion to avoid blowing up actor's thread-memory (512 KB; vs main thread's 8 MB)
         var queue = [LayerWorkItem(layers: self, parentId: layerGroupId)]
-
+        
         while !queue.isEmpty {
             let workItem = queue.removeFirst()
-
+            
             for layerData in workItem.layers {
                 guard let layer = layerData.node_name.value.layer else {
                     if !isStreaming {
@@ -49,21 +49,21 @@ extension Array where Element == AIGraphData_V0.LayerData {
                     }
                     continue
                 }
-
+                
                 let layerNodeEntity = layer
                     .createDefaultLayerNodeEntity(nodeId: UUID(layerData.node_id) ?? UUID(),
                                                   layerGroupId: workItem.parentId)
-
+                
                 let nodeEntity = NodeEntity(id: layerNodeEntity.id,
                                             nodeTypeEntity: .layer(layerNodeEntity),
                                             title: layerData.suggested_title ?? "")
-
+                
                 nodesDict.updateValue(nodeEntity,
                                       forKey: layerNodeEntity.id)
-
+                
                 for portDerivation in layerData.custom_layer_input_values {
                     let coordinate = portDerivation.coordinate
-
+                    
                     for inputData in portDerivation.inputData {
                         do {
                             // Parse actions at this input, which may include patch data in the event of view events
@@ -81,7 +81,7 @@ extension Array where Element == AIGraphData_V0.LayerData {
                         }
                     }
                 }
-
+                
                 // Add children to queue instead of recursing
                 if let children = layerData.children {
                     queue.append(LayerWorkItem(layers: children, parentId: layerNodeEntity.id))
