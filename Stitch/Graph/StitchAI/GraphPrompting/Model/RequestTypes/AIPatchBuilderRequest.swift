@@ -30,6 +30,7 @@ extension Array where Element == AIGraphData_V0.LayerData {
                           stateVarConnections: inout [String: [NodeIOCoordinate]],
                           isStreaming: Bool) {
 
+        // MARK: VERY IMPORTANT: DEEPLY NESTED DICTIONARY MUTATIONS WERE CAUSING `EXC_BAD_ACCESS` WITH THE PHONE DIAL DEMO, SO WE NOW GATHER AND APPLY PENDING MUTATIONS AT THE VERY END. See "Phases 1-4".
         // PHASE 1: Collect all layer nodes (no dictionary mutations)
         var pendingNodes: [UUID: NodeEntity] = [:]
         var pendingEventData: [(layerNodeId: UUID,
