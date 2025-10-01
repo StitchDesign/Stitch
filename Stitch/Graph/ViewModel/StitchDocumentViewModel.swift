@@ -519,6 +519,7 @@ extension StitchDocumentViewModel {
         self.createSchema()
     }
     
+    // Note: this awkward signature (passing `document: StitchDocumentViewModel` to a StitchDocumentViewModel itself) comes from the required signature on the `onPrototypeRestart` protocol
     @MainActor func onPrototypeRestart(document: StitchDocumentViewModel) {
         self.graphStepManager.resetGraphStepState()
         

@@ -118,6 +118,9 @@ extension SwiftSyntaxActionsResult {
             // Report errors
             if !isStreaming {
                 result.errors.displayErrors(document: document)
+                
+                // TODO: debug issues with proper graph eval after a streaming request ends; theoretically a prototype restart should not be necessary
+                document.onPrototypeRestart(document: document)
             }
         }
         
