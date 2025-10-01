@@ -1039,9 +1039,10 @@ extension SwiftPatchCodeType {
             throw error
             
         default:
-            if !isStreaming {
-                fatalErrorIfDebug("Wasn't expected here")
-            }
+//            if !isStreaming {
+//                fatalErrorIfDebug("Wasn't expected here")
+//            }
+            log("derivePatchDataSync: had a bad problem?")
             return []
         }
     }

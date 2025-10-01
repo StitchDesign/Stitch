@@ -41,15 +41,16 @@ extension Array where Element == AIGraphData_V0.LayerData {
         var nodesDict = nodesDict
         var stateVarConnections = stateVarConnections
 
-        // MARK: ITERATIVE APPROACH - Use queue instead of recursion to avoid stack overflow
+        // MARK: ITERATIVE APPROACH - Use queue instead of recursion to avoid stack overflow on actors (512 KB stack; vs main thread's 8 MB stack)
         // Initialize queue with root level layers
         var queue: [LayerWorkItem] = [LayerWorkItem(layers: self, parentId: layerGroupId, depth: depth)]
 
         while !queue.isEmpty {
             let workItem = queue.removeFirst()
             // MARK: Instrumentation for stack overflow debugging
-            log("createLayerNodes: depth=\(workItem.depth), layerCount=\(workItem.layers.count), nodeDictSize=\(nodesDict.count)")
+            //            log("createLayerNodes: depth=\(workItem.depth), layerCount=\(workItem.layers.count), nodeDictSize=\(nodesDict.count)")
 
+            // Not actually needed anymore now that we have proper iterative approach?
             // MARK: VERY IMPORTANT: DEEPLY NESTED DICTIONARY MUTATIONS WERE CAUSING `EXC_BAD_ACCESS` WITH THE PHONE DIAL DEMO, SO WE NOW GATHER AND APPLY PENDING MUTATIONS AT THE VERY END. See "Phases 1-4".
             // PHASE 1: Collect all layer nodes (no dictionary mutations)
             var pendingNodes: [UUID: NodeEntity] = [:]
@@ -90,11 +91,11 @@ extension Array where Element == AIGraphData_V0.LayerData {
             }
 
             // PHASE 2: Apply all nodes at once (single merge operation)
-            log("createLayerNodes: depth=\(workItem.depth), Phase 2: merging \(pendingNodes.count) nodes into dict of size \(nodesDict.count)")
+            //            log("createLayerNodes: depth=\(workItem.depth), Phase 2: merging \(pendingNodes.count) nodes into dict of size \(nodesDict.count)")
             nodesDict.merge(pendingNodes) { _, new in new }
 
             // PHASE 3: Apply all input data updates (no nested closures)
-            log("createLayerNodes: depth=\(workItem.depth), Phase 3: applying \(pendingEventData.count) input data updates")
+            //            log("createLayerNodes: depth=\(workItem.depth), Phase 3: applying \(pendingEventData.count) input data updates")
             for eventData in pendingEventData {
                 for inputData in eventData.events {
                     do {
@@ -119,17 +120,17 @@ extension Array where Element == AIGraphData_V0.LayerData {
             }
 
             // PHASE 4: Add children to queue (instead of recursing)
-            log("createLayerNodes: depth=\(workItem.depth), Phase 4: processing children")
+            //            log("createLayerNodes: depth=\(workItem.depth), Phase 4: processing children")
             for layerData in workItem.layers {
                 if let children = layerData.children {
                     guard let layerNodeId = UUID(layerData.node_id) else { continue }
 
-                    log("createLayerNodes: depth=\(workItem.depth), adding depth=\(workItem.depth + 1) to queue with \(children.count) children")
+                    //                    log("createLayerNodes: depth=\(workItem.depth), adding depth=\(workItem.depth + 1) to queue with \(children.count) children")
                     queue.append(LayerWorkItem(layers: children, parentId: layerNodeId, depth: workItem.depth + 1))
                 }
             }
 
-            log("createLayerNodes: depth=\(workItem.depth), complete with \(nodesDict.count) total nodes")
+            //            log("createLayerNodes: depth=\(workItem.depth), complete with \(nodesDict.count) total nodes")
         }
 
         // All work items processed - return final results
