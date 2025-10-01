@@ -19,9 +19,16 @@ struct AIPatchBuilderFunctionInputs: Codable {
 
 struct AIPatchBuilderFunctionInputsSchema: Encodable {
     let swiftui_source_code = OpenAISchema(type: .string)
-    
+
     // MARK: string because no nesting support in structured outputs
     let layer_data_list = OpenAISchema(type: .string)
+}
+
+// MARK: - Work item for iterative layer processing
+private struct LayerWorkItem {
+    let layers: [AIGraphData_V0.LayerData]
+    let parentId: UUID?
+    let depth: Int
 }
 
 extension Array where Element == AIGraphData_V0.LayerData {
@@ -34,96 +41,99 @@ extension Array where Element == AIGraphData_V0.LayerData {
         var nodesDict = nodesDict
         var stateVarConnections = stateVarConnections
 
-        // MARK: Instrumentation for stack overflow debugging
-        log("createLayerNodes: depth=\(depth), layerCount=\(self.count), nodeDictSize=\(nodesDict.count)")
+        // MARK: ITERATIVE APPROACH - Use queue instead of recursion to avoid stack overflow
+        // Initialize queue with root level layers
+        var queue: [LayerWorkItem] = [LayerWorkItem(layers: self, parentId: layerGroupId, depth: depth)]
 
-        // MARK: VERY IMPORTANT: DEEPLY NESTED DICTIONARY MUTATIONS WERE CAUSING `EXC_BAD_ACCESS` WITH THE PHONE DIAL DEMO, SO WE NOW GATHER AND APPLY PENDING MUTATIONS AT THE VERY END. See "Phases 1-4".
-        // PHASE 1: Collect all layer nodes (no dictionary mutations)
-        var pendingNodes: [UUID: NodeEntity] = [:]
-        var pendingEventData: [(layerNodeId: UUID,
-                                coordinate: CurrentAIGraphData.LayerInputType,
-                                events: [PatchSyntaxResultType])] = []
+        while !queue.isEmpty {
+            let workItem = queue.removeFirst()
+            // MARK: Instrumentation for stack overflow debugging
+            log("createLayerNodes: depth=\(workItem.depth), layerCount=\(workItem.layers.count), nodeDictSize=\(nodesDict.count)")
 
-        for layerData in self {
-            guard let layer = layerData.node_name.value.layer else {
-                if !isStreaming {
-                    fatalErrorIfDebug()
-                }
-                continue
-            }
+            // MARK: VERY IMPORTANT: DEEPLY NESTED DICTIONARY MUTATIONS WERE CAUSING `EXC_BAD_ACCESS` WITH THE PHONE DIAL DEMO, SO WE NOW GATHER AND APPLY PENDING MUTATIONS AT THE VERY END. See "Phases 1-4".
+            // PHASE 1: Collect all layer nodes (no dictionary mutations)
+            var pendingNodes: [UUID: NodeEntity] = [:]
+            var pendingEventData: [(layerNodeId: UUID,
+                                    coordinate: CurrentAIGraphData.LayerInputType,
+                                    events: [PatchSyntaxResultType])] = []
 
-            let layerNodeEntity = layer
-                .createDefaultLayerNodeEntity(nodeId: UUID(layerData.node_id) ?? UUID(),
-                                              layerGroupId: layerGroupId)
-
-            let nodeEntity = NodeEntity(id: layerNodeEntity.id,
-                                        nodeTypeEntity: .layer(layerNodeEntity),
-                                        title: layerData.suggested_title ?? "")
-
-            // Store node without mutating nodesDict yet
-            pendingNodes[layerNodeEntity.id] = nodeEntity
-
-            // Collect all input data updates for this layer
-            for portDerivation in layerData.custom_layer_input_values {
-                let coordinate = portDerivation.coordinate
-                let events = portDerivation.inputData
-
-                pendingEventData.append((
-                    layerNodeId: layerNodeEntity.id,
-                    coordinate: coordinate,
-                    events: events
-                ))
-            }
-        }
-
-        // PHASE 2: Apply all nodes at once (single merge operation)
-        log("createLayerNodes: depth=\(depth), Phase 2: merging \(pendingNodes.count) nodes into dict of size \(nodesDict.count)")
-        nodesDict.merge(pendingNodes) { _, new in new }
-
-        // PHASE 3: Apply all input data updates (no nested closures)
-        log("createLayerNodes: depth=\(depth), Phase 3: applying \(pendingEventData.count) input data updates")
-        for eventData in pendingEventData {
-            for inputData in eventData.events {
-                do {
-                    // Parse actions at this input, which may include patch data in the event of view events
-                    let result = try Dictionary<UUID, NodeEntity>.updateWithEventData(
-                        inputData,
-                        nodesDict: nodesDict,
-                        layerInputCoordinate: .init(portType: .keyPath(eventData.coordinate),
-                                                    nodeId: eventData.layerNodeId),
-                        varName: nil,
-                        stateVarConnections: stateVarConnections,
-                        isStreaming: isStreaming)
-                    nodesDict = result.nodes
-                    stateVarConnections = result.connections
-                } catch {
+            for layerData in workItem.layers {
+                guard let layer = layerData.node_name.value.layer else {
                     if !isStreaming {
-                        // TODO: need to handle errors silently
-                        fatalErrorIfDebug("createLayerNodes error: \(error)")
+                        fatalErrorIfDebug()
+                    }
+                    continue
+                }
+
+                let layerNodeEntity = layer
+                    .createDefaultLayerNodeEntity(nodeId: UUID(layerData.node_id) ?? UUID(),
+                                                  layerGroupId: workItem.parentId)
+
+                let nodeEntity = NodeEntity(id: layerNodeEntity.id,
+                                            nodeTypeEntity: .layer(layerNodeEntity),
+                                            title: layerData.suggested_title ?? "")
+
+                // Store node without mutating nodesDict yet
+                pendingNodes[layerNodeEntity.id] = nodeEntity
+
+                // Collect all input data updates for this layer
+                for portDerivation in layerData.custom_layer_input_values {
+                    let coordinate = portDerivation.coordinate
+                    let events = portDerivation.inputData
+
+                    pendingEventData.append((
+                        layerNodeId: layerNodeEntity.id,
+                        coordinate: coordinate,
+                        events: events
+                    ))
+                }
+            }
+
+            // PHASE 2: Apply all nodes at once (single merge operation)
+            log("createLayerNodes: depth=\(workItem.depth), Phase 2: merging \(pendingNodes.count) nodes into dict of size \(nodesDict.count)")
+            nodesDict.merge(pendingNodes) { _, new in new }
+
+            // PHASE 3: Apply all input data updates (no nested closures)
+            log("createLayerNodes: depth=\(workItem.depth), Phase 3: applying \(pendingEventData.count) input data updates")
+            for eventData in pendingEventData {
+                for inputData in eventData.events {
+                    do {
+                        // Parse actions at this input, which may include patch data in the event of view events
+                        let result = try Dictionary<UUID, NodeEntity>.updateWithEventData(
+                            inputData,
+                            nodesDict: nodesDict,
+                            layerInputCoordinate: .init(portType: .keyPath(eventData.coordinate),
+                                                        nodeId: eventData.layerNodeId),
+                            varName: nil,
+                            stateVarConnections: stateVarConnections,
+                            isStreaming: isStreaming)
+                        nodesDict = result.nodes
+                        stateVarConnections = result.connections
+                    } catch {
+                        if !isStreaming {
+                            // TODO: need to handle errors silently
+                            fatalErrorIfDebug("createLayerNodes error: \(error)")
+                        }
                     }
                 }
             }
-        }
 
-        // PHASE 4: Recurse on children (after all mutations complete)
-        log("createLayerNodes: depth=\(depth), Phase 4: recursing on children")
-        for layerData in self {
-            if let children = layerData.children {
-                guard let layerNodeId = UUID(layerData.node_id) else { continue }
+            // PHASE 4: Add children to queue (instead of recursing)
+            log("createLayerNodes: depth=\(workItem.depth), Phase 4: processing children")
+            for layerData in workItem.layers {
+                if let children = layerData.children {
+                    guard let layerNodeId = UUID(layerData.node_id) else { continue }
 
-                log("createLayerNodes: depth=\(depth), recursing into depth=\(depth + 1) with \(children.count) children")
-                let result = children.createLayerNodes(
-                    layerGroupId: layerNodeId,
-                    nodesDict: nodesDict,
-                    stateVarConnections: stateVarConnections,
-                    isStreaming: isStreaming,
-                    depth: depth + 1)
-                nodesDict = result.nodes
-                stateVarConnections = result.connections
+                    log("createLayerNodes: depth=\(workItem.depth), adding depth=\(workItem.depth + 1) to queue with \(children.count) children")
+                    queue.append(LayerWorkItem(layers: children, parentId: layerNodeId, depth: workItem.depth + 1))
+                }
             }
+
+            log("createLayerNodes: depth=\(workItem.depth), complete with \(nodesDict.count) total nodes")
         }
 
-        log("createLayerNodes: depth=\(depth), complete with \(nodesDict.count) total nodes")
+        // All work items processed - return final results
+        log("createLayerNodes: ALL DEPTHS COMPLETE with \(nodesDict.count) total nodes")
         return (nodesDict, stateVarConnections)
     }
 }
