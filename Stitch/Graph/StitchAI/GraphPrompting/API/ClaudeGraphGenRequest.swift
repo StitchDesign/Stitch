@@ -497,14 +497,26 @@ extension GraphEntity {
             result[node.id] = node
         }
         
-        // Track existing nodes by coarse keys to reduce candidate set for matching
-        // Also partition by kind for a broader fallback
-//        var indexByKey = [String: [NodeEntity]]()
+        // Used for similarity checks
+        let currentSidebarList = self.orderedSidebarLayers.flattenedItems
+        let inProgressSidebarList = inProgressGraph.orderedSidebarLayers.flattenedItems
         
-//        for node in merged.nodes {
-//            let key = coarseMatchKey(for: node)
-//            indexByKey[key, default: []].append(node)
-//        }
+        // Tracks available candidate nodes for matching, removed when in use
+        var candidateCurrentPatchNodes = self.nodes.filter { $0.kind.isPatch }.toSet
+        var candidateCurrentLayerNodes = self.nodes.filter { $0.kind.isLayer }.toSet
+        
+        // Input data for calculating similarity score
+        let inProgressLayerIndexOf = inProgressSidebarList
+            .enumerated()
+            .reduce(into: [UUID: Int]()) { result, data in
+                result.updateValue(data.0, forKey: data.1.id)
+        }
+        
+        let currentLayerIndexOf = currentSidebarList
+            .enumerated()
+            .reduce(into: [UUID: Int]()) { result, data in
+                result.updateValue(data.0, forKey: data.1.id)
+        }
         
         // Tracks which existing node ids have already been matched to avoid duplicates
         var claimedExistingIds = Set<UUID>()
@@ -525,18 +537,27 @@ extension GraphEntity {
             let node = useCurrent ? current : streamed
             
             log("mergeWithStreamedGraph useCurrent: \(useCurrent)\tid: \(node.id)\t kind: \(node.kind)\t layer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")")
+            
+            // Remove candidate
+            if current.kind.isPatch {
+                candidateCurrentPatchNodes.remove(current)
+            } else {
+                candidateCurrentLayerNodes.remove(current)
+            }
+            
             return !useCurrent
         }
         
         for streamed in inProgressGraph.nodes {
             // 1) Exact id match: replace directly
-            if let existing = existingNodesMap[streamed.id],
-               useStreamedNode(existing, streamed) {
-                newNodesMap[streamed.id] = streamed
-                claimedExistingIds.insert(streamed.id)
-                
-                // Track same ID--needed for copy logic
-                changedNodeIds.updateValue(streamed.id, forKey: streamed.id)
+            if let existing = existingNodesMap[streamed.id] {
+                if useStreamedNode(existing, streamed) {
+                    newNodesMap[streamed.id] = streamed
+                    claimedExistingIds.insert(streamed.id)
+                    
+                    // Track same ID--needed for copy logic
+                    changedNodeIds.updateValue(streamed.id, forKey: streamed.id)
+                }
                 
                 continue
             }
@@ -549,10 +570,13 @@ extension GraphEntity {
             var bestScore = Int.min
             var bestId: UUID?
             
-            func consider(_ candidates: [NodeEntity]) {
+            func consider(_ candidates: Set<NodeEntity>) {
                 for candidate in candidates {
                     if claimedExistingIds.contains(candidate.id) { continue }
-                    let score = similarityScore(between: streamed, and: candidate)
+                    let score = similarityScore(between: streamed,
+                                                and: candidate,
+                                                aLayerIndexOf: inProgressLayerIndexOf,
+                                                bLayerIndexOf: currentLayerIndexOf)
                     if score > bestScore {
                         bestScore = score
                         bestId = candidate.id
@@ -560,22 +584,35 @@ extension GraphEntity {
                 }
             }
             
-            consider(self.nodes)
+            consider(streamed.kind.isPatch ? candidateCurrentPatchNodes : candidateCurrentLayerNodes)
             
             // 3) Apply threshold and either replace matched node or add as new
             let threshold = 40
             if let matchedId = bestId,
                 bestScore >= threshold,
                let existing = existingNodesMap[matchedId] {
+                
+                
+                
+                // MARK: DEBUGGING
+                let currentIndex = currentLayerIndexOf.get(matchedId)!
+                let inProgressIndex = inProgressLayerIndexOf.get(streamed.id)!
+                
+                if currentIndex != inProgressIndex {
+                    log("HI")
+                }
+                
+                
+                
                 // We choose to retain IDs already existing rather use the new ID so that update methods can continue to be used.
                 changedNodeIds.updateValue(matchedId, forKey: streamed.id)
                 
-                let newStreamed = NodeEntity(id: matchedId,
-                                             nodeTypeEntity: streamed.nodeTypeEntity,
-                                             title: streamed.title)
+//                let newStreamed = NodeEntity(id: matchedId,
+//                                             nodeTypeEntity: streamed.nodeTypeEntity,
+//                                             title: streamed.title)
                 
-                if useStreamedNode(existing, newStreamed) {
-                    newNodesMap[matchedId] = newStreamed
+                if useStreamedNode(existing, streamed) {
+                    newNodesMap[matchedId] = streamed
                     claimedExistingIds.insert(matchedId)
                 }
             } else {
@@ -607,6 +644,10 @@ extension GraphEntity {
         //        merged = merged.replaceNodeIdReference(idMap: changedNodeIds)
         merged.nodes = merged.nodes.createCopy(mappableData: changedNodeIds,
                                                copiedNodeIds: .init())
+        
+        // TODO: merge sidebar data once we know ids
+        
+        
         log("mergeWithStreamedGraph changed node ids: \(changedNodeIds)")
         
         let stringLog = merged.nodes.reduce(into: "mergeWithStreamedGraph: new nodes:") { stringBuilder, node in
@@ -614,9 +655,29 @@ extension GraphEntity {
         }
         log(stringLog)
         
+        
+        // MARK: debugging
+//        let oldListIds = merged.orderedSidebarLayers.flattenedItems.map(\.id)
+        
+               
+        
         // Infer sidebar data from list of ordered nodes
-        merged.orderedSidebarLayers = merged.nodes
-            .createOrderedSidebarData()
+//        merged.orderedSidebarLayers = merged.nodes
+//            .createOrderedSidebarData()
+        
+        
+//        let newListIds = merged.orderedSidebarLayers.flattenedItems.map(\.id)
+//        
+//        if oldListIds != newListIds {
+//            log("hey")
+//        }
+//        
+        
+        
+        
+        let sidebarLog = merged.orderedSidebarLayers
+            .createLogMessage("mergeWithStreamedGraph sidebar:\n")
+        log(sidebarLog)
 
 #if DEBUG || DEV_DEBUG
         let layerNodesCount = merged.nodes.compactMap(\.layerNodeEntity).count
@@ -702,29 +763,39 @@ extension GraphEntity {
     /// Computes a similarity score between two nodes. Higher is better.
     /// Prioritizes node kind (patch/layer/group/component), then patch/layer/component
     /// specific identifiers, title similarity, shared parent group, and canvas proximity.
-    private func similarityScore(between aData: EnumeratedNodeEntity,
-                                 and bData: EnumeratedNodeEntity) -> Int {
-        let a = aData.node
-        let b = bData.node
+    private func similarityScore(between a: NodeEntity,
+                                 and b: NodeEntity,
+                                 aLayerIndexOf: [UUID: Int],
+                                 bLayerIndexOf: [UUID: Int]) -> Int {
         
         // Exact id match is handled earlier, but keep a guard here for completeness
         if a.id == b.id { return 1_000 }
         
         var score = 0
         
-        // Index closeness: prefer nodes that appear near the same relative order
-        score += indexClosenessScore(aData.index, bData.index)
-        
         // Deep-type specific checks
         switch (a.nodeTypeEntity, b.nodeTypeEntity) {
         case (.patch(let ap), .patch(let bp)) where ap.patch == bp.patch:
             if ap.patch == bp.patch { score += 40 }
             if ap.userVisibleType == bp.userVisibleType { score += 10 }
-            if ap.inputs.count == bp.inputs.count { score += 5 }
+            
+            // Update for upstream connections, values etc
+//            if ap.inputs.count == bp.inputs.count { score += 5 }
 
         case (.layer(let al), .layer(let bl)) where al.layer == bl.layer:
+            guard let aIndex = aLayerIndexOf.get(a.id),
+                  let bIndex = bLayerIndexOf.get(b.id) else {
+                fatalErrorIfDebug()
+                return 0
+            }
+            
+            // Index closeness: prefer nodes that appear near the same relative order
+            score += indexClosenessScore(aIndex, bIndex)
+
             if al.layer == bl.layer { score += 40 }
-            if al.layerGroupId == bl.layerGroupId { score += 5 }
+            
+            // This wouldn't work because layer ids haven't been matched yet
+//            if al.layerGroupId == bl.layerGroupId { score += 5 }
             // Layers don't have a single canonical canvas position; skip positional score
             
         case (.component(let ac), .component(let bc)):
@@ -744,12 +815,6 @@ extension GraphEntity {
         }
         
         return score
-    }
-    
-    /// Convenience overload for sites that don't track indices; falls back to zero index closeness.
-    private func similarityScore(between a: NodeEntity, and b: NodeEntity) -> Int {
-        return similarityScore(between: .init(index: 0, node: a),
-                               and: .init(index: 0, node: b))
     }
     
     /// Scores proximity between two points. Closer yields higher score.
@@ -776,9 +841,3 @@ extension GraphEntity {
         else { return 0 }
     }
 }
-
-struct EnumeratedNodeEntity {
-    let index: Int
-    let node: NodeEntity
-}
-

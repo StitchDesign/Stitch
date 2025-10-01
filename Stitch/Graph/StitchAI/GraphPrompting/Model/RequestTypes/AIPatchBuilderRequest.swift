@@ -164,6 +164,13 @@ extension SwiftSyntaxActionsResult {
         
         graphEntity.nodes = Array(nodesDict.values)
         
+        // Create nested sidebar layer data
+        let newSidebarData = self.graphData.layer_data_list.compactMap {
+            $0.createSidebarLayerData()
+        }
+        
+        graphEntity.orderedSidebarLayers = newSidebarData
+        
         // Can't build the depth map from the `patch_data`,
         // since those UUIDs have not been remapped yet
         let repositionedNodes = graphEntity.nodes.positionAIGeneratedNodesDuringApply(
