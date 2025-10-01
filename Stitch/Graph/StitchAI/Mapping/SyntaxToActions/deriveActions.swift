@@ -1764,7 +1764,7 @@ extension SyntaxView {
                 return .init(actions: [layerData] + backgroundLayerData.actions,
                              caughtErrors: silentErrors)
             } catch let error as SwiftUISyntaxError {
-                if error.shouldFailSilently {
+                if error.shouldFailSilently(isStreaming: isStreaming) {
                     log("deriveStitchActions: silent failure for unsupported layer concept: \(error)")
                     // Silent error for unsupported layers
                     silentErrors.append(error)

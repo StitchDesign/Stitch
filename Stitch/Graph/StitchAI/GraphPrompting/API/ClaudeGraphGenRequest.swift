@@ -27,27 +27,28 @@ final actor ClaudeStreamingActor {
 
         // Create new task since none running
         updateTask = Task(priority: .high) { [weak self, weak document] in
-            // Perform actual update on main actor
+            // Process graph on actor context (parse, actions, createAIGraph)
+            let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(accumulatedContent, isStreaming: true)
+
+            // Syntax → Actions
+            guard let stitchActionsResult = try? codeParserResult.deriveStitchActionsSync(
+                bindingDeclarations: codeParserResult.bindingDeclarations,
+                isStreaming: true) else {
+                await self?.clearTask()
+                return
+            }
+
+            // Actions -> GraphEntity
+            let result = stitchActionsResult.createAIGraph(
+                from: currentGraphEntity,
+                docId: currentGraphEntity.id,
+                viewPortCenter: viewPortCenter,
+                groupNodeFocused: groupNodeFocused,
+                isStreaming: true)
+
+            // Only update document on main thread
             await MainActor.run { [weak document] in
                 guard let document = document else { return }
-
-                // Parse SwiftUI code
-                let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(accumulatedContent, isStreaming: true)
-
-                // Syntax → Actions
-                guard let stitchActionsResult = try? codeParserResult.deriveStitchActionsSync(
-                    bindingDeclarations: codeParserResult.bindingDeclarations,
-                    isStreaming: true) else { return }
-
-                // Actions -> GraphEntity
-                let result = stitchActionsResult.createAIGraph(
-                    from: currentGraphEntity,
-                    docId: currentGraphEntity.id,
-                    viewPortCenter: viewPortCenter,
-                    groupNodeFocused: groupNodeFocused,
-                    isStreaming: true)
-
-                // Update document with result
                 document.graph.update(from: result.graph,
                                       fromAIStream: true)
                 document.graph.updateGraphData(document)

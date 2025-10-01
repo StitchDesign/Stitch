@@ -77,7 +77,11 @@ extension SwiftUISyntaxError: Encodable {
 
 extension SwiftUISyntaxError {
     /// Errors that should allow request to continue.
-    var shouldFailSilently: Bool {
+    func shouldFailSilently(isStreaming: Bool) -> Bool {
+        if isStreaming {
+            return true // Always fail silently if streaming
+        }
+        
         switch self {
         case .unsupportedSyntaxArgumentKind,
                 .unsupportedSyntaxArgument,

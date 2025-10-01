@@ -28,10 +28,14 @@ extension Array where Element == AIGraphData_V0.LayerData {
     func createLayerNodes(layerGroupId: UUID?,
                           nodesDict: [UUID: NodeEntity],
                           stateVarConnections: [String: [NodeIOCoordinate]],
-                          isStreaming: Bool) -> (nodes: [UUID: NodeEntity], connections: [String: [NodeIOCoordinate]]) {
+                          isStreaming: Bool,
+                          depth: Int = 0) -> (nodes: [UUID: NodeEntity], connections: [String: [NodeIOCoordinate]]) {
 
         var nodesDict = nodesDict
         var stateVarConnections = stateVarConnections
+
+        // MARK: Instrumentation for stack overflow debugging
+        log("createLayerNodes: depth=\(depth), layerCount=\(self.count), nodeDictSize=\(nodesDict.count)")
 
         // MARK: VERY IMPORTANT: DEEPLY NESTED DICTIONARY MUTATIONS WERE CAUSING `EXC_BAD_ACCESS` WITH THE PHONE DIAL DEMO, SO WE NOW GATHER AND APPLY PENDING MUTATIONS AT THE VERY END. See "Phases 1-4".
         // PHASE 1: Collect all layer nodes (no dictionary mutations)
@@ -73,9 +77,11 @@ extension Array where Element == AIGraphData_V0.LayerData {
         }
 
         // PHASE 2: Apply all nodes at once (single merge operation)
+        log("createLayerNodes: depth=\(depth), Phase 2: merging \(pendingNodes.count) nodes into dict of size \(nodesDict.count)")
         nodesDict.merge(pendingNodes) { _, new in new }
 
         // PHASE 3: Apply all input data updates (no nested closures)
+        log("createLayerNodes: depth=\(depth), Phase 3: applying \(pendingEventData.count) input data updates")
         for eventData in pendingEventData {
             for inputData in eventData.events {
                 do {
@@ -100,20 +106,24 @@ extension Array where Element == AIGraphData_V0.LayerData {
         }
 
         // PHASE 4: Recurse on children (after all mutations complete)
+        log("createLayerNodes: depth=\(depth), Phase 4: recursing on children")
         for layerData in self {
             if let children = layerData.children {
                 guard let layerNodeId = UUID(layerData.node_id) else { continue }
 
+                log("createLayerNodes: depth=\(depth), recursing into depth=\(depth + 1) with \(children.count) children")
                 let result = children.createLayerNodes(
                     layerGroupId: layerNodeId,
                     nodesDict: nodesDict,
                     stateVarConnections: stateVarConnections,
-                    isStreaming: isStreaming)
+                    isStreaming: isStreaming,
+                    depth: depth + 1)
                 nodesDict = result.nodes
                 stateVarConnections = result.connections
             }
         }
 
+        log("createLayerNodes: depth=\(depth), complete with \(nodesDict.count) total nodes")
         return (nodesDict, stateVarConnections)
     }
 }
