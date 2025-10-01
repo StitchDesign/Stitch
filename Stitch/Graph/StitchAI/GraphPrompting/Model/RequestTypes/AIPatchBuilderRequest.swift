@@ -19,9 +19,15 @@ struct AIPatchBuilderFunctionInputs: Codable {
 
 struct AIPatchBuilderFunctionInputsSchema: Encodable {
     let swiftui_source_code = OpenAISchema(type: .string)
-    
+
     // MARK: string because no nesting support in structured outputs
     let layer_data_list = OpenAISchema(type: .string)
+}
+
+// MARK: - Work item for iterative layer processing
+private struct LayerWorkItem {
+    let layers: [AIGraphData_V0.LayerData]
+    let parentId: UUID?
 }
 
 extension Array where Element == AIGraphData_V0.LayerData {
@@ -29,53 +35,57 @@ extension Array where Element == AIGraphData_V0.LayerData {
                           nodesDict: inout [UUID: NodeEntity],
                           stateVarConnections: inout [String: [NodeIOCoordinate]],
                           isStreaming: Bool) {
-        self.forEach { layerData in
-            guard let layer = layerData.node_name.value.layer else {
-                if !isStreaming {
-                    fatalErrorIfDebug()
-                }
-                return
-            }
-            
-            let layerNodeEntity = layer
-                .createDefaultLayerNodeEntity(nodeId: UUID(layerData.node_id) ?? UUID(),
-                                              layerGroupId: layerGroupId)
-            
-            let nodeEntity = NodeEntity(id: layerNodeEntity.id,
-                                        nodeTypeEntity: .layer(layerNodeEntity),
-                                        title: layerData.suggested_title ?? "")
-            
-            nodesDict.updateValue(nodeEntity,
-                                  forKey: layerNodeEntity.id)
 
-            layerData.custom_layer_input_values.forEach { portDerivation in
-                let coordinate = portDerivation.coordinate
-                
-                portDerivation.inputData.forEach { inputData in
-                    do {
-                        // Parse actions at this input, which may include patch data in the event of view events
-                        try nodesDict.updateWithEventData(inputData,
-                                                          layerInputCoordinate: .init(portType: .keyPath(coordinate),
-                                                                                      nodeId: layerNodeEntity.id),
-                                                          varName: nil,
-                                                          stateVarConnections: &stateVarConnections,
-                                                          isStreaming: isStreaming)
-                    } catch {
-                        if !isStreaming {
-                            // TODO: need to handle errors silently
-                            fatalErrorIfDebug("createLayerNodes error: \(error)")
+        // MARK: VERY IMPORTANT: Use iterative approach with queue instead of recursion to avoid blowing up actor's thread-memory (512 KB; vs main thread's 8 MB)
+        var queue = [LayerWorkItem(layers: self, parentId: layerGroupId)]
+
+        while !queue.isEmpty {
+            let workItem = queue.removeFirst()
+
+            for layerData in workItem.layers {
+                guard let layer = layerData.node_name.value.layer else {
+                    if !isStreaming {
+                        fatalErrorIfDebug()
+                    }
+                    continue
+                }
+
+                let layerNodeEntity = layer
+                    .createDefaultLayerNodeEntity(nodeId: UUID(layerData.node_id) ?? UUID(),
+                                                  layerGroupId: workItem.parentId)
+
+                let nodeEntity = NodeEntity(id: layerNodeEntity.id,
+                                            nodeTypeEntity: .layer(layerNodeEntity),
+                                            title: layerData.suggested_title ?? "")
+
+                nodesDict.updateValue(nodeEntity,
+                                      forKey: layerNodeEntity.id)
+
+                for portDerivation in layerData.custom_layer_input_values {
+                    let coordinate = portDerivation.coordinate
+
+                    for inputData in portDerivation.inputData {
+                        do {
+                            // Parse actions at this input, which may include patch data in the event of view events
+                            try nodesDict.updateWithEventData(inputData,
+                                                              layerInputCoordinate: .init(portType: .keyPath(coordinate),
+                                                                                          nodeId: layerNodeEntity.id),
+                                                              varName: nil,
+                                                              stateVarConnections: &stateVarConnections,
+                                                              isStreaming: isStreaming)
+                        } catch {
+                            if !isStreaming {
+                                // TODO: need to handle errors silently
+                                fatalErrorIfDebug("createLayerNodes error: \(error)")
+                            }
                         }
                     }
                 }
-            }
-            
-            
-            if let children = layerData.children {
-                children
-                    .createLayerNodes(layerGroupId: layerNodeEntity.id,
-                                      nodesDict: &nodesDict,
-                                      stateVarConnections: &stateVarConnections,
-                                      isStreaming: isStreaming)
+
+                // Add children to queue instead of recursing
+                if let children = layerData.children {
+                    queue.append(LayerWorkItem(layers: children, parentId: layerNodeEntity.id))
+                }
             }
         }
     }
