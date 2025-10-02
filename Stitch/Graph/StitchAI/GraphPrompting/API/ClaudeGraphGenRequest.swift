@@ -298,7 +298,7 @@ final actor ClaudeStreamingActor {
                             // This is regular text content
                             // log("📝 Text delta received: '\(text)' (length: \(text.count))")
                             accumulatedContent += text
-                            print("accumulated text: \n\(accumulatedContent)")
+                            log("accumulated text: \n\(accumulatedContent)")
                             
                             // MARK: code building in-progress graphs is expensive, we delay work so long as no active update task is running
                             guard self.updateTask == nil else { break }
