@@ -304,8 +304,7 @@ extension Array where Element == NodeEntity {
         self.first { $0.id == id }
     }
 
-    func positionAIGeneratedNodesDuringApply(
-        viewPortCenter: CGPoint) -> Self {
+    func positionAIGeneratedNodesDuringApply(viewPortCenter: CGPoint) -> Self {
 
         // Performance instrumentation - start timing
         let startTime = CFAbsoluteTimeGetCurrent()
@@ -389,12 +388,20 @@ extension Array where Element == NodeEntity {
                 )
                 rowIndex += 1
 
-                // Optimized position update closure
+                // Apply positions based on node type
+                // For layer nodes, we need to spread canvas items vertically
+                var canvasItemIndex = 0
+                let canvasItemVerticalSpacing: CGFloat = CGSize.ASSUMED_LAYER_FIELD_SIZE.height
+
                 let updateCanvasPosition = { (canvasId: CanvasItemId) -> CGPoint in
-                    basePosition
+                    let position = CGPoint(
+                        x: basePosition.x,
+                        y: basePosition.y + CGFloat(canvasItemIndex) * canvasItemVerticalSpacing
+                    )
+                    canvasItemIndex += 1
+                    return position
                 }
 
-                // Apply positions based on node type
                 updateNodePositions(
                     node: &updatedNode,
                     sizeCache: sizeCache,
