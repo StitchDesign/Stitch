@@ -452,10 +452,29 @@ func getLayerTypesForPinnedViews(pinnedData: LayerPinData, // views pinned to th
 }
 
 extension Array where Element: StitchNestedListElement & Equatable {
+    mutating func removeSidebarLayerData(_ itemId: Element.ID) {
+        var finalList = self
+        
+        for (index, sidebarLayerData) in self.enumerated() {            
+            if sidebarLayerData.id == itemId {
+                finalList.remove(at: index)
+                self = finalList
+                return
+            }
+            
+            // Check children if no match found
+            self[index].children?.removeSidebarLayerData(itemId)
+        }
+    }
     
     mutating func insertSidebarLayerData(_ item: Element,
-                                         parentId: Element.ID,
+                                         parentId: Element.ID?,
                                          index: Int) {
+        if parentId == nil {
+            self.insert(item, at: Swift.max(index, self.count - 1))
+            return
+        }
+        
         self = self.map { sidebarLayerData in
             var sidebarLayerData = sidebarLayerData
             
