@@ -845,22 +845,21 @@ extension SidebarLayerList {
             
             // Continue if already accounted for (sometimes changedNodeId isn't changed)
             if !existingNodeIds.contains(changedNodeId) {
+                // Remove item if already existing in sidebar
+                self.removeSidebarLayerData(changedNodeId)
+                
+                let removedData = self
+                
                 // If parent is existing node, add in-place using existing index
-                if let parentLayerId = parentLayerId {
-                    self.insertSidebarLayerData(inProgressItem,
-                                                parentId: parentLayerId,
-                                                index: index)
-                }
+                self.insertSidebarLayerData(inProgressItem,
+                                            parentId: parentLayerId,
+                                            index: index)
                 
-                // Append to root of list of parent is nil
-                else if parentLayerId == nil {
-                    self.insert(inProgressItem, at: Swift.max(index, self.count - 1))
-                }
-                
-                // BFS should ensure parent node always exists, so fatal error
-                else {
-                    fatalErrorIfDebug()
-                }
+                #if DEBUG
+                let list = self.flattenedItems.map(\.id)
+                let set = Set(list)
+                assertInDebug(list.count == set.count)
+                #endif
             }
             
             // Now recursively BFS--do not skip this step!
