@@ -1339,6 +1339,10 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
             guard let upstreamPatchCoordinates = stateVarConnections
                 .get(stateName),
                   let layerInputCoordinate = layerInputCoordinate else {
+                if !isStreaming {
+                    fatalErrorIfDebug()
+                }
+                
                 throw SwiftUISyntaxError.unexpectedUpstreamLayerCoordinate
             }
             

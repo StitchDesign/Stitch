@@ -534,7 +534,6 @@ extension GraphEntity {
             
             // Only use current data when layer streaming is incomplete and not last node
             let useCurrent = !isLayerStreamingComplete && !streamedNodeMatchesIncompleteLayer
-            let node = useCurrent ? current : streamed
 
             // Remove candidate
             if current.kind.isPatch {
@@ -627,13 +626,18 @@ extension GraphEntity {
                                           changedNodeIds: changedNodeIds,
                                           existingNodeIds: Set(existingNodesMap.keys))
                 
-        // let stringLog = merged.nodes.reduce(into: "mergeWithStreamedGraph: new nodes:") { stringBuilder, node in
-        //     stringBuilder += "\n\(node.id):\tkind: \(node.kind)\tlayer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")"
-        // }
-        // log(stringLog)
+        let currentLog = self.nodes.reduce(into: "mergeWithStreamedGraph: current nodes:") { stringBuilder, node in
+            stringBuilder += "\n\(node.id):\tkind: \(node.kind)\tlayer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")"
+        }
+        log(currentLog)
+        
+        let inProgressLog = merged.nodes.reduce(into: "mergeWithStreamedGraph: new nodes:") { stringBuilder, node in
+             stringBuilder += "\n\(node.id):\tkind: \(node.kind)\tlayer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")"
+         }
+         log(inProgressLog)
         
         let sidebarLog = merged.orderedSidebarLayers
-            .createLogMessage("mergeWithStreamedGraph sidebar:\n")
+            .createLogMessage("mergeWithStreamedGraph sidebar:")
         log(sidebarLog)
 
 #if DEBUG || DEV_DEBUG
@@ -645,7 +649,7 @@ extension GraphEntity {
     }
     
     // MARK: - Similarity Heuristics
-    
+
     /// Computes a similarity score between two nodes. Higher is better.
     /// Prioritizes node kind (patch/layer/group/component), then patch/layer/component
     /// specific identifiers, title similarity, shared parent group, and canvas proximity.
