@@ -452,22 +452,49 @@ func getLayerTypesForPinnedViews(pinnedData: LayerPinData, // views pinned to th
 }
 
 extension Array where Element: StitchNestedListElement & Equatable {
-    
-    func insertSidebarLayerData(_ itemId: Element.ID, parent: Element.ID) -> Element? {
-        let layer: Element? = nil
+    mutating func removeSidebarLayerData(_ itemId: Element.ID) {
+        var finalList = self
         
-        for sidebarLayerData in self {
-            
+        for (index, sidebarLayerData) in self.enumerated() {            
             if sidebarLayerData.id == itemId {
-                return sidebarLayerData
+                finalList.remove(at: index)
+                self = finalList
+                return
             }
             
-            else if let layerFoundInChildren = sidebarLayerData.children?.getSidebarLayerData(itemId) {
-                return layerFoundInChildren
-            }
-        } // self.forEach
+            // Check children if no match found
+            self[index].children?.removeSidebarLayerData(itemId)
+        }
+    }
+    
+    mutating func insertSidebarLayerData(_ item: Element,
+                                         parentId: Element.ID?,
+                                         index: Int) {
+        if parentId == nil {
+            self.insert(item, at: Swift.max(index, self.count - 1))
+            return
+        }
         
-        return layer
+        self = self.map { sidebarLayerData in
+            var sidebarLayerData = sidebarLayerData
+            
+            if sidebarLayerData.id == parentId {
+                if var children = sidebarLayerData.children {
+                    children.insert(item, at: Swift.max(index, children.count - 1))
+                    sidebarLayerData.children = children
+                    return sidebarLayerData
+                }
+            }
+            
+            if var children = sidebarLayerData.children {
+                children.insertSidebarLayerData(item,
+                                                parentId: parentId,
+                                                index: index)
+                sidebarLayerData.children = children
+            }
+            
+            return sidebarLayerData
+        }
     }
     
     // TODO: remove after StitchViewModelKit's `StitchNestedList.get` method is fixed

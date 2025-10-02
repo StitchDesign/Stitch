@@ -149,12 +149,20 @@ extension SwiftSyntaxActionsResult {
                        groupNodeFocused: UUID?,
                        isStreaming: Bool) -> StitchAIGraphEntityResult {
         var viewStatePatchConnections = self.graphData.viewStatePatchConnections
-
+        var lastStreamedLayerId: UUID?
+        let isLayerStreamingComplete = !(isStreaming && self.graphData.patchNodes.isEmpty)
+        
         // Instantiate new GraphEntity instance, starting with known patch nodes
         var graphEntity = GraphEntity.createEmpty()
         graphEntity.id = docId
         graphEntity.name = currentGraphEntity.name
         graphEntity.nodes = self.graphData.patchNodes
+        
+        // The last parsed layer node during a stream might have incomplete data, we mark this as to not impact streaming performance
+        if !isLayerStreamingComplete {
+           // Non-empty patch nodes mean layer data is exhaustive{
+            lastStreamedLayerId = self.graphData.layer_data_list.lastLeafLayer
+        }
 
         var nodesDict = graphEntity.nodes.reduce(into: [UUID: NodeEntity]()) { result, nodeEntity in
             result.updateValue(nodeEntity, forKey: nodeEntity.id)
@@ -168,6 +176,13 @@ extension SwiftSyntaxActionsResult {
                               isStreaming: isStreaming)
         
         graphEntity.nodes = Array(nodesDict.values)
+        
+        // Create nested sidebar layer data
+        let newSidebarData = self.graphData.layer_data_list.compactMap {
+            $0.createSidebarLayerData()
+        }
+        
+        graphEntity.orderedSidebarLayers = newSidebarData
         
         // Can't build the depth map from the `patch_data`,
         // since those UUIDs have not been remapped yet
@@ -191,7 +206,9 @@ extension SwiftSyntaxActionsResult {
         if isStreaming {
             // Reuse IDs from existing graph when possible--this allows us to reuse IDs during streaming
             finalGraphEntity = currentGraphEntity
-                .mergeWithStreamedGraph(graphEntity)
+                .mergeWithStreamedGraph(graphEntity,
+                                        lastStreamedLayerId: lastStreamedLayerId,
+                                        isLayerStreamingComplete: isLayerStreamingComplete)
         } else {
             // Infer data directly
             finalGraphEntity = graphEntity
