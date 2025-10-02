@@ -18,7 +18,7 @@ struct FeatureFlags {
      
      One approach is to simply hide anchoring
      */
-    static let HIDE_ANCHORING_INPUT: Bool = false
+    static let HIDE_ANCHORING_INPUT: Bool = true // false
     
     /*
      Used for changes that move Stitch closer to SwiftUI's implementation details.
@@ -38,11 +38,11 @@ struct FeatureFlags {
      */
     
     // NOTE: THIS BREAKS POSITIONING ON MANY OLDER PROJECTS
-#if DEV_DEBUG
+//#if DEV_DEBUG
     static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = true
-#else
-    static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = false
-#endif
+//#else
+//    static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = false
+//#endif
     
     
 #if STITCH_AI_REASONING || DEBUG || DEV_DEBUG
