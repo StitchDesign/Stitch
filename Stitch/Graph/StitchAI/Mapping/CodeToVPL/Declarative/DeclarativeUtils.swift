@@ -281,6 +281,8 @@ extension SyntaxViewModifierArgumentType {
         // TODO: does this even make sense with a view which is used as an argument ?
         case .view(let view):
             return nil
+        case .mathExpression(_):
+            return nil
         }
     }
     

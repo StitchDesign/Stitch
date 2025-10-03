@@ -893,7 +893,16 @@ extension SyntaxViewName {
             
         case .stateAccess(let stateAccessRef):
             return [.connectionToLayerInput(stateAccessRef)]
-            
+
+        case .mathExpression(let mathSyntax):
+            return try parseMathExpressionToPatchNodes(
+                mathSyntax,
+                varName: varName,
+                viewEvent: viewEvent,
+                nodesDict: nodesDict,
+                isStreaming: isStreaming
+            )
+
         case .memberAccess, .closure, .viewEvent, .view:
             throw SwiftUISyntaxError.portValueDecodingError(.portValueDecodingError(describe(argument)))
         }
@@ -961,6 +970,63 @@ extension SyntaxViewName {
         }
         
         return customValues
+    }
+}
+
+func parseMathExpressionToPatchNodes(
+    _ mathSyntax: SyntaxViewMathSyntax,
+    varName: String?,
+    viewEvent: SyntaxViewEvent?,
+    nodesDict: [UUID: NodeEntity],
+    isStreaming: Bool
+) throws -> [PatchSyntaxResultType] {
+
+    // Recursively get patch data for operands
+    let lhsResults = try SyntaxViewName.derivePortValues(
+        from: mathSyntax.lhs,
+        varName: varName,
+        viewEvent: viewEvent,
+        nodesDict: nodesDict,
+        isStreaming: isStreaming
+    )
+
+    let rhsResults = try SyntaxViewName.derivePortValues(
+        from: mathSyntax.rhs,
+        varName: varName,
+        viewEvent: viewEvent,
+        nodesDict: nodesDict,
+        isStreaming: isStreaming
+    )
+
+    // Map operator to patch type
+    let patchType = try operatorToPatchType(mathSyntax.op)
+
+    // Create math patch node
+    let mathNodeId = UUID()
+    let mathNode = PatchSyntaxNodeResult(
+        id: mathNodeId,
+        kind: .patch(patchType),
+        nodeType: nil
+    )
+
+    // TODO: Create proper connection wiring
+    // For now, return all results + the math node
+    return lhsResults + rhsResults + [.node(mathNode)]
+}
+
+func operatorToPatchType(_ op: String) throws -> Patch {
+    switch op {
+    case "+":
+        return .add
+    case "-":
+        return .subtract
+    case "*":
+        return .multiply
+    case "/":
+        return .divide
+    // Add more as needed (%, etc.)
+    default:
+        throw SwiftUISyntaxError.unsupportedSyntaxArgumentKind("operator: \(op)")
     }
 }
 
