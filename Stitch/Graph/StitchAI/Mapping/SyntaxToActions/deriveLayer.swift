@@ -1161,7 +1161,7 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
             } catch {
                 log("PortValue decoding error: \(error)")
                 // fatalErrorIfDevDebug()
-                throw error
+                throw SwiftUISyntaxError.portValueDecodingError(.portValueDecodingError(error.localizedDescription))
             }
             
         case .memberAccess(let memberAccess):

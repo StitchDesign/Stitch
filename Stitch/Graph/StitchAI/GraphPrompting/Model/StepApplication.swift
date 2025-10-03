@@ -304,6 +304,52 @@ extension Array where Element == NodeEntity {
         self.first { $0.id == id }
     }
 
+    /// Builds a map of node ID to its parent node IDs by analyzing input connections
+    private func buildParentMap() -> [UUID: [UUID]] {
+        var parentMap: [UUID: [UUID]] = [:]
+
+        for node in self {
+            for inputData in node.inputs {
+                if let upstreamOutput = inputData.upstreamConnection {
+                    // upstreamOutput.nodeId is the parent
+                    // node.id is the child
+                    parentMap[node.id, default: []].append(upstreamOutput.nodeId)
+                }
+            }
+        }
+
+        return parentMap
+    }
+
+    /// Sorts nodes by barycenter (average Y position of parent nodes) to minimize edge crossings
+    private static func sortNodesByBarycenter(
+        nodes: [NodeEntity],
+        parentMap: [UUID: [UUID]],
+        nodePositions: [UUID: CGPoint]
+    ) -> [NodeEntity] {
+        let nodesWithBarycenter = nodes.map { node -> (node: NodeEntity, barycenter: CGFloat) in
+            let parentIds = parentMap[node.id] ?? []
+
+            // Get Y positions of all parents
+            let parentYs = parentIds.compactMap { nodePositions[$0]?.y }
+
+            // Calculate average Y position (barycenter)
+            let barycenter = parentYs.isEmpty
+                ? CGFloat.infinity  // Fallback for nodes without parents (shouldn't happen at depth > 0)
+                : parentYs.reduce(0, +) / CGFloat(parentYs.count)
+
+            return (node, barycenter)
+        }
+
+        // Sort by barycenter, with UUID as tiebreaker for deterministic ordering
+        return nodesWithBarycenter.sorted {
+            if $0.barycenter == $1.barycenter {
+                return $0.node.id.uuidString < $1.node.id.uuidString
+            }
+            return $0.barycenter < $1.barycenter
+        }.map { $0.node }
+    }
+
     func positionAIGeneratedNodesDuringApply(viewPortCenter: CGPoint) -> Self {
 
         // Performance instrumentation - start timing
@@ -373,13 +419,29 @@ extension Array where Element == NodeEntity {
         let totalChainWidth = runningX
         let centeringOffset = -totalChainWidth / 2.0
 
-        // Apply positions to all nodes (flattened single pass)
-        let updatedNodes = depthLayouts.flatMap { layout -> [NodeEntity] in
+        // Build parent map for barycentric positioning
+        let parentMap = self.buildParentMap()
+
+        // Track base positions for barycentric calculation
+        var nodePositions: [UUID: CGPoint] = [:]
+
+        // Apply positions to all nodes (sequential processing for barycentric positioning)
+        var updatedNodes: [NodeEntity] = []
+
+        for layout in depthLayouts {
+            // Sort nodes by barycenter if depth > 0 (nodes at depth 0 have no parents)
+            let sortedNodes = layout.depth > 0
+                ? Self.sortNodesByBarycenter(nodes: layout.nodes, parentMap: parentMap, nodePositions: nodePositions)
+                : layout.nodes
+
             var rowIndex = 0
 
-            return layout.nodes.map { node in
+            for node in sortedNodes {
                 var updatedNode = node
-                guard let sizeCache = nodeSizeCache[node.id] else { return node }
+                guard let sizeCache = nodeSizeCache[node.id] else {
+                    updatedNodes.append(node)
+                    continue
+                }
 
                 // Pre-calculated position for this node
                 let basePosition = CGPoint(
@@ -387,6 +449,9 @@ extension Array where Element == NodeEntity {
                     y: viewPortCenter.y + CGFloat(rowIndex) * layout.rowHeight
                 )
                 rowIndex += 1
+
+                // Store base position for use in barycenter calculation for children
+                nodePositions[node.id] = basePosition
 
                 // Apply positions based on node type
                 // For layer nodes, we need to spread canvas items vertically
@@ -408,7 +473,7 @@ extension Array where Element == NodeEntity {
                     updateCanvasPosition: updateCanvasPosition
                 )
 
-                return updatedNode
+                updatedNodes.append(updatedNode)
             }
         }
 
