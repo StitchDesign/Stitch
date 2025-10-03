@@ -51,7 +51,8 @@ struct DrawnEdge: View {
     let largestYDistance: CGFloat
 
     let edgeAnimationEnabled: Bool
-    
+    let isStreaming: Bool
+
     let edgeScaleEffect: CGFloat
 
     var shouldUseBackwardEdge: Bool {
@@ -125,10 +126,6 @@ struct DrawnEdge: View {
     var halfway: CGFloat {
         shouldUseBackwardEdge ? backwardHalfwayPoint : forwardHalfwayPoint
     }
-    
-    var animationTime: Double {
-        edgeAnimationEnabled ? Self.ANIMATION_DURATION : .zero
-    }
 
     var body: some View {
         // logInView("DrawnEdge: from: \(from)")
@@ -138,12 +135,18 @@ struct DrawnEdge: View {
         // logInView("DrawnEdge: forwardHalfwayPoint: \(forwardHalfwayPoint)")
 
         commonLine
-            .animation(.linear(duration: animationTime),
-                       value: halfway)
-            .animation(.linear(duration: animationTime),
-                       value: toExtended)
-            .animation(.linear(duration: animationTime),
-                       value: fromExtended)
+            .animation(
+                isStreaming ? .linear(duration: 0.3) : nil,
+                value: halfway
+            )
+            .animation(
+                isStreaming ? .linear(duration: 0.3) : nil,
+                value: toExtended
+            )
+            .animation(
+                isStreaming ? .linear(duration: 0.3) : nil,
+                value: fromExtended
+            )
     }
     
     var useLegacy: Bool {
@@ -159,32 +162,64 @@ struct DrawnEdge: View {
     var commonLine: some View {
         switch edgeStyle {
         case .curve:
-            CurveLine(from: from, to: to)
-                .stroke(color,
-                        style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH * edgeScaleEffect,
-                                           lineCap: .round,
-                                           lineJoin: .round))
-
+            if isStreaming {
+                AnimatableCurveLine(from: from, to: to)
+                    .stroke(color,
+                            style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH * edgeScaleEffect,
+                                               lineCap: .round,
+                                               lineJoin: .round))
+                    .animation(.linear(duration: STREAMING_ANIMATION_SPEED), value: to)
+                    .animation(.linear(duration: STREAMING_ANIMATION_SPEED), value: from)
+            } else {
+                CurveLine(from: from, to: to)
+                    .stroke(color,
+                            style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH * edgeScaleEffect,
+                                               lineCap: .round,
+                                               lineJoin: .round))
+            }
+            
         case .line:
-            StraightLine(from: from, to: to)
-                .stroke(color,
-                        style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH * edgeScaleEffect,
-                                           lineCap: .round,
-                                           lineJoin: .round))
-
+            if isStreaming {
+                AnimatableStraightLine(from: from, to: to)
+                    .stroke(color,
+                            style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH * edgeScaleEffect,
+                                               lineCap: .round,
+                                               lineJoin: .round))
+                    .animation(.linear(duration: STREAMING_ANIMATION_SPEED), value: to)
+                    .animation(.linear(duration: STREAMING_ANIMATION_SPEED), value: from)
+            } else {
+                StraightLine(from: from, to: to)
+                    .stroke(color,
+                            style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH * edgeScaleEffect,
+                                               lineCap: .round,
+                                               lineJoin: .round))
+            }
+            
         case .circuit:
-            CircuitLine(from: from,
-                        fromExtended: fromExtended,
-                        midX: forwardHalfwayPoint,
-                        midY: backwardHalfwayPoint,
-                        to: to,
-                        toExtended: toExtended,
-                        isBackward: shouldUseBackwardEdge)
+            if isStreaming {
+                // Forward animatable circuit line
+                AnimatableForwardCircuitLine(from: from,
+                                             midX: forwardHalfwayPoint,
+                                             midY: backwardHalfwayPoint, // ignored by forward path but required by init
+                                             to: to)
                 .stroke(color,
                         style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH * edgeScaleEffect,
                                            lineCap: .round,
                                            lineJoin: .round))
-
+            } else {
+                CircuitLine(from: from,
+                            fromExtended: fromExtended,
+                            midX: forwardHalfwayPoint,
+                            midY: backwardHalfwayPoint,
+                            to: to,
+                            toExtended: toExtended,
+                            isBackward: shouldUseBackwardEdge)
+                .stroke(color,
+                        style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH * edgeScaleEffect,
+                                           lineCap: .round,
+                                           lineJoin: .round))
+            }
+            
         }
     }
 }

@@ -255,7 +255,9 @@ func getInputNodeRowViewModels(id: InputCoordinate,
             // MathExpression is allowed to have empty inputs
             #if DEV_DEBUG || DEBUG
             if patchNode.patch != .mathExpression {
-                fatalErrorIfDebug()
+                log("getInputNodeRowViewModels: unexpected empty inputs found for non math expression node")
+                // Disabled fatal error for AI streaming support
+//                fatalErrorIfDebug()
             }
             #endif
             return []

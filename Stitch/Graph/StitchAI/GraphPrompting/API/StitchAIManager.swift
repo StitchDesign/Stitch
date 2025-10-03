@@ -19,6 +19,8 @@ final actor StitchAIManager {
       
     // Tracks task for new AI strat
     @MainActor var currentTask: Task<Result<AIGraphData_V0.GraphData, any Error>, Never>?
+    
+    let claudeStreamingActor = ClaudeStreamingActor()
 
     init?() throws {
         guard let secrets = try Secrets() else {

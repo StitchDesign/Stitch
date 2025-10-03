@@ -79,6 +79,10 @@ struct AIRequestDeps: StitchAICodeCreator {
 
         let startTime = CFAbsoluteTimeGetCurrent()
         
+        // Set streaming UI state
+        document.isStreamingResponses = true
+        document.streamingReasoningText = AI_THINKING_TEXT
+        
         // Use provider-agnostic orchestrator
         let codeEditResult = try await makeAIRequest(
             previewWindowPrompt: previewWindowPrompt,
@@ -88,8 +92,15 @@ struct AIRequestDeps: StitchAICodeCreator {
             model: model,
             verbosity: validatedVerbosity,
             reasoningEffort: document.openaiReasoningEffort.asOpenAIReasoningEffort,
-            document: document
+            document: document,
+            aiManager: aiManager,
+            currentGraphEntity: document.graph.createSchema(),
+            viewPortCenter: document.viewPortCenter,
+            groupNodeFocused: document.groupNodeFocused?.groupNodeId
         )
+        
+        // Reset streaming UI state
+        document.resetStreamingUIState()
         
         let endTime = CFAbsoluteTimeGetCurrent()
         let duration = endTime - startTime
@@ -121,21 +132,25 @@ extension StitchAICodeCreator {
             }
             
             do {
-                var actionsResult = try await request
+                let actionsResult = try await request
                     .processRequest(userPrompt: userPrompt,
                                     document: document,
-                                    aiManager: aiManager)
+                                    aiManager: aiManager,
+                                    isStreaming: false)
                 
                 // logToServerIfRelease("SUCCESS Patch Builder:\n\((try? actionsResult.graphData.encodeToPrintableString()) ?? "")")
                 
-                DispatchQueue.main.async { [weak document] in
+                Task(priority: .high) { @MainActor [weak document] in
                     guard let document = document else { return }
                     
-                    Task(priority: .high) {
-                        await actionsResult
-                            .applyAIGraph(to: document,
-                                          viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections)
-                    }
+                    // Create new graph entity, which would have been updated from stream
+                    let newCurrentGraphEntity = document.graph.createSchema()
+                    
+                    actionsResult
+                        .applyAIGraph(to: document,
+                                      viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
+                                      currentGraphEntity: newCurrentGraphEntity,
+                                      isStreaming: false)
                     
                     // Note: task clearing and menu hiding are handled by resetStreamingUIState() called by AI providers
                 }
@@ -156,7 +171,8 @@ extension StitchAICodeCreator {
     @MainActor
     func processRequest(userPrompt: String,
                         document: StitchDocumentViewModel,
-                        aiManager: StitchAIManager) async throws -> SwiftSyntaxActionsResult {
+                        aiManager: StitchAIManager,
+                        isStreaming: Bool) async throws -> SwiftSyntaxActionsResult {
 
         log("SUCCESS: userPrompt: \(userPrompt)")
         
@@ -173,11 +189,12 @@ extension StitchAICodeCreator {
             throw StitchAIManagerError.emptyAIResponse
         }
 
-        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
+        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode, isStreaming: isStreaming)
         
         let actionsResult = try await codeParserResult
             .deriveStitchActions(bindingDeclarations: codeParserResult.bindingDeclarations,
-                                 document: document)
+                                 document: document,
+                                 isStreaming: isStreaming)
         
         print("Derived Stitch layer data:\n\(actionsResult)")
         

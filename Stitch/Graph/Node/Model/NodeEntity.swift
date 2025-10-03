@@ -47,7 +47,6 @@ extension NodeEntity {
         }
     }
     
-    @MainActor
     var canvasIds: [CanvasItemId] {
         switch self.nodeTypeEntity {
         case .patch(let patch):
@@ -65,7 +64,6 @@ extension NodeEntity {
     }
     
     /// Helper for mutating all canvas entities under some node.
-    @MainActor
     func canvasEntityMap(_ callback: @escaping (CanvasNodeEntity) -> CanvasNodeEntity) -> Self {
         var node = self
         node.canvasEntityMutator(callback)
@@ -73,7 +71,6 @@ extension NodeEntity {
     }
     
     /// Helper for mutating all canvas entities under some node.
-    @MainActor
     mutating func canvasEntityMutator(_ callback: @escaping (CanvasNodeEntity) -> CanvasNodeEntity) {
         
         switch self.nodeTypeEntity {

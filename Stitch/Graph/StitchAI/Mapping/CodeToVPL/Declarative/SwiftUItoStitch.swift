@@ -26,7 +26,8 @@ protocol FromSwiftUIViewToStitch {
     // Creates complete LayerData with children and custom value events
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData
 }
 
@@ -42,13 +43,14 @@ protocol PortValuesPackModifiable: FromSwiftUIViewModifierToStitch {
 }
 
 extension PortValuesPackModifiable {
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
         // Reorder arguments to match layer unpack ordering
         let layerPortEvents = try self.args
             .reorderUnapckedValues(varName: nil,
                                    viewEvent: nil,
                                    nodesDict: [:],
-                                   nodeType: Self.nodeType)
+                                   nodeType: Self.nodeType,
+                                   isStreaming: isStreaming)
         
         let parsedValues = layerPortEvents.compactMap { event -> PortValue? in
             guard let value = event.portData?.values?.first else { return nil }
@@ -67,15 +69,18 @@ extension PortValuesPackModifiable {
         // If one of the parsed events isn't a value, then there's at least one state ref, and we should return an unpacked scenario
         guard layerPortEvents.count == parsedValues.count else {
             let unpackedPortEvents = try layerPortEvents
-                .createUnpackedEvents(layerInputPort: Self.layerInputPort)
+                .createUnpackedEvents(layerInputPort: Self.layerInputPort, isStreaming: isStreaming)
             return unpackedPortEvents
         }
         
         // Pack up multiple values
-        guard let packedValue = parsedValues.pack(type: Self.nodeType) else {
-            fatalErrorIfDebug()
+        guard let packedValue = parsedValues.pack(type: Self.nodeType,
+                                                  isStreamingAIResponse: isStreaming) else {
+            if !isStreaming {
+                fatalErrorIfDebug()
+            }
             let unpackedPortEvents = try layerPortEvents
-                .createUnpackedEvents(layerInputPort: Self.layerInputPort)
+                .createUnpackedEvents(layerInputPort: Self.layerInputPort, isStreaming: isStreaming)
             return unpackedPortEvents
         }
         

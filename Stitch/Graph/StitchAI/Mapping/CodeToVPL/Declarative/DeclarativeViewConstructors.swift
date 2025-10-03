@@ -77,7 +77,8 @@ extension SyntaxViewName {
 /// Runs every `…ViewConstructor.from(node)` helper once. If an enum is
 /// returned, attach it to the *current* SyntaxView.
 func createKnownViewConstructor(from node: FunctionCallExprSyntax,
-                                arguments: [SyntaxViewArgumentData]) -> StrictViewConstructor? {
+                                arguments: [SyntaxViewArgumentData],
+                                isStreaming: Bool) -> StrictViewConstructor? {
     
     guard let name = node.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text,
           let viewName = SyntaxViewName(rawValue: name) else {
@@ -87,71 +88,88 @@ func createKnownViewConstructor(from node: FunctionCallExprSyntax,
     switch viewName {
     case .text:
         return TextViewConstructor.from(arguments,
-                                        viewName: viewName)
+                                        viewName: viewName,
+                                        isStreaming: isStreaming)
         .map { .text($0) }
     case .image:
         return ImageViewConstructor.from(arguments,
-                                         viewName: viewName)
+                                         viewName: viewName,
+                                         isStreaming: isStreaming)
         .map { .image($0) }
     case .hStack:
         return HStackViewConstructor.from(arguments,
-                                          viewName: viewName)
+                                          viewName: viewName,
+                                          isStreaming: isStreaming)
         .map { .hStack($0) }
     case .vStack:
         return VStackViewConstructor.from(arguments,
-                                          viewName: viewName)
+                                          viewName: viewName,
+                                          isStreaming: isStreaming)
         .map { .vStack($0) }
     case .zStack:
         return ZStackViewConstructor.from(arguments,
-                                          viewName: viewName)
+                                          viewName: viewName,
+                                          isStreaming: isStreaming)
         .map { .zStack($0) }
     case .circle:
         return CircleViewConstructor.from(arguments,
-                                         viewName: viewName)
+                                         viewName: viewName,
+                                         isStreaming: isStreaming)
         .map { .circle($0) }
     case .ellipse, .oval:
         return NoArgViewConstructor.from(arguments,
-                                         viewName: viewName)
+                                         viewName: viewName,
+                                         isStreaming: isStreaming)
         .map { .ellipse($0) }
     case .rectangle:
         return RectangleViewConstructor.from(arguments,
-                                             viewName: viewName)
+                                             viewName: viewName,
+                                             isStreaming: isStreaming)
         .map { .rectangle($0) }
     case .stitchRealityView:
         return StitchRealityViewConstructor.from(arguments,
-                                                 viewName: viewName)
+                                                 viewName: viewName,
+                                                 isStreaming: isStreaming)
         .map { .stitchRealityView($0) }
     case .box:
         return BoxViewConstructor.from(arguments,
-                                       viewName: viewName)
+                                       viewName: viewName,
+                                       isStreaming: isStreaming)
         .map { .box($0) }
     case .cone:
         return ConeViewConstructor.from(arguments,
-                                        viewName: viewName)
+                                        viewName: viewName,
+                                        isStreaming: isStreaming)
         .map { .cone($0) }
     case .cylinder:
         return CylinderViewConstructor.from(arguments,
-                                            viewName: viewName)
+                                            viewName: viewName,
+                                            isStreaming: isStreaming)
         .map { .cylinder($0) }
     case .sphere:
         return SphereViewConstructor.from(arguments,
-                                          viewName: viewName)
+                                          viewName: viewName,
+                                          isStreaming: isStreaming)
         .map { .sphere($0) }
     case .spacer:
         return SpacerViewConstructor.from(arguments,
-                                          viewName: viewName)
+                                          viewName: viewName,
+                                          isStreaming: isStreaming)
         .map { .spacer($0) }
     case .lazyHStack:
         return LazyHStackViewConstructor.from(arguments,
-                                             viewName: viewName)
+                                             viewName: viewName,
+                                             isStreaming: isStreaming)
             .map { .lazyHStack($0) }
     case .lazyVStack:
         return LazyVStackViewConstructor.from(arguments,
-                                             viewName: viewName)
+                                             viewName: viewName,
+                                             isStreaming: isStreaming)
             .map { .lazyVStack($0) }
     case .scrollView:
         return ScrollViewViewConstructor.from(arguments,
-                                              viewName: viewName)
+                                              viewName: viewName,
+                                              isStreaming: isStreaming)
             .map { .scrollView($0) }
         
     case .anyView, .angularGradient, .asyncImage, .button, .capsule, .canvas, .chart, .color, .colorPicker, .contentUnavailableView, .controlGroup, .datePicker, .divider, .disclosureGroup, .emptyView, .forEach, .form, .gauge, .geometryReader, .grid, .gridRow, .group, .groupBox, .labeledContent, .label, .lazyHGrid, .lazyVGrid, .link, .map, .material, .menu, .model3D, .navigationLink, .navigationStack, .navigationSplit, .navigationView, .outlineGroup, .path, .preview, .progressView, .radialGradient, .realityView, .roundedRectangle, .sceneView,
@@ -193,10 +211,11 @@ extension TextViewConstructor {
     
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData {
         let arg = self.arg
-        guard let value = try arg.derivePortValues().first else {
+        guard let value = try arg.derivePortValues(isStreaming: isStreaming).first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: arg)
         }
         
@@ -241,6 +260,11 @@ extension TextViewConstructor {
         // If it's some other expression like Text(title)
         return .string(first.value)
     }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> TextViewConstructor? {
+        return from(args, viewName: viewName)
+    }
 }
 
 
@@ -266,7 +290,8 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
     
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData {
         let portDerivations: [LayerPortDerivation]
         
@@ -274,7 +299,7 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
         case .asset(let arg),
              .decorative(let arg),
              .uiImage(let arg):
-            guard let portValue = try arg.derivePortValues().first?.value else {
+            guard let portValue = try arg.derivePortValues(isStreaming: isStreaming).first?.value else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: arg)
             }
             
@@ -287,7 +312,7 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
             ]
             
         case .sfSymbol(let arg):
-            guard let portValue = try arg.derivePortValues().first?.value else {
+            guard let portValue = try arg.derivePortValues(isStreaming: isStreaming).first?.value else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: arg)
             }
             
@@ -307,9 +332,10 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
     
     // Factory that infers the correct overload from a `FunctionCallExprSyntax`
     static func from(_ args: [SyntaxViewArgumentData],
-                     viewName: SyntaxViewName) -> ImageViewConstructor? {
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> ImageViewConstructor? {
         guard let first = args.first else { return nil }
-        let portValueArg = try? first.value.derivePortValues().first?.value
+        let portValueArg = try? first.value.derivePortValues(isStreaming: isStreaming).first?.value
         let hasStringArg = portValueArg?.nodeType == .string
         
         // Image(systemName:)
@@ -339,6 +365,11 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
         
         return nil
     }
+    
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName) -> ImageViewConstructor? {
+        return from(args, viewName: viewName, isStreaming: false)
+    }
 }
 
 
@@ -350,7 +381,8 @@ enum SpacerViewConstructor: FromSwiftUIViewToStitch {
     
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData {
         return CurrentAIGraphData.LayerData(
             node_id: nodeId,
@@ -364,6 +396,11 @@ enum SpacerViewConstructor: FromSwiftUIViewToStitch {
         // args.isEmpty ? .plain : nil
         .plain
     }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> SpacerViewConstructor? {
+        return from(args, viewName: viewName)
+    }
 }
 
 // MARK: - Reality-view primitives (no-arg)
@@ -376,7 +413,8 @@ enum StitchRealityViewConstructor: FromSwiftUIViewToStitch {
     
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData {
         return CurrentAIGraphData.LayerData(
             node_id: nodeId,
@@ -390,6 +428,11 @@ enum StitchRealityViewConstructor: FromSwiftUIViewToStitch {
 //        args.isEmpty ? .plain : nil
         .plain
     }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> StitchRealityViewConstructor? {
+        return from(args, viewName: viewName)
+    }
 }
 
 // 2) Box -----------------------------------------------------------------
@@ -401,7 +444,8 @@ enum BoxViewConstructor: FromSwiftUIViewToStitch {
     // needs to become a child of the RealityView -- how does
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData {
         return CurrentAIGraphData.LayerData(
             node_id: nodeId,
@@ -413,6 +457,11 @@ enum BoxViewConstructor: FromSwiftUIViewToStitch {
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
         args.isEmpty ? .plain : nil
+    }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> BoxViewConstructor? {
+        return from(args, viewName: viewName)
     }
 }
 
@@ -424,7 +473,8 @@ enum ConeViewConstructor: FromSwiftUIViewToStitch {
     
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData {
         return CurrentAIGraphData.LayerData(
             node_id: nodeId,
@@ -436,6 +486,11 @@ enum ConeViewConstructor: FromSwiftUIViewToStitch {
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
         args.isEmpty ? .plain : nil
+    }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> ConeViewConstructor? {
+        return from(args, viewName: viewName)
     }
 }
 
@@ -447,7 +502,8 @@ enum CylinderViewConstructor: FromSwiftUIViewToStitch {
     
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData {
         return CurrentAIGraphData.LayerData(
             node_id: nodeId,
@@ -459,6 +515,11 @@ enum CylinderViewConstructor: FromSwiftUIViewToStitch {
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
         args.isEmpty ? .plain : nil
+    }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> CylinderViewConstructor? {
+        return from(args, viewName: viewName)
     }
 }
 
@@ -470,7 +531,8 @@ enum SphereViewConstructor: FromSwiftUIViewToStitch {
     
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData {
         return CurrentAIGraphData.LayerData(
             node_id: nodeId,
@@ -482,6 +544,11 @@ enum SphereViewConstructor: FromSwiftUIViewToStitch {
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
         args.isEmpty ? .plain : nil
+    }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> SphereViewConstructor? {
+        return from(args, viewName: viewName)
     }
 }
 
@@ -517,7 +584,8 @@ extension ViewStackViewConstructor {
     
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData {
         var list: [LayerPortDerivation] = [
             .init(input: .orientation, value: .orientation(Self.orientation))
@@ -535,7 +603,7 @@ extension ViewStackViewConstructor {
                               value: .anchoring(anchoring)))
             
         case .some(let alignmentArg):
-            guard let value = try alignmentArg.derivePortValues().first?.value else {
+            guard let value = try alignmentArg.derivePortValues(isStreaming: isStreaming).first?.value else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: alignmentArg)
             }
             
@@ -544,7 +612,7 @@ extension ViewStackViewConstructor {
         }
         
         if let spacingArg = spacingArg {
-            guard let value = try spacingArg.derivePortValues().first?.value else {
+            guard let value = try spacingArg.derivePortValues(isStreaming: isStreaming).first?.value else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: spacingArg)
             }
             
@@ -586,6 +654,11 @@ extension ViewStackViewConstructor {
         
         return .init(alignmentArg: alignment, spacingArg: spacing)
     }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> Self? {
+        return from(args, viewName: viewName)
+    }
 }
 
 struct HStackViewConstructor: ViewStackViewConstructor {
@@ -618,123 +691,6 @@ struct VStackViewConstructor: ViewStackViewConstructor {
     }
 }
 
-//
-//// ── Helper: random-access a TupleExprElementListSyntax by Int index ────────────
-//extension LabeledExprListSyntax {
-//    subscript(safe index: Int) -> LabeledExprSyntax? {
-//        guard index >= 0 && index < count else { return nil }
-//        return self[self.index(startIndex, offsetBy: index)]
-//    }
-//}
-//
-//enum LazyHStackViewConstructor: FromSwiftUIViewToStitch {
-//    case parameters(alignment: Parameter<VerticalAlignment> = .literal(.center),
-//                    spacing:   Parameter<CGFloat?>          = .literal(nil))
-//
-//    var toStitch: (Layer?, [ValueOrEdge])? {
-//        switch self {
-//        case .parameters(let alignment, let spacing):
-//            return HStackViewConstructor
-//                .parameters(alignment: alignment, spacing: spacing)
-//                .toStitch
-//        }
-//    }
-//
-//    static func from(_ node: FunctionCallExprSyntax) -> LazyHStackViewConstructor? {
-//        // Re‑use HStack parser then wrap
-//        guard let base = HStackViewConstructor.from(node) else { return nil }
-//        switch base {
-//        case .parameters(let a, let s): return .parameters(alignment: a, spacing: s)
-//        }
-//    }
-//}
-//
-//enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
-//    case parameters(alignment: Parameter<HorizontalAlignment> = .literal(.center),
-//                    spacing:   Parameter<CGFloat?>            = .literal(nil))
-//
-//    var toStitch: (Layer?, [ValueOrEdge])? {
-//        switch self {
-//        case .parameters(let alignment, let spacing):
-//            return VStackViewConstructor
-//                .parameters(alignment: alignment, spacing: spacing)
-//                .toStitch
-//        }
-//    }
-//
-//    static func from(_ node: FunctionCallExprSyntax) -> LazyVStackViewConstructor? {
-//        guard let base = VStackViewConstructor.from(node) else { return nil }
-//        switch base {
-//        case .parameters(let a, let s): return .parameters(alignment: a, spacing: s)
-//        }
-//    }
-//}
-//
-//// MARK: - ZStack -----------------------------------------------------------
-//
-//// MARK: - TextField --------------------------------------------------------
-//
-//enum TextFieldViewConstructor: FromSwiftUIViewToStitch {
-//    /// Simplified model:
-//    /// `TextField(_ titleKey: LocalizedStringKey, text: Binding<String>)`
-//    /// or `TextField(_ title: String, text: Binding<String>)`
-//    case parameters(title: Parameter<String?> = .literal(nil),
-//                    binding: ExprSyntax)          // always an expression edge
-//
-//    // MARK: Stitch mapping
-//    ///
-//    /// • `title`  →  .placeholder   (omit if nil)
-//    /// • `binding`→  .text          (literal constant → value, otherwise edge)
-//    var toStitch: (Layer?, [ValueOrEdge])? {
-//        guard case let .parameters(title, bindingExpr) = self else { return nil }
-//        var list: [ValueOrEdge] = []
-//
-//        // ----- title / placeholder ---------------------------------------
-//        switch title {
-//        case .literal(let str?):
-//            list.append(.value(.init(.placeholderText,
-//                                     .string(.init(str)))))
-//        case .expression(let expr):
-//            list.append(.edge(expr))
-//        default:
-//            break    // .literal(nil)  → no placeholder
-//        }
-//
-//        // ----- binding / text -------------------------------------------
-//        if let constLiteral = bindingExpr.stringLiteralFromConstantBinding() {
-//            list.append(.value(.init(.text,
-//                                     .string(.init(constLiteral)))))
-//        } else {
-//            list.append(.edge(bindingExpr))
-//        }
-//
-//        return (.textField, list)
-//    }
-//
-//    static func from(_ node: FunctionCallExprSyntax) -> Self? {
-//        let args = node.arguments
-//
-//        // need at least title + binding
-//        guard let first = args[safe: 0],
-//              let second = args[safe: 1] else { return nil }
-//
-//        // First argument can be unlabeled placeholder string/localised key
-//        var title: Parameter<String?> = .literal(nil)
-//        if first.label == nil,
-//           let lit = first.expression.as(StringLiteralExprSyntax.self) {
-//            title = .literal(lit.decoded())
-//        } else if first.label == nil {
-//            title = .expression(first.expression)
-//        }
-//
-//        // Second arg must be `text:` binding
-//        guard second.label?.text == "text" else { return nil }
-//
-//        return .parameters(title: title,
-//                           binding: second.expression)
-//    }
-//}
-//
 // MARK: - ZStackViewConstructor (new-style)
 enum ZStackViewConstructor: FromSwiftUIViewToStitch {
     /// SwiftUI: `init(alignment: Alignment = .center, content:)`
@@ -744,7 +700,8 @@ enum ZStackViewConstructor: FromSwiftUIViewToStitch {
 
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData {
         var list: [LayerPortDerivation] = []
 
@@ -771,7 +728,7 @@ enum ZStackViewConstructor: FromSwiftUIViewToStitch {
                                   value: .anchoring(anch)))
             } else {
                 // Fall back to generic port-value derivation
-                guard let value = try arg.derivePortValues().first else {
+                guard let value = try arg.derivePortValues(isStreaming: isStreaming).first else {
                     throw SwiftUISyntaxError.portValueNotFound(argument: arg)
                 }
                 list.append(.init(input: .layerGroupAlignment, inputData: [value]))
@@ -795,6 +752,11 @@ enum ZStackViewConstructor: FromSwiftUIViewToStitch {
             }
         }
         return .parameters(alignment: alignment)
+    }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> ZStackViewConstructor? {
+        return from(args, viewName: viewName)
     }
 }
 // Helper: map SwiftUI `Alignment` member access (e.g. `.topLeading`) to Stitch `Anchoring`
@@ -826,7 +788,8 @@ struct NoArgViewConstructor: FromSwiftUIViewToStitch {
     
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData {
         return CurrentAIGraphData.LayerData(
             node_id: nodeId,
@@ -853,6 +816,11 @@ struct NoArgViewConstructor: FromSwiftUIViewToStitch {
         return .init(args: args,
                      layer: layer)
     }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> NoArgViewConstructor? {
+        return from(args, viewName: viewName)
+    }
 }
 
 
@@ -863,7 +831,8 @@ struct CircleViewConstructor: FromSwiftUIViewToStitch {
     
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData {
         return CurrentAIGraphData.LayerData(
             node_id: nodeId,
@@ -875,6 +844,11 @@ struct CircleViewConstructor: FromSwiftUIViewToStitch {
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
         args.isEmpty ? .init() : nil
+    }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> CircleViewConstructor? {
+        return from(args, viewName: viewName)
     }
 }
 
@@ -884,7 +858,8 @@ struct RectangleViewConstructor: FromSwiftUIViewToStitch {
     
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData {
         return CurrentAIGraphData.LayerData(
             node_id: nodeId,
@@ -896,6 +871,11 @@ struct RectangleViewConstructor: FromSwiftUIViewToStitch {
     static func from(_ args: [SyntaxViewArgumentData],
                      viewName: SyntaxViewName) -> Self? {
         args.isEmpty ? .init() : nil
+    }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> RectangleViewConstructor? {
+        return from(args, viewName: viewName)
     }
 }
 
@@ -985,17 +965,19 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
 
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData {
         // Use the specialized ScrollView wrapping logic
         return try self.createLayerWithChildrenWrapping(
             childrenLayers: childrenLayers,
-            nodeId: nodeId
+            nodeId: nodeId,
+            isStreaming: isStreaming
         )
     }
     
     // Helper method to generate just the port derivations (used by createLayerWithChildrenWrapping)
-    private func generateScrollPortDerivations() throws -> [LayerPortDerivation] {
+    private func generateScrollPortDerivations(isStreaming: Bool) throws -> [LayerPortDerivation] {
         guard case let .parameters(axesArg, _) = self else { return [] }
 
         func enable(_ port: LayerInputPort) -> LayerPortDerivation {
@@ -1103,7 +1085,8 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
                 complexType,
                 varName: nil,
                 viewEvent: nil,
-                nodesDict: [:])
+                nodesDict: [:],
+                isStreaming: isStreaming)
 
             return [LayerPortDerivation(input: .scrollYEnabled,
                                         inputData: inputData)]
@@ -1157,12 +1140,18 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
         
         return .parameters(axes: axes, showsIndicators: indicators)
     }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> ScrollViewViewConstructor? {
+        return from(args, viewName: viewName)
+    }
     
     /// Handles ScrollView-specific child wrapping logic similar to createScrollGroupLayer
     /// Creates appropriate layer structure with child wrapping when needed
     func createLayerWithChildrenWrapping(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData {
         
         // Apply the same logic as createScrollGroupLayer
@@ -1170,7 +1159,7 @@ enum ScrollViewViewConstructor: FromSwiftUIViewToStitch {
         let hasRootGroupLayer = childrenLayers.count == 1 && isFirstLayerGroup
         
         // Get the scroll axis settings from our helper method
-        let customEvents = try self.generateScrollPortDerivations()
+        let customEvents = try self.generateScrollPortDerivations(isStreaming: isStreaming)
         
         if hasRootGroupLayer,
            let existingGroupData = childrenLayers.first {
@@ -1472,7 +1461,8 @@ enum LazyHStackViewConstructor: FromSwiftUIViewToStitch {
 
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData {
         var list: [LayerPortDerivation] = [
             .init(input: .orientation, value: .orientation(.horizontal))
@@ -1499,14 +1489,14 @@ enum LazyHStackViewConstructor: FromSwiftUIViewToStitch {
             list.append(.init(input: .layerGroupAlignment,
                               value: .anchoring(v.toAnchoring)))
         case .some(let arg):
-            guard let value = try arg.derivePortValues().first else {
+            guard let value = try arg.derivePortValues(isStreaming: isStreaming).first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: arg)
             }
             list.append(.init(input: .layerGroupAlignment, inputData: [value]))
         }
 
         if let spacingArg = spacingArg {
-            guard let value = try spacingArg.derivePortValues().first else {
+            guard let value = try spacingArg.derivePortValues(isStreaming: isStreaming).first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: spacingArg)
             }
             list.append(.init(input: .spacing, inputData: [value]))
@@ -1535,6 +1525,11 @@ enum LazyHStackViewConstructor: FromSwiftUIViewToStitch {
         }
         return .parameters(alignment: alignment, spacing: spacing)
     }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> LazyHStackViewConstructor? {
+        return from(args, viewName: viewName)
+    }
 }
 
 // MARK: LazyVStackViewConstructor (new-style)
@@ -1547,7 +1542,8 @@ enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
 
     func createCustomValueEvents(
         childrenLayers: [CurrentAIGraphData.LayerData],
-        nodeId: String
+        nodeId: String,
+        isStreaming: Bool
     ) throws -> CurrentAIGraphData.LayerData {
         var list: [LayerPortDerivation] = [
             .init(input: .orientation, value: .orientation(.vertical))
@@ -1575,14 +1571,14 @@ enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
                 throw SwiftUISyntaxError.unsupportedConstructorForPortValueDecoding(.vStack(VStackViewConstructor(alignment: nil, spacing: nil)))
             }
         case .some(let arg):
-            guard let value = try arg.derivePortValues().first else {
+            guard let value = try arg.derivePortValues(isStreaming: isStreaming).first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: arg)
             }
             list.append(.init(input: .layerGroupAlignment, inputData: [value]))
         }
 
         if let spacingArg = spacingArg {
-            guard let value = try spacingArg.derivePortValues().first else {
+            guard let value = try spacingArg.derivePortValues(isStreaming: isStreaming).first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: spacingArg)
             }
             list.append(.init(input: .spacing, inputData: [value]))
@@ -1608,6 +1604,11 @@ enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
             }
         }
         return .parameters(alignment: alignment, spacing: spacing)
+    }
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName,
+                     isStreaming: Bool) -> LazyVStackViewConstructor? {
+        return from(args, viewName: viewName)
     }
 }
 
@@ -1680,7 +1681,7 @@ protocol FromSwiftUIViewModifierToStitch {
     static func from(_ args: [SyntaxViewArgumentData],
                      modifierName: SyntaxViewModifierName) -> T?
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation]
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation]
 }
 
 // MARK: - Opacity View Modifier
@@ -1688,8 +1689,8 @@ protocol FromSwiftUIViewModifierToStitch {
 struct OpacityViewModifier: FromSwiftUIViewModifierToStitch {
     let value: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
-        guard let portValue = try value.derivePortValues().first else {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
+        guard let portValue = try value.derivePortValues(isStreaming: isStreaming).first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: value)
         }
         
@@ -1723,14 +1724,14 @@ enum ScaleEffectViewModifier: FromSwiftUIViewModifierToStitch {
               anchor: SyntaxViewModifierArgumentType?)
 
     // MARK: - Stitch mapping
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
         // local helper for optional anchor → .pivot
         func pivotEvents(_ anchorArg: SyntaxViewModifierArgumentType?) throws -> [LayerPortDerivation] {
             guard let anchorArg else { return [] }
             if case let .memberAccess(ma) = anchorArg, let anch = ma.unitPointAnchoring {
                 return [.init(input: .pivot, value: .anchoring(anch))]
             }
-            if let anchorPV = try anchorArg.derivePortValues().first {
+            if let anchorPV = try anchorArg.derivePortValues(isStreaming: isStreaming).first {
                 return [.init(input: .pivot, inputData: [anchorPV])]
             }
             throw SwiftUISyntaxError.portValueNotFound(argument: anchorArg)
@@ -1738,7 +1739,7 @@ enum ScaleEffectViewModifier: FromSwiftUIViewModifierToStitch {
 
         switch self {
         case .uniform(let scaleArg, let anchorArg):
-            guard let pv = try scaleArg.derivePortValues().first else {
+            guard let pv = try scaleArg.derivePortValues(isStreaming: isStreaming).first else {
                 throw SwiftUISyntaxError.portValueNotFound(argument: scaleArg)
             }
             var events: [LayerPortDerivation] = [.init(input: .scale, inputData: [pv])]
@@ -1746,8 +1747,8 @@ enum ScaleEffectViewModifier: FromSwiftUIViewModifierToStitch {
             return events
 
         case .xy(let xArg, let yArg, let anchorArg):
-            guard let portValueX = try xArg.derivePortValues().first?.value,
-                  let portValueY = try yArg.derivePortValues().first?.value else {
+            guard let portValueX = try xArg.derivePortValues(isStreaming: isStreaming).first?.value,
+                  let portValueY = try yArg.derivePortValues(isStreaming: isStreaming).first?.value else {
                 // For multiple arguments, we'll report the first one as a representative
                 throw SwiftUISyntaxError.portValueNotFound(argument: xArg)
             }
@@ -1764,8 +1765,8 @@ enum ScaleEffectViewModifier: FromSwiftUIViewModifierToStitch {
             if case .tuple(let fields) = sizeArg,
                let wField = fields.first(where: { $0.label == "width" })?.value,
                let hField = fields.first(where: { $0.label == "height" })?.value,
-               let portValueW = try wField.derivePortValues().first?.value,
-               let portValueH = try hField.derivePortValues().first?.value {
+               let portValueW = try wField.derivePortValues(isStreaming: isStreaming).first?.value,
+               let portValueH = try hField.derivePortValues(isStreaming: isStreaming).first?.value {
                 
                 if portValueW == portValueH {
                     var events: [LayerPortDerivation] = [.init(input: .scale, value: portValueW)]
@@ -1855,8 +1856,8 @@ extension MemberAccessExprSyntax {
 struct BlurViewModifier: FromSwiftUIViewModifierToStitch {
     let radius: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
-        guard let portValue = try radius.derivePortValues().first else {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
+        guard let portValue = try radius.derivePortValues(isStreaming: isStreaming).first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: radius)
         }
         
@@ -1883,8 +1884,8 @@ struct BlurViewModifier: FromSwiftUIViewModifierToStitch {
 struct ZIndexViewModifier: FromSwiftUIViewModifierToStitch {
     let value: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
-        guard let portValue = try value.derivePortValues().first else {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
+        guard let portValue = try value.derivePortValues(isStreaming: isStreaming).first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: value)
         }
         
@@ -1908,8 +1909,8 @@ struct ZIndexViewModifier: FromSwiftUIViewModifierToStitch {
 struct CornerRadiusViewModifier: FromSwiftUIViewModifierToStitch {
     let radius: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
-        guard let portValue = try radius.derivePortValues().first else {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
+        guard let portValue = try radius.derivePortValues(isStreaming: isStreaming).first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: radius)
         }
         
@@ -1941,8 +1942,8 @@ struct FrameViewModifier: PortValuesPackModifiable {
 
 struct ForegroundColorViewModifier: FromSwiftUIViewModifierToStitch {
     let color: SyntaxViewModifierArgumentType
-    
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
         // First try to parse as Color type for semantic colors like .blue
         if case let .memberAccess(memberAccess) = color {
             let colorStr = memberAccess.property
@@ -1950,9 +1951,9 @@ struct ForegroundColorViewModifier: FromSwiftUIViewModifierToStitch {
                 return [LayerPortDerivation(input: .color, value: .color(color))]
             }
         }
-        
+
         // Fall back to generic port value derivation
-        guard let colorPortValue = try color.derivePortValues().first else {
+        guard let colorPortValue = try color.derivePortValues(isStreaming: isStreaming).first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: color)
         }
         return [LayerPortDerivation(input: .color, inputData: [colorPortValue])]
@@ -1971,7 +1972,7 @@ struct ForegroundColorViewModifier: FromSwiftUIViewModifierToStitch {
 struct FillViewModifier: FromSwiftUIViewModifierToStitch {
     let color: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
         // First try to parse as Color type for semantic colors like .blue
         if case let .memberAccess(memberAccess) = color {
             let colorStr = memberAccess.property
@@ -1981,7 +1982,7 @@ struct FillViewModifier: FromSwiftUIViewModifierToStitch {
         }
         
         // Fall back to generic port value derivation
-        guard let colorPortValue = try color.derivePortValues().first else {
+        guard let colorPortValue = try color.derivePortValues(isStreaming: isStreaming).first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: color)
         }
         return [LayerPortDerivation(input: .color, inputData: [colorPortValue])]
@@ -2002,8 +2003,8 @@ struct FillViewModifier: FromSwiftUIViewModifierToStitch {
 struct BrightnessViewModifier: FromSwiftUIViewModifierToStitch {
     let value: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
-        guard let portValue = try value.derivePortValues().first else {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
+        guard let portValue = try value.derivePortValues(isStreaming: isStreaming).first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: value)
         }
         return [LayerPortDerivation(input: .brightness, inputData: [portValue])]
@@ -2022,8 +2023,8 @@ struct BrightnessViewModifier: FromSwiftUIViewModifierToStitch {
 struct ContrastViewModifier: FromSwiftUIViewModifierToStitch {
     let value: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
-        guard let portValue = try value.derivePortValues().first else {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
+        guard let portValue = try value.derivePortValues(isStreaming: isStreaming).first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: value)
         }
         return [LayerPortDerivation(input: .contrast, inputData: [portValue])]
@@ -2042,8 +2043,8 @@ struct ContrastViewModifier: FromSwiftUIViewModifierToStitch {
 struct SaturationViewModifier: FromSwiftUIViewModifierToStitch {
     let value: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
-        guard let portValue = try value.derivePortValues().first else {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
+        guard let portValue = try value.derivePortValues(isStreaming: isStreaming).first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: value)
         }
         return [LayerPortDerivation(input: .saturation, inputData: [portValue])]
@@ -2062,8 +2063,8 @@ struct SaturationViewModifier: FromSwiftUIViewModifierToStitch {
 struct HueRotationViewModifier: FromSwiftUIViewModifierToStitch {
     let angle: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
-        guard let anglePortValue = try angle.derivePortValues().first else {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
+        guard let anglePortValue = try angle.derivePortValues(isStreaming: isStreaming).first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: angle)
         }
         return [LayerPortDerivation(input: .hueRotation, inputData: [anglePortValue])]
@@ -2082,7 +2083,7 @@ struct HueRotationViewModifier: FromSwiftUIViewModifierToStitch {
 struct ColorInvertViewModifier: FromSwiftUIViewModifierToStitch {
     // colorInvert() takes no arguments
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
         let trueValue = PortValue.bool(true)
         return [LayerPortDerivation(input: .colorInvert, value: trueValue)]
     }
@@ -2123,7 +2124,7 @@ struct PaddingViewModifier: PortValuesPackModifiable {
 struct ClippedViewModifier: FromSwiftUIViewModifierToStitch {
     // .clipped() takes no arguments
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
         let trueValue = PortValue.bool(true)
         return [LayerPortDerivation(input: .isClipped, value: trueValue)]
     }
@@ -2141,9 +2142,10 @@ struct ClippedViewModifier: FromSwiftUIViewModifierToStitch {
 struct FontViewModifier: FromSwiftUIViewModifierToStitch {
     let font: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
         // For .font() modifier, we need to create both textFont and fontSize events
-        let fontEvents = try createFontEvents(from: font)
+        let fontEvents = try createFontEvents(from: font,
+                                              isStreaming: isStreaming)
         return fontEvents
     }
     
@@ -2160,7 +2162,7 @@ struct FontViewModifier: FromSwiftUIViewModifierToStitch {
 struct FontDesignViewModifier: FromSwiftUIViewModifierToStitch {
     let design: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
         // FontDesign affects the fontChoice part of StitchFont
         let fontEvents = try createFontDesignEvents(from: design)
         return fontEvents
@@ -2179,7 +2181,7 @@ struct FontDesignViewModifier: FromSwiftUIViewModifierToStitch {
 struct FontWeightViewModifier: FromSwiftUIViewModifierToStitch {
     let weight: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
         // FontWeight affects the fontWeight part of StitchFont
         let fontEvents = try createFontWeightEvents(from: weight)
         return fontEvents
@@ -2198,8 +2200,8 @@ struct FontWeightViewModifier: FromSwiftUIViewModifierToStitch {
 struct RotationEffectViewModifier: FromSwiftUIViewModifierToStitch {
     let angle: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
-        guard let anglePortValue = try angle.derivePortValues().first else {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
+        guard let anglePortValue = try angle.derivePortValues(isStreaming: isStreaming).first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: angle)
         }
         return [LayerPortDerivation(input: .rotationZ, inputData: [anglePortValue])]
@@ -2310,8 +2312,8 @@ enum Rotation3DAxis: Codable {
 struct Rotation3DEffectViewModifier: FromSwiftUIViewModifierToStitch {
     let angle: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
-        guard let anglePortValue = try angle.derivePortValues().first else {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
+        guard let anglePortValue = try angle.derivePortValues(isStreaming: isStreaming).first else {
             throw SwiftUISyntaxError.portValueNotFound(argument: angle)
         }
         // For now, always map to rotationZ regardless of axis
@@ -2334,7 +2336,7 @@ struct Rotation3DEffectViewModifier: FromSwiftUIViewModifierToStitch {
 struct LayerIdViewModifier: FromSwiftUIViewModifierToStitch {
     let layerId: SyntaxViewModifierArgumentType
     
-    func createCustomValueEvents() throws -> [LayerPortDerivation] {
+    func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
         // LayerId modifier doesn't create LayerInputPort values,
         // it uses the layer's own ID from StrictSyntaxView/LayerData
         return []
@@ -2353,7 +2355,8 @@ struct LayerIdViewModifier: FromSwiftUIViewModifierToStitch {
 // MARK: - Font Helper Functions
 
 /// Creates font events from SwiftUI .font() modifier
-func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [LayerPortDerivation] {
+func createFontEvents(from fontArg: SyntaxViewModifierArgumentType,
+                      isStreaming: Bool) throws -> [LayerPortDerivation] {
     // Handle .memberAccess directly (e.g., .headline, .body, .title)
     if case .memberAccess(let memberData) = fontArg,
        let swiftUIFont = parseSwiftUISystemFont(memberData.property) {
@@ -2406,7 +2409,7 @@ func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [L
     // Handle arrays with PortValueDescription or other values
     // Use derivePortValues to extract the actual values from PortValueDescription
     if case .array(_) = fontArg {
-        let portValues = try fontArg.derivePortValues()
+        let portValues = try fontArg.derivePortValues(isStreaming: isStreaming)
         
         // Check if we got a numeric value from PortValueDescription
         // Handle both value_type: "number" and value_type: "layerDimension"
@@ -2675,3 +2678,5 @@ func createKnownViewModifier(modifierName: SyntaxViewModifierName,
         return nil
     }
 }
+
+

@@ -8,6 +8,8 @@
 import SwiftUI
 import StitchSchemaKit
 
+let STREAMING_ANIMATION_SPEED: CGFloat = 0.3
+
 struct CanvasItemPositionHandler: ViewModifier {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
@@ -20,6 +22,10 @@ struct CanvasItemPositionHandler: ViewModifier {
             .zIndex(zIndex)
             .canvasPosition(id: node.id,
                             position: node.position)
+            .animation(
+                document.isStreamingResponses ? .linear(duration: STREAMING_ANIMATION_SPEED) : nil,
+                value: node.position
+            )
             .gesture(CanvasItemDragHandler(document: document,
                                            graph: graph,
                                            canvasItemId: node.id))

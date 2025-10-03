@@ -108,7 +108,11 @@ final class GraphState: Sendable {
     var edgeEditingState: EdgeEditingState?
     
     @MainActor var edgeAnimationEnabled: Bool = false
-    
+
+    @MainActor var shouldAnimateForStreaming: Bool {
+        documentDelegate?.isStreamingResponses ?? false
+    }
+
     @MainActor var activelyEditedCommentBoxTitle: CommentBoxId?
 
     @MainActor var commentBoxBoundsDict = CommentBoxBoundsDict()
@@ -313,9 +317,20 @@ extension GraphState {
         // Update labels for group nodes
         self.updateGroupPortLabelsCache()
         
-        // Update visible canvas items
-        self.cachedCanvasItemsAtThisTraversalLevel = self.getCanvasItemsAtTraversalLevel(
-            groupNodeFocused: focusedGroupNode)
+        
+        if shouldAnimateForStreaming {
+            // Needed so that nodes fade-in during streaming
+            // TODO: why don't nodes fade out?
+            withAnimation(.linear(duration: STREAMING_ANIMATION_SPEED)) {
+                // Update visible canvas items
+                self.cachedCanvasItemsAtThisTraversalLevel = self.getCanvasItemsAtTraversalLevel(
+                    groupNodeFocused: focusedGroupNode)
+            }
+        } else {
+            // Update visible canvas items
+            self.cachedCanvasItemsAtThisTraversalLevel = self.getCanvasItemsAtTraversalLevel(
+                groupNodeFocused: focusedGroupNode)
+        }
     }
 
     @MainActor
@@ -593,7 +608,9 @@ extension GraphState {
         }
     }
     
-    @MainActor func update(from schema: GraphEntity, rootUrl: URL?) {
+    @MainActor func update(from schema: GraphEntity,
+                           rootUrl: URL?,
+                           fromAIStream: Bool = false) {
         assertInDebug(self.id.value == schema.id)
         
         if self.name != schema.name {
@@ -622,14 +639,19 @@ extension GraphState {
         self.layersSidebarViewModel.update(from: schema.orderedSidebarLayers)
         
         // Determines if graph data needs updating
-        self.documentDelegate?.refreshGraphUpdaterId()
+        // This triggers a view event, which is redundant for AI streaming
+        if !fromAIStream {
+            self.documentDelegate?.refreshGraphUpdaterId()
+        }
     }
     
     @MainActor
-    func update(from entity: GraphEntity) {
+    func update(from entity: GraphEntity,
+                fromAIStream: Bool = false) {
         self.update(from: entity,
                     // TODO: 'updating view models according to schema' should not require that we have a document encoder; in certain contexts (e.g. tests) we won't have a project loader
-                    rootUrl: self.documentEncoderDelegate?.rootUrl)
+                    rootUrl: self.documentEncoderDelegate?.rootUrl,
+                    fromAIStream: fromAIStream)
     }
     
     @MainActor func onPrototypeRestart(document: StitchDocumentViewModel) {

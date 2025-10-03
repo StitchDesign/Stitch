@@ -33,31 +33,35 @@ extension SwiftUIViewVisitor {
     }
     
     /// Parse child views from a closure expression
-    static func parseViewsFromClosure(_ closure: ClosureExprSyntax) -> [SyntaxView] {
-        let visitor = SwiftUIViewVisitor(willParseView: true)
+    static func parseViewsFromClosure(_ closure: ClosureExprSyntax,
+                                      isStreaming: Bool) -> [SyntaxView] {
+        let visitor = SwiftUIViewVisitor(willParseView: true, isStreaming: isStreaming)
         visitor.walk(closure)
         return visitor.viewStack
     }
     
     /// Parse a single view expression using the existing SwiftUIViewVisitor
-    static func parseViewFromExpression(_ funcExpr: FunctionCallExprSyntax) -> SyntaxView? {
-        let visitor = SwiftUIViewVisitor(willParseView: true)
+    static func parseViewFromExpression(_ funcExpr: FunctionCallExprSyntax,
+                                        isStreaming: Bool) -> SyntaxView? {
+        let visitor = SwiftUIViewVisitor(willParseView: true, isStreaming: isStreaming)
         visitor.walk(funcExpr)
         return visitor.viewStack.first
     }
     
     // Parse arguments from function call
-    static func parseArguments(from node: FunctionCallExprSyntax) throws -> ViewConstructorType {
+    static func parseArguments(from node: FunctionCallExprSyntax,
+                               isStreaming: Bool) throws -> ViewConstructorType {
         // Default handling for other modifiers
         var arguments = try node.arguments.map { (argument) -> SyntaxViewArgumentData in
-            try Self.parseArgument(argument)
+            try Self.parseArgument(argument, isStreaming: isStreaming)
         }
         
         // log("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
         
         guard let knownViewConstructor = createKnownViewConstructor(
             from: node,
-            arguments: arguments) else {
+            arguments: arguments,
+            isStreaming: isStreaming) else {
         
             // Append closure arg if exists
             if let closureBlock = node.trailingClosure {
@@ -71,22 +75,23 @@ extension SwiftUIViewVisitor {
         return .trackedConstructor(knownViewConstructor)
     }
     
-    static func parseArgument(_ argument: LabeledExprSyntax) throws -> SyntaxViewArgumentData {
+    static func parseArgument(_ argument: LabeledExprSyntax, isStreaming: Bool) throws -> SyntaxViewArgumentData {
         let label = argument.label?.text
         
         let expression = argument.expression
         
-        let value = try Self.parseArgumentType(from: expression)
+        let value = try Self.parseArgumentType(from: expression, isStreaming: isStreaming)
         
         return .init(label: label,
                      value: value)
     }
     
-    static func parseFnArgumentType(_ funcExpr: FunctionCallExprSyntax) throws -> SyntaxViewModifierArgumentType {
+    static func parseFnArgumentType(_ funcExpr: FunctionCallExprSyntax,
+                                    isStreaming: Bool) throws -> SyntaxViewModifierArgumentType {
         // Recursively create argument data
         let complexTypeArgs = try funcExpr.arguments
             .map { expr in
-                try Self.parseArgument(expr)
+                try Self.parseArgument(expr, isStreaming: isStreaming)
             }
         
         // Check if this is an actual event/gesture (not a regular view)
@@ -97,7 +102,8 @@ extension SwiftUIViewVisitor {
             var modifierClosures = [String: SyntaxViewModifierClosureData]()
             try funcExpr.reduceModifierClosureData(funcExpr: funcExpr,
                                                    memberAccessExpr: memberAccessExpr,
-                                                   modifierClosures: &modifierClosures)
+                                                   modifierClosures: &modifierClosures,
+                                                   isStreaming: isStreaming)
             
             return .viewEvent(.init(eventName: viewEventName,
                                     eventConstructorArgs: complexTypeArgs,
@@ -110,7 +116,7 @@ extension SwiftUIViewVisitor {
            isSwiftUIViewType(baseViewName) {
             
             // Use existing SwiftUIViewVisitor to parse the entire expression properly
-            if let syntaxView = parseViewFromExpression(funcExpr) {
+            if let syntaxView = parseViewFromExpression(funcExpr, isStreaming: isStreaming) {
                 return .view(syntaxView)
             }
         }
@@ -119,7 +125,7 @@ extension SwiftUIViewVisitor {
         let typeName = funcExpr.calledExpression.trimmedDescription
         if isSwiftUIViewType(typeName), let trailingClosure = funcExpr.trailingClosure {
             // This is a SwiftUI view with children - parse it as a proper view hierarchy
-            let childViews = parseViewsFromClosure(trailingClosure)
+            let childViews = parseViewsFromClosure(trailingClosure, isStreaming: isStreaming)
             let syntaxView = SyntaxView(
                 name: typeName,
                 constructorArguments: complexTypeArgs.isEmpty ? nil : .other(complexTypeArgs),
@@ -138,23 +144,25 @@ extension SwiftUIViewVisitor {
     }
     
     /// Handles conditional logic for determining a type of syntax argument.
-    static func parseArgumentType(from expression: SwiftSyntax.ExprSyntax) throws -> SyntaxViewModifierArgumentType {
+    static func parseArgumentType(from expression: SwiftSyntax.ExprSyntax,
+                                  isStreaming: Bool) throws -> SyntaxViewModifierArgumentType {
         // Handles compelx types, like PortValueDescription
         if let funcExpr = expression.as(FunctionCallExprSyntax.self) {
-            let complexType = try Self.parseFnArgumentType(funcExpr)
+            let complexType = try Self.parseFnArgumentType(funcExpr,
+                                                           isStreaming: isStreaming)
             return complexType
         }
         
         // Recursively handle arguments in tuple case
         else if let tupleExpr = expression.as(TupleExprSyntax.self) {
-            let tupleArgs = try tupleExpr.elements.map(self.parseArgument(_:))
+            let tupleArgs = try tupleExpr.elements.map { try self.parseArgument($0, isStreaming: isStreaming) }
             return .tuple(tupleArgs)
         }
         
         // Recursively handle arguments in array case
         else if let arrayExpr = expression.as(ArrayExprSyntax.self) {
             let arrayArgs = try arrayExpr.elements.compactMap {
-                try Self.parseArgumentType(from: $0.expression)
+                try Self.parseArgumentType(from: $0.expression, isStreaming: isStreaming)
             }
             return .array(arrayArgs)
         }
@@ -172,7 +180,7 @@ extension SwiftUIViewVisitor {
                 }
                 
                 // get value data recursively
-                let value = try Self.parseArgumentType(from: dictElem.value)
+                let value = try Self.parseArgumentType(from: dictElem.value, isStreaming: isStreaming)
                 
                 let label = dictElem.key.trimmedDescription
                 return SyntaxViewArgumentData(label: label, value: value)

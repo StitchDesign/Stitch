@@ -39,7 +39,6 @@ typealias NodeEntities = [NodeEntity]
 // Also, we NEVER use the generic version of this;
 // We have to remember which entities need to be copied and make them conform to this
 protocol GraphCopyable {
-    @MainActor
     func createCopy(newId: NodeId,
                     mappableData: NodeIdMap,
                     copiedNodeIds: NodeIdSet) -> Self
@@ -287,14 +286,10 @@ extension NodeConnectionType: GraphCopyable {
 }
 
 extension NodeEntities {
-    @MainActor
     func createCopy(mappableData: NodeIdMap,
                     copiedNodeIds: NodeIdSet) -> NodeEntities {
         self.compactMap {
-            guard let newId = mappableData.get($0.id) else {
-                fatalErrorIfDebug()
-                return nil
-            }
+            let newId = mappableData.get($0.id) ?? $0.id
 
             let nodeCopy = $0.createCopy(newId: newId,
                                          mappableData: mappableData,
@@ -305,18 +300,33 @@ extension NodeEntities {
 }
 
 extension SidebarLayerList {
+    var flattenedItems: Self {
+        self.flatMap {
+            [$0] + ($0.children?.flattenedItems ?? [])
+        }
+    }
+    
     func createCopy(mappableData: NodeIdMap) -> SidebarLayerList {
         self.compactMap { layerData in
-            guard let newId = mappableData.get(layerData.id) else {
-                fatalErrorIfDebug()
-                return nil
-            }
+            let newId = mappableData.get(layerData.id) ?? layerData.id
 
             return SidebarLayerData(
                 id: newId,
                 children: layerData.children?
                     .createCopy(mappableData: mappableData)
             )
+        }
+    }
+    
+    func createLogMessage(_ str: String = "") -> String {
+        self.reduce(into: str) { stringBuilder, item in
+            stringBuilder += "\n\(item.id.uuidString)"
+            
+            if let children = item.children {
+                let childrenString = children.createLogMessage()
+                    .indentLines()
+                stringBuilder += "\n" + childrenString
+            }
         }
     }
 }

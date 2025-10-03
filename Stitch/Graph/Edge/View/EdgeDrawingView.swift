@@ -81,8 +81,9 @@ struct EdgeFromDraggedOutputView: View {
                          totalOutputs: outputAnchorData.totalOutputs,
                          // we never animate the actively dragged edge
                          edgeAnimationEnabled: false,
+                         isStreaming: false, // AI-streaming never uses 'edge from dragged output'
                          edgeScaleEffect: .nonEdgeToInspectorScaleEffect)
-                .animation(.linear(duration: DrawnEdge.ANIMATION_DURATION),
+                .animation(.linear(duration: STREAMING_ANIMATION_SPEED),
                            value: color)
             }
         }

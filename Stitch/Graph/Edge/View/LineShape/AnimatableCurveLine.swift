@@ -17,12 +17,18 @@ struct AnimatableCurveLine: Shape {
     //    let extensionAmount: CGFloat = 18
     //    let extensionAmount: CGFloat = 8
 
-    var animatableData: AnimatablePair<Double, Double> {
+    var animatableData: AnimatablePair<AnimatablePair<Double, Double>, AnimatablePair<Double, Double>> {
         get {
-            AnimatablePair(to.x, to.y)
-        } set(newValue) {
-            to.x = newValue.first
-            to.y = newValue.second
+            AnimatablePair(
+                AnimatablePair(from.x, from.y),
+                AnimatablePair(to.x, to.y)
+            )
+        }
+        set(newValue) {
+            from.x = newValue.first.first
+            from.y = newValue.first.second
+            to.x = newValue.second.first
+            to.y = newValue.second.second
         }
     }
 

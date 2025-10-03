@@ -22,9 +22,11 @@ enum ParseContext {
 final class SwiftUIViewVisitor: SyntaxVisitor {
     // Bypasses view parsing logic, used by some parsing helpers for gestures
     let willParseView: Bool
+    let isStreaming: Bool
     
-    init(willParseView: Bool) {
+    init(willParseView: Bool, isStreaming: Bool) {
         self.willParseView = willParseView
+        self.isStreaming = isStreaming
         super.init(viewMode: .sourceAccurate)
     }
 
@@ -49,7 +51,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
            someOrAny.constraint.trimmedDescription.contains("View"),
            let codeBlockListSyntax = node.accessorBlock?.accessors.as(CodeBlockItemListSyntax.self),
            let fnSyntax = codeBlockListSyntax.first?.item.as(FunctionCallExprSyntax.self) {
-            if let view = self.visitLayerData(node: fnSyntax) {
+            if let view = self.visitLayerData(node: fnSyntax,
+                                              isStreaming: isStreaming) {
                 self.viewStack.append(view)
             }
             
@@ -65,7 +68,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         if let funcExpr = initializer.value.as(FunctionCallExprSyntax.self) {
             // Assumed to be patch node
             guard let patchNode = self.visitPatchData(funcExpr,
-                                                      varName: currentLHS) else {
+                                                      varName: currentLHS,
+                                                      isStreaming: isStreaming) else {
                 fatalErrorIfDebug()
                 log("visit: MAJOR ERROR with funcExpr -> self.visitPatchData")
                 return .skipChildren
@@ -80,7 +84,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         // Subscript callers used to access some node outputs
         else if let subscriptCallExpr = initializer.value.as(SubscriptCallExprSyntax.self),
                 // Subscript reference to some existing outputs
-                let subscriptData = self.visitSubscriptData(subscriptCallExpr: subscriptCallExpr) {
+                let subscriptData = self.visitSubscriptData(subscriptCallExpr: subscriptCallExpr,
+                                                            isStreaming: isStreaming) {
             self.bindingDeclarations
                 .append((currentLHS, subscriptData))
             
@@ -97,7 +102,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             return .visitChildren
         }
         
-        if let view = self.visitLayerData(node: node) {
+        if let view = self.visitLayerData(node: node,
+                                          isStreaming: isStreaming) {
             self.viewStack.append(view)
 
             // Skip children to avoid adding redundant data
@@ -129,7 +135,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         let refName = refExpr.baseName.trimmedDescription
         
         if let subscriptExpr = assinmentElem.as(SubscriptCallExprSyntax.self),
-           let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptExpr) {
+           let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptExpr, isStreaming: isStreaming) {
             self.bindingDeclarations
                 .append((refName, .stateMutation(subscriptRef)))
             return .skipChildren
@@ -212,7 +218,8 @@ extension SwiftUIViewVisitor {
     /// Parses SwiftUI code into a ViewNode structure
     static func parseSwiftUICode(_ swiftUICode: String,
                                  context: ParseContext = .topLevel,
-                                 willParseView: Bool = true) -> SwiftUIViewParserResult {
+                                 willParseView: Bool = true,
+                                 isStreaming: Bool) -> SwiftUIViewParserResult {
 //        log("\n==== PARSING CODE ====\n\(swiftUICode)\n=====================\n")
 
         // First extract the struct from mixed text (handles LLM responses with explanations)
@@ -233,13 +240,13 @@ extension SwiftUIViewVisitor {
         let sourceFile = Parser.parse(source: preprocessedCode)
         
 //#if DEV_DEBUG
-//        print("\n==== DEBUG: SOURCE FILE STRUCTURE ====\n")
+//        log("\n==== DEBUG: SOURCE FILE STRUCTURE ====\n")
 //        dump(sourceFile)
-//        print("\n==== END DEBUG DUMP ====\n")
+//        log("\n==== END DEBUG DUMP ====\n")
 //#endif
         
         // Create a visitor that will extract the view structure
-        let visitor = SwiftUIViewVisitor(willParseView: willParseView)
+        let visitor = SwiftUIViewVisitor(willParseView: willParseView, isStreaming: isStreaming)
         visitor.walk(sourceFile)
                 
         return .init(viewStack: visitor.viewStack,
@@ -361,36 +368,146 @@ extension SwiftUIViewVisitor {
         guard context == .topLevel else {
             return code
         }
-        
-        // Simple approach: if the code doesn't have var body, it's just raw views - wrap them
-        if !code.contains("var body") {
-            // Count top-level SwiftUI view declarations
-            let topLevelViewCount = countTopLevelViewDeclarations(in: code)
-            
-            if topLevelViewCount > 1 {
-                // Multiple top-level views - wrap in VStack  
-                let indentedContent = code.components(separatedBy: .newlines)
-                    .map { line in line.isEmpty ? line : "    \(line)" }
-                    .joined(separator: "\n")
-                return "VStack {\n\(indentedContent)\n}"
-            }
+
+        // If code has var body, check if we need to wrap its contents
+        if code.contains("var body") {
+            return wrapVarBodyIfNeeded(code)
         }
-        
+
+        // Otherwise, handle raw views without var body wrapper
+        let topLevelViewCount = countTopLevelViewDeclarations(in: code)
+
+        if topLevelViewCount > 1 {
+            // Multiple top-level views - wrap in VStack
+            let indentedContent = code.components(separatedBy: .newlines)
+                .map { line in line.isEmpty ? line : "    \(line)" }
+                .joined(separator: "\n")
+            return "VStack {\n\(indentedContent)\n}"
+        }
+
+        return code
+    }
+
+    /// Wraps var body content in VStack if it contains multiple root views
+    private static func wrapVarBodyIfNeeded(_ code: String) -> String {
+        // Find "var body" and extract its content
+        guard let bodyRange = code.range(of: "var body") else {
+            return code
+        }
+
+        // Find opening brace after "var body: some View"
+        let afterBody = code[bodyRange.upperBound...]
+        guard let openBraceRange = afterBody.range(of: "{") else {
+            return code
+        }
+
+        let contentStart = openBraceRange.upperBound
+
+        // Find matching closing brace using brace counting
+        var braceCount = 1
+        var inString = false
+        var inSingleLineComment = false
+        var inMultiLineComment = false
+        var escapeNext = false
+        var currentIndex = contentStart
+
+        while currentIndex < code.endIndex && braceCount > 0 {
+            let char = code[currentIndex]
+            let nextIndex = code.index(after: currentIndex)
+
+            if escapeNext {
+                escapeNext = false
+                currentIndex = nextIndex
+                continue
+            }
+
+            if !inString && !inSingleLineComment && !inMultiLineComment {
+                if char == "/" && nextIndex < code.endIndex {
+                    let nextChar = code[nextIndex]
+                    if nextChar == "/" {
+                        inSingleLineComment = true
+                        currentIndex = code.index(after: nextIndex)
+                        continue
+                    } else if nextChar == "*" {
+                        inMultiLineComment = true
+                        currentIndex = code.index(after: nextIndex)
+                        continue
+                    }
+                }
+
+                if char == "\"" {
+                    inString = true
+                    currentIndex = nextIndex
+                    continue
+                }
+
+                if char == "{" {
+                    braceCount += 1
+                } else if char == "}" {
+                    braceCount -= 1
+                }
+            } else if inString {
+                if char == "\\" {
+                    escapeNext = true
+                } else if char == "\"" {
+                    inString = false
+                }
+            } else if inSingleLineComment {
+                if char == "\n" {
+                    inSingleLineComment = false
+                }
+            } else if inMultiLineComment {
+                if char == "*" && nextIndex < code.endIndex && code[nextIndex] == "/" {
+                    inMultiLineComment = false
+                    currentIndex = code.index(after: nextIndex)
+                    continue
+                }
+            }
+
+            currentIndex = nextIndex
+        }
+
+        guard braceCount == 0 else {
+            return code
+        }
+
+        let closeBraceIndex = code.index(before: currentIndex)
+        let bodyContent = String(code[contentStart..<closeBraceIndex])
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Count top-level views in body content
+        let viewCount = countTopLevelViewDeclarations(in: bodyContent)
+
+        if viewCount > 1 {
+            // Multiple views - wrap in VStack with proper indentation
+            let indentedContent = bodyContent.components(separatedBy: .newlines)
+                .map { line in line.isEmpty ? line : "        \(line)" }
+                .joined(separator: "\n")
+
+            let wrappedBody = "        VStack {\n\(indentedContent)\n        }"
+
+            // Reconstruct the code
+            let beforeBody = String(code[..<contentStart])
+            let afterBody = String(code[currentIndex...])
+
+            return beforeBody + "\n" + wrappedBody + "\n    " + afterBody
+        }
+
         return code
     }
     
     /// Counts actual top-level SwiftUI view declarations (not lines)
     private static func countTopLevelViewDeclarations(in code: String) -> Int {
-        let swiftUIViews = ["Text", "Rectangle", "Ellipse", "Circle", "Image", "VStack", "HStack", "ZStack", "ScrollView", "Button"]
+        let swiftUIViews = SyntaxViewName.allCases.map { $0.rawValue }
         var count = 0
         var braceDepth = 0
         var inString = false
         var escapeNext = false
-        
+
         var i = code.startIndex
         while i < code.endIndex {
             let char = code[i]
-            
+
             // Handle string literals
             if escapeNext {
                 escapeNext = false
@@ -405,7 +522,7 @@ extension SwiftUIViewVisitor {
                 } else if char == "}" {
                     braceDepth -= 1
                 }
-                
+
                 // Check for SwiftUI view at top level (braceDepth == 0)
                 if braceDepth == 0 {
                     for viewName in swiftUIViews {
@@ -416,10 +533,10 @@ extension SwiftUIViewVisitor {
                     }
                 }
             }
-            
+
             i = code.index(after: i)
         }
-        
+
         return count
     }
 
@@ -449,3 +566,4 @@ extension String {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
+

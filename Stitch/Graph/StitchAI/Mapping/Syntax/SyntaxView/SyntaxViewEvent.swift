@@ -226,7 +226,8 @@ extension SyntaxViewEvent {
 }
 
 extension SyntaxViewModifierViewEvent {
-    func deriveViewEventData(layerId: UUID) throws -> SwiftPatchViewEvent? {
+    func deriveViewEventData(layerId: UUID,
+                             isStreaming: Bool) throws -> SwiftPatchViewEvent? {
         // Check for onChange handlers
         guard let viewName = SyntaxViewEventType(rawValue: self.eventName),
               let onChangeHandler = self.eventModifiers.get("onChanged") else {
@@ -235,7 +236,8 @@ extension SyntaxViewModifierViewEvent {
         
         // Parse script for determining what populates state
         let parsedData = SwiftUIViewVisitor.parseSwiftUICode(onChangeHandler.script,
-                                                             willParseView: false)
+                                                             willParseView: false,
+                                                             isStreaming: isStreaming)
         
         var actionsResult: [(String, SwiftPatchCodeType)] = []
         
@@ -245,7 +247,7 @@ extension SyntaxViewModifierViewEvent {
                                         gestureArg: param)
         
         actionsResult += try parsedData.bindingDeclarations
-            .getSwiftPatchCodeTypes()
+            .getSwiftPatchCodeTypes(isStreaming: isStreaming)
         
         return .init(viewEvent: eventData,
                      codeStatements: actionsResult)
