@@ -238,12 +238,6 @@ private func positionLayerCanvasItems(
         switch portData.mode {
         case .packed:
             if var canvas = portData.packedData.canvasItem {
-//                let coordinate = LayerCanvasItemCoordinate(
-//                    nodeId: nodeId,
-//                    port: inputDefinition,
-//                    mode: .packed
-//                )
-
                 let newPosition = updateCanvasPosition(.layerInput(.init(
                     node: nodeId,
                     keyPath: .init(layerInput: inputDefinition, portType: .packed)
@@ -257,12 +251,6 @@ private func positionLayerCanvasItems(
             portData.unpackedData = portData.unpackedData.enumerated().map { (index, unpackedData) in
                 var unpackedData = unpackedData
                 if var canvas = unpackedData.canvasItem {
-//                    let coordinate = LayerCanvasItemCoordinate(
-//                        nodeId: nodeId,
-//                        port: inputDefinition,
-//                        mode: .unpacked(index: index)
-//                    )
-
                     let newPosition = updateCanvasPosition(.layerInput(.init(
                         node: nodeId,
                         keyPath: .init(layerInput: inputDefinition, portType: .unpacked(index.asUnpackedPortType))
