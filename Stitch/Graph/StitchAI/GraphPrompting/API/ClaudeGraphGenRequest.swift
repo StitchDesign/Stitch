@@ -630,15 +630,15 @@ extension GraphEntity {
                                           changedNodeIds: changedNodeIds,
                                           existingNodeIds: Set(existingNodesMap.keys))
                 
-        let currentLog = self.nodes.reduce(into: "mergeWithStreamedGraph: current nodes:") { stringBuilder, node in
-            stringBuilder += "\n\(node.id):\tkind: \(node.kind)\tlayer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")"
-        }
-        log(currentLog)
+        // let currentLog = self.nodes.reduce(into: "mergeWithStreamedGraph: current nodes:") { stringBuilder, node in
+        //     stringBuilder += "\n\(node.id):\tkind: \(node.kind)\tlayer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")"
+        // }
+        // log(currentLog)
 
-        let inProgressLog = merged.nodes.reduce(into: "mergeWithStreamedGraph: new nodes:") { stringBuilder, node in
-            stringBuilder += "\n\(node.id):\tkind: \(node.kind)\tlayer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")"
-        }
-        log(inProgressLog)
+        // let inProgressLog = merged.nodes.reduce(into: "mergeWithStreamedGraph: new nodes:") { stringBuilder, node in
+        //     stringBuilder += "\n\(node.id):\tkind: \(node.kind)\tlayer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")"
+        // }
+        // log(inProgressLog)
         
         let sidebarLog = merged.orderedSidebarLayers
             .createLogMessage("mergeWithStreamedGraph sidebar:")
