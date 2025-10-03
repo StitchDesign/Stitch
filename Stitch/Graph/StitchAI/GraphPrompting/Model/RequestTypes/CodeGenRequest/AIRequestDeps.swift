@@ -174,57 +174,10 @@ extension StitchAICodeCreator {
 
         log("SUCCESS: userPrompt: \(userPrompt)")
         
-//        let swiftUICode = try await self
-//            .createCode(document: document,
-//                        aiManager: aiManager)
+        let swiftUICode = try await self
+            .createCode(document: document,
+                        aiManager: aiManager)
         
-        let swiftUICode = """
-            struct ContentView: View {
-                @State var rectanglePosition: [PortValueDescription] = []
-
-                var body: some View {
-                    ZStack(alignment: .center) {
-                        Ellipse()
-                            .fill([PortValueDescription(value: "#A389EDFF", value_type: "color")])
-                            .offset([PortValueDescription(value: ["x":0,"y":0], value_type: "position")])
-
-                        Ellipse()
-                            .fill([PortValueDescription(value: "#A389EDFF", value_type: "color")])
-                            .offset([PortValueDescription(value: ["x":0,"y":0], value_type: "position")])
-
-                        Ellipse()
-                            .fill([PortValueDescription(value: "#A389EDFF", value_type: "color")])
-                            .offset([PortValueDescription(value: ["x":0,"y":0], value_type: "position")])
-
-                        Ellipse()
-                            .fill([PortValueDescription(value: "#A389EDFF", value_type: "color")])
-                            .offset([PortValueDescription(value: ["x":0,"y":0], value_type: "position")])
-
-                        Ellipse()
-                            .fill([PortValueDescription(value: "#A389EDFF", value_type: "color")])
-                            .offset([PortValueDescription(value: ["x":0,"y":0], value_type: "position")])
-
-                        Rectangle()
-                            .fill([PortValueDescription(value: "#FF6B6BFF", value_type: "color")])
-                            .frame([PortValueDescription(value: ["width": "80.0", "height": "80.0"], value_type: "size")])
-                            .offset(rectanglePosition)
-                            .simultaneousGesture(
-                                DragGesture()
-                                    .onChanged { value in
-                                        rectanglePosition = [PortValueDescription(value: ["x": value.location.x - 196.5, "y": value.location.y - 426], value_type: "position")]
-                                    }
-                            )
-                    }
-                    .offset([PortValueDescription(value: ["x":0,"y":0], value_type: "position")])
-                    .frame([PortValueDescription(value: ["width":"hug","height":"hug"], value_type: "size")])
-                }
-
-                func updateLayerInputs() {
-
-                }
-            }
-            """
-
         log("userPrompt: \(userPrompt)") // Very helpful to see user-prompt here again
         log("StitchAICodeCreator swiftUICode:\n\(swiftUICode)")
 
