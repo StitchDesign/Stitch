@@ -1014,7 +1014,7 @@ func parseMathExpressionToPatchNodes(
     let patchType = try operatorToPatchType(mathSyntax.op)
 
     // Create math patch node
-    let mathNodeId = UUID()
+    let mathNodeId = varName != nil ? deterministicUUID(from: varName!) : UUID()
     let mathNode = PatchSyntaxNodeResult(
         id: mathNodeId,
         kind: .patch(patchType),
