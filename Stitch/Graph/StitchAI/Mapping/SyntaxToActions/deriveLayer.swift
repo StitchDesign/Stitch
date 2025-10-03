@@ -1012,6 +1012,10 @@ func parseMathExpressionToPatchNodes(
         isStreaming: isStreaming
     )
     log("🟡 LHS recursion succeeded, got \(lhsResults.count) results")
+    log("🔵 DETAILED lhsResults:")
+    for (idx, result) in lhsResults.enumerated() {
+        log("  🔵 lhsResults[\(idx)]: \(result)")
+    }
 
     log("🟡 About to recursively derive RHS...")
     let rhsResults = try SyntaxViewName.derivePortValues(
@@ -1022,6 +1026,10 @@ func parseMathExpressionToPatchNodes(
         isStreaming: isStreaming
     )
     log("🟡 RHS recursion succeeded, got \(rhsResults.count) results")
+    log("🔵 DETAILED rhsResults:")
+    for (idx, result) in rhsResults.enumerated() {
+        log("  🔵 rhsResults[\(idx)]: \(result)")
+    }
 
     // Map operator to patch type
     let patchType = try operatorToPatchType(mathSyntax.op)
@@ -1034,9 +1042,135 @@ func parseMathExpressionToPatchNodes(
         nodeType: nil
     )
 
-    // TODO: Create proper connection wiring
-    // For now, return all results + the math node
-    return lhsResults + rhsResults + [.node(mathNode)]
+    // Extract output coordinates or values from operand results
+    // Filter to only keep nodes, connections, and port values - exclude intermediate coordinates
+    let filteredLHS = lhsResults.filter { result in
+        switch result {
+        case .node, .connection, .portValues:
+            return true
+        case .stateWrite, .portData, .connectionToLayerInput, .jsSettings:
+            return false
+        }
+    }
+
+    let filteredRHS = rhsResults.filter { result in
+        switch result {
+        case .node, .connection, .portValues:
+            return true
+        case .stateWrite, .portData, .connectionToLayerInput, .jsSettings:
+            return false
+        }
+    }
+
+    var allResults: [PatchSyntaxResultType] = filteredLHS + filteredRHS + [.node(mathNode)]
+
+    log("🟢 Filtered LHS from \(lhsResults.count) to \(filteredLHS.count) results")
+    // Show what was filtered OUT
+    let removedLHS = lhsResults.filter { result in
+        switch result {
+        case .stateWrite, .portData, .connectionToLayerInput:
+            return true
+        default:
+            return false
+        }
+    }
+    for (idx, removed) in removedLHS.enumerated() {
+        log("  ❌ Removed from LHS[\(idx)]: \(removed)")
+    }
+
+    log("🟢 Filtered RHS from \(rhsResults.count) to \(filteredRHS.count) results")
+    // Show what was filtered OUT
+    let removedRHS = rhsResults.filter { result in
+        switch result {
+        case .stateWrite, .portData, .connectionToLayerInput:
+            return true
+        default:
+            return false
+        }
+    }
+    for (idx, removed) in removedRHS.enumerated() {
+        log("  ❌ Removed from RHS[\(idx)]: \(removed)")
+    }
+
+    // Get LHS output coordinate - could be in portData OR stateWrite
+    var lhsOutput: NodeIOCoordinate? = nil
+
+    // Check for upstream connection in portData
+    if let lhsCoordinate = lhsResults.last(where: {
+        if case .portData(.upstreamConnection) = $0 { return true }
+        return false
+    })?.portData,
+       case .upstreamConnection(let coord) = lhsCoordinate {
+        lhsOutput = coord
+    }
+
+    // Check for coordinate in stateWrite (from gesture events)
+    if lhsOutput == nil,
+       let stateWrite = lhsResults.last(where: {
+           if case .stateWrite = $0 { return true }
+           return false
+       }),
+       case .stateWrite(_, let coord) = stateWrite {
+        lhsOutput = coord
+    }
+
+    // Create connection if we found an output
+    if let lhsOutput = lhsOutput {
+        let lhsConnection = PortEdgeData(
+            from: lhsOutput,
+            to: .init(portId: 0, nodeId: mathNodeId)
+        )
+        allResults.append(.connection(lhsConnection))
+        log("🟡 Created LHS connection: \(lhsOutput) → math node input 0")
+    } else {
+        log("⚠️ No LHS output coordinate found in results: \(lhsResults)")
+    }
+
+    // Handle RHS: could be values or upstream connection
+    if let rhsData = rhsResults.last(where: {
+        if case .portData = $0 { return true }
+        return false
+    })?.portData {
+
+        switch rhsData {
+        case .upstreamConnection(let rhsOutput):
+            // Create connection: RHS output → math node input 1
+            let rhsConnection = PortEdgeData(
+                from: rhsOutput,
+                to: .init(portId: 1, nodeId: mathNodeId)
+            )
+            allResults.append(.connection(rhsConnection))
+            log("🟡 Created RHS connection: \(rhsOutput) → math node input 1")
+
+        case .values(let values):
+            // Set literal values on math node input 1
+            let portValues = PatchSyntaxPortValuesResult(
+                inputCoordinate: .init(portId: 1, nodeId: mathNodeId),
+                values: values
+            )
+            allResults.append(.portValues(portValues))
+            log("🟡 Set RHS literal values: \(values) → math node input 1")
+        }
+    }
+
+    // Return all results + math node output coordinate for consumption
+    let mathOutput = NodeIOCoordinate(portId: 0, nodeId: mathNodeId)
+    allResults.append(.portData(.upstreamConnection(mathOutput)))
+    log("🟡 Math node output: \(mathOutput)")
+
+    // Verify no .stateWrite leaked through
+    let stateWriteCount = allResults.filter {
+        if case .stateWrite = $0 { return true }
+        return false
+    }.count
+    log("✅ Final allResults has \(stateWriteCount) .stateWrite entries (should be 0)")
+
+    log("🔴 RETURNING \(allResults.count) results from parseMathExpressionToPatchNodes:")
+    for (idx, result) in allResults.enumerated() {
+        log("  🔴 allResults[\(idx)]: \(result)")
+    }
+
+    return allResults
 }
 
 func operatorToPatchType(_ op: String) throws -> Patch {

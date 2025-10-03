@@ -1431,6 +1431,8 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
         
         case .stateWrite(let varName, let upstreamOutputCoordinate):
             stateVarConnections.updateValue(upstreamOutputCoordinate, forKey: varName)
+            log("⚠️ .stateWrite recorded: varName='\(varName)', coord=\(upstreamOutputCoordinate)")
+            log("⚠️ stateVarConnections now: \(stateVarConnections)")
         }
     }
 }
