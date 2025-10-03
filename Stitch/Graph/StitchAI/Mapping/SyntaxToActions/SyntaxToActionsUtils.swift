@@ -87,10 +87,12 @@ func deterministicUUID(from name: String) -> UUID {
     // Mark as "random" style with RFC variant (helps tooling)
     bytes[6] = (bytes[6] & 0x0F) | 0x40  // pretend version 4
     bytes[8] = (bytes[8] & 0x3F) | 0x80
-    return bytes.withUnsafeBytes { buf in
+    let id = bytes.withUnsafeBytes { buf in
         let b = buf.bindMemory(to: UInt8.self)
         return UUID(uuid: (b[0],b[1],b[2],b[3], b[4],b[5], b[6],b[7], b[8],b[9], b[10],b[11],b[12],b[13],b[14],b[15]))
     }
+    
+    return id
 }
 
 extension NodeType {
@@ -146,15 +148,23 @@ extension Array where Element == SyntaxViewArgumentData {
         // Recursively determine PortValue of each arg for key label
         let orderedDict = [(String, [PatchSyntaxResultType])]()
         let portValuesMap = try self.reduce(into: orderedDict) { result, arg in
+            // Qualify varName with the dictionary key to make it unique for unpacked values
+            let label = arg.label?.stripQuotes() ?? ""
+            let qualifiedVarName: String? = if !label.isEmpty, let baseName = varName {
+                "\(baseName)_\(label)"
+            } else {
+                varName
+            }
+
             let results = try SyntaxViewName.derivePortValues(
                 from: arg.value,
-                varName: varName,
+                varName: qualifiedVarName,
                 viewEvent: viewEvent,
                 nodesDict: nodesDict,
                 nodeType: nodeType,
                 isStreaming: isStreaming)
-            
-            result.append(((arg.label?.stripQuotes() ?? ""), results))
+
+            result.append(((label, results)))
         }
 
         guard let nodeType = nodeType else {

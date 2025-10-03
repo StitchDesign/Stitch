@@ -992,7 +992,7 @@ func parseMathExpressionToPatchNodes(
     nodesDict: [UUID: NodeEntity],
     isStreaming: Bool
 ) throws -> [PatchSyntaxResultType] {
-
+    
     // Recursively get patch data for operands
     let lhsResults = try SyntaxViewName.derivePortValues(
         from: mathSyntax.lhs,
@@ -1013,8 +1013,15 @@ func parseMathExpressionToPatchNodes(
     // Map operator to patch type
     let patchType = try operatorToPatchType(mathSyntax.op)
 
-    // Create math patch node
+    // Create math patch node with unique UUID
     let mathNodeId = varName != nil ? deterministicUUID(from: varName!) : UUID()
+    log("🔴 Math node UUID generation:")
+    log("  varName: \(varName ?? "nil")")
+    log("  mathNodeId: \(mathNodeId)")
+    log("  operator: \(mathSyntax.op)")
+    log("  LHS: \(mathSyntax.lhs.description)")
+    log("  RHS: \(mathSyntax.rhs.description)")
+
     let mathNode = PatchSyntaxNodeResult(
         id: mathNodeId,
         kind: .patch(patchType),
