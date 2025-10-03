@@ -626,10 +626,10 @@ extension GraphEntity {
                                           changedNodeIds: changedNodeIds,
                                           existingNodeIds: Set(existingNodesMap.keys))
                         
-        let inProgressLog = merged.nodes.reduce(into: "mergeWithStreamedGraph: new nodes:") { stringBuilder, node in
-             stringBuilder += "\n\(node.id):\tkind: \(node.kind)\tlayer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")"
-         }
-         log(inProgressLog)
+        //        let inProgressLog = merged.nodes.reduce(into: "mergeWithStreamedGraph: new nodes:") { stringBuilder, node in
+        //             stringBuilder += "\n\(node.id):\tkind: \(node.kind)\tlayer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")"
+        //         }
+        //         log(inProgressLog)
         
         let sidebarLog = merged.orderedSidebarLayers
             .createLogMessage("mergeWithStreamedGraph sidebar:")
