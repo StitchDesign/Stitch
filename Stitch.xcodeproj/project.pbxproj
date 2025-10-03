@@ -1179,7 +1179,6 @@
 		ECFD9FAF297B748F00D86359 /* CopyAndPasteNodesActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFD9FAE297B748F00D86359 /* CopyAndPasteNodesActions.swift */; };
 		ECFEFF9A26BDD93F00CF042E /* PortValueDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFEFF9926BDD93F00CF042E /* PortValueDefaults.swift */; };
 		ECFEFF9E26BDE18A00CF042E /* miscTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFEFF9D26BDE18A00CF042E /* miscTests.swift */; };
-		ECFF41F22E7B6B8300BADA9A /* AIPositioningHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFF41F12E7B6B8300BADA9A /* AIPositioningHelpers.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2349,7 +2348,6 @@
 		ECFD9FAE297B748F00D86359 /* CopyAndPasteNodesActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CopyAndPasteNodesActions.swift; sourceTree = "<group>"; };
 		ECFEFF9926BDD93F00CF042E /* PortValueDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueDefaults.swift; sourceTree = "<group>"; };
 		ECFEFF9D26BDE18A00CF042E /* miscTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = miscTests.swift; sourceTree = "<group>"; };
-		ECFF41F12E7B6B8300BADA9A /* AIPositioningHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPositioningHelpers.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -4581,7 +4579,6 @@
 				B5D34C8D2DF5391F007405BF /* AIGraphCreationRequest.swift */,
 				B5D34C8F2DF53947007405BF /* AIGraphDescriptionRequest.swift */,
 				B5B31CE52E0A3232003EABA2 /* AIPatchBuilderRequest.swift */,
-				ECFF41F12E7B6B8300BADA9A /* AIPositioningHelpers.swift */,
 				B5D34C912DF53966007405BF /* AIJsNodeEditRequest.swift */,
 			);
 			path = RequestTypes;
@@ -6560,7 +6557,6 @@
 				B5657D392C0B94A300287362 /* GraphMediaValue.swift in Sources */,
 				B5770BA32D3ACF1D0013AD09 /* Model3DView.swift in Sources */,
 				EC688E332DCAA73300C6737D /* FileImportHelpers.swift in Sources */,
-				ECFF41F22E7B6B8300BADA9A /* AIPositioningHelpers.swift in Sources */,
 				B5EC61FB2A5F5713002A639F /* NodeViewModel.swift in Sources */,
 				EC17ACC226B4BC5900137EA5 /* StitchAudio.swift in Sources */,
 				ECFA5D4A287DEE580037CD59 /* PulseColor.swift in Sources */,
