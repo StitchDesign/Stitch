@@ -117,7 +117,6 @@ extension StitchAICodeCreator {
         log("getRequestTask: user prompt: \(userPrompt)")
         
         let request = self
-        let currentGraphEntity = document.graph.createSchema()
         
         return Task(priority: .high) { [weak document] in
             guard let document = document,
@@ -141,13 +140,16 @@ extension StitchAICodeCreator {
                 
                 // logToServerIfRelease("SUCCESS Patch Builder:\n\((try? actionsResult.graphData.encodeToPrintableString()) ?? "")")
                 
-                DispatchQueue.main.async { [weak document] in
+                Task(priority: .high) { @MainActor [weak document] in
                     guard let document = document else { return }
+                    
+                    // Create new graph entity, which would have been updated from stream
+                    let newCurrentGraphEntity = document.graph.createSchema()
                     
                     actionsResult
                         .applyAIGraph(to: document,
                                       viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
-                                      currentGraphEntity: currentGraphEntity,
+                                      currentGraphEntity: newCurrentGraphEntity,
                                       isStreaming: false)
                     
                     // Note: task clearing and menu hiding are handled by resetStreamingUIState() called by AI providers
