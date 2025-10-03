@@ -137,12 +137,15 @@ struct TogglePreviewWindow: StitchDocumentEvent {
 struct ToggleSidebars: StitchStoreEvent {
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         guard let state = store.currentDocument else { return .noChange }
-        
+
         // Opens both if both are already closed;
         // else closes both.
         let inspectorOpen = store.showsLayerInspector
         let layerSidebarOpen = state.leftSidebarOpen
-        
+
+        // Suppress UIKitWrapper during sidebar animation for smooth transitions
+        state.isSidebarAnimating = true
+
         // Animate both together
         withAnimation {
             if !inspectorOpen && !layerSidebarOpen {
@@ -155,7 +158,12 @@ struct ToggleSidebars: StitchStoreEvent {
                 state.leftSidebarOpen = false
             }
         }
-        
+
+        // Restore UIKitWrapper after animation completes (default SwiftUI animation duration ~0.35s)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            state.isSidebarAnimating = false
+        }
+
         return .noChange
     }
 }

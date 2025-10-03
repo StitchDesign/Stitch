@@ -44,8 +44,8 @@ struct ContentView: View, KeyboardReadable {
 
     var nodeAndMenu: some View {
         ZStack {
-            if document.visibleGraph.propertySidebar.flyoutState != nil {
-                // UIKitWrapper only when flyout is active (for TAB key detection)
+            if !document.isSidebarAnimating {
+                // UIKitWrapper always (for TAB key detection), except during sidebar animations
                 UIKitWrapper(ignoresKeyCommands: true,
                              isOnlyForTextFieldHelp: true,
                              inputTextFieldFocused: document.reduxFocusedField?.inputTextFieldWithNumberIsFocused(document.graph) ?? false,
@@ -53,7 +53,7 @@ struct ContentView: View, KeyboardReadable {
                     contentView // the graph
                 }
             } else {
-                // No wrapper when no flyout (smooth sidebar animations)
+                // No wrapper during sidebar animations for smooth transitions
                 contentView // the graph
             }
         }
