@@ -40,9 +40,9 @@ extension PortValues {
                                height: self[safe: 1]?.getLayerDimension ?? .number(.zero)))
             
         case .position:
-//            if !isStreamingAIResponse {
-//                assertInDebug(count == 2)
-//            }
+            if !isStreamingAIResponse {
+                assertInDebug(count == 2)
+            }
 
             return .position(.init(x: self[safe: 0]?.getNumber ?? .zero,
                                    y: self[safe: 1]?.getNumber ?? .zero))
