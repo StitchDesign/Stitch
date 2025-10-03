@@ -1012,10 +1012,6 @@ func parseMathExpressionToPatchNodes(
         isStreaming: isStreaming
     )
     log("🟡 LHS recursion succeeded, got \(lhsResults.count) results")
-    log("🔵 DETAILED lhsResults:")
-    for (idx, result) in lhsResults.enumerated() {
-        log("  🔵 lhsResults[\(idx)]: \(result)")
-    }
 
     log("🟡 About to recursively derive RHS...")
     let rhsResults = try SyntaxViewName.derivePortValues(
@@ -1026,10 +1022,6 @@ func parseMathExpressionToPatchNodes(
         isStreaming: isStreaming
     )
     log("🟡 RHS recursion succeeded, got \(rhsResults.count) results")
-    log("🔵 DETAILED rhsResults:")
-    for (idx, result) in rhsResults.enumerated() {
-        log("  🔵 rhsResults[\(idx)]: \(result)")
-    }
 
     // Map operator to patch type
     let patchType = try operatorToPatchType(mathSyntax.op)
@@ -1042,9 +1034,10 @@ func parseMathExpressionToPatchNodes(
         nodeType: nil
     )
 
-    // Extract output coordinates or values from operand results
-    // Filter to only keep nodes, connections, and port values - exclude intermediate coordinates
-    let filteredLHS = lhsResults.filter { result in
+    // Filter operand results to prevent intermediate coordinate leakage.
+    // We only want to expose the math node's output, not intermediate coordinates
+    // (like .stateWrite or .portData from nested operations).
+    let shouldKeepResult: (PatchSyntaxResultType) -> Bool = { result in
         switch result {
         case .node, .connection, .portValues:
             return true
@@ -1053,44 +1046,10 @@ func parseMathExpressionToPatchNodes(
         }
     }
 
-    let filteredRHS = rhsResults.filter { result in
-        switch result {
-        case .node, .connection, .portValues:
-            return true
-        case .stateWrite, .portData, .connectionToLayerInput, .jsSettings:
-            return false
-        }
-    }
+    let filteredLHS = lhsResults.filter(shouldKeepResult)
+    let filteredRHS = rhsResults.filter(shouldKeepResult)
 
     var allResults: [PatchSyntaxResultType] = filteredLHS + filteredRHS + [.node(mathNode)]
-
-    log("🟢 Filtered LHS from \(lhsResults.count) to \(filteredLHS.count) results")
-    // Show what was filtered OUT
-    let removedLHS = lhsResults.filter { result in
-        switch result {
-        case .stateWrite, .portData, .connectionToLayerInput:
-            return true
-        default:
-            return false
-        }
-    }
-    for (idx, removed) in removedLHS.enumerated() {
-        log("  ❌ Removed from LHS[\(idx)]: \(removed)")
-    }
-
-    log("🟢 Filtered RHS from \(rhsResults.count) to \(filteredRHS.count) results")
-    // Show what was filtered OUT
-    let removedRHS = rhsResults.filter { result in
-        switch result {
-        case .stateWrite, .portData, .connectionToLayerInput:
-            return true
-        default:
-            return false
-        }
-    }
-    for (idx, removed) in removedRHS.enumerated() {
-        log("  ❌ Removed from RHS[\(idx)]: \(removed)")
-    }
 
     // Get LHS output coordinate - could be in portData OR stateWrite
     var lhsOutput: NodeIOCoordinate? = nil
@@ -1157,18 +1116,6 @@ func parseMathExpressionToPatchNodes(
     let mathOutput = NodeIOCoordinate(portId: 0, nodeId: mathNodeId)
     allResults.append(.portData(.upstreamConnection(mathOutput)))
     log("🟡 Math node output: \(mathOutput)")
-
-    // Verify no .stateWrite leaked through
-    let stateWriteCount = allResults.filter {
-        if case .stateWrite = $0 { return true }
-        return false
-    }.count
-    log("✅ Final allResults has \(stateWriteCount) .stateWrite entries (should be 0)")
-
-    log("🔴 RETURNING \(allResults.count) results from parseMathExpressionToPatchNodes:")
-    for (idx, result) in allResults.enumerated() {
-        log("  🔴 allResults[\(idx)]: \(result)")
-    }
 
     return allResults
 }

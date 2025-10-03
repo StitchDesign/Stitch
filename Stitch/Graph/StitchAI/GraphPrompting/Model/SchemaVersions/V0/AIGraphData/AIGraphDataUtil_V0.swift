@@ -259,11 +259,6 @@ extension AIGraphData_V0.LayerData {
                         viewStatePatchConnections
                             .updateValue(upstream,
                                          forKey: stateVarName)
-                        log("‼️ Creating connection from viewStatePatchConnections:")
-                        log("‼️   varName: '\(stateVarName)'")
-                        log("‼️   upstream: \(upstream)")
-                        log("‼️   layer port: \(port)")
-                        log("‼️   This creates: \(upstream) → Rectangle.\(port)")
                     }
                 }
             }

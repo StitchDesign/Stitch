@@ -155,10 +155,6 @@ extension Array where Element == SyntaxViewArgumentData {
                 isStreaming: isStreaming)
             
             result.append(((arg.label?.stripQuotes() ?? ""), results))
-            log("🟣 Dictionary entry '\(arg.label?.stripQuotes() ?? "")' produced \(results.count) results:")
-            for (idx, result) in results.enumerated() {
-                log("  🟣 result[\(idx)]: \(result)")
-            }
         }
 
         guard let nodeType = nodeType else {
