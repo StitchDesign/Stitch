@@ -50,6 +50,7 @@ final actor ClaudeStreamingActor {
         viewPortCenter: CGPoint,
         groupNodeFocused: UUID?
     ) async throws -> String {
+        var currentGraphEntity = currentGraphEntity
         
         log("=== makeClaudeStreamingRequest STARTED ===")
         
@@ -318,6 +319,9 @@ final actor ClaudeStreamingActor {
                                                groupNodeFocused: groupNodeFocused,
                                                isStreaming: true)
                             
+                            // Track new current graph
+                            currentGraphEntity = result.graph
+                            
                             // Updates graph on main actor
                             self.updateGraphData(document: document,
                                                  mergedGraphEntity: result.graph)
@@ -534,7 +538,6 @@ extension GraphEntity {
             
             // Only use current data when layer streaming is incomplete and not last node
             let useCurrent = !isLayerStreamingComplete && !streamedNodeMatchesIncompleteLayer
-            let node = useCurrent ? current : streamed
 
             // Remove candidate
             if current.kind.isPatch {
@@ -627,13 +630,18 @@ extension GraphEntity {
                                           changedNodeIds: changedNodeIds,
                                           existingNodeIds: Set(existingNodesMap.keys))
                 
-        // let stringLog = merged.nodes.reduce(into: "mergeWithStreamedGraph: new nodes:") { stringBuilder, node in
+        // let currentLog = self.nodes.reduce(into: "mergeWithStreamedGraph: current nodes:") { stringBuilder, node in
         //     stringBuilder += "\n\(node.id):\tkind: \(node.kind)\tlayer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")"
         // }
-        // log(stringLog)
+        // log(currentLog)
+
+        // let inProgressLog = merged.nodes.reduce(into: "mergeWithStreamedGraph: new nodes:") { stringBuilder, node in
+        //     stringBuilder += "\n\(node.id):\tkind: \(node.kind)\tlayer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")"
+        // }
+        // log(inProgressLog)
         
         let sidebarLog = merged.orderedSidebarLayers
-            .createLogMessage("mergeWithStreamedGraph sidebar:\n")
+            .createLogMessage("mergeWithStreamedGraph sidebar:")
         log(sidebarLog)
 
 #if DEBUG || DEV_DEBUG
@@ -645,7 +653,7 @@ extension GraphEntity {
     }
     
     // MARK: - Similarity Heuristics
-    
+
     /// Computes a similarity score between two nodes. Higher is better.
     /// Prioritizes node kind (patch/layer/group/component), then patch/layer/component
     /// specific identifiers, title similarity, shared parent group, and canvas proximity.
@@ -664,6 +672,9 @@ extension GraphEntity {
         case (.patch(let ap), .patch(let bp)) where ap.patch == bp.patch:
             if ap.patch == bp.patch { score += 40 }
             if ap.userVisibleType == bp.userVisibleType { score += 10 }
+
+            // Enhanced input-based scoring for better patch node differentiation
+            score += calculateInputSimilarityScore(ap.inputs, bp.inputs)
 
         case (.layer(let al), .layer(let bl)) where al.layer == bl.layer:
             guard let aIndex = aLayerIndexOf.get(a.id),
@@ -718,6 +729,153 @@ extension GraphEntity {
         else if diff <= 7 { return 2 }
         else if diff <= 15 { return 1 }
         else { return 0 }
+    }
+
+    /// Comprehensive input similarity scoring for patch nodes (max ~25 points)
+    private func calculateInputSimilarityScore(_ aInputs: [NodePortInputEntity],
+                                               _ bInputs: [NodePortInputEntity]) -> Int {
+        guard !aInputs.isEmpty && !bInputs.isEmpty else { return 0 }
+
+        var score = 0
+
+        // 1. Input count similarity (max 8 points)
+        let inputCountDiff = abs(aInputs.count - bInputs.count)
+        if inputCountDiff == 0 {
+            score += 8
+        } else if inputCountDiff <= 1 {
+            score += 5
+        } else if inputCountDiff <= 2 {
+            score += 2
+        }
+
+        // 2. Connection pattern similarity (max 7 points)
+        let minCount = min(aInputs.count, bInputs.count)
+        var connectionMatches = 0
+        for i in 0..<minCount {
+            let aIsConnected = isInputConnected(aInputs[i].portData)
+            let bIsConnected = isInputConnected(bInputs[i].portData)
+            if aIsConnected == bIsConnected {
+                connectionMatches += 1
+            }
+        }
+        let connectionSimilarity = Double(connectionMatches) / Double(minCount)
+        score += Int(connectionSimilarity * 7.0)
+
+        // 3. Value type similarity for direct values (max 6 points)
+        var typeMatches = 0
+        for i in 0..<minCount {
+            if let aValueType = getPortValueType(from: aInputs[i].portData),
+               let bValueType = getPortValueType(from: bInputs[i].portData),
+               aValueType == bValueType {
+                typeMatches += 1
+            }
+        }
+        let typeSimilarity = Double(typeMatches) / Double(minCount)
+        score += Int(typeSimilarity * 6.0)
+
+        // 4. Direct value comparison for exact matches (max 4 points)
+        var exactMatches = 0
+        for i in 0..<minCount {
+            if arePortValuesEqual(aInputs[i].portData, bInputs[i].portData) {
+                exactMatches += 1
+            }
+        }
+        let exactSimilarity = Double(exactMatches) / Double(minCount)
+        score += Int(exactSimilarity * 4.0)
+
+        return score
+    }
+
+    /// Checks if an input port is connected to another node
+    private func isInputConnected(_ portData: NodeConnectionType) -> Bool {
+        switch portData {
+        case .values:
+            return false
+        case .upstreamConnection:
+            return true
+        }
+    }
+
+    /// Extracts the PortValue type from a NodeConnectionType for comparison
+    private func getPortValueType(from portData: NodeConnectionType) -> String? {
+        switch portData {
+        case .values(let values):
+            return values.first?.typeName
+        case .upstreamConnection:
+            return nil
+        }
+    }
+
+    /// Compares two NodeConnectionType instances for value equality
+    private func arePortValuesEqual(_ a: NodeConnectionType, _ b: NodeConnectionType) -> Bool {
+        switch (a, b) {
+        case (.values(let aValues), .values(let bValues)):
+            return aValues == bValues
+        case (.upstreamConnection(let aCoord), .upstreamConnection(let bCoord)):
+            return aCoord == bCoord
+        default:
+            return false
+        }
+    }
+}
+
+extension PortValue {
+    /// Returns the type name for similarity comparison
+    var typeName: String {
+        switch self {
+        case .string: return "string"
+        case .bool: return "bool"
+        case .number: return "number"
+        case .color: return "color"
+        case .position: return "position"
+        case .size: return "size"
+        case .point3D: return "point3D"
+        case .point4D: return "point4D"
+        case .pulse: return "pulse"
+        case .asyncMedia: return "asyncMedia"
+        case .json: return "json"
+        case .transform: return "transform"
+        case .anchoring: return "anchoring"
+        case .cameraDirection: return "cameraDirection"
+        case .assignedLayer: return "assignedLayer"
+        case .layerDimension: return "layerDimension"
+        case .plane: return "plane"
+        case .networkRequestType: return "networkRequestType"
+        case .none: return "none"
+        case .textTransform: return "textTransform"
+        case .dateAndTimeFormat: return "dateAndTimeFormat"
+        case .scrollMode: return "scrollMode"
+        case .textAlignment: return "textAlignment"
+        case .textVerticalAlignment: return "textVerticalAlignment"
+        case .fitStyle: return "fitStyle"
+        case .animationCurve: return "animationCurve"
+        case .lightType: return "lightType"
+        case .layerStroke: return "layerStroke"
+        case .textDecoration: return "textDecoration"
+        case .blendMode: return "blendMode"
+        case .strokeLineCap: return "strokeLineCap"
+        case .strokeLineJoin: return "strokeLineJoin"
+        case .contentMode: return "contentMode"
+        case .delayStyle: return "delayStyle"
+        case .shapeCoordinates: return "shapeCoordinates"
+        case .shapeCommand: return "shapeCommand"
+        case .spacing: return "spacing"
+        case .padding: return "padding"
+        case .sizingScenario: return "sizingScenario"
+        case .cameraOrientation: return "cameraOrientation"
+        case .deviceOrientation: return "deviceOrientation"
+        case .vnImageCropOption: return "vnImageCropOption"
+        case .orientation: return "orientation"
+        case .mapType: return "mapType"
+        case .progressIndicatorStyle: return "progressIndicatorStyle"
+        case .mobileHapticStyle: return "mobileHapticStyle"
+        case .scrollJumpStyle: return "scrollJumpStyle"
+        case .scrollDecelerationRate: return "scrollDecelerationRate"
+        case .deviceAppearance: return "deviceAppearance"
+        case .materialThickness: return "materialThickness"
+        case .pinTo: return "pinTo"
+        default: return "unknown"
+        }
     }
 }
 
