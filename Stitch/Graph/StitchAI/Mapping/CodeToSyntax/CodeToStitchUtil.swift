@@ -204,13 +204,19 @@ extension SwiftUIViewVisitor {
         else if let sequenceExpr = expression.as(SequenceExprSyntax.self) {
             let elements = Array(sequenceExpr.elements)
 
+            log("🔵 SequenceExprSyntax detected: \(elements.count) elements")
+
             // Only handle simple binary: lhs op rhs
             if elements.count == 3,
                let binaryOp = elements[1].as(BinaryOperatorExprSyntax.self) {
 
-                let lhs = try parseArgumentType(from: elements[0], isStreaming: isStreaming)
                 let op = binaryOp.operator.text
+                log("🔵 Binary operator: '\(op)', LHS: \(elements[0].trimmedDescription), RHS: \(elements[2].trimmedDescription)")
+
+                let lhs = try parseArgumentType(from: elements[0], isStreaming: isStreaming)
                 let rhs = try parseArgumentType(from: elements[2], isStreaming: isStreaming)
+
+                log("🔵 Successfully parsed math expression: \(lhs) \(op) \(rhs)")
 
                 return .mathExpression(SyntaxViewMathSyntax(lhs: lhs, op: op, rhs: rhs))
             }

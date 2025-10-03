@@ -895,6 +895,7 @@ extension SyntaxViewName {
             return [.connectionToLayerInput(stateAccessRef)]
 
         case .mathExpression(let mathSyntax):
+            log("🟢 .mathExpression case hit: \(mathSyntax.description)")
             return try parseMathExpressionToPatchNodes(
                 mathSyntax,
                 varName: varName,
@@ -903,7 +904,22 @@ extension SyntaxViewName {
                 isStreaming: isStreaming
             )
 
-        case .memberAccess, .closure, .viewEvent, .view:
+        case .memberAccess(let memberAccess):
+            log("🟢 .memberAccess case hit: \(memberAccess.trimmedDescription)")
+            // Check if this is a gesture event reference (like value.location.x)
+            if let viewEvent = viewEvent {
+                log("🟢 .memberAccess with viewEvent - creating connected patch data")
+                return memberAccess.createConnectedPatchData(
+                    viewEvent: viewEvent,
+                    varName: varName
+                )
+            } else {
+                // No viewEvent context - treat as state access/connection
+                log("🟢 .memberAccess without viewEvent - treating as connection")
+                return [.connectionToLayerInput(memberAccess.trimmedDescription)]
+            }
+
+        case .closure, .viewEvent, .view:
             throw SwiftUISyntaxError.portValueDecodingError(.portValueDecodingError(describe(argument)))
         }
     }
@@ -981,7 +997,13 @@ func parseMathExpressionToPatchNodes(
     isStreaming: Bool
 ) throws -> [PatchSyntaxResultType] {
 
+    log("🟡 parseMathExpressionToPatchNodes called")
+    log("🟡 LHS type: \(type(of: mathSyntax.lhs)), value: \(mathSyntax.lhs)")
+    log("🟡 Operator: \(mathSyntax.op)")
+    log("🟡 RHS type: \(type(of: mathSyntax.rhs)), value: \(mathSyntax.rhs)")
+
     // Recursively get patch data for operands
+    log("🟡 About to recursively derive LHS...")
     let lhsResults = try SyntaxViewName.derivePortValues(
         from: mathSyntax.lhs,
         varName: varName,
@@ -989,7 +1011,9 @@ func parseMathExpressionToPatchNodes(
         nodesDict: nodesDict,
         isStreaming: isStreaming
     )
+    log("🟡 LHS recursion succeeded, got \(lhsResults.count) results")
 
+    log("🟡 About to recursively derive RHS...")
     let rhsResults = try SyntaxViewName.derivePortValues(
         from: mathSyntax.rhs,
         varName: varName,
@@ -997,6 +1021,7 @@ func parseMathExpressionToPatchNodes(
         nodesDict: nodesDict,
         isStreaming: isStreaming
     )
+    log("🟡 RHS recursion succeeded, got \(rhsResults.count) results")
 
     // Map operator to patch type
     let patchType = try operatorToPatchType(mathSyntax.op)
