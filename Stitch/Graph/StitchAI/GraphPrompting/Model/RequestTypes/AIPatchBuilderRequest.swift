@@ -184,12 +184,6 @@ extension SwiftSyntaxActionsResult {
         
         graphEntity.orderedSidebarLayers = newSidebarData
         
-        // Can't build the depth map from the `patch_data`,
-        // since those UUIDs have not been remapped yet
-        let repositionedNodes = graphEntity.nodes.positionAIGeneratedNodesDuringApply(
-            viewPortCenter: viewPortCenter)
-        graphEntity.nodes = repositionedNodes
-        
         // Make group Id map current context
         graphEntity.nodes = graphEntity.nodes.map { nodeEntity in
             var nodeEntity = nodeEntity
@@ -202,18 +196,24 @@ extension SwiftSyntaxActionsResult {
         }
         
         // Reuse IDs from existing graph when possible--this allows us to reuse IDs during streaming
-        let finalGraphEntity = currentGraphEntity
+        graphEntity = currentGraphEntity
             .mergeWithStreamedGraph(graphEntity,
                                     lastStreamedLayerId: lastStreamedLayerId,
                                     isLayerStreamingComplete: isLayerStreamingComplete,
                                     isFullStreamComplete: !isStreaming)
+        
+        // Can't build the depth map from the `patch_data`,
+        // since those UUIDs have not been remapped yet
+        let repositionedNodes = graphEntity.nodes.positionAIGeneratedNodesDuringApply(
+            viewPortCenter: viewPortCenter)
+        graphEntity.nodes = repositionedNodes
         
         // TODO: come back to sidebar selection
 
         //        document.graph.layersSidebarViewModel.primary = newNodesForSelectedOldNodes
 //        log("Restored sidebar selection for \(newNodesForSelectedOldNodes.count) matched nodes")
 
-        return .init(graph: finalGraphEntity,
+        return .init(graph: graphEntity,
                      errors: caughtErrors)
     }
 }
