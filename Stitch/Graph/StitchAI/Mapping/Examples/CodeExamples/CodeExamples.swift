@@ -31,7 +31,8 @@ extension MappingExamples {
     static let codeExamples: [MappingCodeExample] = [
 
         // Math expressions in PortValueDescription - TESTING NEW FEATURE
-        PortValueDescriptionCodeExamples.ellipseWithMathExpressions,
+        PortValueDescriptionCodeExamples.rectangleWithDragGestureMathExpressions,
+        PortValueDescriptionCodeExamples.ellipseWithStaticMathExpressions,
 
         // Background examples - testing background to ZStack transformation
         BackgroundCodeExamples.simpleBackgroundFunctionCall,

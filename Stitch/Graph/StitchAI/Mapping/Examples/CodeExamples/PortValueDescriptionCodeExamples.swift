@@ -12,11 +12,29 @@ import Foundation
 /// for the visual programming system
 struct PortValueDescriptionCodeExamples {
 
-    static let ellipseWithMathExpressions = MappingCodeExample(
-        title: "Ellipse with Math Expressions in PortValueDescription",
+    static let rectangleWithDragGestureMathExpressions = MappingCodeExample(
+        title: "Rectangle with Math Expressions in Drag Gesture",
+        code: """
+struct ContentView: View {
+
+    var body: some View {
+        Rectangle()
+            .simultaneousGesture(
+                DragGesture()
+                    .onChanged { value in
+                        rectanglePosition = [PortValueDescription(value: ["x": value.location.x - 196.5, "y": value.location.y - 426], value_type: "position")]
+                    }
+            )
+    }
+}
+"""
+    )
+
+    static let ellipseWithStaticMathExpressions = MappingCodeExample(
+        title: "Ellipse with Static Math Expressions",
         code: """
 Ellipse()
-    .offset([PortValueDescription(value: ["x": value.location.x - 196.5, "y": value.location.y - 426], value_type: "position")])
+    .offset([PortValueDescription(value: ["x": 500 - 196.5, "y": 500 - 426], value_type: "position")])
 """
     )
 
