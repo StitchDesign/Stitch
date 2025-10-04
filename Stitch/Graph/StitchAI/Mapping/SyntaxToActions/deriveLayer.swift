@@ -846,7 +846,7 @@ extension SyntaxViewName {
             
         case .tuple(let tupleArgs):
             return try tupleArgs
-                .reorderUnapckedValues(varName: varName,
+                .reorderUnpackedValues(varName: varName,
                                        viewEvent: viewEvent,
                                        nodesDict: nodesDict,
                                        nodeType: nodeType,
@@ -1014,13 +1014,7 @@ func parseMathExpressionToPatchNodes(
     let patchType = try operatorToPatchType(mathSyntax.op)
 
     // Create math patch node with unique UUID
-    let mathNodeId = varName != nil ? deterministicUUID(from: varName!) : UUID()
-    log("🔴 Math node UUID generation:")
-    log("  varName: \(varName ?? "nil")")
-    log("  mathNodeId: \(mathNodeId)")
-    log("  operator: \(mathSyntax.op)")
-    log("  LHS: \(mathSyntax.lhs.description)")
-    log("  RHS: \(mathSyntax.rhs.description)")
+    let mathNodeId = UUID()
 
     let mathNode = PatchSyntaxNodeResult(
         id: mathNodeId,

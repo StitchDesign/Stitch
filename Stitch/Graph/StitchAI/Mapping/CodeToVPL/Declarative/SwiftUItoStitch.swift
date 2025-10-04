@@ -46,7 +46,7 @@ extension PortValuesPackModifiable {
     func createCustomValueEvents(isStreaming: Bool) throws -> [LayerPortDerivation] {
         // Reorder arguments to match layer unpack ordering
         let layerPortEvents = try self.args
-            .reorderUnapckedValues(varName: nil,
+            .reorderUnpackedValues(varName: nil,
                                    viewEvent: nil,
                                    nodesDict: [:],
                                    nodeType: Self.nodeType,
