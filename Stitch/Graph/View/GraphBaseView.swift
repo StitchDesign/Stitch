@@ -111,27 +111,33 @@ struct GraphBaseView: View {
             nodesView
         } // ZStack
         
-        .modifier(ActivelyDrawnEdge(graph: graph,
-                                    scale: document.graphMovement.zoomData))
-        .coordinateSpace(name: Self.coordinateNamespace)
-        
-        #if targetEnvironment(macCatalyst)
+#if targetEnvironment(macCatalyst)
         .overlay(alignment: .trailing) {
             if store.showsLayerInspector {
                 LayerInspectorView(graph: graph,
                                    document: document)
                 .frame(width: LayerInspectorView.LAYER_INSPECTOR_WIDTH)
-                .transition(.move(edge: .trailing))
-//                .transition(.slideInAndOut)
+                .transition(
+                    .asymmetric(
+                        insertion: .move(edge: .trailing),
+                        removal: .move(edge: .trailing).combined(with: .opacity)
+                    )
+                )
             }
         }
-        
-        //        .inspector(isPresented: $store.showsLayerInspector) {
-//                    LayerInspectorView(graph: graph,
-//                                       document: document)
-        //        }
-        #endif
 
+        //        .inspector(isPresented: $store.showsLayerInspector) {
+        //                    LayerInspectorView(graph: graph,
+        //                                       document: document)
+        //        }
+#endif
+
+        
+        .modifier(ActivelyDrawnEdge(graph: graph,
+                                    scale: document.graphMovement.zoomData))
+        .coordinateSpace(name: Self.coordinateNamespace)
+        
+       
         
         .bottomCenterToast(willShow: document.llmRecording.showRatingToast,
                            config: .init(duration: 15),

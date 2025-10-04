@@ -196,7 +196,7 @@ extension StitchAICodeCreator {
                                  document: document,
                                  isStreaming: isStreaming)
         
-        print("Derived Stitch layer data:\n\(actionsResult)")
+        log("Derived Stitch layer data:\n\(actionsResult)")
         
         return actionsResult
     }
