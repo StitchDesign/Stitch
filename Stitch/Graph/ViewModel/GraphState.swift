@@ -532,7 +532,7 @@ extension GraphState {
             return input.rowDelegate?.containsUpstreamConnection ?? false
         }
         
-        let edges = connectedInputs.compactMap { (downstreamInput: InputNodeRowViewModel) in
+        let edges: [ConnectedEdgeData] = connectedInputs.compactMap { (downstreamInput: InputNodeRowViewModel) in
 
             guard let downstreamInputNode = self.getNode(downstreamInput.id.nodeId),
                   let upstreamOutputObserver = downstreamInput.rowDelegate?.upstreamOutputObserver,
