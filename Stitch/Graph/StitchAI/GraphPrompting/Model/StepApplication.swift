@@ -431,33 +431,42 @@ extension Array where Element == NodeEntity {
                 ? Self.sortNodesByBarycenter(nodes: layout.nodes, parentMap: parentMap, nodePositions: nodePositions)
                 : layout.nodes
 
-            // Track cumulative Y position for sequential placement
-            var currentY = viewPortCenter.y
+            // Calculate starting Y for this depth level
+            var depthStartY: CGFloat
+            if layout.depth == 0 {
+                // For depth 0, calculate centered start position based on total nodes at this depth
+                let totalDepthHeight = CGFloat(sortedNodes.count) * layout.rowHeight
+                depthStartY = viewPortCenter.y - (totalDepthHeight / 2.0) + (layout.rowHeight / 2.0)
+            } else {
+                // For depth > 0, calculate based on parent positions
+                let allParentYs = sortedNodes.compactMap { node -> CGFloat? in
+                    guard let parentIds = parentMap[node.id] else { return nil }
+                    let parentYs = parentIds.compactMap { nodePositions[$0]?.y }
+                    return parentYs.isEmpty ? nil : parentYs.reduce(0, +) / CGFloat(parentYs.count)
+                }
 
-            for node in sortedNodes {
+                if !allParentYs.isEmpty {
+                    let avgParentY = allParentYs.reduce(0, +) / CGFloat(allParentYs.count)
+                    let totalDepthHeight = CGFloat(sortedNodes.count) * layout.rowHeight
+                    depthStartY = avgParentY - (totalDepthHeight / 2.0) + (layout.rowHeight / 2.0)
+                } else {
+                    let totalDepthHeight = CGFloat(sortedNodes.count) * layout.rowHeight
+                    depthStartY = viewPortCenter.y - (totalDepthHeight / 2.0) + (layout.rowHeight / 2.0)
+                }
+            }
+
+            for (index, node) in sortedNodes.enumerated() {
                 var updatedNode = node
                 guard let sizeCache = nodeSizeCache[node.id] else {
                     updatedNodes.append(node)
                     continue
                 }
 
-                // For nodes with parents, calculate their ideal Y based on parent barycenter
-                var idealY = currentY
-                if layout.depth > 0, let parentIds = parentMap[node.id], !parentIds.isEmpty {
-                    let parentYs = parentIds.compactMap { nodePositions[$0]?.y }
-                    if !parentYs.isEmpty {
-                        idealY = parentYs.reduce(0, +) / CGFloat(parentYs.count)
-                    }
-                }
-
-                // Use the maximum of current Y and ideal Y to avoid overlaps
+                // Calculate position for this node
                 let basePosition = CGPoint(
                     x: viewPortCenter.x + centeringOffset + layout.cumulativeXOffset,
-                    y: Swift.max(currentY, idealY)
+                    y: depthStartY + CGFloat(index) * layout.rowHeight
                 )
-
-                // Update current Y for next node
-                currentY = basePosition.y + layout.rowHeight
 
                 // Store base position for use in barycenter calculation for children
                 nodePositions[node.id] = basePosition
