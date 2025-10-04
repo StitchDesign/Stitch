@@ -230,7 +230,8 @@ extension SyntaxViewModifierViewEvent {
                              isStreaming: Bool) throws -> SwiftPatchViewEvent? {
         // Check for onChange handlers
         guard let viewName = SyntaxViewEventType(rawValue: self.eventName),
-              let onChangeHandler = self.eventModifiers.get("onChanged") else {
+              // MARK: we just want to ignore onEnded, we don't support that yet
+                let onChangeHandler = self.eventModifiers.get("onChanged") ?? self.eventModifiers.values.first else {
             return nil
         }
         
