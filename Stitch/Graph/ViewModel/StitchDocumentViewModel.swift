@@ -129,9 +129,6 @@ final class StitchDocumentViewModel: Sendable {
     
     @MainActor var leftSidebarOpen = false
 
-    // Tracks whether sidebars are currently animating; used to suppress UIKitWrapper during animation for smooth transitions
-    @MainActor var isSidebarAnimating = false
-
     // Note: important to use `OrderedSet` rather than just list, so that we never have duplicate traversal-levels, see: https://github.com/StitchDesign/Stitch--Old/issues/7038
     // Tracks group breadcrumbs when group nodes are visited
     @MainActor var groupNodeBreadcrumbs: OrderedSet<GroupNodeType> = .init()

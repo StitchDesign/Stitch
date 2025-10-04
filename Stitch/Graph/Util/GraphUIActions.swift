@@ -143,9 +143,6 @@ struct ToggleSidebars: StitchStoreEvent {
         let inspectorOpen = store.showsLayerInspector
         let layerSidebarOpen = state.leftSidebarOpen
 
-        // Suppress UIKitWrapper during sidebar animation for smooth transitions
-        state.isSidebarAnimating = true
-
         // Animate both together
         withAnimation {
             if !inspectorOpen && !layerSidebarOpen {
@@ -157,11 +154,6 @@ struct ToggleSidebars: StitchStoreEvent {
                 store.showsLayerInspector = false
                 state.leftSidebarOpen = false
             }
-        }
-
-        // Restore UIKitWrapper after animation completes (0.5s for smoother animation)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            state.isSidebarAnimating = false
         }
 
         return .noChange

@@ -44,26 +44,20 @@ struct ContentView: View, KeyboardReadable {
 
     var nodeAndMenu: some View {
         ZStack {
-            if !document.isSidebarAnimating {
-                // UIKitWrapper always (for TAB key detection), except during sidebar animations
-                UIKitWrapper(ignoresKeyCommands: true,
-                             isOnlyForTextFieldHelp: true,
-                             inputTextFieldFocused: document.reduxFocusedField?.inputTextFieldWithNumberIsFocused(document.graph) ?? false,
-                             name: .mainGraph) {
-                    contentView // the graph
-                }
-            } else {
-                // No wrapper during sidebar animations for smooth transitions
+            // TODO: (1) use fixed sizes for the various flyouts and attached UIKitWrapper there instead, would give smoother animations for toggling sidebar, or (2) find better Mac Catalyst key-press-listening
+            UIKitWrapper(ignoresKeyCommands: true,
+                         isOnlyForTextFieldHelp: true,
+                         inputTextFieldFocused: document.reduxFocusedField?.inputTextFieldWithNumberIsFocused(document.graph) ?? false,
+                         name: .mainGraph) {
                 contentView // the graph
             }
         }
     }
-
+    
     var body: some View {
         ZStack {
 
-            // probably the best location for listening to how iPad's on-screen keyboard reduces available height for node menu ?
-
+            // Probably the best location for listening to how iPad's on-screen keyboard reduces available height for node menu ?
 
             // Must respect keyboard safe-area
             ProjectWindowSizeReader(previewWindowSizing: previewWindowSizing,
