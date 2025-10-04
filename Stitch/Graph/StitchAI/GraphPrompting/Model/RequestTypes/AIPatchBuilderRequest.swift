@@ -201,25 +201,12 @@ extension SwiftSyntaxActionsResult {
             return nodeEntity
         }
         
-        var finalGraphEntity: GraphEntity
-        
-        if isStreaming {
-            // Reuse IDs from existing graph when possible--this allows us to reuse IDs during streaming
-            finalGraphEntity = currentGraphEntity
-                .mergeWithStreamedGraph(graphEntity,
-                                        lastStreamedLayerId: lastStreamedLayerId,
-                                        isLayerStreamingComplete: isLayerStreamingComplete)
-        } else {
-            // Infer data directly
-            finalGraphEntity = graphEntity
-            
-            // Create nested sidebar layer data
-            let newSidebarData = self.graphData.layer_data_list.compactMap {
-                $0.createSidebarLayerData()
-            }
-            
-            finalGraphEntity.orderedSidebarLayers = newSidebarData
-        }
+        // Reuse IDs from existing graph when possible--this allows us to reuse IDs during streaming
+        let finalGraphEntity = currentGraphEntity
+            .mergeWithStreamedGraph(graphEntity,
+                                    lastStreamedLayerId: lastStreamedLayerId,
+                                    isLayerStreamingComplete: isLayerStreamingComplete,
+                                    isFullStreamComplete: !isStreaming)
         
         // TODO: come back to sidebar selection
 

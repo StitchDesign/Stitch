@@ -493,7 +493,8 @@ extension GraphEntity {
     /// - Returns: A new `GraphEntity` with nodes replaced/added based on matches.
     func mergeWithStreamedGraph(_ inProgressGraph: GraphEntity,
                                 lastStreamedLayerId: UUID?,
-                                isLayerStreamingComplete: Bool) -> GraphEntity {
+                                isLayerStreamingComplete: Bool,
+                                isFullStreamComplete: Bool) -> GraphEntity {
         var merged = self
         
         // Fast lookup of existing nodes by id
@@ -603,11 +604,19 @@ extension GraphEntity {
                 changedNodeIds.updateValue(streamed.id, forKey: streamed.id)
             }
         }
-        
+
         // Start from existing map and overlay new/replaced nodes (avoids extra dictionary merges)
-        var resultMap = existingNodesMap
-        for (id, node) in newNodesMap {
-            resultMap[id] = node
+        var resultMap: [UUID: NodeEntity]
+        
+        if isFullStreamComplete {
+            // Only use new data
+            resultMap = newNodesMap
+        } else {
+            // Merge existing and new data
+            resultMap = existingNodesMap
+            for (id, node) in newNodesMap {
+                resultMap[id] = node
+            }
         }
         
         // Update changed node IDs to include existing nodes not yet tracked by streamed nodes
@@ -618,17 +627,24 @@ extension GraphEntity {
             }
         }
         
-        merged.nodes = Array(resultMap.values)
         
+        merged.nodes = Array(resultMap.values)
+
         // Update all node references within the graph to use the new IDs
         //        merged = merged.replaceNodeIdReference(idMap: changedNodeIds)
         merged.nodes = merged.nodes.createCopy(mappableData: changedNodeIds,
-                                               copiedNodeIds: .init())
-        
-        // Iterate through in-progress sidebar data to ensure each entry is accounted for in our existing set. If not, we need to update our sidebar data.
-        merged.orderedSidebarLayers.merge(with: inProgressGraph.orderedSidebarLayers,
-                                          changedNodeIds: changedNodeIds,
-                                          existingNodeIds: Set(existingNodesMap.keys))
+                                               copiedNodeIds: Set(changedNodeIds.keys))
+
+        if isFullStreamComplete {
+            // Use exact streamed data except for some IDs
+            merged.orderedSidebarLayers = inProgressGraph.orderedSidebarLayers
+                .createCopy(mappableData: changedNodeIds)
+        } else {
+            // Iterate through in-progress sidebar data to ensure each entry is accounted for in our existing set. If not, we need to update our sidebar data.
+            merged.orderedSidebarLayers.merge(with: inProgressGraph.orderedSidebarLayers,
+                                              changedNodeIds: changedNodeIds,
+                                              existingNodeIds: Set(existingNodesMap.keys))
+        }
                 
         // let currentLog = self.nodes.reduce(into: "mergeWithStreamedGraph: current nodes:") { stringBuilder, node in
         //     stringBuilder += "\n\(node.id):\tkind: \(node.kind)\tlayer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")"
@@ -895,9 +911,7 @@ extension SidebarLayerList {
             if !existingNodeIds.contains(changedNodeId) {
                 // Remove item if already existing in sidebar
                 self.removeSidebarLayerData(changedNodeId)
-                
-                let removedData = self
-                
+                                
                 // If parent is existing node, add in-place using existing index
                 self.insertSidebarLayerData(inProgressItem,
                                             parentId: parentLayerId,
