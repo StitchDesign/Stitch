@@ -300,10 +300,15 @@ final actor ClaudeStreamingActor {
                             // log("📝 Text delta received: '\(text)' (length: \(text.count))")
                             accumulatedContent += text
                             log("accumulated text: \n\(accumulatedContent)")
-                            
+
+                            // Skip parsing if no ContentView present (explanatory text only)
+                            guard accumulatedContent.contains("ContentView") else {
+                                continue
+                            }
+
                             // MARK: code building in-progress graphs is expensive, we delay work so long as no active update task is running
                             guard self.updateTask == nil else { break }
-                            
+
                             let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(accumulatedContent, isStreaming: true)
                             
                             // Syntax → Actions
