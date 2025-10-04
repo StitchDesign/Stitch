@@ -199,7 +199,32 @@ extension SwiftUIViewVisitor {
         else if let closureExpr = expression.as(ClosureExprSyntax.self) {
             return .closure(closureExpr.getClosureData())
         }
-        
+
+        // Handle math expressions (simple binary ops only)
+        else if let sequenceExpr = expression.as(SequenceExprSyntax.self) {
+            let elements = Array(sequenceExpr.elements)
+
+            log("🔵 SequenceExprSyntax detected: \(elements.count) elements")
+
+            // Only handle simple binary: lhs op rhs
+            if elements.count == 3,
+               let binaryOp = elements[1].as(BinaryOperatorExprSyntax.self) {
+
+                let op = binaryOp.operator.text
+                log("🔵 Binary operator: '\(op)', LHS: \(elements[0].trimmedDescription), RHS: \(elements[2].trimmedDescription)")
+
+                let lhs = try parseArgumentType(from: elements[0], isStreaming: isStreaming)
+                let rhs = try parseArgumentType(from: elements[2], isStreaming: isStreaming)
+
+                log("🔵 Successfully parsed math expression: \(lhs) \(op) \(rhs)")
+
+                return .mathExpression(SyntaxViewMathSyntax(lhs: lhs, op: op, rhs: rhs))
+            }
+
+            // More complex expressions not supported yet
+            throw SwiftUISyntaxError.unsupportedSyntaxArgumentKind(expression.trimmedDescription)
+        }
+
         guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {
             throw SwiftUISyntaxError.unsupportedSyntaxArgumentKind(expression.trimmedDescription)
         }
