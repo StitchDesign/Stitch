@@ -183,9 +183,10 @@ extension StitchAICodeCreator {
         log("userPrompt: \(userPrompt)") // Very helpful to see user-prompt here again
         log("StitchAICodeCreator swiftUICode:\n\(swiftUICode)")
 
-        // Check if the AI returned empty code
-        if swiftUICode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            log("ERROR: AI returned empty code for prompt: \(userPrompt)")
+        // Check if the AI returned empty code or code without ContentView
+        let trimmedCode = swiftUICode.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedCode.isEmpty || !trimmedCode.contains("ContentView") {
+            log("ERROR: AI returned invalid code (empty or missing ContentView) for prompt: \(userPrompt)")
             throw StitchAIManagerError.emptyAIResponse
         }
 
