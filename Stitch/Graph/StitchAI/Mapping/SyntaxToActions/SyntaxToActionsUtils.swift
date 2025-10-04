@@ -138,7 +138,7 @@ extension NodeType {
 }
 
 extension Array where Element == SyntaxViewArgumentData {
-    func reorderUnapckedValues(varName: String?,
+    func reorderUnpackedValues(varName: String?,
                                viewEvent: SyntaxViewEvent?,
                                nodesDict: [UUID: NodeEntity],
                                nodeType: NodeType? = nil,

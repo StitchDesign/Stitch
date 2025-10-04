@@ -179,7 +179,7 @@ extension StitchAICodeCreator {
         let swiftUICode = try await self
             .createCode(document: document,
                         aiManager: aiManager)
-
+        
         log("userPrompt: \(userPrompt)") // Very helpful to see user-prompt here again
         log("StitchAICodeCreator swiftUICode:\n\(swiftUICode)")
 
