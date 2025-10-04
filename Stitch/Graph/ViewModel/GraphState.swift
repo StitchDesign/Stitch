@@ -549,6 +549,7 @@ extension GraphState {
         }
 
         // Only apply deterministic sorting during AI streaming to prevent visual jitter
+        // TODO: Consider a more perf-friendly solution for future larger graphs
         if self.shouldAnimateForStreaming {
             return edges.sorted { edge1, edge2 in
                 // Sort by downstream node ID first, then port ID for deterministic ordering
