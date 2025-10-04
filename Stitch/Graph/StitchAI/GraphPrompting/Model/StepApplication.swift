@@ -296,7 +296,7 @@ extension Array where Element == NodeEntity {
     private func buildParentMap() -> [UUID: [UUID]] {
         var parentMap: [UUID: [UUID]] = [:]
 
-        for node in self {
+        for node in self.sorted(by: { $0.id < $1.id }) {
             for inputData in node.inputs {
                 if let upstreamOutput = inputData.upstreamConnection {
                     // upstreamOutput.nodeId is the parent
@@ -306,7 +306,10 @@ extension Array where Element == NodeEntity {
             }
         }
 
-        return parentMap
+        // Sort parent lists for deterministic ordering
+        return parentMap.mapValues { parents in
+            parents.sorted()
+        }
     }
 
     /// Sorts nodes by barycenter (average Y position of parent nodes) to minimize edge crossings
@@ -357,19 +360,25 @@ extension Array where Element == NodeEntity {
         // Pre-compute all node sizes once to avoid repeated lookups
         let nodeSizeCache: [UUID: NodeSizeCache] = self.reduce(into: [:]) { cache, node in
             let nodeType = node.nodeTypeEntity.patchNodeEntity?.userVisibleType
+            let sortedCanvasIds = node.canvasIds.sorted(by: {
+                // Sort by string representation for deterministic ordering
+                String(describing: $0) < String(describing: $1)
+            })
             cache[node.id] = NodeSizeCache(
-                size: node.canvasIds.first?.getHardcodedSize(kind: node.kind, nodeType: nodeType) ??
+                size: sortedCanvasIds.first?.getHardcodedSize(kind: node.kind, nodeType: nodeType) ??
                       CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
                              height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER),
-                canvasIds: node.canvasIds,
+                canvasIds: sortedCanvasIds,
                 nodeType: nodeType,
                 kind: node.kind
             )
         }
 
-        // Group nodes by depth level efficiently (single pass)
-        let nodesByDepth: [Int: [NodeEntity]] = Dictionary(grouping: self) { node in
+        // Group nodes by depth level with deterministic ordering
+        let nodesByDepth: [Int: [NodeEntity]] = Dictionary(grouping: self.sorted(by: { $0.id < $1.id })) { node in
             depthMap[node.id] ?? 0
+        }.mapValues { nodes in
+            nodes.sorted(by: { $0.id < $1.id })
         }
 
         let sortedDepths = nodesByDepth.keys.sorted()
@@ -465,13 +474,20 @@ extension Array where Element == NodeEntity {
             }
         }
 
-        // Performance instrumentation - end timing
-        let endTime = CFAbsoluteTimeGetCurrent()
-        let executionTime = (endTime - startTime) * 1000 // Convert to milliseconds
-
-        // Log performance metrics
-        // log("🚀 positionAIGeneratedNodesDuringApply: \(self.count) nodes positioned in \(String(format: "%.2f", executionTime))ms")
-
+//        #if DEBUG || DEV_DEBUG
+//        var logBuilder = "positionAIGeneratedNodesDuringApply: node positions:"
+//        logBuilder = updatedNodes
+//            .sorted(by: { $0.id < $1.id })
+//            .reduce(into: logBuilder) { result, node in
+//                node.canvasEntities
+//                    .sorted(by: { $0.position.x < $1.position.x || ($0.position.x == $1.position.x && $0.position.y < $1.position.y) })
+//                    .forEach { canvas in
+//                        result += "\n\(node.id.uuidString): \(canvas.position)"
+//                    }
+//            }
+//        log(logBuilder)
+//        #endif
+        
         return updatedNodes
     }
 
