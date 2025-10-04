@@ -31,7 +31,6 @@ extension NodeEntity {
         }
     }
     
-    @MainActor
     var canvasEntities: [CanvasNodeEntity] {
         switch self.nodeTypeEntity {
         case .patch(let patch):
