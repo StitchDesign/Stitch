@@ -629,7 +629,6 @@ extension GraphEntity {
         merged.orderedSidebarLayers.merge(with: inProgressGraph.orderedSidebarLayers,
                                           changedNodeIds: changedNodeIds,
                                           existingNodeIds: Set(existingNodesMap.keys))
-                
         // let currentLog = self.nodes.reduce(into: "mergeWithStreamedGraph: current nodes:") { stringBuilder, node in
         //     stringBuilder += "\n\(node.id):\tkind: \(node.kind)\tlayer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")"
         // }

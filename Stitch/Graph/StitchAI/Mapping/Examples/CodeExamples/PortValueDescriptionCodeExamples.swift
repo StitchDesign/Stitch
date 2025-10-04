@@ -8,10 +8,36 @@
 import Foundation
 
 /// Examples showing SwiftUI code using PortValueDescription format
-/// These demonstrate how arguments can be wrapped in PortValueDescription 
+/// These demonstrate how arguments can be wrapped in PortValueDescription
 /// for the visual programming system
 struct PortValueDescriptionCodeExamples {
-    
+
+    static let rectangleWithDragGestureMathExpressions = MappingCodeExample(
+        title: "Rectangle with Math Expressions in Drag Gesture",
+        code: """
+struct ContentView: View {
+
+    var body: some View {
+        Rectangle()
+            .simultaneousGesture(
+                DragGesture()
+                    .onChanged { value in
+                        rectanglePosition = [PortValueDescription(value: ["x": value.location.x - 196.5, "y": value.location.y - 426], value_type: "position")]
+                    }
+            )
+    }
+}
+"""
+    )
+
+    static let ellipseWithStaticMathExpressions = MappingCodeExample(
+        title: "Ellipse with Static Math Expressions",
+        code: """
+Ellipse()
+    .offset([PortValueDescription(value: ["x": 500 - 196.5, "y": 500 - 426], value_type: "position")])
+"""
+    )
+
     static let rectangleWithColorPVD = MappingCodeExample(
         title: "Rectangle with PortValueDescription color",
         code: """

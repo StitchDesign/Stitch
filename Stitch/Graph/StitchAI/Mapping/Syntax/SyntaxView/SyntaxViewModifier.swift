@@ -128,6 +128,16 @@ struct SyntaxViewModifierClosureData: Sendable, Encodable {
     let script: String
 }
 
+struct SyntaxViewMathSyntax: Sendable {
+    let lhs: SyntaxViewModifierArgumentType
+    let op: String  // "+", "-", "*", "/", etc.
+    let rhs: SyntaxViewModifierArgumentType
+    
+    var description: String {
+        "\(self.lhs.description) \(self.op) \(self.rhs.description)"
+    }
+}
+
 /*
  A single given parameter (i.e. a single label)
  could have a complex (more than just string) value or even multiple associated values, e.g.
@@ -161,9 +171,12 @@ indirect enum SyntaxViewModifierArgumentType: Sendable {
     case closure(SyntaxViewModifierClosureData)
     
     case viewEvent(SyntaxViewModifierViewEvent)
-    
+
     // SwiftUI view with proper hierarchy (e.g. VStack with children in modifier argument)
     case view(SyntaxView)
+
+    // Math expression (e.g. value.location.x - 196.5)
+    case mathExpression(SyntaxViewMathSyntax)
 }
 
 // Non-recursive sub-enum of `SyntaxViewModifierArgumentType` for when we are working in contexts where we have already flattened the nested argument-types like `tuple` and `array`
@@ -218,6 +231,9 @@ extension SyntaxViewModifierArgumentType {
             return []
         case .view(let x):
             return [.view(x)]
+        case .mathExpression(let x):
+            // Math expressions need to be flattened recursively
+            return x.lhs.toSyntaxViewModifierArgumentFlatType + x.rhs.toSyntaxViewModifierArgumentFlatType
         }
     }
 }
@@ -274,7 +290,17 @@ extension SyntaxViewModifierArgumentType {
         switch self {
         case .viewEvent(let x):
             return x
-            
+
+        default:
+            return nil
+        }
+    }
+
+    var mathExpression: SyntaxViewMathSyntax? {
+        switch self {
+        case .mathExpression(let x):
+            return x
+
         default:
             return nil
         }
@@ -539,8 +565,14 @@ extension SyntaxViewModifierArgumentType {
         case .viewEvent:
             fatalError()
 //            return AnyEncodable(x)
+        
         case .view(_):
             fatalError()
+            
+        case .mathExpression(let x):
+//            return AnyEncodable(x)
+            fatalError()
+            // Math Expressions are never directly encoded as `PortValueDescription`
         }
     }
 }

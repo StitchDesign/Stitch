@@ -846,7 +846,7 @@ extension SyntaxViewName {
             
         case .tuple(let tupleArgs):
             return try tupleArgs
-                .reorderUnapckedValues(varName: varName,
+                .reorderUnpackedValues(varName: varName,
                                        viewEvent: viewEvent,
                                        nodesDict: nodesDict,
                                        nodeType: nodeType,
@@ -893,8 +893,29 @@ extension SyntaxViewName {
             
         case .stateAccess(let stateAccessRef):
             return [.connectionToLayerInput(stateAccessRef)]
-            
-        case .memberAccess, .closure, .viewEvent, .view:
+
+        case .mathExpression(let mathSyntax):
+            return try parseMathExpressionToPatchNodes(
+                mathSyntax,
+                varName: varName,
+                viewEvent: viewEvent,
+                nodesDict: nodesDict,
+                isStreaming: isStreaming
+            )
+
+        case .memberAccess(let memberAccess):
+            // Check if this is a gesture event reference (like value.location.x)
+            if let viewEvent = viewEvent {
+                return memberAccess.createConnectedPatchData(
+                    viewEvent: viewEvent,
+                    varName: varName
+                )
+            } else {
+                // No viewEvent context - treat as state access/connection
+                return [.connectionToLayerInput(memberAccess.trimmedDescription)]
+            }
+
+        case .closure, .viewEvent, .view:
             throw SwiftUISyntaxError.portValueDecodingError(.portValueDecodingError(describe(argument)))
         }
     }
@@ -961,6 +982,139 @@ extension SyntaxViewName {
         }
         
         return customValues
+    }
+}
+
+func parseMathExpressionToPatchNodes(
+    _ mathSyntax: SyntaxViewMathSyntax,
+    varName: String?,
+    viewEvent: SyntaxViewEvent?,
+    nodesDict: [UUID: NodeEntity],
+    isStreaming: Bool
+) throws -> [PatchSyntaxResultType] {
+    
+    // Recursively get patch data for operands
+    let lhsResults = try SyntaxViewName.derivePortValues(
+        from: mathSyntax.lhs,
+        varName: varName,
+        viewEvent: viewEvent,
+        nodesDict: nodesDict,
+        isStreaming: isStreaming
+    )
+
+    let rhsResults = try SyntaxViewName.derivePortValues(
+        from: mathSyntax.rhs,
+        varName: varName,
+        viewEvent: viewEvent,
+        nodesDict: nodesDict,
+        isStreaming: isStreaming
+    )
+
+    // Map operator to patch type
+    let patchType = try operatorToPatchType(mathSyntax.op)
+
+    // Create math patch node with unique UUID
+    let mathNodeId = UUID()
+
+    let mathNode = PatchSyntaxNodeResult(
+        id: mathNodeId,
+        kind: .patch(patchType),
+        nodeType: nil
+    )
+
+    // Filter operand results to prevent intermediate coordinate leakage.
+    // We only want to expose the math node's output, not intermediate coordinates
+    // (like .stateWrite or .portData from nested operations).
+    let shouldKeepResult: (PatchSyntaxResultType) -> Bool = { result in
+        switch result {
+        case .node, .connection, .portValues:
+            return true
+        case .stateWrite, .portData, .connectionToLayerInput, .jsSettings:
+            return false
+        }
+    }
+
+    let filteredLHS = lhsResults.filter(shouldKeepResult)
+    let filteredRHS = rhsResults.filter(shouldKeepResult)
+
+    var allResults: [PatchSyntaxResultType] = filteredLHS + filteredRHS + [.node(mathNode)]
+
+    // Get LHS output coordinate - could be in portData OR stateWrite
+    var lhsOutput: NodeIOCoordinate? = nil
+
+    // Check for upstream connection in portData
+    if let lhsCoordinate = lhsResults.last(where: {
+        if case .portData(.upstreamConnection) = $0 { return true }
+        return false
+    })?.portData,
+       case .upstreamConnection(let coord) = lhsCoordinate {
+        lhsOutput = coord
+    }
+
+    // Check for coordinate in stateWrite (from gesture events)
+    if lhsOutput == nil,
+       let stateWrite = lhsResults.last(where: {
+           if case .stateWrite = $0 { return true }
+           return false
+       }),
+       case .stateWrite(_, let coord) = stateWrite {
+        lhsOutput = coord
+    }
+
+    // Create connection if we found an output
+    if let lhsOutput = lhsOutput {
+        let lhsConnection = PortEdgeData(
+            from: lhsOutput,
+            to: .init(portId: 0, nodeId: mathNodeId)
+        )
+        allResults.append(.connection(lhsConnection))
+    }
+
+    // Handle RHS: could be values or upstream connection
+    if let rhsData = rhsResults.last(where: {
+        if case .portData = $0 { return true }
+        return false
+    })?.portData {
+
+        switch rhsData {
+        case .upstreamConnection(let rhsOutput):
+            // Create connection: RHS output → math node input 1
+            let rhsConnection = PortEdgeData(
+                from: rhsOutput,
+                to: .init(portId: 1, nodeId: mathNodeId)
+            )
+            allResults.append(.connection(rhsConnection))
+
+        case .values(let values):
+            // Set literal values on math node input 1
+            let portValues = PatchSyntaxPortValuesResult(
+                inputCoordinate: .init(portId: 1, nodeId: mathNodeId),
+                values: values
+            )
+            allResults.append(.portValues(portValues))
+        }
+    }
+
+    // Return all results + math node output coordinate for consumption
+    let mathOutput = NodeIOCoordinate(portId: 0, nodeId: mathNodeId)
+    allResults.append(.portData(.upstreamConnection(mathOutput)))
+
+    return allResults
+}
+
+func operatorToPatchType(_ op: String) throws -> Patch {
+    switch op {
+    case "+":
+        return .add
+    case "-":
+        return .subtract
+    case "*":
+        return .multiply
+    case "/":
+        return .divide
+    // Add more as needed (%, etc.)
+    default:
+        throw SwiftUISyntaxError.unsupportedSyntaxArgumentKind("operator: \(op)")
     }
 }
 
