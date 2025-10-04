@@ -26,10 +26,14 @@ struct MappingCodeExample: Sendable {
 }
 
 extension MappingExamples {
-    
+
     // TODO: break into separate pieces
     static let codeExamples: [MappingCodeExample] = [
-        
+
+        // Math expressions in PortValueDescription - TESTING NEW FEATURE
+        PortValueDescriptionCodeExamples.rectangleWithDragGestureMathExpressions,
+        PortValueDescriptionCodeExamples.ellipseWithStaticMathExpressions,
+
         // Background examples - testing background to ZStack transformation
         BackgroundCodeExamples.simpleBackgroundFunctionCall,
         BackgroundCodeExamples.simpleBackgroundClosure,

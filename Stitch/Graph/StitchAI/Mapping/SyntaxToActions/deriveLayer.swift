@@ -893,8 +893,29 @@ extension SyntaxViewName {
             
         case .stateAccess(let stateAccessRef):
             return [.connectionToLayerInput(stateAccessRef)]
-            
-        case .memberAccess, .closure, .viewEvent, .view:
+
+        case .mathExpression(let mathSyntax):
+            return try parseMathExpressionToPatchNodes(
+                mathSyntax,
+                varName: varName,
+                viewEvent: viewEvent,
+                nodesDict: nodesDict,
+                isStreaming: isStreaming
+            )
+
+        case .memberAccess(let memberAccess):
+            // Check if this is a gesture event reference (like value.location.x)
+            if let viewEvent = viewEvent {
+                return memberAccess.createConnectedPatchData(
+                    viewEvent: viewEvent,
+                    varName: varName
+                )
+            } else {
+                // No viewEvent context - treat as state access/connection
+                return [.connectionToLayerInput(memberAccess.trimmedDescription)]
+            }
+
+        case .closure, .viewEvent, .view:
             throw SwiftUISyntaxError.portValueDecodingError(.portValueDecodingError(describe(argument)))
         }
     }

@@ -55,9 +55,12 @@ extension SyntaxViewModifierArgumentType {
         
         case .viewEvent(let viewEvent):
             return "\(viewEvent)"
-        
+
         case .view(let x):
             return "\(x)"
+
+        case .mathExpression(let x):
+            return x.description
         }
     }
 }
@@ -99,6 +102,9 @@ func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
     case .view(let view):
         // TODO: revisit this?
         return view.name
+
+    case .mathExpression(let x):
+        return x.description
     }
 }
 
