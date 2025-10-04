@@ -532,7 +532,7 @@ extension GraphState {
             return input.rowDelegate?.containsUpstreamConnection ?? false
         }
         
-        return connectedInputs.compactMap { (downstreamInput: InputNodeRowViewModel) in
+        let edges = connectedInputs.compactMap { (downstreamInput: InputNodeRowViewModel) in
 
             guard let downstreamInputNode = self.getNode(downstreamInput.id.nodeId),
                   let upstreamOutputObserver = downstreamInput.rowDelegate?.upstreamOutputObserver,
@@ -547,13 +547,19 @@ extension GraphState {
                                      downstreamInput: downstreamInput,
                                      downstreamInputNode: downstreamInputNode)
         }
-        .sorted { edge1, edge2 in
-            // Sort by downstream node ID first, then port ID for deterministic ordering
-            if edge1.id.nodeId != edge2.id.nodeId {
-                return edge1.id.nodeId < edge2.id.nodeId
+
+        // Only apply deterministic sorting during AI streaming to prevent visual jitter
+        if self.shouldAnimateForStreaming {
+            return edges.sorted { edge1, edge2 in
+                // Sort by downstream node ID first, then port ID for deterministic ordering
+                if edge1.id.nodeId != edge2.id.nodeId {
+                    return edge1.id.nodeId < edge2.id.nodeId
+                }
+                return edge1.id.portId < edge2.id.portId
             }
-            return edge1.id.portId < edge2.id.portId
         }
+
+        return edges
     }
 }
 
