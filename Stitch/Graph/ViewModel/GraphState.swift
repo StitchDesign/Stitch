@@ -533,7 +533,7 @@ extension GraphState {
         }
         
         return connectedInputs.compactMap { (downstreamInput: InputNodeRowViewModel) in
-            
+
             guard let downstreamInputNode = self.getNode(downstreamInput.id.nodeId),
                   let upstreamOutputObserver = downstreamInput.rowDelegate?.upstreamOutputObserver,
                   let upstreamOutputPortUIViewModel = upstreamOutputObserver.rowViewModelForCanvasItemAtThisTraversalLevel?.portUIViewModel,
@@ -541,11 +541,18 @@ extension GraphState {
                 // log("no connected edge data for downstreamInput \(downstreamInput.id)")
                 return nil
             }
-            
+
             return ConnectedEdgeData(upstreamCanvasItem: upstreamCanvasItem,
                                      upstreamOutputPortUIViewModel: upstreamOutputPortUIViewModel,
                                      downstreamInput: downstreamInput,
                                      downstreamInputNode: downstreamInputNode)
+        }
+        .sorted { edge1, edge2 in
+            // Sort by downstream node ID first, then port ID for deterministic ordering
+            if edge1.id.nodeId != edge2.id.nodeId {
+                return edge1.id.nodeId < edge2.id.nodeId
+            }
+            return edge1.id.portId < edge2.id.portId
         }
     }
 }
