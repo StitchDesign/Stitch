@@ -431,7 +431,8 @@ extension Array where Element == NodeEntity {
                 ? Self.sortNodesByBarycenter(nodes: layout.nodes, parentMap: parentMap, nodePositions: nodePositions)
                 : layout.nodes
 
-            var rowIndex = 0
+            // Track cumulative Y position for sequential placement
+            var currentY = viewPortCenter.y
 
             for node in sortedNodes {
                 var updatedNode = node
@@ -440,12 +441,23 @@ extension Array where Element == NodeEntity {
                     continue
                 }
 
-                // Pre-calculated position for this node
+                // For nodes with parents, calculate their ideal Y based on parent barycenter
+                var idealY = currentY
+                if layout.depth > 0, let parentIds = parentMap[node.id], !parentIds.isEmpty {
+                    let parentYs = parentIds.compactMap { nodePositions[$0]?.y }
+                    if !parentYs.isEmpty {
+                        idealY = parentYs.reduce(0, +) / CGFloat(parentYs.count)
+                    }
+                }
+
+                // Use the maximum of current Y and ideal Y to avoid overlaps
                 let basePosition = CGPoint(
                     x: viewPortCenter.x + centeringOffset + layout.cumulativeXOffset,
-                    y: viewPortCenter.y + CGFloat(rowIndex) * layout.rowHeight
+                    y: Swift.max(currentY, idealY)
                 )
-                rowIndex += 1
+
+                // Update current Y for next node
+                currentY = basePosition.y + layout.rowHeight
 
                 // Store base position for use in barycenter calculation for children
                 nodePositions[node.id] = basePosition
