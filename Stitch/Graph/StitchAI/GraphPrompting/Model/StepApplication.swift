@@ -431,6 +431,7 @@ extension Array where Element == NodeEntity {
                 ? Self.sortNodesByBarycenter(nodes: layout.nodes, parentMap: parentMap, nodePositions: nodePositions)
                 : layout.nodes
 
+
             var rowIndex = 0
 
             for node in sortedNodes {
@@ -445,7 +446,6 @@ extension Array where Element == NodeEntity {
                     x: viewPortCenter.x + centeringOffset + layout.cumulativeXOffset,
                     y: viewPortCenter.y + CGFloat(rowIndex) * layout.rowHeight
                 )
-                rowIndex += 1
 
                 // Store base position for use in barycenter calculation for children
                 nodePositions[node.id] = basePosition
@@ -469,6 +469,10 @@ extension Array where Element == NodeEntity {
                     sizeCache: sizeCache,
                     updateCanvasPosition: updateCanvasPosition
                 )
+
+                // Increment rowIndex by actual canvas items created, not by 1 for every node
+                // This prevents layer nodes with 0 canvas items from taking up vertical space
+                rowIndex += canvasItemIndex
 
                 updatedNodes.append(updatedNode)
             }
