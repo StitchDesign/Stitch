@@ -39,7 +39,8 @@ struct FeatureFlags {
     
     // NOTE: THIS BREAKS POSITIONING ON MANY OLDER PROJECTS
 #if DEV_DEBUG
-    static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = true
+//    static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = true
+    static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = false
 #else
     static let PLACE_CENTER_OF_VIEW_AT_ANCHORING_POINT: Bool = false
 #endif
