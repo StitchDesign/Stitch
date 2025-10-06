@@ -497,7 +497,7 @@ extension GraphEntity {
     /// - Parameter inProgressGraph: The newly parsed/streamed graph snapshot.
     /// - Returns: A new `GraphEntity` with nodes replaced/added based on matches.
     func mergeWithStreamedGraph(_ inProgressGraph: GraphEntity,
-                                lastStreamedLayerId: UUID?,
+                                incompleteStreamedLayerIds: Set<UUID>,
                                 isLayerStreamingComplete: Bool,
                                 isFullStreamComplete: Bool) -> GraphEntity {
         var merged = self
@@ -540,10 +540,10 @@ extension GraphEntity {
         
         // Reuse existing node if data incomplete
         let useStreamedNode = { (current: NodeEntity, streamed: NodeEntity) -> Bool in
-            let streamedNodeMatchesIncompleteLayer = streamed.id == lastStreamedLayerId
+            let streamedNodeMatchesIncompleteLayer = incompleteStreamedLayerIds.contains(streamed.id)
             
-            // Only use current data when layer streaming is incomplete and not last node
-            let useCurrent = !isLayerStreamingComplete && !streamedNodeMatchesIncompleteLayer
+            // Only use current data when layer streaming is incomplete and part of last leaf node data
+            let useCurrent = !isLayerStreamingComplete && streamedNodeMatchesIncompleteLayer
 
             // Remove candidate
             if current.kind.isPatch {
@@ -656,9 +656,9 @@ extension GraphEntity {
         // }
         // log(inProgressLog)
         
-        let sidebarLog = merged.orderedSidebarLayers
-            .createLogMessage("mergeWithStreamedGraph sidebar:")
-        log(sidebarLog)
+//        let sidebarLog = merged.orderedSidebarLayers
+//            .createLogMessage("mergeWithStreamedGraph sidebar:")
+//        log(sidebarLog)
 
 #if DEBUG || DEV_DEBUG
         let layerNodes = merged.nodes.compactMap(\.layerNodeEntity)

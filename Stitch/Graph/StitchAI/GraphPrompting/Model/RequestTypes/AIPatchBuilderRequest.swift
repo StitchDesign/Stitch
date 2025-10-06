@@ -149,7 +149,6 @@ extension SwiftSyntaxActionsResult {
                        groupNodeFocused: UUID?,
                        isStreaming: Bool) -> StitchAIGraphEntityResult {
         var viewStatePatchConnections = self.graphData.viewStatePatchConnections
-        var lastStreamedLayerId: UUID?
         let isLayerStreamingComplete = !(isStreaming && self.graphData.patchNodes.isEmpty)
         
         // Instantiate new GraphEntity instance, starting with known patch nodes
@@ -158,12 +157,6 @@ extension SwiftSyntaxActionsResult {
         graphEntity.name = currentGraphEntity.name
         graphEntity.nodes = self.graphData.patchNodes
         
-        // The last parsed layer node during a stream might have incomplete data, we mark this as to not impact streaming performance
-        if !isLayerStreamingComplete {
-           // Non-empty patch nodes mean layer data is exhaustive{
-            lastStreamedLayerId = self.graphData.layer_data_list.lastLeafLayer
-        }
-
         var nodesDict = graphEntity.nodes.reduce(into: [UUID: NodeEntity]()) { result, nodeEntity in
             result.updateValue(nodeEntity, forKey: nodeEntity.id)
         }
@@ -195,10 +188,16 @@ extension SwiftSyntaxActionsResult {
             return nodeEntity
         }
         
+        // The last parsed layer node during a stream might have incomplete data, we mark this as to not impact streaming performance
+        let lastStreamedLayers = graphEntity.orderedSidebarLayers
+            .lastLeafLayers
+        
+        print("createAIGraph last streamed layers: \(lastStreamedLayers)")
+        
         // Reuse IDs from existing graph when possible--this allows us to reuse IDs during streaming
         graphEntity = currentGraphEntity
             .mergeWithStreamedGraph(graphEntity,
-                                    lastStreamedLayerId: lastStreamedLayerId,
+                                    incompleteStreamedLayerIds: lastStreamedLayers,
                                     isLayerStreamingComplete: isLayerStreamingComplete,
                                     isFullStreamComplete: !isStreaming)
         
