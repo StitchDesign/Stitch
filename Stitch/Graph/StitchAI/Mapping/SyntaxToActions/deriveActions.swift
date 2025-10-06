@@ -1179,42 +1179,27 @@ extension Array where Element == SwiftPatchClosureType {
 
             switch closureType {
             case .swiftPatchLogic(let codeStatements):
-                
-                do {
-                    let patchResult = try await codeStatements
-                        .derivePatchNodes(document: document,
-                                          existingStateVarConnections: result.stateVarConnections,
-                                          existingNodesDict: existingNodesDict,
-                                          viewEvent: nil,
-                                          isStreaming: isStreaming)
-                    result += patchResult
-                } catch let error as SwiftUISyntaxError {
-                    result.caughtErrors.append(error)
-                } catch {
-                    // Handle other errors if needed
-                    log("derivePatchNodes error: \(error.localizedDescription)")
-                }
+                let patchResult = await codeStatements
+                    .derivePatchNodes(document: document,
+                                      existingStateVarConnections: result.stateVarConnections,
+                                      existingNodesDict: existingNodesDict,
+                                      viewEvent: nil,
+                                      isStreaming: isStreaming)
+                result += patchResult
             
             case .viewEvent(let swiftPatchViewEvent):
                 let viewEventData = swiftPatchViewEvent.viewEvent
                 
                 // Get data from closure actions
-                do {
-                    let closureActionsResult = try await swiftPatchViewEvent
-                        .codeStatements
-                        .derivePatchNodes(document: document,
-                                          existingStateVarConnections: result.stateVarConnections,
-                                          existingNodesDict: existingNodesDict,
-                                          viewEvent: viewEventData,
-                                          isStreaming: isStreaming)
-                    
-                    result += closureActionsResult
-                } catch let error as SwiftUISyntaxError {
-                    result.caughtErrors.append(error)
-                } catch {
-                    // Handle other errors if needed
-                    log("derivePatchNodes viewEvent error: \(error.localizedDescription)")
-                }
+                let closureActionsResult = await swiftPatchViewEvent
+                    .codeStatements
+                    .derivePatchNodes(document: document,
+                                      existingStateVarConnections: result.stateVarConnections,
+                                      existingNodesDict: existingNodesDict,
+                                      viewEvent: viewEventData,
+                                      isStreaming: isStreaming)
+                
+                result += closureActionsResult
             }
         }
         
