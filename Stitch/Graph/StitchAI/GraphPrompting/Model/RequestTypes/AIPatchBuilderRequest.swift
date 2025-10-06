@@ -192,8 +192,6 @@ extension SwiftSyntaxActionsResult {
         let lastStreamedLayers = graphEntity.orderedSidebarLayers
             .lastLeafLayers
         
-        print("createAIGraph last streamed layers: \(lastStreamedLayers)")
-        
         // Reuse IDs from existing graph when possible--this allows us to reuse IDs during streaming
         graphEntity = currentGraphEntity
             .mergeWithStreamedGraph(graphEntity,
