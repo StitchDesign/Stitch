@@ -1240,10 +1240,10 @@ extension Array where Element == SidebarLayerData {
     var lastLeafLayers: Set<UUID> {
         guard let last = self.last else { return .init() }
         
-        let allChildrenOfLast = last.children?.flattenedItems
-            .map(\.id) ?? .init()
+        var allNestedLeafs: Set<UUID> = last.children?
+            .lastLeafLayers ?? .init()
         
-        let allIds = [last.id] + allChildrenOfLast
-        return Set(allIds)
+        allNestedLeafs.insert(last.id)
+        return allNestedLeafs
     }
 }
