@@ -604,9 +604,6 @@ extension GraphEntity {
             } else {
                 // New node — append as-is
                 newNodesMap[streamed.id] = streamed
-                
-                // Track same ID--needed for copy logic
-//                changedNodeIds.updateValue(streamed.id, forKey: streamed.id)
             }
         }
 
@@ -624,14 +621,6 @@ extension GraphEntity {
             }
         }
         
-        // Update changed node IDs to include existing nodes not yet tracked by streamed nodes
-//        existingNodesMap.keys.forEach { nodeId in
-//            // Existing node is saved as a value because that's what we're changing to
-//            if !changedNodeIds.values.contains(nodeId) {
-//                changedNodeIds.updateValue(nodeId, forKey: nodeId)
-//            }
-//        }
-        
         // Creates map used specifically for copy data functions
         // This ensures `createCopy` will use a real ID instead of nil for some parent groups
         let copyNodesIdMap = merged.nodes.reduce(into: changedNodeIds) { result, node in
@@ -642,11 +631,8 @@ extension GraphEntity {
         }
         
         merged.nodes = Array(resultMap.values)
-        
-        //
 
         // Update all node references within the graph to use the new IDs
-        //        merged = merged.replaceNodeIdReference(idMap: changedNodeIds)
         merged.nodes = merged.nodes.createCopy(mappableData: copyNodesIdMap,
                                                copiedNodeIds: Set(copyNodesIdMap.keys))
 
@@ -951,12 +937,7 @@ extension SidebarLayerList {
                     fatalErrorIfDebug()
                     return inProgressItem
                 }
-                
-                // Skip if existing nodes not tracked--this means we've already considered this node
-//                guard existingNodeIds.contains(changedNodeId) else {
-//                    return nil
-//                }
-                
+
                 // Existing node becomes accounted for, remove so we don't dupe
                 existingNodeIds.remove(existingData.id)
                 
@@ -973,9 +954,7 @@ extension SidebarLayerList {
                            existingNodeIds: &existingNodeIds)
             }
             
-            else {
-                //                visitedNodeIds.insert(inProgressItem.id)
-                
+            else {                
                 // Merge children data but don't add unused existing data at lower hierarchies
                 inProgressItem.children = inProgressItem.children?
                     .merge(with: [],
@@ -1015,61 +994,4 @@ extension SidebarLayerList {
         // Append existing data after in progress parsing
         return inProgressData + unusedExistingData
     }
-    
-    
-//    /// BFS search with potentially incomplete streamed data. BFS ensures groups are made so that children can be added to existing data.
-//    mutating private func merge(with inProgressData: Self,
-//                                changedNodeIds: [UUID: UUID],
-//                                existingNodeIds: Set<UUID>,
-//                                parentLayerId: UUID? = nil,
-//                                visitedNodeIds: inout Set<UUID>) {
-//        var queue = self
-//        var finalList = Self()
-//        
-//        while let inProgressItem = queue.popFirst() {
-//            guard let changedNodeId = changedNodeIds.get(inProgressItem.id) else {
-//                fatalErrorIfDebug("We should have an id")
-//                continue
-//            }
-//            
-//            if visitedNodeIds.contains(changedNodeId) {
-//                // Remove from here if already visited--valid situation if we already added nested data that used this layer
-//                let _  = self.remove(at: index)
-//                continue
-//            }
-//            
-//            visitedNodeIds.insert(changedNodeId)
-//            
-//            // Change ID
-//            let inProgressItem = SidebarLayerData(id: changedNodeId,
-//                                                  children: inProgressItem.children,
-//                                                  isExpandedInSidebar: inProgressItem.isExpandedInSidebar)
-//            
-//            // Continue if already accounted for (sometimes changedNodeId isn't changed)
-//            if !existingNodeIds.contains(changedNodeId) {
-////                // Remove item and all of its children if already existing in sidebar
-////                self.removeSidebarLayerData(changedNodeId)
-//                                
-//                // If parent is existing node, add in-place using existing index
-//                self.insertSidebarLayerData(inProgressItem,
-//                                            parentId: parentLayerId,
-//                                            index: index)
-//                
-//                #if DEBUG
-//                let list = self.flattenedItems.map(\.id)
-//                let set = Set(list)
-//                assertInDebug(list.count == set.count)
-//                #endif
-//            }
-//            
-//            // Now recursively BFS--do not skip this step!
-//            if let children = inProgressItem.children {
-//                self.merge(with: children,
-//                           changedNodeIds: changedNodeIds,
-//                           existingNodeIds: existingNodeIds,
-//                           parentLayerId: changedNodeId,
-//                           visitedNodeIds: &visitedNodeIds)
-//            }
-//        }
-//    }
 }
