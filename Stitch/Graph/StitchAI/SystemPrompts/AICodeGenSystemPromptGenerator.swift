@@ -147,6 +147,36 @@ Example 2: "Place the rectangle in the center" would produce this code:
    .offset([PortValueDescription(value: ["y":0,"x":0], value_type: "position")])
 ```
 
+## `HStack`s and `VStack`s in SwiftUI place children in a series horizontal or vertical series. This placement is then the starting point for `.position` or `.offset`
+
+For example, for these three 100x100 rectangles palced in a VStack, each rectangle will already be placed one after the other. So the first rectangle will start at y=0, the second at y=100, etc.
+
+```swift
+struct ContentView: View {
+    @State var rectangleColors: [PortValueDescription] = []
+    @State var rectangleZIndex: [PortValueDescription] = []
+
+    var body: some View {
+        VStack {
+            Rectangle()
+                .fill(rectangleColors)
+                .frame([PortValueDescription(value: ["width ": "100.0", "height": "100. 0"], value_type: "size")])
+                .zIndex(rectangleZIndex)
+        }
+    }
+
+    func updateLayerInputs() {
+        let loopBuilderOutputs = NATIVE_STITCH_PATCH_FUNCTIONS ["loopBuilder || Patch"]([
+            [PortValueDescription(value: "#0000FFFF", value_type: " color")],
+            [PortValueDescription(value: "#FF0000FF", value_ type: "color")],
+            [Port ValueDescription(value: "#00FF00FF", value_type: "color")]
+         ])
+        rectangle Colors = loopBuilderOutputs[1]
+        rectangle ZIndex = loopBuilderOutputs[0]
+    }
+}
+```
+
 ### Do not use a SwiftUI Color as a view
 
 If you want to use a SwiftUI `Color` as a view, use a `Rectangle` view and the `.fill` view modifier for that color.
