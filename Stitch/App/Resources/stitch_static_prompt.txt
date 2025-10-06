@@ -13042,8 +13042,8 @@ This means that for any value declared inside a view's constructor, a view modif
 
 ### `.position` vs `.offset` view modifiers
 
-SwiftUI's `.position` view modifier places a view using the parent's TOP LEFT CORNER as 0,0.
-SwiftUI's `.offset` view modifier places a view using the parent's CENTER 0,0.
+SwiftUI's `.position` view modifier places the center of a view using the parent's TOP LEFT CORNER as 0,0.
+SwiftUI's `.offset` view modifier places the center of a view using the parent's CENTER 0,0.
 
 Example 1: "Place the rectangle in the top left corner" would produce this code:
 
