@@ -1235,12 +1235,15 @@ extension SyntaxViewModifierArgumentType {
     }
 }
 
-extension Array where Element == AIGraphData_V0.LayerData {
-    var lastLeafLayer: UUID? {
-        guard let last = self.last else { return nil }
+extension Array where Element == SidebarLayerData {
+    /// Returns IDs of the last element + all nested data under that last element. Used for determining possibly incomplete streamed data during an AI request.
+    var lastLeafLayers: Set<UUID> {
+        guard let last = self.last else { return .init() }
         
-        guard let lastChildren = last.children else { return UUID(last.node_id) }
+        var allNestedLeafs: Set<UUID> = last.children?
+            .lastLeafLayers ?? .init()
         
-        return lastChildren.lastLeafLayer
+        allNestedLeafs.insert(last.id)
+        return allNestedLeafs
     }
 }
