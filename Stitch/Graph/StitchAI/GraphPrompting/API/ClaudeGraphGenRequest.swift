@@ -625,31 +625,40 @@ extension GraphEntity {
         }
         
         // Update changed node IDs to include existing nodes not yet tracked by streamed nodes
+//        existingNodesMap.keys.forEach { nodeId in
+//            // Existing node is saved as a value because that's what we're changing to
+//            if !changedNodeIds.values.contains(nodeId) {
+//                changedNodeIds.updateValue(nodeId, forKey: nodeId)
+//            }
+//        }
+        
+        // Creates map used specifically for copy data functions
         // This ensures `createCopy` will use a real ID instead of nil for some parent groups
-        existingNodesMap.keys.forEach { nodeId in
-            // Existing node is saved as a value because that's what we're changing to
-            if !changedNodeIds.values.contains(nodeId) {
-                changedNodeIds.updateValue(nodeId, forKey: nodeId)
+        let copyNodesIdMap = merged.nodes.reduce(into: changedNodeIds) { result, node in
+            // Skip if already tracked
+            if !claimedExistingIds.contains(node.id) {
+                result.updateValue(node.id, forKey: node.id)
             }
         }
         
-        
         merged.nodes = Array(resultMap.values)
+        
+        //
 
         // Update all node references within the graph to use the new IDs
         //        merged = merged.replaceNodeIdReference(idMap: changedNodeIds)
-        merged.nodes = merged.nodes.createCopy(mappableData: changedNodeIds,
-                                               copiedNodeIds: Set(changedNodeIds.keys))
+        merged.nodes = merged.nodes.createCopy(mappableData: copyNodesIdMap,
+                                               copiedNodeIds: Set(copyNodesIdMap.keys))
 
         if isFullStreamComplete {
             // Use exact streamed data except for some IDs
             merged.orderedSidebarLayers = inProgressGraph.orderedSidebarLayers
-                .createCopy(mappableData: changedNodeIds)
+                .createCopy(mappableData: copyNodesIdMap)
         } else {
             // Iterate through in-progress sidebar data to ensure each entry is accounted for in our existing set. If not, we need to update our sidebar data.
             merged.orderedSidebarLayers = inProgressGraph.orderedSidebarLayers
                 .merge(with: self.orderedSidebarLayers,
-                       changedNodeIds: changedNodeIds)
+                       changedNodeIds: changedNodeIds)  // only use specifically the changed node ids
         }
         // let currentLog = self.nodes.reduce(into: "mergeWithStreamedGraph: current nodes:") { stringBuilder, node in
         //     stringBuilder += "\n\(node.id):\tkind: \(node.kind)\tlayer group: \(node.layerNodeEntity?.layerGroupId?.uuidString ?? "nil")"
@@ -944,12 +953,12 @@ extension SidebarLayerList {
                 }
                 
                 // Skip if existing nodes not tracked--this means we've already considered this node
-                guard existingNodeIds.contains(changedNodeId) else {
-                    return nil
-                }
+//                guard existingNodeIds.contains(changedNodeId) else {
+//                    return nil
+//                }
                 
                 // Existing node becomes accounted for, remove so we don't dupe
-                existingNodeIds.remove(changedNodeId)
+                existingNodeIds.remove(existingData.id)
                 
                 // Change ID
                 inProgressItem = .init(id: changedNodeId,
@@ -981,6 +990,12 @@ extension SidebarLayerList {
         // Append any unused existing data
         let unusedExistingData = existingData.compactMap { existingItem -> SidebarLayerData? in
             guard existingNodeIds.contains(existingItem.id) else {
+                return nil
+            }
+            
+            // Skip existing nodes that inProgressData had planned to already remove
+            let replacedByInProgressData = changedNodeIds.values.contains(existingItem.id)
+            if replacedByInProgressData {
                 return nil
             }
             
