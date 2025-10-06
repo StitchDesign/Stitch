@@ -306,9 +306,13 @@ extension AIGraphData_V0.PortValue {
 
 extension AIGraphData_V0.LayerData {
     func createSidebarLayerData() -> SidebarLayerData {
+        // Ensure groups always have children
+        let isLayerGroup = self.node_name.value.layer?.canHaveChildren ?? false
+        let defaultChildren: [SidebarLayerData]? = isLayerGroup ? [] : nil
+        
         let children = self.children?.map {
             $0.createSidebarLayerData()
-        }
+        } ?? defaultChildren
 
         assertInDebug(UUID(self.node_id) != nil)
 
