@@ -55,7 +55,6 @@ extension PatchNodeDefinition {
 }
 
 extension Layer {
-    @MainActor
     var inputDefinitions: LayerInputPortSet {
         self.layerGraphNode.inputDefinitions
     }

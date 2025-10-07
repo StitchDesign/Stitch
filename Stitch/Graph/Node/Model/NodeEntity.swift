@@ -195,6 +195,54 @@ extension NodeTypeEntity {
             return nil
         }
     }
+    
+    func mergeInputDataOnAIStream(with other: Self) -> Self {
+        switch (self, other) {
+        case (.patch(let lhs), .patch(let rhs)) where lhs.patch == rhs.patch:
+            var newPatch = rhs
+            
+            let defaultValuesList = lhs.patch.createDefaultIOValues(nodeIO: .input,
+                                                                nodeType: lhs.userVisibleType)
+            
+            newPatch.inputs = zip(lhs.inputs, rhs.inputs).enumerated().map { (index, data) -> NodePortInputEntity in
+                let defaultValues = defaultValuesList[safe: index] ?? [.number(.zero)]
+                let (lhsInput, rhsInput) = data
+                
+                // Use other data if not default
+                if rhsInput.portData.values != defaultValues {
+                    return rhsInput
+                } else {
+                    return lhsInput
+                }
+            }
+            
+            return .patch(newPatch)
+        
+        case (.layer(let lhs), .layer(let rhs)) where lhs.layer == rhs.layer:
+            var newLayer = rhs
+            
+            for layerInput in lhs.layer.inputDefinitions {
+                let defaultValue = layerInput.getDefaultValue(for: lhs.layer)
+                let rhsValues = rhs[keyPath: layerInput.schemaPortKeyPath].packedData.inputPort.values
+                
+                // Default to rhs data if not default
+                if rhsValues?.first != defaultValue {
+//                    log("mergeInputDataOnAIStream: layer \(lhs.layer)\t\(layerInput):\t\(rhsValues?.first?.display ?? "none")")
+                    
+                    continue
+                }
+                
+                // If still default data, a sign that not all data has yet merged, so use self
+                newLayer[keyPath: layerInput.schemaPortKeyPath] = lhs[keyPath: layerInput.schemaPortKeyPath]
+            }
+            
+            return .layer(newLayer)
+            
+        default:
+            fatalErrorIfDebug()
+            return self
+        }
+    }
 }
 
 extension [NodeEntity] {
