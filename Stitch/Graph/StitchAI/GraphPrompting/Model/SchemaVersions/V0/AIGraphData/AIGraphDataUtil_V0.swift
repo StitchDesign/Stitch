@@ -40,7 +40,7 @@ extension AIGraphData_V0.GraphData {
         }
         
         // Maps upstream patch output coordinate to some new created @State var name
-        var viewStatePatchConnections: [String : [NodeIOCoordinate]] = [:]
+        var viewStatePatchConnections: [String : [NodeConnectionType]] = [:]
         
         // Maps interactions to layers, used to determine gestures to create
         // Key = Patch, Value = Layer
@@ -128,7 +128,7 @@ extension Array where Element == AIGraphData_V0.SidebarLayerData {
     func createAIData(nodesDict: [UUID : AIGraphData_V0.NodeEntity],
                       patchToLayerAssignmentMap: [UUID : UUID],
                       upstreamConnectionToInteraction: inout [NodeIOCoordinate : NodeIOCoordinate],
-                      viewStatePatchConnections: inout [String : [NodeIOCoordinate]]) throws -> [AIGraphData_V0.LayerData] {
+                      viewStatePatchConnections: inout [String : [NodeConnectionType]]) throws -> [AIGraphData_V0.LayerData] {
         try self.map { sidebarData in
             try .init(from: sidebarData,
                       nodesDict: nodesDict,
@@ -152,7 +152,7 @@ extension AIGraphData_V0.LayerData {
          nodesDict: [UUID : AIGraphData_V0.NodeEntity],
          patchToLayerAssignmentMap: [UUID : UUID],
          upstreamConnectionToInteraction: inout [NodeIOCoordinate : NodeIOCoordinate],
-         viewStatePatchConnections: inout [String : [NodeIOCoordinate]]) throws {
+         viewStatePatchConnections: inout [String : [NodeConnectionType]]) throws {
         guard let node = nodesDict.get(sidebarData.id),
               let layerData = node.layerNodeEntity else {
             throw AICodeGenError.nodeDataNotFound
@@ -210,7 +210,7 @@ extension AIGraphData_V0.LayerData {
                     
                     // Update state dict
                     viewStatePatchConnections
-                        .updateValue(upstream,
+                        .updateValue(.upstreamConnection(upstream),
                                      forKey: stateVarName)
                     
                     // Track interaction data
@@ -257,7 +257,7 @@ extension AIGraphData_V0.LayerData {
                         
                         // Update state dict
                         viewStatePatchConnections
-                            .updateValue(upstream,
+                            .updateValue(.upstreamConnection(upstream),
                                          forKey: stateVarName)
                     }
                 }
@@ -309,7 +309,7 @@ extension AIGraphData_V0.LayerData {
                             return
                         }
                         
-                        if viewStateUpstreamCoordinate == interactionOutputCoordinate {
+                        if viewStateUpstreamCoordinate.upstreamConnection == interactionOutputCoordinate {
                             // Update key
                             result.removeValue(forKey: oldKey)
                             result.updateValue(viewStateUpstreamCoordinate,

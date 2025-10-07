@@ -84,7 +84,7 @@ extension SyntaxViewEvent {
                                                 nodeId: self.unpackPositionNodeId)
             
             // Most downstream reference used for node ID
-            gestureReceiverEvent = .stateWrite(varName, unpackOutput)
+            gestureReceiverEvent = .stateWrite(varName, .upstreamConnection(unpackOutput))
         }
         
         let connection = PortEdgeData(
@@ -142,7 +142,7 @@ extension SyntaxViewEvent {
                     ]
                     
                     if let varName = varName {
-                        let gestureReceiverEvent = PatchSyntaxResultType.stateWrite(varName, patchOutput)
+                        let gestureReceiverEvent = PatchSyntaxResultType.stateWrite(varName, .upstreamConnection(patchOutput))
                         results.append(gestureReceiverEvent)
                     }
                     
@@ -183,7 +183,7 @@ extension SyntaxViewEvent {
                                                nodeId: self.interactionPatchNodeId)
             
             if let varName = varName {
-                gestureReceiverEvent = .stateWrite(varName, pressOutput)
+                gestureReceiverEvent = .stateWrite(varName, .upstreamConnection(pressOutput))
             }
             
             // Assume 0 until we handle cases with position
