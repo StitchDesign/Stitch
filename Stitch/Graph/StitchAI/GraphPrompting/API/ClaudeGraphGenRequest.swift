@@ -510,7 +510,7 @@ extension GraphEntity {
         }
         
         if !useCurrent {
-            newNodesMap[streamed.id] = streamed
+            newNodesMap[current.id] = streamed
             claimedExistingIds.insert(current.id)
         }
     }
@@ -638,6 +638,8 @@ extension GraphEntity {
         // Creates map used specifically for copy data functions
         // This ensures `createCopy` will use a real ID instead of nil for some parent groups
         let copyNodesIdMap = merged.nodes.reduce(into: changedNodeIds) { result, node in
+            // TODO: here??
+            
             // Skip if already tracked
             if !claimedExistingIds.contains(node.id) {
                 result.updateValue(node.id, forKey: node.id)
