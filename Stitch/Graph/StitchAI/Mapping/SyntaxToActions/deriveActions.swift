@@ -404,12 +404,11 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
             } else {
                 // Return upstream connection
                 let nodeId = deterministicUUID(from: ref)
-                
-                // If this fails--a node wasn't made that should have been created
+
                 if !isStreaming {
                     assertInDebug(nodesDict.keys.contains(nodeId))
                 }
-                
+
                 return [
                     .portData(.upstreamConnection(.init(portId: portIndex,
                                                         nodeId: nodeId)))

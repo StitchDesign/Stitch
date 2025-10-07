@@ -542,11 +542,11 @@ Should instead leverage an Option Picker patch node to update state upon pulse f
                 [PortValueDescription(value: 0.85, value_type: "number")]
             ])
 
-        // Animation updates the 
+        // Animation updates the
         let classicAnimationOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["classicAnimation || Patch"]([
                 optionPickerOutputs[0],
                 [PortValueDescription(value: 0.15, value_type: "number")],
-                [PortValueDescription(value: "linear", value_type: "animationCurve")]
+                [PortValueDescription(value: "quadraticOut", value_type: "animationCurve")]
             ])
         
         callScale = classicAnimationOutputs[0]
@@ -764,6 +764,21 @@ Example payloads for each `PortValue` by its type are provided below. Strictly a
         .createSchema()
         .encodeToPrintableString()
 )
+```
+
+### Valid Animation Curve Values
+
+The `animationCurve` value type accepts the following values:
+- `linear`
+- `quadraticIn`, `quadraticOut`, `quadraticInOut`
+- `sinusoidalIn`, `sinusoidalOut`, `sinusoidalInOut`
+- `exponentialIn`, `exponentialOut`, `exponentialInOut`
+
+**Important:** Do NOT use SwiftUI animation curve names like `easeIn`, `easeOut`, `easeInOut`. These are not valid in Stitch.
+
+Example usage:
+```swift
+[PortValueDescription(value: "quadraticOut", value_type: "animationCurve")]
 ```
 
 ### Examples of Looped Views Using Native Patches

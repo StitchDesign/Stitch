@@ -148,7 +148,10 @@ extension MappingExamples {
         PreprocessingCodeExamples.mixedMultipleViews,
         PreprocessingCodeExamples.phoneKeypadExample,
         PreprocessingCodeExamples.complexNestedExample,
-        
+
+        // Classic Animation Bug Test - Issue #7505
+        ClassicAnimationCodeExamples.phoneKeypadWithButtonAnimations,
+
         //        // // NOT YET SUPPORTED:
         //        RotationModifierCodeExamples.rotationEffectAnchor,
         //        RotationModifierCodeExamples.rotationEffectRadians,
