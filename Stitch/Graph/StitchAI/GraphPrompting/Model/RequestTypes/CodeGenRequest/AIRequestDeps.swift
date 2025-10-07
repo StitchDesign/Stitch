@@ -174,10 +174,94 @@ extension StitchAICodeCreator {
                         isStreaming: Bool) async throws -> SwiftSyntaxActionsResult {
 
         log("SUCCESS: userPrompt: \(userPrompt)")
-        
-        let swiftUICode = try await self
-            .createCode(document: document,
-                        aiManager: aiManager)
+
+        // TEMPORARY: Hardcoded test code from GitHub issue #7505
+        let swiftUICode = """
+struct ContentView: View {
+    @State var button1Scale: [PortValueDescription] = []
+    @State var button1Pulse: [PortValueDescription] = []
+    @State var button2Scale: [PortValueDescription] = []
+    @State var button2Pulse: [PortValueDescription] = []
+    @State var button3Scale: [PortValueDescription] = []
+    @State var button3Pulse: [PortValueDescription] = []
+
+    var body: some View {
+        VStack {
+            ZStack {
+                Ellipse()
+                    .fill([PortValueDescription(value: "#D3D3D3FF", value_type: "color")])
+                Text([PortValueDescription(value: "1", value_type: "string")])
+            }
+            .scaleEffect(button1Scale)
+            .simultaneousGesture(.onTapGesture {
+                button1Pulse = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
+            })
+
+            ZStack {
+                Ellipse()
+                    .fill([PortValueDescription(value: "#D3D3D3FF", value_type: "color")])
+                Text([PortValueDescription(value: "2", value_type: "string")])
+            }
+            .scaleEffect(button2Scale)
+            .simultaneousGesture(.onTapGesture {
+                button2Pulse = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
+            })
+
+            ZStack {
+                Ellipse()
+                    .fill([PortValueDescription(value: "#D3D3D3FF", value_type: "color")])
+                Text([PortValueDescription(value: "3", value_type: "string")])
+            }
+            .scaleEffect(button3Scale)
+            .simultaneousGesture(.onTapGesture {
+                button3Pulse = [PortValueDescription(value: STITCH_GRAPH_TIME, value_type: "pulse")]
+            })
+        }
+    }
+
+    func updateLayerInputs() {
+        let button1Animation = NATIVE_STITCH_PATCH_FUNCTIONS["classicAnimation || Patch"]([
+            button1Pulse,
+            [PortValueDescription(value: 0.1, value_type: "number")],
+            [PortValueDescription(value: "quadraticOut", value_type: "animationCurve")]
+        ])
+        let button1OptionPicker = NATIVE_STITCH_PATCH_FUNCTIONS["optionPicker || Patch"]([
+            button1Animation[0],
+            [PortValueDescription(value: 1.0, value_type: "number")],
+            [PortValueDescription(value: 0.9, value_type: "number")]
+        ])
+        button1Scale = button1OptionPicker[0]
+
+        let button2Animation = NATIVE_STITCH_PATCH_FUNCTIONS["classicAnimation || Patch"]([
+            button2Pulse,
+            [PortValueDescription(value: 0.1, value_type: "number")],
+            [PortValueDescription(value: "quadraticOut", value_type: "animationCurve")]
+        ])
+        let button2OptionPicker = NATIVE_STITCH_PATCH_FUNCTIONS["optionPicker || Patch"]([
+            button2Animation[0],
+            [PortValueDescription(value: 1.0, value_type: "number")],
+            [PortValueDescription(value: 0.9, value_type: "number")]
+        ])
+        button2Scale = button2OptionPicker[0]
+
+        let button3Animation = NATIVE_STITCH_PATCH_FUNCTIONS["classicAnimation || Patch"]([
+            button3Pulse,
+            [PortValueDescription(value: 0.1, value_type: "number")],
+            [PortValueDescription(value: "quadraticOut", value_type: "animationCurve")]
+        ])
+        let button3OptionPicker = NATIVE_STITCH_PATCH_FUNCTIONS["optionPicker || Patch"]([
+            button3Animation[0],
+            [PortValueDescription(value: 1.0, value_type: "number")],
+            [PortValueDescription(value: 0.9, value_type: "number")]
+        ])
+        button3Scale = button3OptionPicker[0]
+    }
+}
+"""
+
+        // let swiftUICode = try await self
+        //     .createCode(document: document,
+        //                 aiManager: aiManager)
 
         log("userPrompt: \(userPrompt)") // Very helpful to see user-prompt here again
         log("StitchAICodeCreator swiftUICode:\n\(swiftUICode)")

@@ -229,7 +229,7 @@ struct ContentView: View {
   let button1Animation = NATIVE_STITCH_PATCH_FUNCTIONS["classicAnimation || Patch"]([
    button1Pulse,
    [PortValueDescription(value: 0.1, value_type: "number")],
-   [PortValueDescription(value: "easeOut", value_type: "animationCurve")]
+   [PortValueDescription(value: "quadraticOut", value_type: "animationCurve")]
   ])
   let button1OptionPicker = NATIVE_STITCH_PATCH_FUNCTIONS["optionPicker || Patch"]([
    button1Animation[0],
@@ -241,7 +241,7 @@ struct ContentView: View {
   let button2Animation = NATIVE_STITCH_PATCH_FUNCTIONS["classicAnimation || Patch"]([
    button2Pulse,
    [PortValueDescription(value: 0.1, value_type: "number")],
-   [PortValueDescription(value: "easeOut", value_type: "animationCurve")]
+   [PortValueDescription(value: "quadraticOut", value_type: "animationCurve")]
   ])
   let button2OptionPicker = NATIVE_STITCH_PATCH_FUNCTIONS["optionPicker || Patch"]([
    button2Animation[0],
@@ -253,7 +253,7 @@ struct ContentView: View {
   let button3Animation = NATIVE_STITCH_PATCH_FUNCTIONS["classicAnimation || Patch"]([
    button3Pulse,
    [PortValueDescription(value: 0.1, value_type: "number")],
-   [PortValueDescription(value: "easeOut", value_type: "animationCurve")]
+   [PortValueDescription(value: "quadraticOut", value_type: "animationCurve")]
   ])
   let button3OptionPicker = NATIVE_STITCH_PATCH_FUNCTIONS["optionPicker || Patch"]([
    button3Animation[0],
