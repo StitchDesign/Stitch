@@ -403,14 +403,11 @@ extension Dictionary where Key == String, Value == SwiftPatchCodeType {
                 }
             } else {
                 // Return upstream connection
-                // Note: The referenced node may not exist yet (e.g., @State var assigned by view events,
-                // or forward references). We create the connection anyway; validation happens later.
                 let nodeId = deterministicUUID(from: ref)
 
-                // Commented out: This assertion is too strict for legitimate cases like view event state vars
-                // if !isStreaming {
-                //     assertInDebug(nodesDict.keys.contains(nodeId))
-                // }
+                if !isStreaming {
+                    assertInDebug(nodesDict.keys.contains(nodeId))
+                }
 
                 return [
                     .portData(.upstreamConnection(.init(portId: portIndex,
