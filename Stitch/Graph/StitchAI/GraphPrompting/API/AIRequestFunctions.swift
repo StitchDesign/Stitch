@@ -48,7 +48,7 @@ func makeAIRequest(
     document: StitchDocumentViewModel,
     aiManager: StitchAIManager,
     currentGraphEntity: GraphEntity,
-    viewPortCenter: CGPoint,
+    graphPositionAnchorPoint: CGPoint,
     groupNodeFocused: UUID?
 ) async throws -> String {
     switch model {
@@ -71,7 +71,7 @@ func makeAIRequest(
                 model: claudeModel,
                 document: document,
                 currentGraphEntity: currentGraphEntity,
-                viewPortCenter: viewPortCenter,
+                graphPositionAnchorPoint: graphPositionAnchorPoint,
                 groupNodeFocused: groupNodeFocused
             )
     }

@@ -47,7 +47,7 @@ final actor ClaudeStreamingActor {
         model: ClaudeModel,
         document: StitchDocumentViewModel,
         currentGraphEntity: GraphEntity,
-        viewPortCenter: CGPoint,
+        graphPositionAnchorPoint: CGPoint,
         groupNodeFocused: UUID?
     ) async throws -> String {
         var currentGraphEntity = currentGraphEntity
@@ -320,7 +320,7 @@ final actor ClaudeStreamingActor {
                             let result = stitchActionsResult
                                 .createAIGraph(from: currentGraphEntity,
                                                docId: currentGraphEntity.id,
-                                               viewPortCenter: viewPortCenter,
+                                               graphPositionAnchorPoint: graphPositionAnchorPoint,
                                                groupNodeFocused: groupNodeFocused,
                                                isStreaming: true)
                             

@@ -270,6 +270,7 @@ struct StitchAITrainingDataInspectionOverlay: View {
                     actionsResult
                         .applyAIGraph(to: document,
                                       currentGraphEntity: document.graph.createSchema(),
+                                      graphPositionAnchorPoint: document.viewPortCenter,
                                       isStreaming: false)
                 }
                 

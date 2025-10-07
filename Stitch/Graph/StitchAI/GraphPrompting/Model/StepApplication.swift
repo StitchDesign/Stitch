@@ -70,7 +70,7 @@ extension StitchDocumentViewModel {
         // Only adjust node positions if actions were valid and successfully applied
 //        positionAIGeneratedNodes(convertedActions: convertedActions,
 //                                 nodes: self.visibleGraph.visibleNodesViewModel,
-//                                 viewPortCenter: self.newCanvasItemInsertionLocation,
+//                                 graphPositionAnchorPoint: self.newCanvasItemInsertionLocation,
 //                                 graph: graph)
         
         self.graphUpdaterId = .randomId() // NOT NEEDED, ACTUALLY?
@@ -341,7 +341,7 @@ extension Array where Element == NodeEntity {
         }.map { $0.node }
     }
 
-    func positionAIGeneratedNodesDuringApply(viewPortCenter: CGPoint) -> Self {
+    func positionAIGeneratedNodesDuringApply(graphPositionAnchorPoint: CGPoint) -> Self {
 
         // Performance instrumentation - start timing
         let startTime = CFAbsoluteTimeGetCurrent()
@@ -443,8 +443,8 @@ extension Array where Element == NodeEntity {
 
                 // Pre-calculated position for this node
                 let basePosition = CGPoint(
-                    x: viewPortCenter.x + centeringOffset + layout.cumulativeXOffset,
-                    y: viewPortCenter.y + CGFloat(rowIndex) * layout.rowHeight
+                    x: graphPositionAnchorPoint.x + centeringOffset + layout.cumulativeXOffset,
+                    y: graphPositionAnchorPoint.y + CGFloat(rowIndex) * layout.rowHeight
                 )
 
                 // Store base position for use in barycenter calculation for children

@@ -435,6 +435,7 @@ struct ASTExplorerView: View {
                 stitchActionsResult
                     .processAIGraph(document: fakeDoc,
                                     currentGraphEntity: fakeDoc.graph.createSchema(),
+                                    graphPositionAnchorPoint: fakeDoc.viewPortCenter,
                                     isStreaming: false)
     
                 stitchActions = stitchActionsResult
