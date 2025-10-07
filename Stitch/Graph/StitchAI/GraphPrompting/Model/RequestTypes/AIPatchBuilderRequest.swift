@@ -100,10 +100,12 @@ extension SwiftSyntaxActionsResult {
     @MainActor
     func applyAIGraph(to document: StitchDocumentViewModel,
                       currentGraphEntity: GraphEntity,
+                      graphPositionAnchorPoint: CGPoint,
                       isStreaming: Bool) {
         // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
         self.processAIGraph(document: document,
                             currentGraphEntity: currentGraphEntity,
+                            graphPositionAnchorPoint: graphPositionAnchorPoint,
                             isStreaming: isStreaming)
         document.encodeProjectInBackground()
     }
@@ -111,12 +113,13 @@ extension SwiftSyntaxActionsResult {
     @MainActor
     func processAIGraph(document: StitchDocumentViewModel,
                         currentGraphEntity: GraphEntity,
+                        graphPositionAnchorPoint: CGPoint,
                         isStreaming: Bool) {
 
         let processLogic = {
             let result = self.createAIGraph(from: currentGraphEntity,
                                             docId: document.graph.id.value,
-                                            viewPortCenter: document.viewPortCenter,
+                                            graphPositionAnchorPoint: graphPositionAnchorPoint,
                                             groupNodeFocused: document.groupNodeFocused?.groupNodeId,
                                             isStreaming: isStreaming)
             
@@ -144,7 +147,7 @@ extension SwiftSyntaxActionsResult {
     
     func createAIGraph(from currentGraphEntity: GraphEntity,
                        docId: UUID,
-                       viewPortCenter: CGPoint,
+                       graphPositionAnchorPoint: CGPoint,
                        groupNodeFocused: UUID?,
                        isStreaming: Bool) -> StitchAIGraphEntityResult {
         var viewStatePatchConnections = self.graphData.viewStatePatchConnections
@@ -200,8 +203,9 @@ extension SwiftSyntaxActionsResult {
         
         // Can't build the depth map from the `patch_data`,
         // since those UUIDs have not been remapped yet
-        let repositionedNodes = graphEntity.nodes.positionAIGeneratedNodesDuringApply(
-            viewPortCenter: viewPortCenter)
+        let repositionedNodes = graphEntity.nodes
+            .positionAIGeneratedNodesDuringApply(
+                graphPositionAnchorPoint: graphPositionAnchorPoint)
         graphEntity.nodes = repositionedNodes
         
         // TODO: come back to sidebar selection

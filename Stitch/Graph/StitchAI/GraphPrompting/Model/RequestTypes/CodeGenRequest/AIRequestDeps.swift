@@ -95,7 +95,7 @@ struct AIRequestDeps: StitchAICodeCreator {
             document: document,
             aiManager: aiManager,
             currentGraphEntity: document.graph.createSchema(),
-            viewPortCenter: document.viewPortCenter,
+            graphPositionAnchorPoint: document.viewPortCenter,
             groupNodeFocused: document.groupNodeFocused?.groupNodeId
         )
         
@@ -117,6 +117,7 @@ extension StitchAICodeCreator {
         log("getRequestTask: user prompt: \(userPrompt)")
         
         let request = self
+        let graphPositionAnchorPoint = document.viewPortCenter
         
         return Task(priority: .high) { [weak document] in
             guard let document = document,
@@ -149,6 +150,7 @@ extension StitchAICodeCreator {
                     actionsResult
                         .applyAIGraph(to: document,
                                       currentGraphEntity: newCurrentGraphEntity,
+                                      graphPositionAnchorPoint: graphPositionAnchorPoint,
                                       isStreaming: false)
                     
                     // Note: task clearing and menu hiding are handled by resetStreamingUIState() called by AI providers

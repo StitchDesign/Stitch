@@ -46,6 +46,7 @@ struct StitchAIProjectViewer: View {
                 stitchActionsResult
                     .processAIGraph(document: document,
                                     currentGraphEntity: currentGraphEntity,
+                                    graphPositionAnchorPoint: document.viewPortCenter,
                                     isStreaming: false)
             }
         }
