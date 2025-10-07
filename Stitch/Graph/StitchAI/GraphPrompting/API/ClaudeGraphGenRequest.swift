@@ -509,7 +509,22 @@ extension GraphEntity {
             candidateCurrentLayerNodes.remove(current)
         }
         
-        if !useCurrent {
+        // Merge current data with streamed data
+        if useCurrent {
+            // Merge logic:
+            // 1. Use non-default value over default value
+            // 2. Use streamed data over current
+            let mergedData = current.nodeTypeEntity
+                .mergeInputDataOnAIStream(with: streamed.nodeTypeEntity)
+            
+            var current = current
+            current.nodeTypeEntity = mergedData
+            
+            newNodesMap[current.id] = current
+        }
+        
+        // Use entire streamed data, no merging with current data
+        else {
             newNodesMap[current.id] = streamed
             claimedExistingIds.insert(current.id)
         }
@@ -638,8 +653,6 @@ extension GraphEntity {
         // Creates map used specifically for copy data functions
         // This ensures `createCopy` will use a real ID instead of nil for some parent groups
         let copyNodesIdMap = merged.nodes.reduce(into: changedNodeIds) { result, node in
-            // TODO: here??
-            
             // Skip if already tracked
             if !claimedExistingIds.contains(node.id) {
                 result.updateValue(node.id, forKey: node.id)
