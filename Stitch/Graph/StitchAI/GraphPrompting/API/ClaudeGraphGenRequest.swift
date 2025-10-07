@@ -323,7 +323,16 @@ final actor ClaudeStreamingActor {
                                                viewPortCenter: viewPortCenter,
                                                groupNodeFocused: groupNodeFocused,
                                                isStreaming: true)
-                            
+
+                            // STREAMING DEBUG: Log graph creation details
+                            let newConnectionCount = result.graph.nodes.reduce(0) { count, node in
+                                count + (node.patchNodeEntity?.inputs.filter {
+                                    if case .upstreamConnection = $0.portData { return true }
+                                    return false
+                                }.count ?? 0)
+                            }
+                            log("📊 Streaming update: \(result.graph.nodes.count) nodes, \(newConnectionCount) connections")
+
                             // Track new current graph
                             currentGraphEntity = result.graph
                             
@@ -489,6 +498,28 @@ func monitorClaudeStreamingCachePerformance(usage: ClaudeUsage) async {
 }
 
 extension GraphEntity {
+    /// Helper function to extract all connections from nodes for debugging streaming merges
+    private static func extractAllConnections(_ nodes: [NodeEntity]) -> [(source: UUID, target: UUID, portInfo: String)] {
+        var connections: [(source: UUID, target: UUID, portInfo: String)] = []
+
+        // Extract patch-to-patch connections
+        for node in nodes {
+            if let patchNode = node.patchNodeEntity {
+                for (portIndex, input) in patchNode.inputs.enumerated() {
+                    if case .upstreamConnection(let coord) = input.portData {
+                        connections.append((
+                            source: coord.nodeId,
+                            target: node.id,
+                            portInfo: "patch[\(portIndex)]"
+                        ))
+                    }
+                }
+            }
+        }
+
+        return connections
+    }
+
     /// Merge an in-progress (streamed) graph into the current graph by matching incoming
     /// nodes to existing ones. If IDs match, they are considered the same. Otherwise, we
     /// attempt a heuristic match based on node kind, patch/layer/component specifics,
@@ -607,6 +638,14 @@ extension GraphEntity {
             }
         }
 
+        // STREAMING DEBUG: Log node ID remapping
+        if !changedNodeIds.isEmpty {
+            log("🔄 mergeWithStreamedGraph: \(changedNodeIds.count) node IDs were remapped")
+            for (streamedId, existingId) in changedNodeIds {
+                log("  ID remap: \(streamedId.uuidString.prefix(8)) → \(existingId.uuidString.prefix(8))")
+            }
+        }
+
         // Start from existing map and overlay new/replaced nodes (avoids extra dictionary merges)
         var resultMap: [UUID: NodeEntity]
         
@@ -632,9 +671,59 @@ extension GraphEntity {
         
         merged.nodes = Array(resultMap.values)
 
+        // STREAMING DEBUG: Extract all connections before ID remapping
+        let connectionsBefore = Self.extractAllConnections(merged.nodes)
+        log("📊 BEFORE ID remap: \(connectionsBefore.count) connections")
+        if !connectionsBefore.isEmpty {
+            // Show first few as sample
+            let samples = connectionsBefore.prefix(3).map {
+                "\($0.source.uuidString.prefix(8))→\($0.target.uuidString.prefix(8))[\($0.portInfo)]"
+            }.joined(separator: ", ")
+            log("  Sample: \(samples)")
+        }
+
         // Update all node references within the graph to use the new IDs
         merged.nodes = merged.nodes.createCopy(mappableData: copyNodesIdMap,
                                                copiedNodeIds: Set(copyNodesIdMap.keys))
+
+        // STREAMING DEBUG: Extract all connections after ID remapping
+        let connectionsAfter = Self.extractAllConnections(merged.nodes)
+        log("📊 AFTER ID remap: \(connectionsAfter.count) connections")
+
+        // Check if connections were lost during remapping
+        if connectionsBefore.count != connectionsAfter.count {
+            log("⚠️ Connection count changed: \(connectionsBefore.count) → \(connectionsAfter.count)")
+
+            // Find which connections were lost
+            let lostConnections = connectionsBefore.filter { before in
+                !connectionsAfter.contains { after in
+                    after.source == before.source && after.target == before.target
+                }
+            }
+
+            if !lostConnections.isEmpty {
+                log("  ❌ LOST \(lostConnections.count) connections:")
+                lostConnections.prefix(5).forEach {
+                    log("    \($0.source.uuidString.prefix(8))→\($0.target.uuidString.prefix(8))[\($0.portInfo)]")
+                }
+            }
+
+            // Find which connections were added (shouldn't happen during remap)
+            let addedConnections = connectionsAfter.filter { after in
+                !connectionsBefore.contains { before in
+                    before.source == after.source && before.target == after.target
+                }
+            }
+
+            if !addedConnections.isEmpty {
+                log("  ➕ ADDED \(addedConnections.count) connections:")
+                addedConnections.prefix(5).forEach {
+                    log("    \($0.source.uuidString.prefix(8))→\($0.target.uuidString.prefix(8))[\($0.portInfo)]")
+                }
+            }
+        } else {
+            log("✅ Connection count preserved: \(connectionsAfter.count) connections")
+        }
 
         if isFullStreamComplete {
             // Use exact streamed data except for some IDs

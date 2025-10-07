@@ -818,6 +818,7 @@
 		EC8C1AAD2D7799CA0058D969 /* OutputNodeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C1AAC2D7799CA0058D969 /* OutputNodeRowViewModel.swift */; };
 		EC8C1AAF2D779A090058D969 /* GraphItemType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C1AAE2D779A090058D969 /* GraphItemType.swift */; };
 		EC8C1AB12D779A190058D969 /* NodeRowViewModelId.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C1AB02D779A190058D969 /* NodeRowViewModelId.swift */; };
+		EC8C46A32E959D9600ECF42D /* StreamingDebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C46A22E959D9600ECF42D /* StreamingDebugView.swift */; };
 		EC8C5C112616334B0099C374 /* OptionSwitchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C5C102616334B0099C374 /* OptionSwitchNode.swift */; };
 		EC8C5C152616415F0099C374 /* SoundKitNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C5C142616415F0099C374 /* SoundKitNode.swift */; };
 		EC8C5C2326165C870099C374 /* PulseOnChangeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C5C2226165C870099C374 /* PulseOnChangeNode.swift */; };
@@ -2008,6 +2009,7 @@
 		EC8C1AAC2D7799CA0058D969 /* OutputNodeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputNodeRowViewModel.swift; sourceTree = "<group>"; };
 		EC8C1AAE2D779A090058D969 /* GraphItemType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphItemType.swift; sourceTree = "<group>"; };
 		EC8C1AB02D779A190058D969 /* NodeRowViewModelId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowViewModelId.swift; sourceTree = "<group>"; };
+		EC8C46A22E959D9600ECF42D /* StreamingDebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingDebugView.swift; sourceTree = "<group>"; };
 		EC8C5C102616334B0099C374 /* OptionSwitchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionSwitchNode.swift; sourceTree = "<group>"; };
 		EC8C5C142616415F0099C374 /* SoundKitNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundKitNode.swift; sourceTree = "<group>"; };
 		EC8C5C2226165C870099C374 /* PulseOnChangeNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseOnChangeNode.swift; sourceTree = "<group>"; };
@@ -5559,6 +5561,7 @@
 		ECC08E162E0489BF0058C2FE /* Mapping */ = {
 			isa = PBXGroup;
 			children = (
+				EC8C46A22E959D9600ECF42D /* StreamingDebugView.swift */,
 				ECE963A92E0C5710003420C5 /* ASTExplorerView.swift */,
 				EC035BEB2E385E0C0002E109 /* VPLToCode */,
 				EC035BE82E385DE70002E109 /* CodeToVPL */,
@@ -6243,6 +6246,7 @@
 				ECA347CD2DE2921B00B6A8B8 /* StepAction.swift in Sources */,
 				EC28CC9C287E348A00987792 /* PatchDefaultNodeExtensions.swift in Sources */,
 				ECB1B7B226FB9D7A006D9C95 /* FileUtils.swift in Sources */,
+				EC8C46A32E959D9600ECF42D /* StreamingDebugView.swift in Sources */,
 				B5CEC1A428F8D95700BE083E /* StitchAVCaptureSession.swift in Sources */,
 				EC3420E02AF9C2C700EBD896 /* CommentExpansionBoxUtils.swift in Sources */,
 				ECD039252641F28E003926B4 /* GroupLayerNode.swift in Sources */,

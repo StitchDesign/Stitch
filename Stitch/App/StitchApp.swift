@@ -51,12 +51,22 @@ struct StitchApp: App {
         FirebaseApp.configure()
     }
 
-#if FAKE_FLAG
-//#if DEV_DEBUG
+//#if FAKE_FLAG
+#if DEV_DEBUG
     var body: some Scene {
         WindowGroup {
-             ASTExplorerView()
-            
+            TabView {
+//                ASTExplorerView()
+//                    .tabItem {
+//                        Label("AST Explorer", systemImage: "doc.text.magnifyingglass")
+//                    }
+
+                StreamingDebugView()
+                    .tabItem {
+                        Label("Streaming Debug", systemImage: "network")
+                    }
+            }
+
             // MARK: NOTE: TO REGENERATE THE STATIC SYSTEM PROMPT FILE, A GRAPH-STATE IS REQUIRED. SEE `GraphBaseView` FOR HOW WE USE `regenerateStitchStaticPromptFile`.
         }
     }

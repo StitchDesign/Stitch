@@ -1264,48 +1264,91 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
             }
             
         case .connection(let portEdgeData):
+            // STREAMING DEBUG: Log connection creation attempt
+            if isStreaming {
+                log("🔗 Creating connection: \(portEdgeData.from.nodeId.uuidString.prefix(8))[\(portEdgeData.from.portId?.description ?? "?")] → \(portEdgeData.to.nodeId.uuidString.prefix(8))[\(portEdgeData.to.portId?.description ?? "?")]")
+            }
+
             // Update already created node with an upstream connection
             guard var toNode = self.get(portEdgeData.to.nodeId) else {
+                if isStreaming {
+                    log("  ⚠️ Target node \(portEdgeData.to.nodeId.uuidString.prefix(8)) not found in graph")
+                }
                 if !isStreaming {
                     fatalErrorIfDebug()
                 }
                 return
             }
-            
+
             let updatedPort = NodeConnectionType.upstreamConnection(portEdgeData.from)
-            
+
             switch toNode.nodeTypeEntity {
             case .patch(var patchNode):
                 guard let inputPortIndex = portEdgeData.to.portId,
                       toNode.inputs[safe: inputPortIndex] != nil else {
+                    if isStreaming {
+                        log("  ⚠️ Invalid port index \(portEdgeData.to.portId?.description ?? "nil") for patch node")
+                    }
                     if !isStreaming {
                         fatalErrorIfDebug()
                     }
                     return
                 }
-                
+
                 patchNode.inputs[inputPortIndex].portData = updatedPort
                 toNode.nodeTypeEntity = .patch(patchNode)
-                
+
             case .layer(var layerNode):
                 guard let keyPath = portEdgeData.to.keyPath else {
+                    if isStreaming {
+                        log("  ⚠️ Missing keyPath for layer connection")
+                    }
                     if !isStreaming {
                         fatalErrorIfDebug()
                     }
                     return
                 }
-                
+
                 layerNode.updateInputData(updatedPort, at: keyPath)
                 toNode.nodeTypeEntity = .layer(layerNode)
-                
+
             default:
+                if isStreaming {
+                    log("  ⚠️ Unsupported node type for connection")
+                }
                 if !isStreaming {
                     fatalErrorIfDebug()
                 }
                 return
             }
-            
+
             self.updateValue(toNode, forKey: toNode.id)
+
+            // STREAMING DEBUG: Verify connection was stored
+            if isStreaming {
+                if let verifyNode = self.get(toNode.id) {
+                    let hasConnection: Bool
+                    if let patchNode = verifyNode.patchNodeEntity,
+                       let portIndex = portEdgeData.to.portId {
+                        if case .upstreamConnection = patchNode.inputs[safe: portIndex]?.portData {
+                            hasConnection = true
+                        } else {
+                            hasConnection = false
+                        }
+                    } else {
+                        // For layer nodes, assume success if node exists
+                        hasConnection = verifyNode.layerNodeEntity != nil
+                    }
+
+                    if hasConnection {
+                        log("  ✓ Connection stored successfully")
+                    } else {
+                        log("  ❌ Connection verification failed!")
+                    }
+                } else {
+                    log("  ❌ Node disappeared after update!")
+                }
+            }
         
         case .connectionToLayerInput(let stateName):
             // Get upstream patch data from variable name
