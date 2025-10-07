@@ -76,7 +76,8 @@ extension Array where Element == AIGraphData_V0.LayerData {
                         } catch {
                             if !isStreaming {
                                 // TODO: need to handle errors silently
-                                fatalErrorIfDebug("createLayerNodes error: \(error)")
+//                                fatalErrorIfDebug("createLayerNodes error: \(error)")
+                                log("createLayerNodes error: \(error)")
                             }
                         }
                     }

@@ -606,6 +606,7 @@
 		EC4281182B76A4F300767AAF /* ReframeResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4281172B76A4F300767AAF /* ReframeResponse.swift */; };
 		EC4351122E6FA8650086BB87 /* StaticSystemPromptUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4351112E6FA8650086BB87 /* StaticSystemPromptUtils.swift */; };
 		EC4379F32BA4FAF60077493E /* PortValueEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4379F22BA4FAF60077493E /* PortValueEnum.swift */; };
+		EC44F7FF2E94AE0E006C7805 /* ClassicAnimationCodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC44F7FE2E94AE0E006C7805 /* ClassicAnimationCodeExamples.swift */; };
 		EC46AC0926CEE3820062CB26 /* DeviceMotionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46AC0826CEE3820062CB26 /* DeviceMotionHelpers.swift */; };
 		EC46AC0B26CEE3B80062CB26 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46AC0A26CEE3B80062CB26 /* AppState.swift */; };
 		EC47EB322CDEE2B500995FF5 /* SpringConverterPatches.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC47EB312CDEE2B500995FF5 /* SpringConverterPatches.swift */; };
@@ -1800,6 +1801,7 @@
 		EC4281172B76A4F300767AAF /* ReframeResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReframeResponse.swift; sourceTree = "<group>"; };
 		EC4351112E6FA8650086BB87 /* StaticSystemPromptUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticSystemPromptUtils.swift; sourceTree = "<group>"; };
 		EC4379F22BA4FAF60077493E /* PortValueEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueEnum.swift; sourceTree = "<group>"; };
+		EC44F7FE2E94AE0E006C7805 /* ClassicAnimationCodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationCodeExamples.swift; sourceTree = "<group>"; };
 		EC46AC0826CEE3820062CB26 /* DeviceMotionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceMotionHelpers.swift; sourceTree = "<group>"; };
 		EC46AC0A26CEE3B80062CB26 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		EC47EB312CDEE2B500995FF5 /* SpringConverterPatches.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpringConverterPatches.swift; sourceTree = "<group>"; };
@@ -5212,6 +5214,7 @@
 				EC7062B22E14BFC50017A9F0 /* ScrollViewCodeExamples.swift */,
 				EC34B7FE2E44419F00649A3F /* PreprocessingExamples.swift */,
 				EC5251E02E3B0B2800E1AAC1 /* FontCodeExamples.swift */,
+				EC44F7FE2E94AE0E006C7805 /* ClassicAnimationCodeExamples.swift */,
 				EC7062C22E15E78C0017A9F0 /* VarBodyCodeExamples.swift */,
 				EC97004F2E3C80860049202B /* PortValueDescriptionCodeExamples.swift */,
 				EC7062C42E15E8120017A9F0 /* MultiparameterViewModifierCodeExamples.swift */,
@@ -6148,6 +6151,7 @@
 				ECA92A24260A6A2300281B52 /* LoopNode.swift in Sources */,
 				ECAC6EF72DBC5FE0003D34C4 /* FlyoutHeader.swift in Sources */,
 				B5E5FFAE2749804500C5FE92 /* GroupNodeUtils.swift in Sources */,
+				EC44F7FF2E94AE0E006C7805 /* ClassicAnimationCodeExamples.swift in Sources */,
 				EC08D5552898873C00FEE846 /* MathUtils.swift in Sources */,
 				EC0093E026D6F648000EAE08 /* ProgressNode.swift in Sources */,
 				B57F3A84294A85EC00DFC0AE /* GraphBackgroundGestureView.swift in Sources */,

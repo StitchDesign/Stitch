@@ -30,6 +30,9 @@ extension MappingExamples {
     // TODO: break into separate pieces
     static let codeExamples: [MappingCodeExample] = [
 
+        // Classic Animation Bug Test - Issue #7505
+        ClassicAnimationCodeExamples.phoneKeypadWithButtonAnimations,
+
         // Math expressions in PortValueDescription - TESTING NEW FEATURE
         PortValueDescriptionCodeExamples.rectangleWithDragGestureMathExpressions,
         PortValueDescriptionCodeExamples.ellipseWithStaticMathExpressions,
