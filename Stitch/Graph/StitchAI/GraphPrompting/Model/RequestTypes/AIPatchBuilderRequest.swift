@@ -121,15 +121,14 @@ extension SwiftSyntaxActionsResult {
                                             isStreaming: isStreaming)
             
             // Update topological data--needs to be forced here because of script building using this data
-            document.graph.update(from: result.graph)
-            document.graph.updateGraphData(document)
-            
+            ClaudeStreamingActor
+                .updateGraphData(document: document,
+                                 graphEntity: result.graph,
+                                 isStream: false)
+
             // Report errors
             if !isStreaming {
                 result.errors.displayErrors(document: document)
-                
-                // TODO: debug issues with proper graph eval after a streaming request ends; theoretically a prototype restart should not be necessary
-                document.onPrototypeRestart(document: document)
             }
         }
         
