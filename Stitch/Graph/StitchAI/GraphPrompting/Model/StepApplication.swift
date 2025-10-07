@@ -344,7 +344,7 @@ extension Array where Element == NodeEntity {
     func positionAIGeneratedNodesDuringApply(viewPortCenter: CGPoint) -> Self {
 
         // Performance instrumentation - start timing
-        let startTime = CFAbsoluteTimeGetCurrent()
+//        let startTime = CFAbsoluteTimeGetCurrent()
 
         // Constants
         let horizontalPadding: CGFloat = 120.0

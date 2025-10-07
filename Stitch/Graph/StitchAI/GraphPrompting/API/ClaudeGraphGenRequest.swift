@@ -495,8 +495,7 @@ extension GraphEntity {
                                       isLayerStreamingComplete: Bool,
                                       newNodesMap: inout [UUID: NodeEntity],
                                       candidateCurrentPatchNodes: inout Set<NodeEntity>,
-                                      candidateCurrentLayerNodes: inout Set<NodeEntity>,
-                                      claimedExistingIds: inout Set<UUID>) {
+                                      candidateCurrentLayerNodes: inout Set<NodeEntity>) {
         let streamedNodeMatchesIncompleteLayer = incompleteStreamedLayerIds.contains(streamed.id)
         
         // Only use current data when layer streaming is incomplete and part of last leaf node data
@@ -526,7 +525,6 @@ extension GraphEntity {
         // Use entire streamed data, no merging with current data
         else {
             newNodesMap[current.id] = streamed
-            claimedExistingIds.insert(current.id)
         }
     }
     
@@ -541,10 +539,13 @@ extension GraphEntity {
                                 incompleteStreamedLayerIds: Set<UUID>,
                                 isLayerStreamingComplete: Bool,
                                 isFullStreamComplete: Bool) -> GraphEntity {
-        var merged = self
+        // MARK: if request is complete, we bypass the logic below. If we use merge logic, we could mess up the correct topological ordering, so the only guarantee of that not happening is to use the exact graph AI returns. Unfortunately this means a large perf jump once the request finishes.
+        if isFullStreamComplete {
+            return inProgressGraph
+        }
         
         // Fast lookup of existing nodes by id
-        let existingNodesMap: [UUID: NodeEntity] = merged.nodes.reduce(into: [UUID: NodeEntity]()) { result, node in
+        let existingNodesMap: [UUID: NodeEntity] = self.nodes.reduce(into: [UUID: NodeEntity]()) { result, node in
             result[node.id] = node
         }
         
@@ -569,9 +570,6 @@ extension GraphEntity {
                 result.updateValue(data.0, forKey: data.1.id)
         }
         
-        // Tracks which existing node ids have already been matched to avoid duplicates
-        var claimedExistingIds = Set<UUID>()
-        
         // Tracks new/replaced nodes by id
         var newNodesMap = [UUID: NodeEntity]()
         
@@ -588,8 +586,7 @@ extension GraphEntity {
                                    isLayerStreamingComplete: isLayerStreamingComplete,
                                    newNodesMap: &newNodesMap,
                                    candidateCurrentPatchNodes: &candidateCurrentPatchNodes,
-                                   candidateCurrentLayerNodes: &candidateCurrentLayerNodes,
-                                   claimedExistingIds: &claimedExistingIds)
+                                   candidateCurrentLayerNodes: &candidateCurrentLayerNodes)
                 
                 continue
             }
@@ -600,7 +597,6 @@ extension GraphEntity {
             
             func consider(_ candidates: Set<NodeEntity>) {
                 for candidate in candidates {
-                    if claimedExistingIds.contains(candidate.id) { continue }
                     let score = similarityScore(between: streamed,
                                                 and: candidate,
                                                 aLayerIndexOf: inProgressLayerIndexOf,
@@ -628,38 +624,38 @@ extension GraphEntity {
                                    isLayerStreamingComplete: isLayerStreamingComplete,
                                    newNodesMap: &newNodesMap,
                                    candidateCurrentPatchNodes: &candidateCurrentPatchNodes,
-                                   candidateCurrentLayerNodes: &candidateCurrentLayerNodes,
-                                   claimedExistingIds: &claimedExistingIds)
+                                   candidateCurrentLayerNodes: &candidateCurrentLayerNodes)
             } else {
                 // New node — append as-is
                 newNodesMap[streamed.id] = streamed
             }
         }
+        
+        // Use streamed graph when request is complete
+        var merged = isFullStreamComplete ? inProgressGraph : self
 
-        // Start from existing map and overlay new/replaced nodes (avoids extra dictionary merges)
-        var resultMap: [UUID: NodeEntity]
-        
-        if isFullStreamComplete {
-            // Only use new data
-            resultMap = newNodesMap
-        } else {
-            // Merge existing and new data
-            resultMap = existingNodesMap
-            for (id, node) in newNodesMap {
-                resultMap[id] = node
-            }
-        }
-        
         // Creates map used specifically for copy data functions
         // This ensures `createCopy` will use a real ID instead of nil for some parent groups
         let copyNodesIdMap = merged.nodes.reduce(into: changedNodeIds) { result, node in
-            // Skip if already tracked
-            if !claimedExistingIds.contains(node.id) {
+            // Add node to changedNodeIds if not already covered
+            if !result.keys.contains(node.id) {
                 result.updateValue(node.id, forKey: node.id)
             }
         }
         
-        merged.nodes = Array(resultMap.values)
+        if isFullStreamComplete {
+            // Use node data directly from response once stream has ended
+            // We'll change node IDs later
+            merged.nodes = inProgressGraph.nodes
+        } else {
+            // Merge existing and new data
+            var resultMap = existingNodesMap
+            for (id, node) in newNodesMap {
+                resultMap[id] = node
+            }
+    
+            merged.nodes = Array(resultMap.values)
+        }
 
         // Update all node references within the graph to use the new IDs
         merged.nodes = merged.nodes.createCopy(mappableData: copyNodesIdMap,
