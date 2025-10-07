@@ -495,8 +495,7 @@ extension GraphEntity {
                                       isLayerStreamingComplete: Bool,
                                       newNodesMap: inout [UUID: NodeEntity],
                                       candidateCurrentPatchNodes: inout Set<NodeEntity>,
-                                      candidateCurrentLayerNodes: inout Set<NodeEntity>,
-                                      claimedExistingIds: inout Set<UUID>) {
+                                      candidateCurrentLayerNodes: inout Set<NodeEntity>) {
         let streamedNodeMatchesIncompleteLayer = incompleteStreamedLayerIds.contains(streamed.id)
         
         // Only use current data when layer streaming is incomplete and part of last leaf node data
@@ -526,7 +525,6 @@ extension GraphEntity {
         // Use entire streamed data, no merging with current data
         else {
             newNodesMap[current.id] = streamed
-            claimedExistingIds.insert(current.id)
         }
     }
     
@@ -567,9 +565,6 @@ extension GraphEntity {
                 result.updateValue(data.0, forKey: data.1.id)
         }
         
-        // Tracks which existing node ids have already been matched to avoid duplicates
-        var claimedExistingIds = Set<UUID>()
-        
         // Tracks new/replaced nodes by id
         var newNodesMap = [UUID: NodeEntity]()
         
@@ -586,8 +581,7 @@ extension GraphEntity {
                                    isLayerStreamingComplete: isLayerStreamingComplete,
                                    newNodesMap: &newNodesMap,
                                    candidateCurrentPatchNodes: &candidateCurrentPatchNodes,
-                                   candidateCurrentLayerNodes: &candidateCurrentLayerNodes,
-                                   claimedExistingIds: &claimedExistingIds)
+                                   candidateCurrentLayerNodes: &candidateCurrentLayerNodes)
                 
                 continue
             }
@@ -598,7 +592,6 @@ extension GraphEntity {
             
             func consider(_ candidates: Set<NodeEntity>) {
                 for candidate in candidates {
-                    if claimedExistingIds.contains(candidate.id) { continue }
                     let score = similarityScore(between: streamed,
                                                 and: candidate,
                                                 aLayerIndexOf: inProgressLayerIndexOf,
@@ -626,8 +619,7 @@ extension GraphEntity {
                                    isLayerStreamingComplete: isLayerStreamingComplete,
                                    newNodesMap: &newNodesMap,
                                    candidateCurrentPatchNodes: &candidateCurrentPatchNodes,
-                                   candidateCurrentLayerNodes: &candidateCurrentLayerNodes,
-                                   claimedExistingIds: &claimedExistingIds)
+                                   candidateCurrentLayerNodes: &candidateCurrentLayerNodes)
             } else {
                 // New node — append as-is
                 newNodesMap[streamed.id] = streamed
@@ -640,18 +632,9 @@ extension GraphEntity {
         // Creates map used specifically for copy data functions
         // This ensures `createCopy` will use a real ID instead of nil for some parent groups
         let copyNodesIdMap = merged.nodes.reduce(into: changedNodeIds) { result, node in
-            if isFullStreamComplete {
-                // Add node to changedNodeIds if not already covered
-                if !result.keys.contains(node.id) {
-                    result.updateValue(node.id, forKey: node.id)
-                }
-            }
-            
-            else {
-                // Skip if already tracked
-                if !claimedExistingIds.contains(node.id) {
-                    result.updateValue(node.id, forKey: node.id)
-                }
+            // Add node to changedNodeIds if not already covered
+            if !result.keys.contains(node.id) {
+                result.updateValue(node.id, forKey: node.id)
             }
         }
         
