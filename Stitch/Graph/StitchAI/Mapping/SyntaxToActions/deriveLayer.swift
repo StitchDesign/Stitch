@@ -1057,7 +1057,8 @@ func parseMathExpressionToPatchNodes(
            if case .stateWrite = $0 { return true }
            return false
        }),
-       case .stateWrite(_, let coord) = stateWrite {
+       case .stateWrite(_, let portData) = stateWrite,
+       let coord = portData.upstreamConnection {
         lhsOutput = coord
     }
 

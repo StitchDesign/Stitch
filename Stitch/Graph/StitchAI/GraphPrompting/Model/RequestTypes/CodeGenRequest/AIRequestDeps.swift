@@ -148,7 +148,6 @@ extension StitchAICodeCreator {
                     
                     actionsResult
                         .applyAIGraph(to: document,
-                                      viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
                                       currentGraphEntity: newCurrentGraphEntity,
                                       isStreaming: false)
                     

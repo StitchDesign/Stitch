@@ -33,7 +33,7 @@ private struct LayerWorkItem {
 extension Array where Element == AIGraphData_V0.LayerData {
     func createLayerNodes(layerGroupId: UUID?,
                           nodesDict: inout [UUID: NodeEntity],
-                          stateVarConnections: inout [String: [NodeIOCoordinate]],
+                          stateVarConnections: inout [String: [NodeConnectionType]],
                           isStreaming: Bool) {
         
         // MARK: VERY IMPORTANT: Use iterative approach with queue instead of recursion to avoid blowing up actor's thread-memory (512 KB; vs main thread's 8 MB)
@@ -99,7 +99,6 @@ struct StitchAIGraphEntityResult {
 extension SwiftSyntaxActionsResult {
     @MainActor
     func applyAIGraph(to document: StitchDocumentViewModel,
-                      viewStatePatchConnections: [String : [NodeIOCoordinate]],
                       currentGraphEntity: GraphEntity,
                       isStreaming: Bool) {
         // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data

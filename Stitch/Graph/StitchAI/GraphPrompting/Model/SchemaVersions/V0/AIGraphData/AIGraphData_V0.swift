@@ -16,7 +16,7 @@ enum AIGraphData_V0 {
         let patchNodes: [NodeEntity]
 
         // Maps upstream patch output coordinate to some new created @State var name
-        let viewStatePatchConnections: [String : [NodeIOCoordinate]]
+        let viewStatePatchConnections: [String : [NodeConnectionType]]
     }
     
     struct GraphDataSchema: Encodable {

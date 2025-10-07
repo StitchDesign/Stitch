@@ -269,7 +269,6 @@ struct StitchAITrainingDataInspectionOverlay: View {
                 await MainActor.run {
                     actionsResult
                         .applyAIGraph(to: document,
-                                      viewStatePatchConnections: actionsResult.graphData.viewStatePatchConnections,
                                       currentGraphEntity: document.graph.createSchema(),
                                       isStreaming: false)
                 }

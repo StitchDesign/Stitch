@@ -68,7 +68,7 @@ extension GraphState {
             
             assertInDebug(nodeIndexCoordiantes.count == 1)
             
-            guard let nodeIndexCoordiante = nodeIndexCoordiantes.first else {
+            guard let nodeIndexCoordiante = nodeIndexCoordiantes.first?.upstreamConnection else {
                 return
             }
             result.updateValue(variableName, forKey: nodeIndexCoordiante)
