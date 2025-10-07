@@ -489,6 +489,32 @@ func monitorClaudeStreamingCachePerformance(usage: ClaudeUsage) async {
 }
 
 extension GraphEntity {
+    private static func mergeNodeData(current: NodeEntity,
+                                      streamed: NodeEntity,
+                                      incompleteStreamedLayerIds: Set<UUID>,
+                                      isLayerStreamingComplete: Bool,
+                                      newNodesMap: inout [UUID: NodeEntity],
+                                      candidateCurrentPatchNodes: inout Set<NodeEntity>,
+                                      candidateCurrentLayerNodes: inout Set<NodeEntity>,
+                                      claimedExistingIds: inout Set<UUID>) {
+        let streamedNodeMatchesIncompleteLayer = incompleteStreamedLayerIds.contains(streamed.id)
+        
+        // Only use current data when layer streaming is incomplete and part of last leaf node data
+        let useCurrent = !isLayerStreamingComplete && streamedNodeMatchesIncompleteLayer
+
+        // Remove candidate
+        if current.kind.isPatch {
+            candidateCurrentPatchNodes.remove(current)
+        } else {
+            candidateCurrentLayerNodes.remove(current)
+        }
+        
+        if !useCurrent {
+            newNodesMap[streamed.id] = streamed
+            claimedExistingIds.insert(current.id)
+        }
+    }
+    
     /// Merge an in-progress (streamed) graph into the current graph by matching incoming
     /// nodes to existing ones. If IDs match, they are considered the same. Otherwise, we
     /// attempt a heuristic match based on node kind, patch/layer/component specifics,
@@ -538,33 +564,17 @@ extension GraphEntity {
         // key: streamed id, value: current id (we convert everything to current graph data)
         var changedNodeIds = [UUID: UUID]()
         
-        // Reuse existing node if data incomplete
-        let useStreamedNode = { (current: NodeEntity, streamed: NodeEntity) -> Bool in
-            let streamedNodeMatchesIncompleteLayer = incompleteStreamedLayerIds.contains(streamed.id)
-            
-            // Only use current data when layer streaming is incomplete and part of last leaf node data
-            let useCurrent = !isLayerStreamingComplete && streamedNodeMatchesIncompleteLayer
-
-            // Remove candidate
-            if current.kind.isPatch {
-                candidateCurrentPatchNodes.remove(current)
-            } else {
-                candidateCurrentLayerNodes.remove(current)
-            }
-            
-            return !useCurrent
-        }
-        
         for streamed in inProgressGraph.nodes {
             // 1) Exact id match: replace directly
             if let existing = existingNodesMap[streamed.id] {
-                if useStreamedNode(existing, streamed) {
-                    newNodesMap[streamed.id] = streamed
-                    claimedExistingIds.insert(streamed.id)
-                    
-                    // Track same ID--needed for copy logic
-//                    changedNodeIds.updateValue(streamed.id, forKey: streamed.id)
-                }
+                Self.mergeNodeData(current: existing,
+                                   streamed: streamed,
+                                   incompleteStreamedLayerIds: incompleteStreamedLayerIds,
+                                   isLayerStreamingComplete: isLayerStreamingComplete,
+                                   newNodesMap: &newNodesMap,
+                                   candidateCurrentPatchNodes: &candidateCurrentPatchNodes,
+                                   candidateCurrentLayerNodes: &candidateCurrentLayerNodes,
+                                   claimedExistingIds: &claimedExistingIds)
                 
                 continue
             }
@@ -597,10 +607,14 @@ extension GraphEntity {
                 // We choose to retain IDs already existing rather use the new ID so that update methods can continue to be used.
                 changedNodeIds.updateValue(matchedId, forKey: streamed.id)
                 
-                if useStreamedNode(existing, streamed) {
-                    newNodesMap[matchedId] = streamed
-                    claimedExistingIds.insert(matchedId)
-                }
+                Self.mergeNodeData(current: existing,
+                                   streamed: streamed,
+                                   incompleteStreamedLayerIds: incompleteStreamedLayerIds,
+                                   isLayerStreamingComplete: isLayerStreamingComplete,
+                                   newNodesMap: &newNodesMap,
+                                   candidateCurrentPatchNodes: &candidateCurrentPatchNodes,
+                                   candidateCurrentLayerNodes: &candidateCurrentLayerNodes,
+                                   claimedExistingIds: &claimedExistingIds)
             } else {
                 // New node — append as-is
                 newNodesMap[streamed.id] = streamed
