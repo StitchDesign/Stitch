@@ -539,6 +539,10 @@ extension GraphEntity {
                                 incompleteStreamedLayerIds: Set<UUID>,
                                 isLayerStreamingComplete: Bool,
                                 isFullStreamComplete: Bool) -> GraphEntity {
+        if isFullStreamComplete {
+            return inProgressGraph
+        }
+        
         // Fast lookup of existing nodes by id
         let existingNodesMap: [UUID: NodeEntity] = self.nodes.reduce(into: [UUID: NodeEntity]()) { result, node in
             result[node.id] = node
