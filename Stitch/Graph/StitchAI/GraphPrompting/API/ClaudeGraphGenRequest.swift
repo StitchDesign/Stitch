@@ -541,10 +541,8 @@ extension GraphEntity {
                                 incompleteStreamedLayerIds: Set<UUID>,
                                 isLayerStreamingComplete: Bool,
                                 isFullStreamComplete: Bool) -> GraphEntity {
-        var merged = self
-        
         // Fast lookup of existing nodes by id
-        let existingNodesMap: [UUID: NodeEntity] = merged.nodes.reduce(into: [UUID: NodeEntity]()) { result, node in
+        let existingNodesMap: [UUID: NodeEntity] = self.nodes.reduce(into: [UUID: NodeEntity]()) { result, node in
             result[node.id] = node
         }
         
@@ -635,20 +633,9 @@ extension GraphEntity {
                 newNodesMap[streamed.id] = streamed
             }
         }
-
-        // Start from existing map and overlay new/replaced nodes (avoids extra dictionary merges)
-        var resultMap: [UUID: NodeEntity]
         
-        if isFullStreamComplete {
-            // Only use new data
-            resultMap = newNodesMap
-        } else {
-            // Merge existing and new data
-            resultMap = existingNodesMap
-            for (id, node) in newNodesMap {
-                resultMap[id] = node
-            }
-        }
+        // Use streamed graph when request is complete
+        var merged = isFullStreamComplete ? inProgressGraph : self
         
         // Creates map used specifically for copy data functions
         // This ensures `createCopy` will use a real ID instead of nil for some parent groups
@@ -659,7 +646,19 @@ extension GraphEntity {
             }
         }
         
-        merged.nodes = Array(resultMap.values)
+        if isFullStreamComplete {
+            // Use node data directly from response once stream has ended
+            // We'll change node IDs later
+            merged.nodes = inProgressGraph.nodes
+        } else {
+            // Merge existing and new data
+            var resultMap = existingNodesMap
+            for (id, node) in newNodesMap {
+                resultMap[id] = node
+            }
+    
+            merged.nodes = Array(resultMap.values)
+        }
 
         // Update all node references within the graph to use the new IDs
         merged.nodes = merged.nodes.createCopy(mappableData: copyNodesIdMap,
