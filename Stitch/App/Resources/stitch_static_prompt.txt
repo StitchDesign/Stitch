@@ -13979,6 +13979,21 @@ Example payloads for each `PortValue` by its type are provided below. Strictly a
 }
 ```
 
+### Valid Animation Curve Values
+
+The `animationCurve` value type accepts the following values:
+- `linear`
+- `quadraticIn`, `quadraticOut`, `quadraticInOut`
+- `sinusoidalIn`, `sinusoidalOut`, `sinusoidalInOut`
+- `exponentialIn`, `exponentialOut`, `exponentialInOut`
+
+**Important:** Do NOT use SwiftUI animation curve names like `easeIn`, `easeOut`, `easeInOut`. These are not valid in Stitch.
+
+Example usage:
+```swift
+[PortValueDescription(value: "quadraticOut", value_type: "animationCurve")]
+```
+
 ### Examples of Looped Views Using Native Patches
 
 **Do NOT use `ForEach` views in your SwiftUI view**. Looping is automatically handled by Stitch, making `ForEach` views unnecessary.
