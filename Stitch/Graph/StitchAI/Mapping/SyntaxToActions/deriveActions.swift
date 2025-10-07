@@ -1323,25 +1323,34 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
             // Multiple upstream coordinates means an unpacking scenario
             if upstreamPatchCoordinates.count > 1 {
                 try upstreamPatchCoordinates.enumerated().forEach { index, portData in
+                    var layerInputCoordinate = layerInputCoordinate
+                    guard let unapckedPortType = UnpackedPortType(rawValue: index),
+                          var layerKeyPath = layerInputCoordinate.keyPath else {
+                        if !isStreaming {
+                            fatalErrorIfDebug()
+                        }
+                        return
+                    }
+                    
+                    layerKeyPath.portType = .unpacked(unapckedPortType)
+                    layerInputCoordinate = .init(portType: .keyPath(layerKeyPath),
+                                                 nodeId: layerInputCoordinate.nodeId)
+
                     switch portData {
-                    case .values:
-                        // Unexpected
-                        fatalErrorIfDebug()
+                    case .values(let values):
+                        let event = PatchSyntaxResultType.portValues(
+                            .init(inputCoordinate: layerInputCoordinate,
+                                  values: values)
+                        )
+                        
+                        return try self
+                            .updateWithEventData(event,
+                                                 layerInputCoordinate: layerInputCoordinate,
+                                                 varName: stateName,
+                                                 stateVarConnections: &stateVarConnections,
+                                                 isStreaming: isStreaming)
                         
                     case .upstreamConnection(let upstreamPatchCoordinate):
-                        var layerInputCoordinate = layerInputCoordinate
-                        guard let unapckedPortType = UnpackedPortType(rawValue: index),
-                              var layerKeyPath = layerInputCoordinate.keyPath else {
-                            if !isStreaming {
-                                fatalErrorIfDebug()
-                            }
-                            return
-                        }
-                        
-                        layerKeyPath.portType = .unpacked(unapckedPortType)
-                        layerInputCoordinate = .init(portType: .keyPath(layerKeyPath),
-                                                     nodeId: layerInputCoordinate.nodeId)
-                        
                         // Recursively call with extrapolated upstream patch data
                         let event = PatchSyntaxResultType.connection(
                             .init(from: upstreamPatchCoordinate,
@@ -1358,23 +1367,39 @@ extension Dictionary where Key == UUID, Value == NodeEntity {
             
             // Packed scenario
             else {
-                guard let upstreamPatchCoordinate = upstreamPatchCoordinates.first?
-                    .upstreamConnection else {
+                guard let portData = upstreamPatchCoordinates.first else {
                     if !isStreaming {
                         fatalErrorIfDebug()
                     }
                     return
                 }
                 
-                // Recursively call with extrapolated upstream patch data
-                let event = PatchSyntaxResultType.connection(.init(from: upstreamPatchCoordinate,
-                                                                   to: layerInputCoordinate))
-                return try self
-                    .updateWithEventData(event,
-                                         layerInputCoordinate: layerInputCoordinate,
-                                         varName: stateName,
-                                         stateVarConnections: &stateVarConnections,
-                                         isStreaming: isStreaming)
+                switch portData {
+                case .upstreamConnection(let upstreamPatchCoordinate):
+                    // Recursively call with extrapolated upstream patch data
+                    let event = PatchSyntaxResultType.connection(.init(from: upstreamPatchCoordinate,
+                                                                       to: layerInputCoordinate))
+                    return try self
+                        .updateWithEventData(event,
+                                             layerInputCoordinate: layerInputCoordinate,
+                                             varName: stateName,
+                                             stateVarConnections: &stateVarConnections,
+                                             isStreaming: isStreaming)
+                    
+                case .values(let values):
+                    let event = PatchSyntaxResultType.portValues(
+                        .init(inputCoordinate: layerInputCoordinate,
+                              values: values)
+                    )
+                    
+                    return try self
+                        .updateWithEventData(event,
+                                             layerInputCoordinate: layerInputCoordinate,
+                                             varName: stateName,
+                                             stateVarConnections: &stateVarConnections,
+                                             isStreaming: isStreaming)
+                }
+                
             }
             
         case .portValues(let data):
