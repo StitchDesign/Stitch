@@ -16,9 +16,11 @@ struct JSONObjectNode: PatchNodeDefinition {
     static let defaultUserVisibleType: UserVisibleType? = .number
     
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
-        .init(inputs: [
+        let effectiveType = type ?? Self.defaultUserVisibleType ?? .number
+
+        return .init(inputs: [
             .init(label: "Key", staticType: .string),
-            .init(label: "Value", defaultType: .number)
+            .init(label: "Value", defaultType: effectiveType)
         ],
               outputs: [
                 .init(label: "Object",

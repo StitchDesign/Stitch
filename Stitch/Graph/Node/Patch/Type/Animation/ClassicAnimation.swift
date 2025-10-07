@@ -67,10 +67,12 @@ struct ClassicAnimationNode: PatchNodeDefinition {
     static let defaultUserVisibleType: UserVisibleType? = Self._defaultUserVisibleType
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
-        .init(
+        let effectiveType = type ?? Self._defaultUserVisibleType
+
+        return .init(
             inputs: [
                 .init(
-                    defaultValues: [defaultNumber],
+                    defaultValues: [effectiveType.defaultPortValue],
                     label: "Value"
                 ),
                 .init(
@@ -87,7 +89,7 @@ struct ClassicAnimationNode: PatchNodeDefinition {
             outputs: [
                 .init(
                     label: "",
-                    type: type ?? .number
+                    type: effectiveType
                 )
             ]
         )

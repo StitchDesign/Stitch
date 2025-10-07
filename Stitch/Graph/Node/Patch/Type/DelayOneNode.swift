@@ -13,14 +13,16 @@ struct DelayOneNode: PatchNodeDefinition {
     static let defaultUserVisibleType: UserVisibleType = .number
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
-        .init(
+        let effectiveType = type ?? Self.defaultUserVisibleType
+
+        return .init(
             inputs: [
-                .init(defaultType: .number,
+                .init(defaultType: effectiveType,
                      canDirectlyCopyUpstreamValues: true)
             ],
             outputs: [
                 .init(
-                    type: .number
+                    type: effectiveType
                 )
             ]
         )
