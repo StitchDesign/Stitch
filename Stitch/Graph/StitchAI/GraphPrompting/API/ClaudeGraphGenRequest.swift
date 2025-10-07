@@ -539,6 +539,7 @@ extension GraphEntity {
                                 incompleteStreamedLayerIds: Set<UUID>,
                                 isLayerStreamingComplete: Bool,
                                 isFullStreamComplete: Bool) -> GraphEntity {
+        // MARK: if request is complete, we bypass the logic below. If we use merge logic, we could mess up the correct topological ordering, so the only guarantee of that not happening is to use the exact graph AI returns. Unfortunately this means a large perf jump once the request finishes.
         if isFullStreamComplete {
             return inProgressGraph
         }
