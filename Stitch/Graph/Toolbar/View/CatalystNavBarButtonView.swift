@@ -19,6 +19,7 @@ struct CatalystNavBarButtonWithMenu<MenuContentView: View>: View {
             Button(toolTip,
                    systemImage: systemName,
                    action: { })
+            .controlSize(.extraLarge)
         }
         .menuIndicator(.hidden)
     }
@@ -51,6 +52,7 @@ struct CatalystNavBarButton: View {
                action: action)
         .rotation3DEffect(Angle(degrees: rotationZ),
                           axis: (x: 0, y: 0, z: rotationZ))
+        .controlSize(.extraLarge)
     }
 }
 
