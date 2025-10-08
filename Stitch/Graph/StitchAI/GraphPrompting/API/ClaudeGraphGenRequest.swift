@@ -24,14 +24,25 @@ final actor ClaudeStreamingActor {
             // Perform actual update on main actor
             await MainActor.run { [weak document] in
                 guard let document = document else { return }
-                document.graph.update(from: mergedGraphEntity,
-                                      fromAIStream: true)
-                document.graph.updateGraphData(document)
+                Self.updateGraphData(document: document,
+                                     graphEntity: mergedGraphEntity,
+                                     isStream: true)
             }
 
             // Clear task when done
             await self?.clearTask()
         }
+    }
+    
+    @MainActor static func updateGraphData(document: StitchDocumentViewModel,
+                                           graphEntity: GraphEntity,
+                                           isStream: Bool) {
+        document.graph.update(from: graphEntity,
+                              fromAIStream: isStream)
+        document.graph.updateGraphData(document)
+        
+        // TODO: debug issues with proper graph eval after a streaming request ends; theoretically a prototype restart should not be necessary
+        document.onPrototypeRestart(document: document)
     }
 
     /// Clear the task when completed (actor-isolated)
