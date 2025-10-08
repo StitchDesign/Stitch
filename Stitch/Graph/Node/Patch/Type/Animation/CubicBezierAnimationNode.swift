@@ -17,37 +17,44 @@ struct CubicBezierAnimationNode: PatchNodeDefinition {
     static let defaultUserVisibleType: UserVisibleType? = .number
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
-        .init(
+        let effectiveType: UserVisibleType = type ?? Self.defaultUserVisibleType ?? .number
+
+        return .init(
             inputs: [
                 .init(
-                    defaultValues: [.number(0)],
+                    defaultValues: [effectiveType.defaultPortValue],
                     label: "Value"
                 ),
                 .init(
                     defaultValues: [.number(1)],
-                    label: "Duration"
+                    label: "Duration",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.number(0.17)],
-                    label: "1st Control Point X"
+                    label: "1st Control Point X",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.number(0.17)],
-                    label: "1st Control Point Y"
+                    label: "1st Control Point Y",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.number(0)],
-                    label: "2nd Control Point X"
+                    label: "2nd Control Point X",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.number(1)],
-                    label: "2nd Control Point y"
+                    label: "2nd Control Point y",
+                    isTypeStatic: true
                 )
             ],
             outputs: [
                 .init(
                     label: "",
-                    type: .number
+                    type: effectiveType
                 ),
                 .init(
                     label: "Path",

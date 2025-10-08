@@ -16,9 +16,11 @@ struct JSONArrayNode: PatchNodeDefinition {
     static let defaultUserVisibleType: UserVisibleType? = .number
     
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
-        .init(inputs: [
-            .init(label: "", defaultType: .number),
-            .init(label: "", defaultType: .number)
+        let effectiveType = type ?? Self.defaultUserVisibleType ?? .number
+
+        return .init(inputs: [
+            .init(label: "", defaultType: effectiveType),
+            .init(label: "", defaultType: effectiveType)
         ],
               outputs: [
                 .init(label: "Array",

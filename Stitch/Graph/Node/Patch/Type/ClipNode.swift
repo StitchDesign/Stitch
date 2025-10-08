@@ -16,25 +16,27 @@ struct ClipPatchNode: PatchNodeDefinition {
     static let defaultUserVisibleType: UserVisibleType? = .number
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
-        .init(
+        let effectiveType = type ?? Self.defaultUserVisibleType ?? .number
+
+        return .init(
             inputs: [
                 .init(
-                    defaultValues: [.number(0)],
+                    defaultValues: [effectiveType.defaultPortValue],
                     label: "Value"
                 ),
                 .init(
-                    defaultValues: [.number(-5)],
+                    defaultValues: [effectiveType.defaultPortValue],
                     label: "Min"
                 ),
                 .init(
-                    defaultValues: [.number(5)],
+                    defaultValues: [effectiveType.defaultPortValue],
                     label: "Max"
                 )
             ],
             outputs: [
                 .init(
                     label: "",
-                    type: type ?? .number
+                    type: effectiveType
                 )
             ]
         )
