@@ -116,6 +116,10 @@ The Layer Inspector displays inputs for\na selected layer from the layer sidebar
                                            font: stitchFont(.LAYER_INSPECTOR_TITLE_FONT_SIZE))
                                 .textCase(nil)
                                 .bold()
+                        #if targetEnvironment(macCatalyst)
+                                .padding(.top, PREVIEW_WINDOW_Y_PADDING - 12)
+                        #endif
+                        
                 ) {
                     EmptyView() // no rows here
                 }
