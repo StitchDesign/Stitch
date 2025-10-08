@@ -72,6 +72,8 @@ struct ContentView: View, KeyboardReadable {
 #if !targetEnvironment(macCatalyst)
                 .ignoresSafeArea(edges: showFullScreen.isTrue ? [.all] : [.bottom])
                 .ignoresSafeArea([.keyboard])
+#else
+                .ignoresSafeArea()
 #endif
         }
         
