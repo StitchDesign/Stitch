@@ -62,7 +62,7 @@ struct AIRequestDeps: StitchAICodeCreator {
         
         let validatedVerbosity = switch model {
         case .openAI(let openAIModel):
-            OpenAIModelConstraints.validateVerbosity(for: openAIModel, requestedVerbosity: document.openaiVerbosity)
+            document.openaiVerbosity.asOpenAIVerbosity
         case .claude:
             OpenAIVerbosity.medium // Claude doesn't use verbosity but we need to pass something
         }

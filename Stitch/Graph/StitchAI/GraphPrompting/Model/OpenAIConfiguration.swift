@@ -11,6 +11,7 @@ enum OpenAIModel: String, CaseIterable, Identifiable {
     case gpt5 = "gpt-5-2025-08-07"
     case gpt5Mini = "gpt-5-mini-2025-08-07"
     case gpt5Nano = "gpt-5-nano-2025-08-07"
+    case gpt5Codex = "gpt-5-codex"
     
     var id: String { rawValue }
     
@@ -22,6 +23,8 @@ enum OpenAIModel: String, CaseIterable, Identifiable {
             return "GPT-5 Mini"
         case .gpt5Nano:
             return "GPT-5 Nano"
+        case .gpt5Codex:
+            return "GPT-5 Codex"
         }
     }
     
@@ -68,17 +71,6 @@ enum OpenAIReasoningEffort: String, CaseIterable, Identifiable {
     }
     
     static var `default`: OpenAIReasoningEffort { .medium }
-}
-
-// Model-specific parameter validation
-struct OpenAIModelConstraints {
-    static func validateVerbosity(for model: OpenAIModel, requestedVerbosity: String) -> OpenAIVerbosity {
-        switch model {
-        case .gpt5, .gpt5Mini, .gpt5Nano:
-            // GPT-5 family supports all verbosity levels
-            return requestedVerbosity.asOpenAIVerbosity
-        }
-    }
 }
 
 
